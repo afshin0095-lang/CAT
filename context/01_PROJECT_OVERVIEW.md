@@ -3547,3 +3547,3565 @@ At the end of a future documentation part, an AI agent must verify:
 ---
 
 *End of Part 1 of `context/01_PROJECT_OVERVIEW.md`. Part 2 continues the CAT executive and engineering overview from this product identity, lifecycle, capability, governance, and maturity foundation.*
+
+---
+
+# Part 2 — Internal Organization of the CAT Platform
+
+> **Part 2 purpose:** explain how the CAT ecosystem is organized internally so that a reader can form a complete conceptual platform model before studying the detailed architecture or technology stack.
+>
+> Part 1 established what CAT is, why it exists, what it does, who it serves, and where it ends. Part 2 explains the internal arrangement that makes those promises coherent: conceptual layers, domain ownership, component relationships, user authority, platform boundaries, AI-first design, and extension contracts.
+
+Part 2 uses the word **platform** in a precise sense. CAT is a platform because it supplies stable internal capabilities and contracts on which multiple commerce workflows, agents, integrations, user types, and future modules can operate. It is not merely a collection of screens, and it is not a single workflow hidden behind one API.
+
+The diagrams in this part are conceptual architecture maps. They define responsibilities and relationships that later architecture documents must implement. They do not silently select a programming language, cloud vendor, database, model provider, or deployment topology.
+
+---
+
+## 15. Part 2 Reading Contract — How to Reason About Internal Organization
+
+### Human Explanation
+
+The most useful mental model for CAT is a set of **cooperating planes** rather than a single vertical stack:
+
+- The **experience plane** lets people express intent, inspect state, and approve consequential actions.
+- The **identity and governance plane** decides who or what may act, under which policy, and with which audit obligations.
+- The **orchestration plane** turns goals and signals into durable, resumable work.
+- The **domain plane** performs Commerce, Affiliate, Content, Marketing, Analytics, Treasury, and administrative work.
+- The **intelligence plane** supplies knowledge, memory, reasoning, learning, and model capabilities.
+- The **foundation plane** carries events, data, files, secrets, observability, and runtime reliability.
+
+A plane is a conceptual responsibility boundary. It may be implemented by modules, services, agents, libraries, or managed infrastructure. A plane may contain several components, but it should not become an excuse for components to bypass ownership and contracts.
+
+A reader should be able to trace any important CAT operation through these questions:
+
+1. Who or what initiated the work?
+2. Which identity and policy authorize it?
+3. Which orchestrator or workflow owns its state?
+4. Which domain owns the business responsibility?
+5. Which intelligence capabilities provide context and reasoning?
+6. Which foundation components persist, communicate, and observe it?
+7. Which human or system receives the result?
+8. Which knowledge, Treasury, and audit records are produced?
+
+### AI Context
+
+For an AI system, internal organization is a routing map. The agent must determine whether a requested change belongs to:
+
+- experience and presentation;
+- identity, policy, or administration;
+- orchestration and automation;
+- a business domain;
+- knowledge and intelligence;
+- a cross-cutting foundation capability; or
+- an external integration or extension.
+
+The agent must not put domain logic into a UI component, put policy into an arbitrary agent prompt, put Treasury rules into a reporting view, or use CATA as a place to hide all behavior. It should route work to the narrowest responsible boundary and load that boundary's context before editing.
+
+### Business Perspective
+
+Internal organization is a business asset. Clear boundaries allow CAT to add new affiliate networks, content channels, enterprise policies, user types, and AI capabilities without rewriting the whole platform. They also make ownership visible: an organization can know which team or role owns a product decision, a financial record, an integration, an agent, or an approval policy.
+
+A platform that cannot explain who owns a capability is difficult to operate, sell, support, or audit. Internal clarity is therefore part of product quality, not only an engineering preference.
+
+### Technical Perspective
+
+The internal model combines four boundary types:
+
+| Boundary type | Question it answers | Typical contract |
+|---|---|---|
+| Responsibility boundary | Who owns the meaning and outcome? | Domain or capability contract |
+| Control boundary | Who may perform or approve it? | Identity, permission, policy, and approval contract |
+| Data boundary | Which information is read or written? | Schema, provenance, classification, and retention contract |
+| Execution boundary | How does work start, pause, resume, fail, and complete? | Workflow, event, task, and idempotency contract |
+
+A component is not well-defined until these boundaries are explicit enough for another component or AI agent to interact with it safely.
+
+### Official Decisions
+
+| ID | Decision | Consequence |
+|---|---|---|
+| P2-ORG-DEC-001 | CAT is organized by responsibilities and contracts, not by a flat list of screens or repositories. | Component placement begins with product ownership and lifecycle responsibility. |
+| P2-ORG-DEC-002 | Higher-level intent and governance may constrain lower-level execution, but lower-level components must not silently redefine higher-level policy. | Policy and ownership flow downward through explicit interfaces. |
+| P2-ORG-DEC-003 | Cross-domain operations require shared identity, correlation, provenance, and outcome records. | Commerce, AI, and Treasury cannot become isolated data silos. |
+| P2-ORG-DEC-004 | Conceptual organization is defined before concrete technology selection. | The tech stack must implement the model rather than define product meaning. |
+
+### Recommendations
+
+- Prefer a single accountable owner per capability, even when many components implement it.
+- Use asynchronous, durable workflows for work that can wait on humans, external systems, or long-running AI tasks.
+- Keep read/query views separate from side-effecting commands when this improves safety and clarity.
+- Make data classification and audit requirements part of component design, not deployment cleanup.
+- Treat every cross-plane call as a contract with explicit failure behavior.
+
+### Experimental Ideas
+
+- A machine-readable platform manifest that lets an AI agent discover planes, domains, owners, permissions, and extension points.
+- An automated dependency reviewer that flags a component when it reaches across a boundary without a declared contract.
+- A visual “system health organism” that maps live events and ownership to the CAT command-center experience.
+
+These concepts are useful design explorations. They are not current runtime requirements.
+
+### Future Ideas
+
+- Region-specific plane deployment for latency, data residency, or market specialization.
+- Federated domain instances coordinated by a global CAT control plane.
+- A shared Omni System platform plane extracted from stable CAT contracts.
+- Tenant-specific policy planes that extend governance while preserving CAT Core behavior.
+
+### Risks
+
+| Risk | Consequence | Control |
+|---|---|---|
+| Conceptual planes are mistaken for deployment services | Premature microservice fragmentation | Keep responsibility maps separate from runtime topology |
+| Components cross boundaries for convenience | Hidden coupling and policy bypass | Require contract and dependency review |
+| CATA becomes a “god component” | Every change becomes hard to test or own | Keep orchestration separate from domain execution |
+| Domain ownership is unclear | Conflicting writes and unresolved incidents | Canonical owner and RACI metadata |
+| AI agents infer structure from folder names | Incorrect implementation placement | Load context and contracts, not only directory listings |
+
+### Anti-patterns
+
+- Designing the platform from the navigation menu outward.
+- Treating every plane as a deployable microservice.
+- Allowing a dashboard to write domain state directly.
+- Letting agents call one another through undocumented private functions.
+- Storing policy only inside prompts or client-side code.
+- Defining a subsystem without an owner, failure mode, or recovery path.
+
+### Best Practices
+
+- Begin every subsystem proposal with purpose, owner, responsibility, inputs, outputs, dependencies, side effects, and recovery.
+- Use diagrams to show control flow, data flow, and knowledge flow separately when one diagram becomes ambiguous.
+- Keep canonical writes close to the domain that owns the meaning of the data.
+- Use events for facts that other components may consume and commands for requested actions.
+- Make human approval and machine authorization visible in the same workflow model.
+
+### Extension Points
+
+- New planes may be introduced only when a responsibility is genuinely cross-cutting and cannot be owned by an existing plane.
+- New domains register ownership, contracts, dependencies, and lifecycle coverage.
+- New infrastructure providers implement foundation interfaces without changing domain meaning.
+- New user types use identity and policy contracts rather than special-case domain code.
+
+### Cross References
+
+- Root architecture philosophy: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Sections 13 and 14.
+- Part 1 lifecycle and capabilities: [Section 5](#5-what-cat-does--the-end-to-end-commerce-lifecycle), [Section 7](#7-cat-capability-map--what-the-product-contains).
+- Detailed architecture target: [`context/04_ARCHITECTURE.md`](./04_ARCHITECTURE.md).
+- Technology boundary target: [`context/03_TECH_STACK.md`](./03_TECH_STACK.md).
+- AI and repository navigation: [`../.ai/ARCHITECTURE_MAP.md`](../.ai/ARCHITECTURE_MAP.md).
+
+### Dependencies
+
+This reading contract depends on stable terminology, domain ownership, identity and policy definitions, workflow state, knowledge provenance, and a maintained decision surface. It is also dependent on the repository continuing to distinguish product context from implementation detail.
+
+### AI Construction Notes
+
+When an AI agent receives a change request, it should first write an internal placement statement:
+
+```text
+Requested capability:
+Primary plane:
+Primary domain:
+Owning component:
+Control boundary:
+Data boundary:
+Execution boundary:
+Downstream consumers:
+```
+
+If two planes or domains appear to own the same meaning, stop and request a boundary decision before implementing.
+
+### AI Memory Anchor
+
+> **CAT is organized by responsibility, control, data, and execution contracts. Find the owner before finding the file.**
+
+### Implementation Checklist
+
+- [x] Internal organization is defined as conceptual planes.
+- [x] Responsibility, control, data, and execution boundaries are distinguished.
+- [x] Official decisions and extension rules are recorded.
+- [x] The placement method is explicit for humans and AI agents.
+- [x] Failure, recovery, and ownership concerns are included.
+- [ ] Concrete plane-to-service mappings are defined in the later Architecture document.
+
+---
+
+## 16. CAT Platform Structure — Internal Planes and Major Subsystems
+
+### Human Explanation
+
+CAT is internally organized into seven cooperating planes. The seven-plane model is intentionally detailed enough for onboarding and intentionally abstract enough to survive changes in technology:
+
+1. **Experience Plane** — human and machine-facing ways to express intent, inspect work, and receive explanations.
+2. **Identity, Governance, and Administration Plane** — identities, roles, permissions, policy, approval, settings, tenants, and administrative control.
+3. **Orchestration and Automation Plane** — task decomposition, scheduling, workflow state, agent coordination, retries, and execution policy.
+4. **Commerce Operations Plane** — market, product, affiliate, content, marketing, publishing, and channel responsibilities.
+5. **Intelligence and Knowledge Plane** — knowledge graph, memory, retrieval, reasoning, model routing, evaluation, and learning.
+6. **Treasury and Measurement Plane** — earnings, budgets, payouts, financial records, analytics, attribution, reporting, and optimization signals.
+7. **Foundation and Integration Plane** — events, persistence, object storage, secrets, external adapters, observability, runtime, and reliability primitives.
+
+Treasury and Measurement is shown as one plane here because economic measurement and operational analytics form the feedback surface of the product. Treasury remains a first-class Trinity pillar and retains ownership of financial meaning; Analytics owns measurement and interpretation within its declared boundaries.
+
+A workflow normally crosses several planes. For example, a campaign launch may begin in the Experience Plane, be authorized in Governance, coordinated in Orchestration, executed by Commerce domains, grounded by Intelligence, measured by Analytics and Treasury, and persisted through Foundation. The planes cooperate without becoming a single undifferentiated application.
+
+### AI Context
+
+A coding agent should use the planes as a first-pass architecture map:
+
+- UI changes usually begin in Experience but must consume governed APIs.
+- Permission changes begin in Identity/Governance and propagate to execution boundaries.
+- Workflow state, retries, and scheduling belong in Orchestration, not in individual domain agents.
+- Product, campaign, content, affiliate, and channel meaning belongs in Commerce domains.
+- Facts, memories, embeddings, prompts, reasoning, and learning belong in Intelligence and Knowledge.
+- Financial facts belong in Treasury; operational measurements belong in Analytics; shared outcomes must be correlated.
+- External service volatility belongs in Integration adapters and must not leak into core domain contracts.
+
+The agent must not use a plane label as a reason to create a new package automatically. First identify the responsibility and its existing contract.
+
+### Business Perspective
+
+The plane model allows CAT to scale in more than one dimension:
+
+- More users and organizations through Identity and Administration.
+- More workflows through Orchestration and Automation.
+- More commerce markets and channels through Commerce domains.
+- Better decisions through Intelligence and Knowledge.
+- More accountable value through Treasury and Analytics.
+- More integrations and reliability through Foundation.
+
+A platform becomes durable when each dimension can evolve without forcing every other dimension to change at the same time.
+
+### Technical Perspective
+
+The planes have different change rates, risk profiles, scaling patterns, and authorities. Experience may change rapidly for usability; Identity and Treasury change conservatively; integrations change when external providers change; Knowledge evolves continuously but must preserve history; Orchestration must remain reliable across all domains.
+
+The model therefore supports:
+
+- explicit interfaces between planes;
+- event-driven facts and command-driven requests;
+- policy enforcement at multiple boundaries;
+- durable workflow state;
+- domain-owned canonical records;
+- read models for different audiences;
+- observability that follows a correlation ID across planes.
+
+### Official Decisions
+
+| ID | Official Decision | Consequence |
+|---|---|---|
+| P2-STRUCT-DEC-001 | CAT uses a seven-plane conceptual organization for platform orientation. | Future components must declare their plane and cross-plane dependencies. |
+| P2-STRUCT-DEC-002 | Experience does not own business truth. | Screens, portals, and avatars request or display governed domain state. |
+| P2-STRUCT-DEC-003 | Orchestration coordinates domain work but does not own every domain rule. | CATA routes and supervises; domain owners define domain meaning. |
+| P2-STRUCT-DEC-004 | Treasury and Analytics are connected feedback responsibilities but retain distinct ownership of financial truth and measurements. | A metric cannot silently become a ledger entry, and a ledger entry cannot be inferred from a chart. |
+| P2-STRUCT-DEC-005 | External integrations are isolated behind adapters. | Provider changes, credentials, retries, and rate limits remain outside core domain meaning. |
+
+### Recommendations
+
+- Use one canonical domain owner per record type.
+- Use a shared correlation ID for any operation crossing three or more planes.
+- Make plane boundaries visible in architecture diagrams and module manifests.
+- Treat the Foundation Plane as a reliability contract, not a dumping ground for arbitrary utilities.
+- Keep user-facing read models optimized for explanation and oversight rather than direct database shape.
+
+### Experimental Ideas
+
+- A “plane inspector” for developers that shows the path of an event, command, approval, and outcome across the platform.
+- A generated architecture map derived from component manifests and event subscriptions.
+- A policy simulation mode that runs a proposed workflow without external side effects.
+
+### Future Ideas
+
+- Independent regional instances of selected planes.
+- A shared enterprise control plane for identity, policy, billing, and audit.
+- Dedicated model-evaluation and agent-simulation planes as AI complexity grows.
+- A federated knowledge plane shared by multiple Omni System products.
+
+### Visual Overview
+
+**Diagram ID:** P2-PLAT-001<br>
+**Diagram Title:** CAT Seven-Plane Platform Structure<br>
+**Purpose:** Show the major conceptual planes and the direction of intent, governance, execution, measurement, and learning.
+
+```mermaid
+flowchart TB
+    Experience[Experience Plane<br/>KATA, command center, portals, APIs for intent]
+    Governance[Identity, Governance & Administration Plane<br/>identity, roles, permissions, policy, approvals, settings]
+    Orchestration[Orchestration & Automation Plane<br/>CATA, workflows, scheduler, task state, retries]
+    Commerce[Commerce Operations Plane<br/>market, affiliate, content, marketing, publishing]
+    Intelligence[Intelligence & Knowledge Plane<br/>knowledge, memory, retrieval, reasoning, learning, models]
+    Measure[Treasury & Measurement Plane<br/>Treasury, Analytics, attribution, reporting, optimization]
+    Foundation[Foundation & Integration Plane<br/>events, storage, secrets, adapters, observability, runtime]
+
+    Experience --> Governance
+    Experience --> Orchestration
+    Governance --> Orchestration
+    Orchestration --> Commerce
+    Orchestration --> Intelligence
+    Orchestration --> Measure
+    Commerce <--> Intelligence
+    Commerce --> Measure
+    Intelligence --> Measure
+    Measure --> Intelligence
+    Governance --> Commerce
+    Governance --> Measure
+    Foundation <--> Experience
+    Foundation <--> Governance
+    Foundation <--> Orchestration
+    Foundation <--> Commerce
+    Foundation <--> Intelligence
+    Foundation <--> Measure
+
+    style Experience fill:#00d4ff,color:#000,stroke:#00d4ff,stroke-width:3px
+    style Governance fill:#f59e0b,color:#000
+    style Orchestration fill:#7c3aed,color:#fff
+    style Commerce fill:#10b981,color:#fff
+    style Intelligence fill:#06b6d4,color:#fff
+    style Measure fill:#f59e0b,color:#000
+    style Foundation fill:#334155,color:#fff
+```
+
+### Mermaid Diagram(s)
+
+**Diagram ID:** P2-PLAT-002<br>
+**Diagram Title:** CAT Intent-to-Outcome Flow<br>
+**Purpose:** Show how a human or external signal becomes governed work, domain activity, measurement, and persistent learning.
+
+```mermaid
+sequenceDiagram
+    participant E as Experience or external signal
+    participant G as Governance
+    participant O as Orchestration
+    participant D as Commerce domain
+    participant I as Intelligence
+    participant M as Analytics/Treasury
+    participant F as Foundation
+
+    E->>G: Intent, event, or request
+    G->>O: Authorized command or policy decision
+    O->>I: Retrieve context and form plan
+    I-->>O: Evidence, recommendation, confidence
+    O->>D: Scoped domain task
+    D->>F: Read/write or external adapter request
+    F-->>D: Result, event, or failure
+    D->>M: Activity and attribution facts
+    M->>I: Outcome and learning signal
+    I->>F: Persist knowledge, memory, and trace
+    O-->>E: Status, explanation, approval request, or result
+```
+
+**Diagram ID:** P2-PLAT-003<br>
+**Diagram Title:** Plane Dependency Direction<br>
+**Purpose:** Distinguish normal dependency direction from prohibited shortcuts.
+
+```mermaid
+graph BT
+    Foundation[Foundation and integrations]
+    Intelligence[Intelligence and knowledge]
+    Commerce[Commerce domains]
+    Orchestration[Orchestration and automation]
+    Governance[Identity and governance]
+    Experience[Experience]
+
+    Experience --> Governance
+    Experience --> Orchestration
+    Governance --> Orchestration
+    Orchestration --> Commerce
+    Orchestration --> Intelligence
+    Commerce --> Foundation
+    Intelligence --> Foundation
+    Governance --> Foundation
+
+    Experience -. prohibited direct business write .-> Foundation
+    Experience -. prohibited direct ledger write .-> Commerce
+```
+
+### Architecture Map
+
+#### Plane Responsibility Matrix
+
+| Plane | Primary owner | Responsibilities | Canonical outputs | Typical failure response |
+|---|---|---|---|---|
+| Experience | Product/UI owner | Translate intent, display state, explain decisions, collect approvals | Commands, queries, approval decisions, views | Degrade to text/API, preserve pending work |
+| Identity/Governance/Admin | Security and platform governance owner | Authenticate, authorize, classify risk, administer tenants and policy | Identity claims, permissions, policies, approval records | Deny safely, alert, preserve audit |
+| Orchestration/Automation | Workflow and agent platform owner | Decompose, schedule, route, pause, retry, resume, cancel | Tasks, workflow state, commands, lifecycle events | Retry, compensate, quarantine, escalate |
+| Commerce Operations | Domain owners | Research, affiliate, content, marketing, publishing, channel work | Products, campaigns, content, links, publications | Isolate failed domain action, retain partial state |
+| Intelligence/Knowledge | AI and knowledge owner | Retrieve, reason, remember, evaluate, learn | Context, recommendations, embeddings, lessons, evaluations | Fall back to known context, mark uncertainty, stop risky action |
+| Treasury/Measurement | Treasury and analytics owners | Measure, attribute, reconcile, budget, report, optimize | Metrics, ledger records, payouts, reports, anomalies | Reconcile, hold financial action, escalate discrepancy |
+| Foundation/Integration | Platform reliability owner | Persist, communicate, store files, manage secrets, observe, adapt external APIs | Events, durable records, traces, connector results | Retry, dead-letter, fail over, protect data integrity |
+
+#### Plane Ownership Rule
+
+The owner of a plane is accountable for its contract and reliability, not for every business outcome that passes through it. For example, the Foundation owner is accountable for event delivery guarantees, while the Commerce owner is accountable for the meaning of a `content_published` event.
+
+### Engineering Subsystem Contract
+
+Every major plane or subsystem must be documented with the following contract fields:
+
+| Field | Required question |
+|---|---|
+| Purpose | Why does this subsystem exist? |
+| Owner | Which human/team owns its meaning and operation? |
+| Responsibilities | Which work is inside its boundary? |
+| Inputs | Which commands, events, data, identities, and policies does it consume? |
+| Outputs | Which records, events, views, decisions, or side effects does it produce? |
+| Dependencies | Which planes, domains, providers, and contracts must be available? |
+| Extension points | How can capability grow without bypassing ownership? |
+| Failure modes | What can fail, and how is partial work represented? |
+| Recovery strategy | How is work retried, resumed, compensated, quarantined, or escalated? |
+| Future evolution | What changes are plausible without changing the subsystem's identity? |
+
+This contract is the minimum information required before a subsystem becomes implementation-ready.
+
+### Major Subsystem Inventory
+
+The following inventory makes the plane model concrete without pretending to choose the final technology stack. These are the major conceptual subsystems that a future implementation must account for.
+
+#### KATA — Human Interaction Boundary
+
+- **Purpose:** Translate human intent into governed CAT requests and translate system state into understandable explanations, status, and approval experiences.
+- **Owner:** Human interaction/product experience owner, with Security and domain owners governing exposed actions.
+- **Responsibilities:** Natural-language and visual interaction; language and accessibility; approval presentation; status and notification; persona/state expression; protection of internal complexity.
+- **Inputs:** Human text/voice/gesture; workflow status; evidence; approval requests; policy explanations; outcomes.
+- **Outputs:** Structured intent; approval decision; correction; query; human-readable response; visual/avatar state.
+- **Dependencies:** Identity; Governance; CATA; read models; notification; UI rendering; Knowledge explanations.
+- **Extension Points:** Languages; modalities; accessibility adapters; supervised command surfaces; enterprise views.
+- **Failure Modes:** Misinterpreted intent; inaccessible state; stale approval view; information leakage; visual overload; unavailable rendering.
+- **Recovery Strategy:** Ask clarifying question; show structured confirmation; fall back to text/API; preserve workflow; deny sensitive details; provide accessible low-motion mode.
+- **Future Evolution:** Multimodal, spatial, voice, and organization-specific supervisory experiences.
+
+#### CATA — Central Coordination Agent
+
+- **Purpose:** Coordinate specialized agents and domains, decompose intent, maintain execution context, and return coherent results.
+- **Owner:** AI orchestration owner.
+- **Responsibilities:** Task planning; agent selection; workflow coordination; context assembly; policy handoff; result aggregation; escalation; correlation and trace propagation.
+- **Inputs:** KATA commands; events; schedules; agent capabilities; Knowledge context; policies; Treasury/Commerce constraints.
+- **Outputs:** Scoped tasks; plans; approval requests; aggregated results; status; coordination events; learning signals.
+- **Dependencies:** Automation; Identity; Governance; Knowledge; agent registry; domain contracts; Foundation.
+- **Extension Points:** New agents; routing strategies; workflow templates; model routes; planning evaluators.
+- **Failure Modes:** Incorrect decomposition; wrong agent; context loss; infinite plan; duplicate task; unauthorized escalation; result aggregation error.
+- **Recovery Strategy:** Validate plan; bound recursion; retry/idempotency; route to fallback; quarantine task; request human clarification; replay from checkpoint.
+- **Future Evolution:** Portfolio orchestration, multi-node coordination, and formally evaluated multi-agent planning.
+
+#### Agent Runtime and Registry
+
+- **Purpose:** Register, discover, initialize, evaluate, execute, pause, degrade, and retire specialized AI agents.
+- **Owner:** Agent platform owner with domain owners for agent roles.
+- **Responsibilities:** Agent manifests; capability discovery; tool binding; lifecycle; health; resource limits; evaluation; version compatibility; permission enforcement.
+- **Inputs:** Agent packages/manifests; tasks; policies; model routes; tools; context; health signals.
+- **Outputs:** Agent state; task results; events; traces; evaluations; capability registry entries; failures.
+- **Dependencies:** Identity; Security; Automation; Knowledge; model providers; Foundation; observability.
+- **Extension Points:** New role agents; skills; evaluators; model adapters; sandbox profiles.
+- **Failure Modes:** Agent crash; tool misuse; incompatible manifest; output contract failure; privilege escalation; resource exhaustion.
+- **Recovery Strategy:** Restart or fail over; revoke tools; quarantine version; retry bounded tasks; route to another approved agent; preserve trace.
+- **Future Evolution:** Agent workforce scheduling, capability negotiation, and federated agent registries.
+
+#### Workflow Engine and Scheduler
+
+- **Purpose:** Persist workflow state and schedule, pause, resume, cancel, retry, compensate, and complete long-running operations.
+- **Owner:** Automation/workflow platform owner.
+- **Responsibilities:** State transitions; deadlines; dependencies; timers; task queues; retries; checkpoints; cancellation; compensation; human wait states.
+- **Inputs:** Commands; events; workflow templates; policy; tasks; schedules; deadlines.
+- **Outputs:** Task assignments; state transitions; timers; approval requests; retries; completion/failure events.
+- **Dependencies:** Foundation persistence/events; Identity; Security; CATA; domain contracts; notification.
+- **Extension Points:** New workflow definitions; scheduling policies; compensation handlers; human gates; simulation mode.
+- **Failure Modes:** Lost checkpoint; deadlock; duplicate execution; timer failure; infinite retry; stale state.
+- **Recovery Strategy:** Durable state; idempotency; dead-letter; replay; manual resume; timeout escalation; compensation.
+- **Future Evolution:** Adaptive scheduling, simulation, priority optimization, and cross-region workflow continuity.
+
+#### Event Bus and Contract Registry
+
+- **Purpose:** Carry versioned commands, facts, lifecycle events, approvals, failures, and knowledge signals between components.
+- **Owner:** Foundation/platform communication owner.
+- **Responsibilities:** Publish/subscribe; ordering guarantees; delivery; retries; backpressure; schema validation; replay; dead-letter; contract discovery.
+- **Inputs:** Domain facts; commands; task events; agent results; approval decisions; telemetry.
+- **Outputs:** Delivered messages; delivery status; consumer offsets; replay streams; contract errors; dead-letter records.
+- **Dependencies:** Foundation persistence; schema registry; Identity/Security; observability; every producer/consumer.
+- **Extension Points:** Topics; event schemas; consumer groups; replay tools; partner/event gateways.
+- **Failure Modes:** Delivery loss; duplicate; out-of-order event; schema mismatch; backlog; consumer poison message; unauthorized subscription.
+- **Recovery Strategy:** At-least-once delivery with idempotent consumers; retry; quarantine; replay; backpressure; permission revocation.
+- **Future Evolution:** Federated event bus, cross-region replication, event marketplace, and governed partner events.
+
+#### Persistence and Domain Data Stores
+
+- **Purpose:** Preserve canonical domain records, workflow state, immutable facts, projections, relationships, and audit-linked data.
+- **Owner:** Data/platform owner together with domain owners for canonical meaning.
+- **Responsibilities:** Durability; consistency; migrations; indexing; access control; retention; backups; recovery; separation of canonical and derived state.
+- **Inputs:** Domain commands; events; projections; configuration; audit facts; reconciliation data.
+- **Outputs:** Records; query results; change events; snapshots; migration status; recovery points.
+- **Dependencies:** Foundation runtime/storage; Identity; Security; domain schemas; backup/restore; observability.
+- **Extension Points:** New domain schemas; read models; partitioning; archival; enterprise data boundaries.
+- **Failure Modes:** Corruption; unavailable store; migration error; constraint violation; stale projection; unauthorized read/write.
+- **Recovery Strategy:** Transactions where required; backup restore; migration rollback; replay events; quarantine corrupt records; fail read/write paths safely.
+- **Future Evolution:** Domain partitioning, replicas, federation, and policy-aware data residency.
+
+#### Object and Asset Storage
+
+- **Purpose:** Store content, media, documents, evidence packages, exports, model artifacts, and other large or versioned objects.
+- **Owner:** Content/platform storage owner with domain ownership of object meaning.
+- **Responsibilities:** Versioning; metadata; access control; integrity; lifecycle; retention; scanning; transformation; link stability.
+- **Inputs:** Generated assets; human uploads; evidence; exports; model artifacts; content versions.
+- **Outputs:** Object IDs; signed/scoped retrieval; metadata; integrity status; lifecycle events.
+- **Dependencies:** Identity; Security; Content; Knowledge; Foundation; external storage provider.
+- **Extension Points:** Media types; transformations; CDN/edge delivery; archive tiers; enterprise retention policies.
+- **Failure Modes:** Corrupt upload; missing object; wrong access scope; malware; version mismatch; lifecycle deletion error.
+- **Recovery Strategy:** Checksums; quarantine; restore version; revoke link; reprocess from source; preserve metadata and audit.
+- **Future Evolution:** Rich multimodal assets, provenance-aware media, regional storage, and content-addressed knowledge.
+
+#### Secret and Credential Management
+
+- **Purpose:** Protect provider credentials, signing keys, tokens, encryption keys, and other sensitive operational material.
+- **Owner:** Security owner with platform operations ownership of integration.
+- **Responsibilities:** Store; rotate; scope; issue short-lived access; audit use; revoke; detect leakage; separate configuration from secrets.
+- **Inputs:** Credential registration; identity; integration requests; rotation policy; incident signals.
+- **Outputs:** Scoped secret material to authorized runtime; rotation events; access audit; revocation status.
+- **Dependencies:** Identity; Security; Administration; runtime; external providers; observability.
+- **Extension Points:** Secret providers; workload identity; enterprise key management; rotation automation.
+- **Failure Modes:** Secret leak; expired credential; unauthorized access; provider mismatch; rotation outage.
+- **Recovery Strategy:** Revoke and rotate; quarantine integration; deny access; preserve forensic events; restore known-good secret binding.
+- **Future Evolution:** Hardware-backed keys, confidential workloads, and policy-driven ephemeral credentials.
+
+#### Observability and Audit
+
+- **Purpose:** Make system behavior, decisions, performance, security events, financial actions, and failures measurable and reconstructable.
+- **Owner:** Platform reliability and governance owners, with each domain accountable for semantic events.
+- **Responsibilities:** Metrics; logs; traces; audit records; alerting; retention; sampling; correlation; dashboards/read models; incident evidence.
+- **Inputs:** Component telemetry; workflow events; approvals; security decisions; domain facts; Treasury records.
+- **Outputs:** Metrics; traces; logs; audit trail; alerts; incident packages; operational views.
+- **Dependencies:** All planes and domains; storage; Identity; Security; time/correlation; notification.
+- **Extension Points:** New signals; SLOs; compliance reports; AI quality metrics; enterprise dashboards; trace visualizations.
+- **Failure Modes:** Missing telemetry; high-cardinality overload; clock skew; retention gap; sensitive data leak; alert fatigue.
+- **Recovery Strategy:** Buffer; sample safely; preserve critical audit; repair collector; replay source events; rotate/limit sensitive fields; escalate blind spots.
+- **Future Evolution:** Predictive operations, AI behavior observability, and cross-product trace federation.
+
+#### Runtime, Network, and Execution Security
+
+- **Purpose:** Provide the protected runtime, network paths, isolation, resource control, and health mechanisms in which CAT components execute.
+- **Owner:** Infrastructure/platform operations owner with Security oversight.
+- **Responsibilities:** Runtime isolation; networking; scaling; health; resource limits; deployment; patching; traffic control; execution policy; disaster recovery.
+- **Inputs:** Deployments; service identities; policies; workload demands; health signals; secrets; configuration.
+- **Outputs:** Running components; network access; health state; scaling events; deployment state; runtime audit.
+- **Dependencies:** Foundation storage/events; Identity; Security; Deployment; observability; external infrastructure.
+- **Extension Points:** New runtimes; regions; schedulers; network policies; sandbox profiles; deployment targets.
+- **Failure Modes:** Resource exhaustion; network partition; compromised workload; bad deployment; secret exposure; region outage.
+- **Recovery Strategy:** Roll back; isolate; reschedule; fail over; restore; rotate credentials; invoke incident and disaster recovery procedures.
+- **Future Evolution:** Multi-region runtime, confidential computing, agent sandboxes, and workload-aware placement.
+
+### Major Subsystem Relationship Table
+
+| Subsystem | Primary plane | Canonical responsibility | Main dependents |
+|---|---|---|---|
+| KATA | Experience | Human intent, explanation, approval surface | Humans, CATA, read models |
+| CATA | Orchestration/Intelligence | Coordination and plan routing | Agents, workflows, domains |
+| Agent Runtime/Registry | Orchestration/Intelligence | Agent lifecycle and capabilities | CATA, domain agents, Security |
+| Workflow Engine/Scheduler | Automation | Durable task and state lifecycle | All long-running workflows |
+| Event Bus/Contract Registry | Foundation | Message semantics and delivery | All cross-component communication |
+| Persistence/Data Stores | Foundation | Durable canonical and derived state | All domains and workflows |
+| Object Storage | Foundation/Commerce | Versioned large assets and evidence | Content, Knowledge, exports |
+| Secret Management | Foundation/Security | Credential and key protection | Integrations, runtime, agents |
+| Observability/Audit | Foundation/Governance | Evidence of behavior and health | All planes and operators |
+| Runtime/Network | Foundation/Security | Execution and isolation | All deployed components |
+
+### Cross References
+
+- Six-layer runtime components: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Sections 13.3–13.4.
+- KATA/CATA and cognitive core details: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Sections 13.6–13.8.
+- Event-driven and infrastructure details: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Sections 13.9–13.12.
+- Future architecture specification: [`context/04_ARCHITECTURE.md`](./04_ARCHITECTURE.md).
+- Deployment and operations: [`context/16_DEPLOYMENT.md`](./16_DEPLOYMENT.md).
+
+### Dependencies
+
+The seven planes depend on a common vocabulary and on stable contracts for identity, tasks, workflows, domain records, events, knowledge, financial facts, audit, and external integrations. The Foundation Plane is a dependency for reliability, but it must not become the owner of domain semantics.
+
+### Failure Modes and Recovery Strategy
+
+| Failure mode | Detection | Recovery |
+|---|---|---|
+| Experience unavailable | Health check, client error, API still active | Preserve workflow state; notify through alternate channel |
+| Governance unavailable | Policy timeout or identity failure | Fail closed for high-impact actions; queue low-risk reads |
+| Orchestration unavailable | Queue depth, heartbeat failure | Durable task state, failover, resume from last checkpoint |
+| Domain subsystem unavailable | Agent/service health, connector error | Mark domain degraded; retry or route to fallback |
+| Knowledge retrieval unavailable | Retrieval timeout or stale index | Use bounded fallback context; do not fabricate certainty |
+| Treasury/measurement delay | Reconciliation lag or data discrepancy | Mark pending; hold irreversible financial actions |
+| Foundation failure | Event loss, storage errors, secret access failure | Retry with idempotency, dead-letter, incident escalation |
+
+### Risks
+
+| Risk | Consequence | Control |
+|---|---|---|
+| Plane diagrams become rigid architecture | Design cannot adapt to technology | Label them conceptual and maintain detailed architecture separately |
+| Plane ownership conflicts with domain ownership | Incidents and changes have no clear accountable party | Use capability and record ownership matrices |
+| Foundation becomes a hidden monolith | All features depend on an unreviewable layer | Keep interfaces narrow and observability explicit |
+| Governance is treated as optional middleware | Security and approval can be bypassed | Enforce authorization at command and side-effect boundaries |
+| Measurement is detached from execution | Learning and Treasury lose causal context | Use correlation and provenance from workflow start |
+
+### Anti-patterns
+
+- “Everything depends on the database, so the database is the architecture.”
+- “CATA owns Commerce, Treasury, policy, content, and every business rule.”
+- “The UI can call whichever service is convenient.”
+- “A failed external request is just a log message.”
+- “A plane is complete because it has a folder.”
+
+### Best Practices
+
+- Review each component against the subsystem contract table.
+- Use a separate diagram for dependency direction, event flow, and user interaction when needed.
+- Keep source-of-truth ownership explicit for every mutable record.
+- Model partial completion and degraded operation as normal states.
+- Make recovery behavior part of acceptance criteria.
+
+### Extension Points
+
+- New planes only through architectural decision.
+- New plane capabilities through registered contracts.
+- New providers through adapters and compatibility tests.
+- New read models through governed query surfaces.
+- New execution paths through orchestration, authorization, and audit.
+
+### AI Construction Notes
+
+The agent should reject a design note that describes a subsystem only by its technology. “A FastAPI service” is not a subsystem definition. The agent must ask what the service owns, what it guarantees, what records it changes, how it fails, and who is accountable.
+
+### AI Memory Anchor
+
+> **Experience asks, Governance authorizes, Orchestration coordinates, Domains act, Intelligence informs, Treasury measures, and Foundation preserves.**
+
+### Implementation Checklist
+
+- [x] Seven conceptual planes are defined.
+- [x] Plane relationships are visualized with diagrams carrying IDs, titles, and purposes.
+- [x] Plane owners, responsibilities, outputs, and failure responses are mapped.
+- [x] Major cross-cutting subsystems are individually contracted.
+- [x] A reusable subsystem contract is defined.
+- [x] Six-layer root architecture compatibility is explicitly addressed.
+- [ ] Plane-to-runtime component mapping is completed in the later Architecture document.
+
+### Dependencies
+
+The seven planes depend on a common vocabulary and on stable contracts for identity, tasks, workflows, domain records, events, knowledge, financial facts, audit, and external integrations. The Foundation Plane is a dependency for reliability, but it must not become the owner of domain semantics.
+
+### Failure Modes and Recovery Strategy
+
+| Failure mode | Detection | Recovery |
+|---|---|---|
+| Experience unavailable | Health check, client error, API still active | Preserve workflow state; notify through alternate channel |
+| Governance unavailable | Policy timeout or identity failure | Fail closed for high-impact actions; queue low-risk reads |
+| Orchestration unavailable | Queue depth, heartbeat failure | Durable task state, failover, resume from last checkpoint |
+| Domain subsystem unavailable | Agent/service health, connector error | Mark domain degraded; retry or route to fallback |
+| Knowledge retrieval unavailable | Retrieval timeout or stale index | Use bounded fallback context; do not fabricate certainty |
+| Treasury/measurement delay | Reconciliation lag or data discrepancy | Mark pending; hold irreversible financial actions |
+| Foundation failure | Event loss, storage errors, secret access failure | Retry with idempotency, dead-letter, incident escalation |
+
+### Risks
+
+| Risk | Consequence | Control |
+|---|---|---|
+| Plane diagrams become rigid architecture | Design cannot adapt to technology | Label them conceptual and maintain detailed architecture separately |
+| Plane ownership conflicts with domain ownership | Incidents and changes have no clear accountable party | Use capability and record ownership matrices |
+| Foundation becomes a hidden monolith | All features depend on an unreviewable layer | Keep interfaces narrow and observability explicit |
+| Governance is treated as optional middleware | Security and approval can be bypassed | Enforce authorization at command and side-effect boundaries |
+| Measurement is detached from execution | Learning and Treasury lose causal context | Use correlation and provenance from workflow start |
+
+### Anti-patterns
+
+- “Everything depends on the database, so the database is the architecture.”
+- “CATA owns Commerce, Treasury, policy, content, and every business rule.”
+- “The UI can call whichever service is convenient.”
+- “A failed external request is just a log message.”
+- “A plane is complete because it has a folder.”
+
+### Best Practices
+
+- Review each component against the subsystem contract table.
+- Use a separate diagram for dependency direction, event flow, and user interaction when needed.
+- Keep source-of-truth ownership explicit for every mutable record.
+- Model partial completion and degraded operation as normal states.
+- Make recovery behavior part of acceptance criteria.
+
+### Extension Points
+
+- New planes only through architectural decision.
+- New plane capabilities through registered contracts.
+- New providers through adapters and compatibility tests.
+- New read models through governed query surfaces.
+- New execution paths through orchestration, authorization, and audit.
+
+### AI Construction Notes
+
+The agent should reject a design note that describes a subsystem only by its technology. “A FastAPI service” is not a subsystem definition. The agent must ask what the service owns, what it guarantees, what records it changes, how it fails, and who is accountable.
+
+### AI Memory Anchor
+
+> **Experience asks, Governance authorizes, Orchestration coordinates, Domains act, Intelligence informs, Treasury measures, and Foundation preserves.**
+
+### Implementation Checklist
+
+- [x] Seven conceptual planes are defined.
+- [x] Plane relationships are visualized with diagrams carrying IDs, titles, and purposes.
+- [x] Plane owners, responsibilities, outputs, and failure responses are mapped.
+- [x] A reusable subsystem contract is defined.
+- [x] Six-layer root architecture compatibility is explicitly addressed.
+- [ ] Plane-to-runtime component mapping is completed in the Architecture document.
+
+---
+
+## 17. The Commerce AI Trinity Inside the Platform
+
+### Human Explanation
+
+Part 1 defined Commerce, AI, and Treasury as the three pillars of CAT. Internally, each pillar is a coordinated stack of responsibilities rather than one subsystem. The Trinity is expanded below as three **value stacks** that share identity, workflow, knowledge, and governance.
+
+#### Commerce Stack
+
+The Commerce stack turns market opportunity into observable market activity. It includes market intelligence, product and merchant context, affiliate relationships, marketing strategy, content and creative production, channel publishing, and commerce performance.
+
+Commerce owns the meaning of what is promoted, where it is promoted, how it is presented, and which market activity occurred. It does not own the truth of financial reconciliation or global policy.
+
+#### AI Stack
+
+The AI stack turns goals and signals into context-aware, coordinated work. It includes agent roles, CATA orchestration, KATA translation, memory, retrieval, reasoning, prompt/model routing, evaluation, learning, and decision support.
+
+AI owns the intelligence process: how context is gathered, how work is decomposed, how recommendations are formed, and how outcomes become knowledge. It does not own human accountability or silently grant itself authority.
+
+#### Treasury Stack
+
+The Treasury stack turns commerce activity into economic records, constraints, and decisions. It includes earnings, commissions, payouts, budgets, costs, attribution, reconciliation, financial reporting, risk, and economic optimization.
+
+Treasury owns financial meaning and financial integrity. It does not own content quality, market strategy, or unrestricted spending authority. A Treasury recommendation still passes through the governance and approval model when it changes financial state or exposure.
+
+### AI Context
+
+The Trinity is an internal routing rule:
+
+```text
+If the question is about market action, start in Commerce.
+If the question is about reasoning, coordination, memory, or model behavior, start in AI.
+If the question is about money, financial exposure, reconciliation, or payout, start in Treasury.
+If the question crosses two or more pillars, use a correlated workflow and identify the strictest applicable approval rule.
+```
+
+AI agents must never resolve cross-pillar ambiguity by assigning ownership to whichever component is easiest to call. The owning domain is determined by the meaning of the record or decision.
+
+### Business Perspective
+
+The Trinity prevents local optimization. Commerce can grow activity, AI can grow intelligence, and Treasury can protect economics, but CAT creates durable value only when these goals remain connected.
+
+| Trinity tension | Healthy resolution |
+|---|---|
+| Commerce wants speed; Governance wants evidence | Use risk-based approval and progressive trust |
+| AI wants more context; Security limits data access | Use least privilege, scoped retrieval, and provenance |
+| Treasury wants lower spend; Commerce wants more reach | Compare risk-adjusted expected value and owner-approved budgets |
+| Analytics sees correlation; Product wants a decision | Separate evidence from inference and record uncertainty |
+| Learning wants to update quickly; Governance wants stability | Use confidence, review states, and controlled promotion |
+
+### Technical Perspective
+
+The three stacks share four cross-pillar primitives:
+
+1. **Business identity:** product, market, campaign, content, channel, link, earning, and payout IDs.
+2. **Workflow identity:** task ID, workflow ID, correlation ID, actor, scope, and state.
+3. **Knowledge identity:** source, evidence bundle, memory, decision, lesson, confidence, and version.
+4. **Governance identity:** policy, approval request, approver, action scope, audit event, and outcome.
+
+The stacks may use different storage models or processing patterns, but these primitives must remain related enough to support traceability.
+
+### Official Decisions
+
+| ID | Official Decision | Consequence |
+|---|---|---|
+| P2-TRI-DEC-001 | Commerce owns market-facing commercial meaning and activity. | Product, campaign, content, channel, and affiliate workflows have Commerce ownership. |
+| P2-TRI-DEC-002 | AI owns coordination, reasoning, memory, retrieval, learning, and model-related behavior. | AI components propose and coordinate but do not own human accountability. |
+| P2-TRI-DEC-003 | Treasury owns financial truth, reconciliation, payout, budget, and economic-risk meaning. | Financial records cannot be inferred solely from activity or analytics views. |
+| P2-TRI-DEC-004 | Cross-pillar workflows use shared IDs and preserve provenance. | The platform can trace opportunity → action → outcome → earnings → lesson. |
+| P2-TRI-DEC-005 | The strictest applicable approval boundary governs a cross-pillar action. | A low-risk AI step cannot downgrade a high-risk financial or public side effect. |
+| P2-TRI-DEC-006 | Pillar ownership and execution ownership may differ, but accountability must be explicit. | A Publisher Agent may execute a Commerce action while a human Commerce owner approves it. |
+
+### Recommendations
+
+- Represent pillar interactions as explicit workflow steps or events rather than hidden shared state.
+- Use a domain-owned record plus cross-pillar projections when a record is needed in several views.
+- Keep financial calculations in Treasury-owned components and expose read models to AI and Commerce.
+- Keep AI explanations linked to the evidence and versions used to produce them.
+- Let Commerce define business intent and Treasury define financial constraints; let AI coordinate between them.
+
+### Experimental Ideas
+
+- A Trinity policy engine that scores a proposed action across commercial value, intelligence confidence, and economic exposure.
+- A portfolio “balance view” that visualizes how much current automation is spending on discovery, production, publishing, and learning.
+- A simulation environment where a campaign can be evaluated against historical Commerce, AI, and Treasury data without live execution.
+
+### Future Ideas
+
+- Treasury-aware proactive opportunity selection.
+- Cross-market transfer learning with explicit financial and regulatory boundaries.
+- Multi-campaign portfolio optimization.
+- Shared Trinity contracts for future Omni System products.
+- Organization-specific pillar policies for enterprise deployments.
+
+### Visual Overview
+
+**Diagram ID:** P2-TRI-001<br>
+**Diagram Title:** Internal Commerce AI Treasury Value Stacks<br>
+**Purpose:** Expand each Trinity pillar into internal responsibilities while showing shared governance and knowledge boundaries.
+
+```mermaid
+flowchart LR
+    subgraph C[Commerce Stack]
+        C1[Market intelligence]
+        C2[Product and merchant context]
+        C3[Affiliate operations]
+        C4[Marketing strategy]
+        C5[Content and creative]
+        C6[Publishing and channels]
+        C7[Commerce performance]
+        C1 --> C2 --> C3 --> C4 --> C5 --> C6 --> C7
+    end
+
+    subgraph A[AI Stack]
+        A1[KATA and intent]
+        A2[CATA orchestration]
+        A3[Agents and tools]
+        A4[Memory and retrieval]
+        A5[Reasoning and decisions]
+        A6[Model and prompt routing]
+        A7[Evaluation and learning]
+        A1 --> A2 --> A3 --> A4 --> A5 --> A6 --> A7
+    end
+
+    subgraph T[Treasury Stack]
+        T1[Attribution]
+        T2[Earnings and commissions]
+        T3[Costs and budgets]
+        T4[Reconciliation]
+        T5[Payouts]
+        T6[Financial reports]
+        T7[Economic optimization]
+        T1 --> T2 --> T3 --> T4 --> T5 --> T6 --> T7
+    end
+
+    C7 -->|activity and outcomes| T1
+    T7 -->|constraints and value signals| A5
+    A7 -->|learning and confidence| C1
+    A5 -->|plans and decisions| C3
+    A5 -->|financial questions| T3
+    Governance[Shared identity, policy, approval, audit] --- C
+    Governance --- A
+    Governance --- T
+    Knowledge[Shared provenance, memory, decisions, lessons] --- C
+    Knowledge --- A
+    Knowledge --- T
+```
+
+### Mermaid Diagram(s)
+
+**Diagram ID:** P2-TRI-002<br>
+**Diagram Title:** Trinity Lifecycle Ownership<br>
+**Purpose:** Show how ownership moves through a cross-pillar campaign lifecycle without collapsing domain boundaries.
+
+```mermaid
+sequenceDiagram
+    participant C as Commerce owner/domain
+    participant A as AI owner/domain
+    participant T as Treasury owner/domain
+    participant G as Governance/approver
+    participant K as Knowledge layer
+
+    C->>A: Opportunity and business goal
+    A->>K: Retrieve evidence and prior outcomes
+    K-->>A: Context and confidence
+    A->>T: Request economic assessment
+    T-->>A: Budget, risk, earnings, payout context
+    A->>C: Ranked plan and execution tasks
+    C->>G: Request approval for material action
+    G-->>C: Approved scope or revision
+    C->>C: Execute approved commerce work
+    C->>T: Activity, attribution, and earnings signals
+    T->>K: Reconciled financial outcome
+    C->>K: Operational outcome and lesson candidate
+    K->>A: Refined context for next decision
+```
+
+**Diagram ID:** P2-TRI-003<br>
+**Diagram Title:** Trinity Decision Boundary<br>
+**Purpose:** Identify the correct owner for a request and the point at which cross-pillar coordination becomes mandatory.
+
+```mermaid
+flowchart TD
+    Request[New request or signal] --> Meaning{What meaning is being changed?}
+    Meaning -->|Market, product, campaign, content, channel, affiliate| Commerce[Commerce owner]
+    Meaning -->|Reasoning, agent, memory, prompt, model, learning| AI[AI owner]
+    Meaning -->|Earning, cost, budget, payout, reconciliation, financial risk| Treasury[Treasury owner]
+    Commerce --> Cross{Does it affect another pillar?}
+    AI --> Cross
+    Treasury --> Cross
+    Cross -->|No| Local[Local contract and owner]
+    Cross -->|Yes| Shared[Correlated cross-pillar workflow]
+    Shared --> Strict[Apply strictest approval and audit rule]
+```
+
+### Architecture Map
+
+| Lifecycle responsibility | Commerce owner | AI owner | Treasury owner | Shared contract |
+|---|---|---|---|---|
+| Opportunity | Market relevance and commercial fit | Research, ranking, confidence | Expected value and budget context | Opportunity ID and evidence |
+| Plan | Campaign scope and channel strategy | Decomposition and recommendation | Exposure and financial guardrails | Plan/version ID |
+| Production | Content requirements and quality | Generation, evaluation, retrieval | Cost and expected-value context | Asset and prompt/model IDs |
+| Publication | Channel and brand responsibility | Execution coordination | Financial attribution expectation | Approval and action scope |
+| Measurement | Commerce outcomes | Interpretation and anomaly reasoning | Financial reconciliation | Correlation and attribution IDs |
+| Learning | Market and campaign lesson | Knowledge promotion and evaluation | Economic validation | Lesson, confidence, review state |
+
+### Dependencies
+
+The internal Trinity model depends on:
+
+- shared domain terminology;
+- a stable campaign and workflow identity model;
+- agent and human roles;
+- a policy and approval gateway;
+- trustworthy source and attribution data;
+- knowledge and memory persistence;
+- financial reconciliation and reporting;
+- event delivery and observability.
+
+### Failure Modes and Recovery Strategy
+
+| Failure mode | Affected pillar | Recovery strategy |
+|---|---|---|
+| Commerce source data is stale | Commerce | Mark freshness, reduce confidence, request refresh, avoid high-impact action |
+| AI retrieval fails | AI | Use bounded fallback context, surface uncertainty, pause risky recommendations |
+| Model/provider fails | AI | Route to approved fallback, preserve prompt and model version, retry within budget |
+| Treasury data is delayed | Treasury | Mark financial state pending, do not infer settled earnings, hold irreversible payout decisions |
+| Attribution breaks | Commerce/Treasury | Preserve raw events, quarantine affected projections, reconcile before promotion |
+| Cross-pillar event is duplicated | All | Use idempotency and correlation checks; do not double-count activity or money |
+| Human approval expires | Governance | Re-request with current evidence; never reuse stale approval silently |
+
+### Risks
+
+| Risk | Consequence | Control |
+|---|---|---|
+| Pillar boundaries are only labels | Cross-domain behavior becomes hidden and untestable | Require contracts and ownership metadata |
+| AI becomes the de facto owner of all decisions | Human and domain accountability disappear | Separate recommendation, authorization, and execution |
+| Treasury is read-only | Financial context cannot influence planning | Make Treasury constraints available before material actions |
+| Commerce writes financial truth | Attribution and ledger integrity are compromised | Treasury-owned financial write boundary |
+| Analytics is treated as causality | Wrong optimization lessons | Record attribution assumptions and uncertainty |
+
+### Anti-patterns
+
+- A single “Trinity service” that owns all three meanings without domain contracts.
+- An AI recommendation that includes a budget but never calls Treasury context.
+- A Treasury chart that silently modifies campaign state.
+- A Commerce adapter writing directly to a financial ledger.
+- A learning agent promoting a commercial or financial policy without review.
+
+### Best Practices
+
+- Use the Trinity as an architectural test for every major feature.
+- Preserve distinct ownership while making relationships easy to traverse.
+- Correlate every cross-pillar action and outcome.
+- Show the source and confidence of a recommendation and the financial assumptions behind it.
+- Treat reconciliation and learning as lifecycle stages, not optional reports.
+
+### Extension Points
+
+- New Commerce domains can connect to AI and Treasury through shared campaign and outcome contracts.
+- New AI tools can consume and produce governed context.
+- New Treasury instruments or payout sources can implement financial adapters.
+- Future Omni products can adopt Trinity contract patterns after independent ownership is established.
+
+### Cross References
+
+- Part 1 Trinity model: [Section 4](#4-the-commerce-ai-trinity).
+- Root Commerce AI Trinity concept: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Section 15.2.
+- Domain context targets: [`context/06_KNOWLEDGE_ENGINE.md`](./06_KNOWLEDGE_ENGINE.md), [`context/07_TREASURY_CORE.md`](./07_TREASURY_CORE.md), [`context/08_AFFILIATE_ENGINE.md`](./08_AFFILIATE_ENGINE.md), [`context/09_CONTENT_ENGINE.md`](./09_CONTENT_ENGINE.md).
+- Decision documentation target: [`context/12_DECISIONS.md`](./12_DECISIONS.md).
+
+### AI Construction Notes
+
+When implementing cross-pillar behavior, an AI agent should produce a responsibility table before code. It should identify who owns each field, which event carries the relationship, which approval is required, and which record is canonical. If ownership is “shared,” the agent must explain how conflicting writes are resolved.
+
+### AI Memory Anchor
+
+> **Commerce acts, AI coordinates and learns, Treasury accounts; shared IDs and governance connect them without erasing ownership.**
+
+### Implementation Checklist
+
+- [x] Commerce, AI, and Treasury are expanded into internal value stacks.
+- [x] Responsibilities, ownership, dependencies, communication, and recovery are defined.
+- [x] Cross-pillar diagrams include IDs, titles, and purposes.
+- [x] Strictest-approval rule is stated.
+- [x] Failure modes and financial integrity boundaries are documented.
+- [ ] Detailed pillar schemas and service contracts are defined in downstream documents.
+
+---
+
+## 18. Core Domain Map and Domain Contracts
+
+### Human Explanation
+
+A **domain** is an area of meaning and responsibility. Domains are not merely database tables or folders. A domain owns the rules, records, outcomes, and vocabulary for a business or platform concern. Domains can collaborate, but each important fact should have one canonical owner.
+
+CAT's domains fall into three groups:
+
+- **Commerce domains:** Commerce, Affiliate, Content, and Marketing.
+- **Intelligence and operations domains:** Knowledge, Automation, and Analytics.
+- **Platform control domains:** Treasury, Identity, Settings, Security, and Administration.
+
+Commerce is the umbrella business domain. Affiliate, Content, and Marketing are specialized Commerce domains because they have distinct lifecycles and external dependencies. Automation coordinates work across domains but does not own their business meaning. Analytics measures activity, while Treasury owns financial truth. Identity, Settings, Security, and Administration make multi-user and enterprise operation possible.
+
+The domain model is intentionally more detailed than the seven-plane model. Planes describe where a responsibility sits in the platform; domains describe what that responsibility means. A domain may use several planes.
+
+### AI Context
+
+An AI agent must distinguish:
+
+- **domain ownership:** who owns the meaning of a record;
+- **execution ownership:** which agent or service performs a task;
+- **presentation ownership:** which interface displays a result; and
+- **policy ownership:** which role controls whether the action is allowed.
+
+These can be different. For example, the Affiliate domain owns link meaning, the Affiliate Agent executes link preparation, KATA presents a review request, Security controls credential access, and a human Commerce owner approves an externally visible change.
+
+When two domains appear to own the same field, the agent must define a canonical source and derive other views through events or projections. It must not duplicate mutable truth simply because two screens need it.
+
+### Business Perspective
+
+Domain separation enables specialization without fragmentation. CAT can improve content generation without rewriting Treasury, add a new affiliate network without changing Identity, or add a new enterprise policy without changing the meaning of a campaign. It also gives future product teams a vocabulary for packaging, support, ownership, and extension.
+
+### Technical Perspective
+
+Each domain should eventually expose:
+
+- commands for requested state changes;
+- events for facts that occurred;
+- queries or read models for inspection;
+- policies for permitted behavior;
+- versioned schemas;
+- provenance and audit links;
+- idempotency and consistency guarantees;
+- an explicit failure and recovery model.
+
+A domain boundary should be stricter around money, identity, security, and external side effects than around read-only analysis.
+
+### Official Decisions
+
+| ID | Official Decision | Consequence |
+|---|---|---|
+| P2-DOM-DEC-001 | Knowledge, Commerce, Treasury, Affiliate, Content, Marketing, Automation, Analytics, Identity, Settings, Security, and Administration are recognized CAT domains. | New capabilities must declare their domain relationship. |
+| P2-DOM-DEC-002 | Affiliate, Content, and Marketing are specialized Commerce domains, not unrelated products by default. | They share Commerce lifecycle and identity while retaining specialized contracts. |
+| P2-DOM-DEC-003 | Treasury is the canonical owner of financial truth. | Analytics and AI may consume Treasury views but may not redefine ledger meaning. |
+| P2-DOM-DEC-004 | Identity, Security, and Administration are distinct responsibilities. | Authentication, threat protection, and organizational operation cannot be collapsed into one ambiguous admin layer. |
+| P2-DOM-DEC-005 | Automation coordinates work but does not own all domain semantics. | Workflow state and business records remain separately owned. |
+| P2-DOM-DEC-006 | Knowledge preserves provenance, decisions, memory, and lessons across domains. | Domain activity must produce retrievable context and outcome links. |
+
+### Recommendations
+
+- Keep the domain vocabulary stable and add aliases only through terminology decisions.
+- Use domain-owned commands and events instead of direct cross-domain writes.
+- Let read models combine domain data without moving canonical ownership.
+- Make data classification, retention, and approval requirements part of each domain contract.
+- Prefer a small number of meaningful domains over a new domain for every feature.
+
+### Experimental Ideas
+
+- A domain registry that exposes each domain's owner, schemas, events, policies, health, and extension contracts to humans and AI agents.
+- Automated domain-boundary linting based on import graphs, event subscriptions, and ownership metadata.
+- A knowledge graph view that lets an operator follow one campaign across all twelve domains.
+
+### Future Ideas
+
+- A dedicated Experimentation domain for controlled hypotheses and measurement.
+- A Partner and Marketplace domain for governed extension distribution.
+- A Compliance domain if policy complexity grows beyond Security and Administration.
+- Shared Omni System domains extracted from proven CAT contracts.
+
+### Visual Overview
+
+**Diagram ID:** P2-DOM-001<br>
+**Diagram Title:** CAT Domain Constellation<br>
+**Purpose:** Show the Commerce domains, platform-control domains, and intelligence/operations domains around the shared CAT lifecycle.
+
+```mermaid
+flowchart TB
+    CAT((CAT Domain Model))
+
+    subgraph CommerceDomains[Commerce domains]
+        Commerce[Commerce]
+        Affiliate[Affiliate]
+        Content[Content]
+        Marketing[Marketing]
+        Commerce --> Affiliate
+        Commerce --> Content
+        Commerce --> Marketing
+    end
+
+    subgraph IntelligenceOperations[Intelligence and operations]
+        Knowledge[Knowledge]
+        Automation[Automation]
+        Analytics[Analytics]
+    end
+
+    subgraph ControlDomains[Platform control domains]
+        Treasury[Treasury]
+        Identity[Identity]
+        Settings[Settings]
+        Security[Security]
+        Administration[Administration]
+    end
+
+    CAT --> CommerceDomains
+    CAT --> IntelligenceOperations
+    CAT --> ControlDomains
+    Knowledge <--> Commerce
+    Automation <--> Commerce
+    Analytics <--> Commerce
+    Treasury <--> Commerce
+    Identity --> Security
+    Administration --> Identity
+    Settings --> Administration
+    Security --> Automation
+    Knowledge --> Analytics
+```
+
+**Diagram ID:** P2-DOM-002<br>
+**Diagram Title:** Canonical Ownership and Derived Views<br>
+**Purpose:** Demonstrate how one domain owns a fact while other domains consume projections or explanations.
+
+```mermaid
+flowchart LR
+    Source[Canonical domain owner]
+    Command[Domain command]
+    Event[Domain fact event]
+    Projection[Derived read model]
+    Explanation[Human/AI explanation]
+    Learning[Knowledge and learning record]
+
+    Source --> Command --> Source
+    Source --> Event
+    Event --> Projection
+    Event --> Explanation
+    Event --> Learning
+
+    Projection -. read only .-> OtherDomain[Other domain view]
+    Explanation -. context .-> Supervisor[Human supervisor]
+    Learning -. future context .-> Agent[AI agent]
+```
+
+### Visual Asset Placeholder — Domain and Command Center Atlas
+
+| Field | Value |
+|---|---|
+| **Visual Asset Name** | CAT Domain and Command Center Atlas |
+| **Purpose** | Provide a future human-facing visual map of the twelve domains, their ownership, active workflows, and cross-domain signal paths. |
+| **Recommended Resolution** | 3840 × 2160 px for command-center wall view; responsive 1920 × 1080 px crop |
+| **Suggested Location inside `/design`** | `/design/Architecture/CAT_Domain_Command_Center_Atlas.md` and `/design/Architecture/assets/cat-domain-atlas.png` |
+| **Mood** | Calm cosmic intelligence with clear operational hierarchy |
+| **Style** | Layered glass panels, restrained neon edges, readable labels, data-flow light trails, accessible contrast |
+| **Reference Category** | System architecture visualization / command-center information design |
+
+### Mermaid Diagram(s)
+
+**Diagram ID:** P2-DOM-003<br>
+**Diagram Title:** Domain Interaction Context Map<br>
+**Purpose:** Show the primary context relationships without implying that every domain calls every other domain directly.
+
+```mermaid
+graph TD
+    User[User or enterprise intent]
+    Identity[Identity]
+    Administration[Administration]
+    Settings[Settings]
+    Security[Security]
+    Automation[Automation]
+    Knowledge[Knowledge]
+    Commerce[Commerce]
+    Affiliate[Affiliate]
+    Content[Content]
+    Marketing[Marketing]
+    Analytics[Analytics]
+    Treasury[Treasury]
+
+    User --> Identity
+    Administration --> Identity
+    Administration --> Settings
+    Identity --> Security
+    Settings --> Automation
+    Security --> Automation
+    Automation --> Knowledge
+    Automation --> Commerce
+    Commerce --> Affiliate
+    Commerce --> Content
+    Commerce --> Marketing
+    Affiliate --> Analytics
+    Content --> Analytics
+    Marketing --> Analytics
+    Commerce --> Analytics
+    Analytics --> Treasury
+    Treasury --> Knowledge
+    Analytics --> Knowledge
+    Commerce --> Knowledge
+    Knowledge --> Automation
+```
+
+**Diagram ID:** P2-DOM-004<br>
+**Diagram Title:** Domain Lifecycle State Transition<br>
+**Purpose:** Show the shared lifecycle pattern that individual domains specialize without duplicating governance.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Proposed
+    Proposed --> Validating
+    Validating --> Ready
+    Validating --> Rejected
+    Ready --> Authorized
+    Authorized --> Executing
+    Executing --> Succeeded
+    Executing --> Failed
+    Failed --> Retrying
+    Retrying --> Executing
+    Failed --> Quarantined
+    Succeeded --> Observed
+    Observed --> Learned
+    Learned --> [*]
+    Authorized --> Cancelled
+    Executing --> Compensating
+    Compensating --> Cancelled
+    Rejected --> [*]
+    Quarantined --> [*]
+    Cancelled --> [*]
+```
+
+### Domain Contract: Knowledge
+
+- **Purpose:** Preserve the facts, sources, decisions, memories, outcomes, lessons, and relationships that allow CAT to reason over time instead of treating every operation as isolated.
+- **Owner:** Knowledge and AI platform owner, with domain owners accountable for the quality of knowledge they contribute.
+- **Responsibilities:** Ingest and validate knowledge; maintain provenance; support retrieval; represent decisions and relationships; manage memory tiers; track confidence, freshness, and review state; promote lessons; mark stale knowledge without erasing required history.
+- **Inputs:** Domain events; research evidence; human decisions; agent traces; model and prompt versions; operational outcomes; Treasury results; external source metadata.
+- **Outputs:** Retrieval context; knowledge graph updates; memory records; decision links; lessons; confidence and freshness signals; explanation evidence.
+- **Dependencies:** Foundation persistence and events; Identity and Security; domain schemas; embeddings/retrieval; evaluation; documentation and decision records.
+- **Extension Points:** New entity types; relationship types; source adapters; retrieval strategies; memory tiers; evaluation indexes; domain-specific knowledge packs.
+- **Failure Modes:** Stale or conflicting facts; duplicate entities; missing provenance; retrieval timeout; corrupted relationship; overconfident lesson; index lag.
+- **Recovery Strategy:** Keep immutable source evidence; quarantine conflicting updates; rebuild derived indexes; lower confidence; fall back to validated prior context; require human review for canonical corrections; preserve audit history.
+- **Future Evolution:** Cross-product knowledge federation, richer causal relationships, enterprise data boundaries, and learning systems that distinguish correlation from causation.
+
+### Domain Contract: Commerce
+
+- **Purpose:** Own the meaning of market opportunity, product selection, campaign intent, commercial activity, channel objectives, and the end-to-end business lifecycle.
+- **Owner:** Commerce product/domain owner.
+- **Responsibilities:** Define markets, products, merchants, campaigns, channel goals, commercial constraints, and operational outcomes; coordinate Affiliate, Content, Marketing, and publishing responsibilities; maintain business acceptance criteria.
+- **Inputs:** Research evidence; merchant/product feeds; human goals; affiliate terms; content assets; channel specifications; Analytics signals; Treasury constraints; policies.
+- **Outputs:** Opportunities; product and campaign records; commerce plans; approved actions; activity events; business outcomes; requests to specialized Commerce domains.
+- **Dependencies:** Knowledge; Automation; Affiliate; Content; Marketing; Analytics; Treasury; Identity; external integrations.
+- **Extension Points:** New markets; channel types; campaign archetypes; commerce workflows; regional policies; product scoring strategies.
+- **Failure Modes:** Invalid product data; campaign scope ambiguity; duplicate campaign; unsupported market; content-channel mismatch; activity without attribution.
+- **Recovery Strategy:** Preserve draft state; validate against current evidence; isolate invalid records; re-plan through Automation; reprocess idempotently; notify owner of unresolved commercial risk.
+- **Future Evolution:** Portfolio planning, multi-market operations, enterprise commerce workspaces, and cross-product commerce contracts.
+
+### Domain Contract: Treasury
+
+- **Purpose:** Own the economic record and financial accountability of CAT activity, including earnings, commissions, costs, budgets, payouts, reconciliation, exposure, and financial reporting.
+- **Owner:** Treasury/finance domain owner and authorized human financial approvers.
+- **Responsibilities:** Record financial facts; reconcile external reports; distinguish pending, estimated, settled, disputed, and paid states; manage budgets and payout workflows; expose constraints; produce auditable reports; detect anomalies and financial risk.
+- **Inputs:** Commerce activity; affiliate attribution; external network reports; costs; budgets; currency and timing data; Analytics projections; human approvals; policy.
+- **Outputs:** Ledger or financial records; earnings state; payout recommendations and actions; budget status; reconciliation exceptions; financial reports; risk signals.
+- **Dependencies:** Identity and Security; Commerce and Affiliate IDs; Analytics attribution; Foundation persistence; external payout/accounting adapters; approval policy.
+- **Extension Points:** New currencies; networks; payout providers; accounting adapters; budget policies; risk models; enterprise reporting.
+- **Failure Modes:** Duplicate earnings; missing attribution; currency mismatch; stale payout report; unauthorized transfer; reconciliation discrepancy; ledger write failure.
+- **Recovery Strategy:** Use immutable or append-only financial facts where appropriate; hold disputed values; replay source reports; reconcile from source evidence; require explicit approval for corrective entries; never silently overwrite a financial record.
+- **Future Evolution:** Risk-adjusted allocation, cash-flow planning, portfolio economics, enterprise finance integration, and multi-entity Treasury.
+
+### Domain Contract: Affiliate
+
+- **Purpose:** Manage affiliate-program context, merchant relationships, links, tracking identifiers, commission terms, compliance conditions, and partner-specific operational state.
+- **Owner:** Affiliate operations/domain owner.
+- **Responsibilities:** Discover and validate affiliate programs; store terms and effective dates; create and maintain links; map products to programs; monitor link health; preserve network provenance; expose commission and cookie context to Commerce and Treasury.
+- **Inputs:** Products and merchants; network APIs; program terms; campaign plans; tracking requirements; credentials through Security; human approvals.
+- **Outputs:** Affiliate program records; validated links; tracking metadata; link-health events; partner status; commission context; attribution inputs.
+- **Dependencies:** Commerce; Identity; Security/secrets; external networks; Analytics; Treasury; Automation.
+- **Extension Points:** New affiliate networks; regional partner adapters; link transformation rules; link-health checks; compliance metadata; marketplace connectors.
+- **Failure Modes:** Expired program; malformed link; network rate limit; credential failure; changed terms; duplicate tracking; broken redirect; unapproved partner action.
+- **Recovery Strategy:** Retry within provider policy; quarantine invalid links; preserve prior valid version; revalidate terms; route credential failures to Security; hold publication when attribution is uncertain; notify Affiliate owner.
+- **Future Evolution:** Automated partner discovery, negotiated terms, portfolio link optimization, and governed third-party network plugins.
+
+### Domain Contract: Content
+
+- **Purpose:** Own the meaning, lifecycle, quality, provenance, versioning, and channel readiness of generated or human-edited content and creative assets.
+- **Owner:** Content/creative domain owner.
+- **Responsibilities:** Define content types; manage briefs and drafts; apply brand, evidence, accessibility, disclosure, and policy checks; track revisions; connect assets to products, campaigns, channels, agents, prompts, and approvals; support text, image, audio, and video workflows where accepted.
+- **Inputs:** Commerce brief; product facts; affiliate links; sources; brand rules; channel requirements; model outputs; human edits; policy and approval decisions.
+- **Outputs:** Drafts; content versions; quality findings; approved assets; metadata; publication packages; content performance links.
+- **Dependencies:** Knowledge; Commerce; Affiliate; Marketing; model providers; asset storage; Identity; Security; Publisher capabilities.
+- **Extension Points:** New content types; evaluators; template packs; model routes; localization; accessibility checks; enterprise brand profiles.
+- **Failure Modes:** Hallucinated fact; missing disclosure; low quality; unsafe or prohibited content; lost revision; asset corruption; channel-format failure; duplicate publication package.
+- **Recovery Strategy:** Preserve source and prior version; return to draft; require human revision; block publication; run evaluator again; restore last approved asset; quarantine unsafe output.
+- **Future Evolution:** Multimodal production, personalized variants, localization, content knowledge graphs, and provenance-aware synthetic media workflows.
+
+### Domain Contract: Marketing
+
+- **Purpose:** Own audience, positioning, messaging, campaign strategy, channel objectives, segmentation, experimentation intent, and commercial communication plans.
+- **Owner:** Marketing/product strategy owner.
+- **Responsibilities:** Define audience and message; set campaign objectives; choose channel mix; maintain positioning and brand constraints; propose experiments; connect market evidence to Content and Commerce; evaluate strategic fit.
+- **Inputs:** Market research; product and affiliate context; audience profiles; brand settings; historical campaigns; Treasury budget; Analytics outcomes; human strategy.
+- **Outputs:** Marketing briefs; audience and channel plans; campaign hypotheses; messaging strategy; experiment proposals; performance interpretation requests.
+- **Dependencies:** Commerce; Content; Analytics; Knowledge; Treasury; Settings/brand configuration; Identity and approval.
+- **Extension Points:** New channels; audience models; experimentation methods; regional messaging; enterprise brand policies; partner co-marketing workflows.
+- **Failure Modes:** Wrong audience; unapproved claim; inconsistent brand; budget mismatch; experiment without baseline; channel policy violation; strategy disconnected from product evidence.
+- **Recovery Strategy:** Pause campaign; return to brief; revalidate audience and evidence; update settings; request human strategy review; preserve failed hypothesis and result.
+- **Future Evolution:** Predictive audience planning, portfolio campaign optimization, lifecycle marketing, and cross-market learning with privacy controls.
+
+### Domain Contract: Automation
+
+- **Purpose:** Coordinate tasks and workflows across domains, agents, humans, schedules, events, approvals, retries, and external responses.
+- **Owner:** Workflow/orchestration platform owner.
+- **Responsibilities:** Decompose goals; create tasks; manage state; schedule work; route to agents; enforce prerequisites; pause for approvals; retry idempotently; compensate or quarantine failures; emit lifecycle events; expose status.
+- **Inputs:** Human commands; domain events; schedules; policies; agent capabilities; dependencies; task priorities; deadlines.
+- **Outputs:** Workflow instances; task assignments; commands; approval requests; retries; status events; completion and failure records.
+- **Dependencies:** Identity; Security; Foundation event bus and persistence; CATA; domain contracts; Knowledge; Analytics; notification surfaces.
+- **Extension Points:** Workflow templates; new triggers; scheduling policies; human approval steps; compensation handlers; domain-specific task types.
+- **Failure Modes:** Lost state; duplicate task; deadlock; infinite retry; dependency timeout; wrong agent routing; stale approval; partial completion.
+- **Recovery Strategy:** Durable checkpoints; idempotency keys; exponential retry limits; dead-letter/quarantine; manual resume; compensation; escalation; replay from event history.
+- **Future Evolution:** Adaptive scheduling, simulation, portfolio orchestration, and policy-aware autonomous workflow composition.
+
+### Domain Contract: Analytics
+
+- **Purpose:** Measure operational, commerce, content, channel, agent, and workflow behavior; attribute signals with explicit assumptions; detect anomalies; support decision-making.
+- **Owner:** Analytics and measurement domain owner.
+- **Responsibilities:** Ingest facts; calculate metrics; maintain definitions and versions; build projections and reports; detect anomalies; distinguish observation from interpretation; expose signals to Commerce, AI, and Treasury.
+- **Inputs:** Events; channel metrics; clicks; conversions; content outcomes; workflow timings; agent traces; Treasury facts; experiments; source metadata.
+- **Outputs:** Metrics; dashboards/read models; anomaly events; reports; performance analyses; attribution views; optimization recommendations.
+- **Dependencies:** Foundation events and storage; Commerce identities; Affiliate tracking; Content versions; Treasury records; Knowledge; Settings and access policy.
+- **Extension Points:** New metrics; channels; attribution models; dashboards; evaluation datasets; enterprise reporting; real-time alerts.
+- **Failure Modes:** Missing events; duplicate event; schema drift; attribution error; stale projection; metric definition change; false anomaly; privacy violation.
+- **Recovery Strategy:** Replay source events; version metric definitions; mark gaps; quarantine invalid data; recalculate projections; review attribution; notify affected consumers.
+- **Future Evolution:** Causal analysis, predictive optimization, self-serve governed analytics, and cross-product performance intelligence.
+
+### Domain Contract: Identity
+
+- **Purpose:** Establish who or what is acting, which organization and tenant it belongs to, what roles and credentials it holds, and which permissions can be evaluated.
+- **Owner:** Identity and platform security owner.
+- **Responsibilities:** Authenticate users and services; issue and validate identity claims; manage sessions and service principals; map roles; support organization/tenant boundaries; record identity events; integrate enterprise identity providers.
+- **Inputs:** Login or service credentials; invitations; organization membership; role assignments; enterprise identity assertions; Security policy.
+- **Outputs:** Authenticated identity; claims; roles; tenant context; tokens/session state; access decisions; identity audit events.
+- **Dependencies:** Security; Administration; Settings; Foundation secrets and persistence; enterprise identity providers; approval system.
+- **Extension Points:** OAuth/OIDC providers; service identities; workload identity; delegated access; enterprise federation; recovery and lifecycle workflows.
+- **Failure Modes:** Credential compromise; token expiry; incorrect role; tenant leak; provider outage; session fixation; orphaned identity.
+- **Recovery Strategy:** Fail closed for sensitive actions; revoke sessions; rotate credentials; quarantine identity; restore from audit-backed membership state; require admin/security review.
+- **Future Evolution:** Fine-grained authorization, risk-adaptive authentication, cross-product Omni identity, and organization-controlled identity domains.
+
+### Domain Contract: Settings
+
+- **Purpose:** Store governed configuration that shapes user, organization, visual, workflow, model, notification, performance, and integration behavior without changing core code.
+- **Owner:** Product/platform configuration owner, with Security and Administration owning sensitive settings.
+- **Responsibilities:** Define setting schemas; validate values; scope settings to user, organization, environment, domain, or workflow; version changes; expose effective configuration; distinguish preferences from policy.
+- **Inputs:** User preferences; organization policy; admin changes; feature configuration; theme/performance choices; environment defaults; integration settings.
+- **Outputs:** Validated configuration; effective settings; change events; configuration snapshots; policy inputs; UI and workflow behavior changes.
+- **Dependencies:** Identity; Administration; Security; Foundation persistence; UI/UX; Automation; model and integration contracts.
+- **Extension Points:** New setting namespaces; tenant overrides; theme packs; performance profiles; policy adapters; feature flags.
+- **Failure Modes:** Invalid value; unsafe default; precedence conflict; secret stored as preference; unversioned change; setting drift across environments.
+- **Recovery Strategy:** Schema validation; safe defaults; immutable change history; rollback to last valid version; separate secret storage; admin escalation for policy conflict.
+- **Future Evolution:** Policy-as-configuration, organization templates, adaptive performance settings, and cross-product configuration profiles.
+
+### Domain Contract: Security
+
+- **Purpose:** Protect identities, data, credentials, workflows, agents, integrations, and users from unauthorized access, misuse, tampering, and unsafe execution.
+- **Owner:** Security owner/CISO-equivalent governance role, working with every domain owner.
+- **Responsibilities:** Threat model; enforce least privilege; protect secrets; authorize tool use; detect threats; validate inputs; monitor incidents; manage vulnerability response; preserve security audit; define secure defaults.
+- **Inputs:** Identity claims; policy; requests; events; network signals; dependency reports; vulnerability findings; agent actions; admin changes.
+- **Outputs:** Allow/deny decisions; security alerts; audit events; quarantines; credentials/secret access; incident records; remediation requirements.
+- **Dependencies:** Identity; Administration; Foundation; every domain's permission model; external providers; deployment/runtime controls.
+- **Extension Points:** New threat detectors; policy engines; secret providers; compliance controls; agent sandboxing; enterprise security adapters.
+- **Failure Modes:** Unauthorized access; secret leak; prompt injection; supply-chain compromise; privilege escalation; data exfiltration; monitoring blind spot.
+- **Recovery Strategy:** Deny or isolate; revoke access; rotate secrets; quarantine component; preserve forensic evidence; restore known-good state; incident response and postmortem.
+- **Future Evolution:** Continuous authorization, agent sandboxing, formal policy verification, privacy-preserving retrieval, and enterprise compliance automation.
+
+### Domain Contract: Administration
+
+- **Purpose:** Operate the organizational and platform control surface: tenants, memberships, roles, billing or plan configuration when introduced, policy assignment, support operations, lifecycle management, and administrative audit.
+- **Owner:** Platform administration owner and authorized organization administrators.
+- **Responsibilities:** Create and manage organizations; invite and deactivate members; assign roles; configure organization policies; manage approved integrations and extensions; support audit/export; coordinate lifecycle and support operations.
+- **Inputs:** Organization requests; Identity events; enterprise policies; contracts; support actions; Security findings; Settings; billing/plan data when accepted.
+- **Outputs:** Organization state; membership and role changes; policy assignments; administrative records; notifications; support/audit exports.
+- **Dependencies:** Identity; Security; Settings; Foundation; Treasury for financial administration; enterprise integration; approval policy.
+- **Extension Points:** Enterprise admin modules; private catalogs; delegated administration; support tooling; compliance exports; organization templates.
+- **Failure Modes:** Accidental privilege grant; member not deactivated; tenant configuration leak; destructive admin action; inconsistent policy; incomplete audit.
+- **Recovery Strategy:** Require confirmation and scoped approvals; use soft-delete/deactivation; restore prior configuration; break-glass audit; notify Security; preserve administrative history.
+- **Future Evolution:** Multi-tenant enterprise operations, delegated governance, private extension catalogs, and Omni-wide organization management.
+
+### Domain Relationship and Ownership Table
+
+| Domain | Meaning owner | Main consumers | Strictest control |
+|---|---|---|---|
+| Knowledge | Knowledge/AI owner plus contributing domain owners | All domains and AI agents | Provenance and promotion review |
+| Commerce | Commerce owner | Affiliate, Content, Marketing, Analytics, Treasury | External commercial action approval |
+| Treasury | Treasury/finance owner | Commerce, AI, Analytics, Administration | Financial integrity and authorized approval |
+| Affiliate | Affiliate owner | Commerce, Content, Analytics, Treasury | Credential, term, and external-link policy |
+| Content | Content owner | Commerce, Marketing, Publisher, Analytics | Quality, disclosure, public reputation |
+| Marketing | Marketing/strategy owner | Commerce, Content, Analytics, Treasury | Strategic and brand approval |
+| Automation | Workflow owner | All operational domains | Execution scope and state integrity |
+| Analytics | Measurement owner | Commerce, AI, Treasury, operators | Data quality and attribution assumptions |
+| Identity | Identity owner | All protected actions | Authentication and tenant isolation |
+| Settings | Configuration owner | All configurable behavior | Safe defaults and policy separation |
+| Security | Security owner | All domains | Least privilege and incident response |
+| Administration | Platform/org owner | Identity, Settings, Security, enterprise | Administrative authorization and audit |
+
+### Cross References
+
+- Root domain foundations: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Sections 13, 15, 16, and 17.
+- Knowledge detail: [`context/06_KNOWLEDGE_ENGINE.md`](./06_KNOWLEDGE_ENGINE.md).
+- Treasury detail: [`context/07_TREASURY_CORE.md`](./07_TREASURY_CORE.md).
+- Affiliate detail: [`context/08_AFFILIATE_ENGINE.md`](./08_AFFILIATE_ENGINE.md).
+- Content detail: [`context/09_CONTENT_ENGINE.md`](./09_CONTENT_ENGINE.md).
+- Security detail: [`context/17_SECURITY.md`](./17_SECURITY.md).
+- Settings, terminology, and directory targets: [`context/13_TERMINOLOGY.md`](./13_TERMINOLOGY.md), [`context/15_DIRECTORY_STRUCTURE.md`](./15_DIRECTORY_STRUCTURE.md).
+
+### Dependencies
+
+The domain map depends on shared identifiers, event contracts, identity and permission claims, policy evaluation, persistent storage, provenance, and a reliable workflow engine. Domains also depend on each other asymmetrically: a consumer may read a projection without owning the source of truth.
+
+### Risks
+
+| Risk | Consequence | Control |
+|---|---|---|
+| Domain boundaries follow team names | Reorganization breaks the model | Define meaning and records, not org charts only |
+| Commerce duplicates Affiliate/Content truth | Links and assets drift | Specialized domains own their records |
+| Analytics writes conclusions as facts | Decisions become untraceable | Separate measurements, interpretations, and decisions |
+| Settings become an ungoverned policy store | Security and behavior change invisibly | Classify preference, configuration, and policy separately |
+| Administration bypasses Security | Privilege abuse becomes possible | Independent authorization and audit |
+| Knowledge promotion is automatic everywhere | False or stale information spreads | Confidence, provenance, and review states |
+| Automation owns domain state | Workflow refactor changes business truth | Keep orchestration and domain ownership separate |
+
+### Anti-patterns
+
+- One shared “users” table treated as the entire Identity model.
+- One “content” table used for drafts, approved assets, publications, and analytics without state/version boundaries.
+- A Treasury dashboard that edits earnings directly.
+- A settings flag that silently grants permission.
+- A Security agent that is the only security control.
+- A domain that emits events with no owner or schema version.
+- A domain that cannot explain how a failed operation is recovered.
+
+### Best Practices
+
+- Give each domain a canonical source of truth and a named owner.
+- Distinguish mutable current state, immutable facts, derived projections, and human decisions.
+- Keep domain contracts explicit and versioned.
+- Make failure states queryable and recoverable.
+- Use cross-domain events for facts and commands for requested work.
+- Document both normal and degraded lifecycle behavior.
+
+### Extension Points
+
+- Domain-specific plugins may add behavior through the domain contract.
+- New external providers should attach through adapters owned by the relevant domain.
+- New user types should map to Identity and Administration rather than adding domain-specific auth paths.
+- New settings should declare scope, precedence, sensitivity, and rollback behavior.
+- New knowledge entity types should document provenance and lifecycle.
+
+### AI Construction Notes
+
+For any new subsystem, the agent should copy the following contract skeleton into its plan and fill every field before implementation:
+
+```text
+Subsystem/domain:
+Purpose:
+Owner:
+Responsibilities:
+Inputs:
+Outputs:
+Dependencies:
+Extension points:
+Failure modes:
+Recovery strategy:
+Future evolution:
+Canonical records:
+Commands:
+Events:
+Queries/read models:
+Approval boundary:
+Knowledge obligation:
+Treasury obligation:
+```
+
+### AI Memory Anchor
+
+> **A domain owns meaning; an agent performs work; a view explains state; a policy authorizes action. Do not confuse them.**
+
+### Implementation Checklist
+
+- [x] All twelve requested domains are defined.
+- [x] Each domain includes purpose, owner, responsibilities, inputs, outputs, dependencies, extension points, failure modes, recovery, and future evolution.
+- [x] Domain relationships, ownership, lifecycle, and communication are visualized.
+- [x] Commerce subdomains and cross-cutting domains are distinguished.
+- [x] Visual asset metadata is provided for the future domain atlas.
+- [ ] Detailed domain schemas, events, and APIs are authored in downstream context documents.
+- [ ] Domain ownership metadata is implemented in the runtime.
+
+---
+
+## 19. High-Level Component Relationships and Communication
+
+### Human Explanation
+
+CAT components cooperate through a small number of understandable relationship patterns. The goal is not to make every component know every other component. The goal is to make the right relationships explicit, observable, and recoverable.
+
+The principal relationships are:
+
+- **Intent relationship:** a human or external signal expresses a goal or fact.
+- **Authorization relationship:** Identity and Governance determine whether the actor and action are allowed.
+- **Orchestration relationship:** Automation creates and tracks work, and CATA coordinates agents and domains.
+- **Execution relationship:** a domain component performs a task within its declared responsibility.
+- **Knowledge relationship:** a component retrieves context before acting and records evidence and outcomes after acting.
+- **Measurement relationship:** Analytics and Treasury observe activity and economic state.
+- **Integration relationship:** adapters translate between CAT contracts and external systems.
+- **Explanation relationship:** KATA and read models translate system state into human-understandable views.
+
+The central rule is:
+
+> **Components communicate through purpose-specific contracts, not through accidental knowledge of one another's internals.**
+
+CATA is the central coordinator, but it is not the owner of every record or business rule. KATA is the human-facing boundary, but it is not the source of domain truth. The event bus is the communication nervous system, but an event is not permission to perform an action. Knowledge is shared context, but a retrieval result is not automatically canonical truth.
+
+### AI Context
+
+An AI agent must select the correct communication pattern:
+
+| Need | Pattern |
+|---|---|
+| Request another component to do something | Command/task with scope, actor, deadline, and idempotency |
+| Announce that something happened | Versioned event with source, timestamp, correlation, and provenance |
+| Read current or historical information | Governed query/read model |
+| Ask for reasoning context | Knowledge/memory retrieval request |
+| Ask a human to decide | Approval request with evidence, risk, exact scope, and expiry |
+| Report failure | Structured failure event with retryability and recovery state |
+| Invoke an external provider | Adapter contract with credentials, rate limits, mapping, and failure behavior |
+
+The agent must not replace a command with an event, use a query to perform a side effect, or treat a free-form message as a durable contract.
+
+### Business Perspective
+
+Clear component relationships make CAT safer to grow. A new channel can subscribe to approved publication events. A new analytics consumer can read projections without changing the Publisher. A new agent can use the orchestrator's task contract. A new human interface can use the same governed APIs and approval records.
+
+This is how a platform creates leverage: one well-defined capability can serve many consumers without every consumer becoming coupled to implementation details.
+
+### Technical Perspective
+
+CAT uses four primary interaction channels:
+
+1. **Synchronous request/response** for short, bounded reads or validations where latency and failure are understood.
+2. **Asynchronous commands/tasks** for work that can be queued, retried, paused, or delegated.
+3. **Events** for facts, observations, lifecycle transitions, and fan-out.
+4. **Knowledge retrieval** for contextual information, evidence, memories, and decisions.
+
+A component may use more than one channel, but each operation must declare its semantic intent. Side effects require authorization and audit. Events require idempotent consumers. Queries must be safe to repeat. Knowledge retrieval must expose source and confidence.
+
+### Official Decisions
+
+| ID | Official Decision | Consequence |
+|---|---|---|
+| P2-COMP-DEC-001 | Agents do not communicate through undocumented direct calls as the default coordination mechanism. | CATA/orchestration and explicit contracts mediate collaboration. |
+| P2-COMP-DEC-002 | Commands represent requested work; events represent facts that occurred. | Consumers can reason about intent versus history. |
+| P2-COMP-DEC-003 | Queries and read models must not silently produce external side effects. | Inspection remains safe and repeatable. |
+| P2-COMP-DEC-004 | External provider behavior is isolated through adapters. | Provider-specific volatility does not define CAT domain contracts. |
+| P2-COMP-DEC-005 | Correlation, causation, approval, and provenance must remain traceable across component relationships. | Operators can reconstruct why an outcome occurred. |
+| P2-COMP-DEC-006 | High-impact execution verifies authorization at the execution boundary. | A UI or upstream agent cannot bypass governance by calling a lower-level component. |
+
+### Recommendations
+
+- Prefer contract-first events and commands with versioned schemas.
+- Include `actor_id`, `tenant_id` where applicable, `workflow_id`, `correlation_id`, `causation_id`, `source`, `occurred_at`, and `schema_version` in traceable messages.
+- Use a dead-letter or quarantine path for messages that cannot be processed safely.
+- Make consumers idempotent and record the deduplication key used.
+- Keep event payloads meaningful but avoid copying every internal database field into public contracts.
+- Expose human-readable explanations alongside machine-readable status.
+
+### Experimental Ideas
+
+- A contract simulation tool that replays commands and events against a sandboxed domain.
+- A graph query that shows the live component path for a workflow and identifies the next owner.
+- Automatic generation of sequence diagrams from trace records.
+- A semantic event inspector that distinguishes facts, recommendations, approvals, and side effects for AI agents.
+
+### Future Ideas
+
+- Federated event backbones across geographic CAT nodes.
+- Contract negotiation for third-party plugins and future Omni products.
+- Policy-aware service meshes or execution brokers.
+- Event replay as a first-class operator feature for safe reconstruction and learning.
+
+### Visual Overview
+
+**Diagram ID:** P2-COMP-001<br>
+**Diagram Title:** CAT Component Relationship Map<br>
+**Purpose:** Show the primary components and the direction of intent, coordination, domain execution, knowledge, measurement, and external effects.
+
+```mermaid
+flowchart TB
+    Human[Human supervisor]
+    External[External signals and providers]
+    KATA[KATA<br/>Human-facing translator and explainer]
+    CATA[CATA<br/>Central coordinator]
+    Policy[Identity, policy, and approval gateway]
+    Workflow[Automation<br/>workflow state and scheduler]
+    Agents[Specialized agents]
+    Domains[Commerce and platform domains]
+    Knowledge[Knowledge and memory]
+    Analytics[Analytics and measurement]
+    Treasury[Treasury]
+    Events[Event and command contracts]
+    Foundation[Foundation<br/>persistence, secrets, observability]
+
+    Human <--> KATA
+    External <--> Foundation
+    KATA <--> CATA
+    CATA <--> Policy
+    CATA <--> Workflow
+    Workflow <--> Agents
+    Agents <--> Domains
+    Domains <--> Events
+    Events <--> Analytics
+    Analytics <--> Treasury
+    Agents <--> Knowledge
+    Domains <--> Knowledge
+    Treasury <--> Knowledge
+    Policy <--> Foundation
+    Workflow <--> Foundation
+    Knowledge <--> Foundation
+    Domains <--> Foundation
+
+    style KATA fill:#00d4ff,color:#000,stroke:#00d4ff,stroke-width:3px
+    style CATA fill:#7c3aed,color:#fff,stroke:#7c3aed,stroke-width:3px
+    style Policy fill:#f59e0b,color:#000
+    style Domains fill:#10b981,color:#fff
+    style Knowledge fill:#06b6d4,color:#fff
+    style Treasury fill:#f59e0b,color:#000
+```
+
+### Mermaid Diagram(s)
+
+**Diagram ID:** P2-COMP-002<br>
+**Diagram Title:** Control Flow, Data Flow, and Knowledge Flow<br>
+**Purpose:** Separate three flows that are often incorrectly collapsed into one implementation path.
+
+```mermaid
+graph LR
+    subgraph ControlFlow[Control flow]
+        Intent[Intent] --> Auth[Authorize]
+        Auth --> Task[Task]
+        Task --> Execute[Execute]
+        Execute --> Approval[Approve when required]
+    end
+
+    subgraph DataFlow[Data and fact flow]
+        Source[External or internal source] --> Record[Domain record]
+        Record --> Event[Fact event]
+        Event --> Projection[Read model]
+        Projection --> Report[Report or view]
+    end
+
+    subgraph KnowledgeFlow[Knowledge flow]
+        Evidence[Evidence] --> Context[Retrieved context]
+        Context --> Decision[Decision or recommendation]
+        Decision --> Outcome[Outcome]
+        Outcome --> Lesson[Lesson and memory]
+        Lesson --> Context
+    end
+```
+
+**Diagram ID:** P2-COMP-003<br>
+**Diagram Title:** Campaign Component Sequence<br>
+**Purpose:** Show a representative campaign path across KATA, CATA, agents, domains, approval, Analytics, Treasury, and Knowledge.
+
+```mermaid
+sequenceDiagram
+    participant H as Human
+    participant K as KATA
+    participant C as CATA
+    participant R as Research Agent
+    participant Q as Commerce/Marketing
+    participant W as Content/Publisher
+    participant G as Governance
+    participant A as Analytics
+    participant T as Treasury
+    participant N as Knowledge
+
+    H->>K: Request campaign for a market
+    K->>C: Structured intent and constraints
+    C->>N: Retrieve evidence and prior campaigns
+    N-->>C: Context and confidence
+    C->>R: Research and qualify opportunity
+    R-->>C: Evidence and recommendation
+    C->>Q: Build campaign plan
+    Q-->>C: Plan with assets and channel scope
+    C->>G: Request approval with risk and Treasury context
+    G-->>C: Approved scope or revision
+    C->>W: Create, validate, and publish approved assets
+    W-->>C: Publication result
+    W->>A: Emit channel and content events
+    A->>T: Emit attributed economic signals
+    A->>N: Emit operational outcome
+    T->>N: Emit reconciled financial outcome
+    N-->>C: Learning context for next optimization
+    C-->>K: Status, result, and explanation
+    K-->>H: Human-readable outcome
+```
+
+**Diagram ID:** P2-COMP-004<br>
+**Diagram Title:** Component Failure Isolation<br>
+**Purpose:** Show how failures should stop unsafe side effects while preserving recoverable work and evidence.
+
+```mermaid
+flowchart TD
+    Task[Durable task] --> Dependency{Dependency available?}
+    Dependency -->|Yes| Execute[Execute bounded step]
+    Dependency -->|No| Classify{Retryable or unsafe?}
+    Classify -->|Retryable| Backoff[Backoff and retry]
+    Classify -->|Unsafe/unknown| Hold[Hold and request review]
+    Execute --> Result{Result}
+    Result -->|Success| Event[Emit fact and continue]
+    Result -->|Transient failure| Backoff
+    Result -->|Permanent failure| Quarantine[Quarantine with evidence]
+    Backoff --> Limit{Retry limit reached?}
+    Limit -->|No| Dependency
+    Limit -->|Yes| Quarantine
+    Hold --> Audit[Record policy and dependency failure]
+    Quarantine --> Audit
+    Event --> Next[Next workflow stage]
+```
+
+**Diagram ID:** P2-COMP-005<br>
+**Diagram Title:** Component Dependency Graph<br>
+**Purpose:** Identify primary dependency direction and prevent direct shortcuts from experience surfaces to domain or financial state.
+
+```mermaid
+graph BT
+    Foundation[Foundation and integration contracts]
+    Knowledge[Knowledge and memory]
+    Domains[Domain services]
+    Agents[Specialized agents]
+    Automation[Automation and CATA]
+    Governance[Identity and governance]
+    Experience[KATA, UI, API, portals]
+    External[External providers]
+
+    External --> Foundation
+    Foundation --> Knowledge
+    Foundation --> Domains
+    Knowledge --> Agents
+    Domains --> Agents
+    Governance --> Agents
+    Agents --> Automation
+    Domains --> Automation
+    Governance --> Automation
+    Automation --> Experience
+    Governance --> Experience
+
+    Experience -. no direct ledger or credential access .-> Foundation
+    Experience -. no direct domain mutation .-> Domains
+```
+
+### Visual Asset Placeholder — Live Workflow Trace Board
+
+| Field | Value |
+|---|---|
+| **Visual Asset Name** | CAT Live Workflow Trace Board |
+| **Purpose** | Give supervisors, operators, and developers a visual trace of a workflow across components, approvals, domain stages, external calls, retries, and outcomes. |
+| **Recommended Resolution** | 3840 × 2160 px desktop command-center view; 1440 × 900 px operational detail view |
+| **Suggested Location inside `/design`** | `/design/UI/WorkflowTraceBoard/` |
+| **Mood** | Focused, calm, high-signal operational intelligence |
+| **Style** | Dark cosmic base, glass cards, accessible status colors, directional light trails, explicit text labels, reduced-motion mode |
+| **Reference Category** | Observability dashboard / workflow operations / developer tooling |
+
+### Architecture Map
+
+#### Relationship Matrix
+
+| Producer | Contract | Consumer | Meaning |
+|---|---|---|---|
+| Human/KATA | Intent command | CATA/Automation | A goal or requested operation |
+| CATA | Scoped task | Agent/domain | Work assigned within a role and deadline |
+| Domain | Fact event | Analytics/Treasury/Knowledge | Something occurred in the domain |
+| Policy gateway | Approval decision | Automation/executor | A scoped authorization or rejection |
+| Knowledge | Retrieval response | Agent/CATA | Context, evidence, memory, confidence |
+| Analytics | Anomaly/performance event | CATA/Commerce/Treasury | A measured signal requiring attention |
+| Treasury | Financial constraint/outcome | Commerce/AI/Administration | Economic context or reconciled result |
+| Adapter | External result | Domain/Foundation | Provider response translated into CAT semantics |
+
+#### Contract Semantics
+
+| Contract | Should be | Must not be |
+|---|---|---|
+| Command | Intentional, scoped, authorized, retry-aware | A broadcast fact or unbounded instruction |
+| Event | Immutable fact with provenance and version | An instruction that assumes a consumer will act |
+| Query | Side-effect free and repeatable | A hidden mutation or implicit approval |
+| Approval | Human or policy decision tied to exact scope | A permanent blanket permission |
+| Retrieval | Evidence/context with confidence and source | An assertion of guaranteed truth |
+| Failure | Structured, classified, recoverable state | A log line that loses the task |
+
+### Communication Lifecycle
+
+1. **Declare:** a human, schedule, external provider, or domain event creates intent or fact.
+2. **Authenticate:** Identity determines the actor, tenant, and service principal.
+3. **Authorize:** Security and Governance classify the action and permissions.
+4. **Correlate:** Automation assigns workflow, task, causation, and idempotency identifiers.
+5. **Contextualize:** Knowledge and memory provide relevant evidence and constraints.
+6. **Execute:** an agent or domain performs the bounded responsibility.
+7. **Observe:** Foundation, Analytics, and Treasury capture results and side effects.
+8. **Explain:** KATA and read models present state, evidence, and exceptions.
+9. **Learn:** Knowledge records outcomes and validated lessons.
+10. **Recover or close:** Automation completes, retries, compensates, quarantines, or escalates.
+
+### Cross References
+
+- Root event bus and communication philosophy: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Sections 13.9 and 13.11.
+- Agent communication and lifecycle: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Section 13.8.
+- KATA and CATA boundary: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Section 13.6.
+- UI and design context targets: [`context/10_UI_UX.md`](./10_UI_UX.md), [`context/11_DESIGN_LANGUAGE.md`](./11_DESIGN_LANGUAGE.md).
+- Security and data controls: [`context/17_SECURITY.md`](./17_SECURITY.md).
+
+### Dependencies
+
+Component relationships depend on schema versioning, event delivery, task persistence, identity, policy evaluation, knowledge retrieval, domain ownership, external adapters, observability, and human notification. The absence of one dependency must result in an explicit degraded state rather than an invented success.
+
+### Failure Modes and Recovery Strategy
+
+| Failure | Detection | Recovery |
+|---|---|---|
+| Invalid command | Schema validation | Reject with correction details; no side effect |
+| Unauthorized command | Policy decision | Deny, audit, notify, preserve request if safe |
+| Duplicate command | Idempotency key | Return existing task/result or safely deduplicate |
+| Lost event | Delivery/reconciliation gap | Replay from event store or source; mark downstream uncertainty |
+| Out-of-order event | Sequence/version check | Buffer, reorder within policy, or quarantine |
+| Query timeout | Latency/health signal | Retry read, serve stale labeled view, or show unavailable |
+| Agent output invalid | Contract/evaluator failure | Reject output, re-run with bounded fallback, escalate |
+| External provider mismatch | Adapter validation | Quarantine response, preserve raw payload, update connector |
+| Approval scope mismatch | Execution boundary check | Block action and request re-approval |
+
+### Risks
+
+| Risk | Consequence | Control |
+|---|---|---|
+| Too many synchronous calls | Cascading latency and failure | Use durable tasks and events for long-running work |
+| Event storm | Cost, backlog, and noisy automation | Partition, prioritize, deduplicate, and apply backpressure |
+| Contract drift | Consumers misinterpret messages | Version schemas and run compatibility tests |
+| Trace IDs lost at boundaries | Incidents cannot be reconstructed | Require trace propagation in contracts |
+| Read model mistaken for source | Edits bypass domain ownership | Mark projections read-only and link canonical source |
+| External adapter leaks raw provider semantics | Core becomes vendor-specific | Translate at adapter boundary |
+
+### Anti-patterns
+
+- Direct agent-to-agent calls with hidden authorization assumptions.
+- Events that contain commands such as “please publish this now.”
+- Commands with no actor, scope, deadline, or idempotency key.
+- A workflow status that says “success” before external confirmation.
+- Retrying financial or publishing actions without deduplication.
+- A UI showing a cached projection as settled truth without freshness status.
+
+### Best Practices
+
+- Propagate correlation and causation identifiers end to end.
+- Make contracts self-describing enough for humans and AI agents.
+- Log decisions and state transitions, not only errors.
+- Test duplicate, delayed, missing, and out-of-order messages.
+- Make external side effects explicit and separately observable.
+- Prefer read models that explain provenance and last update time.
+
+### Extension Points
+
+- New components register command, event, query, and retrieval contracts.
+- New external adapters implement provider translation and health contracts.
+- New workflow stages subscribe to facts and expose task contracts.
+- New observability views consume trace and event projections without changing domain state.
+- New interfaces use the same governed relationship patterns as KATA.
+
+### AI Construction Notes
+
+An AI agent generating a component interface should produce both a happy-path sequence and at least one failure-isolation diagram. It should name the authoritative record, the side effect, the idempotency strategy, and the recovery owner. A component that has no recovery owner is not implementation-ready.
+
+### AI Memory Anchor
+
+> **Commands request, events report, queries observe, retrieval contextualizes, approvals authorize, and traces connect the whole path.**
+
+### Implementation Checklist
+
+- [x] Component relationship patterns are defined.
+- [x] Control, data, knowledge, failure, and dependency diagrams include metadata.
+- [x] Command/event/query/retrieval semantics are separated.
+- [x] Component failure isolation and recovery are documented.
+- [x] A visual asset placeholder is included for the workflow trace surface.
+- [ ] Concrete event schemas and API protocols are defined in Architecture and Tech Stack documents.
+- [ ] Runtime tracing and contract validation are implemented later.
+
+---
+
+## 20. User Types, Permissions, and Responsibilities
+
+### Human Explanation
+
+CAT has more than one kind of user. A user type describes a responsibility and access posture, not a marketing persona alone. A person may hold more than one role in a small deployment, while an enterprise deployment may separate those roles across many people. An AI Agent and a Developer are also participants in the ecosystem, but they are not granted human authority simply because they can call an API.
+
+The primary user types are:
+
+- **Guest:** an unauthenticated or minimally identified visitor with public/read-only access.
+- **Creator:** a person who prepares content, creative assets, or editorial material.
+- **Affiliate:** a person or operator who manages affiliate programs, products, links, partner terms, and attribution context.
+- **Business:** a business owner, campaign supervisor, strategist, or operator accountable for commercial outcomes.
+- **Administrator:** a trusted platform or organization administrator who manages membership, settings, policies, and operational control.
+- **AI Agent:** a non-human service principal that performs a declared role under tool, data, and autonomy restrictions.
+- **Developer:** a person or service contributor who builds, tests, documents, integrates, or extends CAT.
+- **Enterprise:** an organization-level participant with multi-user governance, policy, audit, integration, and support requirements.
+
+These types are intentionally not a flat hierarchy. A Creator may also be a Developer. An Affiliate operator may be a Business owner. An Enterprise contains users and service principals but is itself a policy and ownership boundary. Administrator is a responsibility role, not a universal superuser entitlement.
+
+### AI Context
+
+An AI agent must treat identity as a structured object with at least:
+
+```text
+principal_id
+principal_type
+organization_id / tenant_id when applicable
+roles
+scopes
+resource constraints
+data classifications allowed
+autonomy level
+approval authority (usually none for the agent itself)
+credential and tool bindings
+expiry and revocation state
+```
+
+The agent must not infer permissions from a display name, email domain, UI route, prompt, or repository directory. It must not treat “administrator,” “business owner,” or “AI agent” as unlimited access. Authorization is evaluated for an action, resource, scope, context, and time.
+
+### Business Perspective
+
+User types allow CAT to serve both individual operators and organizations without redefining the product. They support:
+
+- a creator who wants help producing approved assets;
+- an affiliate operator who manages network relationships and link health;
+- a business owner who approves campaigns and budgets;
+- an administrator who configures a workspace;
+- a developer who adds an integration or agent skill;
+- an enterprise that requires separation of duties and audit.
+
+The business value of role clarity is trust. People can understand what CAT may do on their behalf, which decisions remain theirs, and how responsibility is divided when an AI agent performs work.
+
+### Technical Perspective
+
+Authorization is multi-dimensional. CAT should evaluate:
+
+| Dimension | Example |
+|---|---|
+| Principal | Human, service, agent, integration, organization |
+| Action | Read, create, edit, approve, publish, export, pay, administer |
+| Resource | Campaign, content asset, affiliate link, ledger record, model, policy |
+| Scope | Own records, team records, organization, selected campaign, global platform |
+| Context | Environment, risk level, data classification, time, approval state |
+| Effect | Read-only, internal mutation, external publication, financial transfer, irreversible action |
+| Decision | Allow, deny, require approval, allow with notification, quarantine |
+
+Permissions should be least-privilege, explicit, auditable, revocable, and testable. Role-based permissions are useful for defaults; resource and policy conditions are needed for real enterprise boundaries.
+
+### Official Decisions
+
+| ID | Official Decision | Consequence |
+|---|---|---|
+| P2-USER-DEC-001 | CAT recognizes Guest, Creator, Affiliate, Business, Administrator, AI Agent, Developer, and Enterprise participants. | New principal types require an explicit identity and permission decision. |
+| P2-USER-DEC-002 | Human roles and AI service principals are distinct. | AI agents cannot inherit human accountability or approval authority by default. |
+| P2-USER-DEC-003 | Administrator is scoped authority, not unrestricted power. | Platform, organization, security, Treasury, and support duties can be separated. |
+| P2-USER-DEC-004 | Enterprise is an organizational boundary containing users, policies, resources, and audit requirements. | Enterprise behavior is configured through governed policies rather than core forks. |
+| P2-USER-DEC-005 | High-impact actions require explicit scope and the appropriate human or policy approval. | Role membership alone does not authorize publishing, spending, credential changes, or irreversible deletion. |
+| P2-USER-DEC-006 | Developer access and runtime agent access are separate permission surfaces. | Code contributors do not automatically receive production data or execution authority. |
+
+### Recommendations
+
+- Use role templates as defaults and resource-level scopes for real operations.
+- Separate “can prepare” from “can approve” and “can execute.”
+- Separate “can view financial data” from “can initiate or approve financial actions.”
+- Give AI Agents narrow tool capabilities and explicit expiry/revocation.
+- Require two-person or multi-role review for the highest-risk enterprise actions where appropriate.
+- Make permission explanations available to humans and machine-readable to AI agents.
+
+### Experimental Ideas
+
+- A permission simulator that shows “why allowed” and “why denied” for a proposed action without executing it.
+- Risk-adaptive access that increases verification requirements for unusual behavior while preserving human review.
+- A role recommendation assistant that proposes least-privilege role bundles from observed work, subject to administrator approval.
+
+### Future Ideas
+
+- Cross-organization federation for partner and marketplace workflows.
+- Delegated administration for regional or business-unit operators.
+- Enterprise policy packs that can be tested and versioned before activation.
+- Temporary just-in-time permissions for incident response and sensitive integrations.
+- Organization-level AI workforce management with agent registration, evaluation, and retirement.
+
+### Visual Overview
+
+**Diagram ID:** P2-USER-001<br>
+**Diagram Title:** CAT Principal and Authority Model<br>
+**Purpose:** Show how human, organizational, and AI principals reach platform capabilities through identity and policy rather than direct privilege.
+
+```mermaid
+flowchart TB
+    Guest[Guest]
+    Creator[Creator]
+    Affiliate[Affiliate operator]
+    Business[Business owner/operator]
+    Admin[Administrator]
+    Developer[Developer]
+    Enterprise[Enterprise organization]
+    Agent[AI Agent service principal]
+
+    Identity[Identity and tenant boundary]
+    Policy[Permission, risk, and approval policy]
+    Surface[Governed API, KATA, portal, or developer surface]
+    Capability[CAT capabilities and domains]
+    Audit[Audit, knowledge, and outcome records]
+
+    Guest --> Identity
+    Creator --> Identity
+    Affiliate --> Identity
+    Business --> Identity
+    Admin --> Identity
+    Developer --> Identity
+    Enterprise --> Identity
+    Agent --> Identity
+    Identity --> Policy
+    Policy --> Surface
+    Surface --> Capability
+    Capability --> Audit
+    Policy --> Audit
+
+    style Identity fill:#00d4ff,color:#000,stroke:#00d4ff,stroke-width:3px
+    style Policy fill:#f59e0b,color:#000
+    style Capability fill:#10b981,color:#fff
+    style Agent fill:#7c3aed,color:#fff
+```
+
+### Mermaid Diagram(s)
+
+**Diagram ID:** P2-USER-002<br>
+**Diagram Title:** Action Authorization Decision Tree<br>
+**Purpose:** Show the decisions applied before a principal can perform or initiate a CAT action.
+
+```mermaid
+flowchart TD
+    Request[Action request] --> Authenticated{Principal authenticated?}
+    Authenticated -->|No| GuestPath[Public/read-only path or deny]
+    Authenticated -->|Yes| Tenant{Correct organization/tenant?}
+    Tenant -->|No| Deny[Deny and audit]
+    Tenant -->|Yes| Role{Role and scope permit resource?}
+    Role -->|No| Deny
+    Role -->|Yes| Data{Data classification allowed?}
+    Data -->|No| Deny
+    Data -->|Yes| Risk{Impact and reversibility}
+    Risk -->|Low| Allow[Allow and log]
+    Risk -->|Medium| Notify[Allow with notification or scoped policy]
+    Risk -->|High| Approval[Require human approval]
+    Risk -->|Critical| Multi[Require authorized multi-role approval]
+    Approval --> Decision{Approved?}
+    Multi --> Decision
+    Decision -->|Yes| Verify[Verify exact scope at execution]
+    Decision -->|No| Reject[Reject, record rationale, and stop]
+    Verify --> Execute[Execute and observe]
+```
+
+**Diagram ID:** P2-USER-003<br>
+**Diagram Title:** Role Lifecycle and Separation of Duties<br>
+**Purpose:** Show how a user or agent is invited, assigned, constrained, reviewed, and revoked.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Invited
+    Invited --> Verified
+    Verified --> Provisioned
+    Provisioned --> Active
+    Active --> ScopedChange: role or permission change
+    ScopedChange --> Active
+    Active --> Suspended: risk, leave, incident, or policy
+    Suspended --> Active: reviewed and restored
+    Active --> Revoked: departure, compromise, or decommission
+    Revoked --> Archived
+    Archived --> [*]
+```
+
+**Diagram ID:** P2-USER-004<br>
+**Diagram Title:** User Type Capability Surface<br>
+**Purpose:** Compare the primary work surfaces available to different participant types.
+
+```mermaid
+graph LR
+    Guest[Guest] --> Public[Public information]
+    Creator[Creator] --> Creative[Draft and revise assets]
+    Affiliate[Affiliate] --> Partner[Programs, links, attribution]
+    Business[Business] --> Campaigns[Campaigns, decisions, approvals]
+    Admin[Administrator] --> Org[Membership, settings, policy]
+    Agent[AI Agent] --> Tools[Declared tools and workflows]
+    Developer[Developer] --> Dev[Code, APIs, SDKs, tests]
+    Enterprise[Enterprise] --> Governance[Organization governance, audit, integrations]
+```
+
+### Visual Asset Placeholder — Role and Permission Command Center
+
+| Field | Value |
+|---|---|
+| **Visual Asset Name** | CAT Role and Permission Command Center |
+| **Purpose** | Show a human-readable view of principals, roles, scopes, active sessions, pending approvals, policy explanations, and recent permission changes. |
+| **Recommended Resolution** | 3840 × 2160 px desktop; 1440 × 900 px administrative workflow; mobile-safe 390 × 844 px review crop |
+| **Suggested Location inside `/design`** | `/design/UI/IdentityAndGovernance/RolePermissionCommandCenter.md` |
+| **Mood** | Trustworthy, precise, calm, and security-conscious |
+| **Style** | Glass command panels, explicit scope chips, readable tables, status color plus text labels, no decorative ambiguity |
+| **Reference Category** | Identity administration / enterprise governance / security operations |
+
+### User Type Contracts
+
+#### Guest
+
+- **Purpose:** Discover public CAT information or access explicitly public resources without an authenticated workspace identity.
+- **Owner:** Product and security owners define public exposure.
+- **Responsibilities:** Respect public-use terms; authenticate before private or mutating actions; do not infer that a public page exposes private platform state.
+- **Inputs:** Public requests, public documentation, invitation or sign-in action.
+- **Outputs:** Public views, sign-in initiation, support/contact request where available.
+- **Dependencies:** Experience; Identity; Security; public content policy.
+- **Extension Points:** Public documentation, demos, status views, partner onboarding entry points.
+- **Failure Modes:** Unauthorized private request; abusive traffic; bot or rate-limit violation.
+- **Recovery Strategy:** Deny safely; rate limit; explain required authentication; preserve no sensitive detail in errors.
+- **Future Evolution:** Public marketplace discovery, documentation portals, and controlled product demonstrations.
+
+#### Creator
+
+- **Purpose:** Develop, edit, review, and contribute content or creative assets within assigned campaigns and brand/policy boundaries.
+- **Owner:** Content/Creative domain owner and the relevant Business owner.
+- **Responsibilities:** Use approved sources; maintain accuracy and disclosure; revise drafts; respond to quality findings; respect channel and brand rules.
+- **Inputs:** Briefs, product facts, source evidence, affiliate context, brand settings, agent drafts, reviewer feedback.
+- **Outputs:** Draft content, revisions, asset metadata, quality feedback, approval requests.
+- **Dependencies:** Content; Commerce; Knowledge; Affiliate; Marketing; Identity; Settings; Security.
+- **Extension Points:** Creator templates, editorial workflows, localization, review tools, approved model assistance.
+- **Failure Modes:** Unsupported claim; missing attribution/disclosure; asset version conflict; policy violation.
+- **Recovery Strategy:** Return to draft; preserve prior version; require correction; block public publication until resolved.
+- **Future Evolution:** Collaborative human/AI studios, multimodal asset production, and organization-specific editorial workspaces.
+
+#### Affiliate
+
+- **Purpose:** Operate affiliate program, merchant, link, term, and attribution workflows.
+- **Owner:** Affiliate operations owner.
+- **Responsibilities:** Validate partner terms; manage links; monitor health; maintain network credentials through approved paths; investigate attribution discrepancies.
+- **Inputs:** Product/campaign scope, network data, terms, tracking requirements, Analytics and Treasury signals.
+- **Outputs:** Links, program records, term changes, health events, attribution corrections, partner recommendations.
+- **Dependencies:** Affiliate domain; Commerce; Identity; Security; Analytics; Treasury.
+- **Extension Points:** New networks, regional partners, connector plugins, link validation tools.
+- **Failure Modes:** Expired relationship; malformed link; wrong tracking; unauthorized term change; credential error.
+- **Recovery Strategy:** Quarantine link; restore last valid version; revalidate provider terms; rotate credential; hold publication or financial interpretation.
+- **Future Evolution:** Partner portfolio optimization and governed affiliate-network marketplace.
+
+#### Business
+
+- **Purpose:** Own commercial intent, campaign priorities, product/market strategy, risk acceptance, and required approvals.
+- **Owner:** Business/product owner for the organization or campaign.
+- **Responsibilities:** Set goals and constraints; review recommendations; approve material actions; interpret outcomes; own business consequences.
+- **Inputs:** Research, plans, content packages, Treasury context, Analytics, policy, human strategy.
+- **Outputs:** Goals, constraints, approvals, rejections, budget decisions, strategic feedback.
+- **Dependencies:** Commerce; Marketing; Analytics; Treasury; Knowledge; Identity; Administration.
+- **Extension Points:** Business-unit policies, campaign templates, approval thresholds, strategic dashboards.
+- **Failure Modes:** Ambiguous objective; stale approval; conflict between budget and scope; approval without evidence.
+- **Recovery Strategy:** Request clarification; re-open plan; expire or revoke approval; record rationale; route financial or legal questions to the correct specialist.
+- **Future Evolution:** Portfolio-level command, predictive planning, and multi-business-unit governance.
+
+#### Administrator
+
+- **Purpose:** Manage organization membership, scoped roles, settings, approved integrations, policies, and operational controls.
+- **Owner:** Platform Administration owner or organization owner, depending on scope.
+- **Responsibilities:** Provision and revoke access; configure policy; maintain settings; manage approved extensions; support audit and recovery; avoid bypassing Security.
+- **Inputs:** Organization requests, identity events, policy changes, security alerts, enterprise requirements.
+- **Outputs:** Role changes, configuration versions, policy assignments, audit records, support actions.
+- **Dependencies:** Identity; Security; Settings; Administration; Foundation; enterprise integration.
+- **Extension Points:** Delegated admins, private catalogs, policy packs, support workflows.
+- **Failure Modes:** Excess privilege; accidental deletion; incorrect tenant scope; unreviewed policy change.
+- **Recovery Strategy:** Confirmation, scoped approval, rollback, audit review, break-glass protocol, Security escalation.
+- **Future Evolution:** Delegated multi-region and enterprise control planes.
+
+#### AI Agent
+
+- **Purpose:** Perform a declared, evaluated, and bounded role in CAT's workflows as a non-human service principal.
+- **Owner:** Agent owner, with Security and domain owners accountable for permission and domain behavior.
+- **Responsibilities:** Accept scoped tasks; retrieve allowed context; perform role work; state uncertainty; emit outputs and traces; escalate; learn only through governed paths.
+- **Inputs:** Structured tasks, allowed tools, context, policies, prompts, model routes, memory, deadlines.
+- **Outputs:** Recommendations, drafts, task results, events, explanations, failure states, lesson candidates.
+- **Dependencies:** Identity/service principal; CATA/Automation; Knowledge; domain APIs; Security; evaluation; observability.
+- **Extension Points:** New tools, skills, models, prompts, domain agents, evaluators, sandboxed capabilities.
+- **Failure Modes:** Hallucination; tool misuse; prompt injection; privilege escalation; non-idempotent retry; hidden uncertainty; output contract failure.
+- **Recovery Strategy:** Stop or quarantine; revoke tool; retry with fallback; require human review; preserve trace; roll back policy or model route.
+- **Future Evolution:** Agent teams, role-specific memory, evaluation-driven routing, and governed autonomous workforces.
+
+#### Developer
+
+- **Purpose:** Build, test, document, integrate, secure, and maintain CAT components or extensions.
+- **Owner:** Engineering/architecture owner for the relevant repository or contract.
+- **Responsibilities:** Follow context and coding rules; write tests; update documentation; preserve backward compatibility; review security and operational impact.
+- **Inputs:** Tasks, context, ADRs, code, tests, APIs, design specs, status, feedback.
+- **Outputs:** Code, migrations, tests, documentation, integrations, decision proposals, operational improvements.
+- **Dependencies:** AI workspace; project rules; architecture; coding standards; repository access; CI/review; security.
+- **Extension Points:** SDKs, plugins, connectors, agent skills, tooling, documentation automation.
+- **Failure Modes:** Breaking contract; secret leak; undocumented behavior; test gap; unsafe migration; scope drift.
+- **Recovery Strategy:** Review, revert, migration rollback, incident response, documentation correction, access reduction.
+- **Future Evolution:** AI-assisted development, public SDKs, partner developer ecosystem, and generated contract tooling.
+
+#### Enterprise
+
+- **Purpose:** Represent an organization with its users, business units, policies, data boundaries, integrations, audit requirements, and support relationship.
+- **Owner:** Enterprise customer owner in partnership with Omni/CAT platform owners.
+- **Responsibilities:** Define local policy; manage users and approvals; protect credentials; review extensions; meet organizational and regulatory obligations; provide accountable decision owners.
+- **Inputs:** Organization identity, policies, users, integrations, data, budgets, compliance requirements, support requests.
+- **Outputs:** Enterprise configuration, approvals, audit exports, governed workflows, usage and financial records.
+- **Dependencies:** Administration; Identity; Security; Settings; Treasury; APIs; deployment; support and documentation.
+- **Extension Points:** Private plugins, delegated admin, private catalogs, enterprise identity, compliance exports, policy packs.
+- **Failure Modes:** Misconfiguration; tenant isolation failure; approval ambiguity; unsupported integration; local policy conflict.
+- **Recovery Strategy:** Suspend affected scope; restore configuration; rotate access; engage support/security; preserve audit and incident evidence.
+- **Future Evolution:** Multi-tenant platform, regional controls, private AI models, and federated enterprise ecosystems.
+
+### Permission and Capability Matrix
+
+Legend: **R** = read; **D** = draft/prepare; **E** = execute within policy; **A** = approve; **C** = configure/administer; **—** = no default access. Exact permissions remain resource- and scope-dependent.
+
+| Capability | Guest | Creator | Affiliate | Business | Administrator | AI Agent | Developer | Enterprise |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Public information | R | R | R | R | R | — | R | R |
+| Private workspace state | — | R | R | R | R/C | Scoped R | Scoped R | R/C |
+| Content draft | — | D/E | D | D/A | Scoped | D/E by role | D/E in dev/test | Policy-scoped |
+| Content approval | — | —/A if delegated | —/A if delegated | A | A if assigned | — | —/A only in test | A by policy |
+| Affiliate link preparation | — | D | D/E | D/A | Scoped | E within tool scope | Test/dev only by default | Policy-scoped |
+| Public publication | — | —/E after approval | —/E after approval | A/E by policy | Scoped | E only after valid approval | Test/dev only | Policy-scoped |
+| Analytics read | Public only | Scoped R | Scoped R | R | R | Scoped R | Synthetic/test by default | R by policy |
+| Treasury read | — | —/limited | Scoped | R | R/C by role | Scoped, masked by policy | Synthetic/test by default | R by policy |
+| Treasury action/payout | — | — | —/A if assigned | A | Scoped | — | — | Authorized human only |
+| User/role administration | — | — | — | —/limited | C | — | Dev/test fixtures only | C by delegated policy |
+| Security configuration | — | — | — | — | Scoped C | — | Review/propose | Enterprise security owner |
+| Core code/extension development | — | — | — | — | — | — | E in authorized repo | Through approved developer access |
+| Policy change | — | — | — | Propose/A by scope | C/A by scope | Propose only | Propose | Enterprise owner under CAT guardrails |
+
+### User and Workflow Interaction Model
+
+A user type does not directly own a screen. It receives a surface appropriate to its responsibilities and the current task. The same underlying workflow may appear as a conversational request to Business, a content workspace to Creator, a link-health queue to Affiliate, an approval card to Administrator, and structured task state to an AI Agent.
+
+### Visual Asset Placeholder — Multi-Role CAT Workspace
+
+| Field | Value |
+|---|---|
+| **Visual Asset Name** | CAT Multi-Role Workspace and Approval Surface |
+| **Purpose** | Represent the same workflow through role-specific views: creator draft, affiliate link context, business decision, administrator policy, enterprise audit, and AI task trace. |
+| **Recommended Resolution** | 3840 × 2160 px master board; 1920 × 1080 px role-view exports; 1440 × 900 px application view |
+| **Suggested Location inside `/design`** | `/design/UI/MultiRoleWorkspace/` |
+| **Mood** | Cohesive intelligence with role-appropriate focus |
+| **Style** | Shared visual language with differentiated information density, accessible contrast, explicit approval states, calm motion |
+| **Reference Category** | Role-based workspace / approval workflow / enterprise product UX |
+
+### Mermaid Diagram(s)
+
+**Diagram ID:** P2-USER-005<br>
+**Diagram Title:** One Workflow, Multiple Responsibility Views<br>
+**Purpose:** Show that role-specific interfaces are projections of one governed workflow rather than separate truths.
+
+```mermaid
+flowchart LR
+    Workflow[Canonical campaign workflow]
+    Workflow --> CreatorView[Creator view<br/>brief, draft, feedback]
+    Workflow --> AffiliateView[Affiliate view<br/>terms, links, health]
+    Workflow --> BusinessView[Business view<br/>plan, evidence, approval]
+    Workflow --> AdminView[Admin view<br/>policy, roles, audit]
+    Workflow --> EnterpriseView[Enterprise view<br/>governance, reports, integrations]
+    Workflow --> AgentView[Agent view<br/>task, tools, context, output]
+
+    CreatorView -. governed projection .-> Workflow
+    AffiliateView -. governed projection .-> Workflow
+    BusinessView -. approval decision .-> Workflow
+    AdminView -. policy/configuration .-> Workflow
+    EnterpriseView -. organizational policy .-> Workflow
+    AgentView -. task/result .-> Workflow
+```
+
+**Diagram ID:** P2-USER-006<br>
+**Diagram Title:** Separation of Preparation, Approval, and Execution<br>
+**Purpose:** Prevent role capability from being confused with authority to create external effects.
+
+```mermaid
+flowchart TD
+    Prepare[Creator, Affiliate, AI Agent, or Developer prepares]
+    Prepare --> Review[Evidence, quality, policy, and scope review]
+    Review --> Approver{Authorized human or policy approver}
+    Approver -->|Reject| Record[Record rejection and reason]
+    Approver -->|Modify| Prepare
+    Approver -->|Approve| Scope[Bind exact action scope]
+    Scope --> Executor[Agent/domain executor]
+    Executor --> Outcome[Observe, reconcile, and learn]
+```
+
+**Diagram ID:** P2-USER-007<br>
+**Diagram Title:** Enterprise Organization Boundary<br>
+**Purpose:** Show how enterprise users and service principals remain inside organization, policy, data, and audit boundaries.
+
+```mermaid
+graph TB
+    Omni[CAT/Omni platform governance]
+    Enterprise[Enterprise organization]
+    OrgPolicy[Enterprise policy]
+    Users[Enterprise users]
+    Services[Enterprise service principals and AI agents]
+    Data[Enterprise-scoped data and knowledge]
+    Audit[Enterprise audit and reports]
+    Integrations[Enterprise integrations]
+
+    Omni --> Enterprise
+    Enterprise --> OrgPolicy
+    Enterprise --> Users
+    Enterprise --> Services
+    OrgPolicy --> Users
+    OrgPolicy --> Services
+    Users --> Data
+    Services --> Data
+    Data --> Audit
+    Enterprise --> Integrations
+    Integrations --> Data
+```
+
+### Cross References
+
+- Organizational philosophy: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Section 17.
+- KATA human interface: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Section 13.6.
+- Security and permission target: [`context/17_SECURITY.md`](./17_SECURITY.md).
+- Administration and identity future context: [`context/02_PROJECT_RULES.md`](./02_PROJECT_RULES.md), [`context/16_DEPLOYMENT.md`](./16_DEPLOYMENT.md).
+- Human interaction and design targets: [`context/10_UI_UX.md`](./10_UI_UX.md), [`context/11_DESIGN_LANGUAGE.md`](./11_DESIGN_LANGUAGE.md).
+
+### Dependencies
+
+User types depend on Identity, Administration, Security, Settings, policy, audit, organization boundaries, user interface surfaces, and domain ownership. Permissions also depend on accurate resource identity and workflow state. A role cannot be evaluated correctly if the target resource, tenant, or action scope is ambiguous.
+
+### Risks
+
+| Risk | Consequence | Control |
+|---|---|---|
+| Role explosion | Permissions become unmaintainable | Use role templates plus resource scopes |
+| Administrator as universal superuser | Separation of duties fails | Split platform, organization, security, and Treasury authority |
+| AI Agent inherits human role | Unaccountable or over-privileged automation | Separate service principals and explicit tool scopes |
+| Enterprise policy conflicts with CAT safety | Local customization weakens core controls | Allow stricter policy, not weaker mandatory safeguards |
+| Capability matrix mistaken for final authorization | Static table misses context and resource scope | Evaluate action, resource, tenant, risk, and state at runtime |
+| Public and private views leak through projections | Data exposure | Classify data and enforce read-model access |
+
+### Anti-patterns
+
+- “If the user can see the button, the user can perform the action.”
+- “Business owner means can spend any amount.”
+- “Developer access is equivalent to production access.”
+- “AI Agent is an administrator because it automates administration.”
+- “Enterprise means bypassing CAT defaults.”
+- “A role name is enough; scope and resource do not matter.”
+
+### Best Practices
+
+- Use separation of duties for high-impact actions.
+- Explain permissions in human language and expose machine-readable denial reasons.
+- Review service-principal permissions as rigorously as human permissions.
+- Revoke and expire access explicitly.
+- Keep organization, environment, and resource boundaries visible in audit records.
+- Test both allowed and denied behavior for every sensitive capability.
+
+### Extension Points
+
+- New roles through identity, policy, and ownership records.
+- New organization models through tenant and delegation contracts.
+- New user surfaces through governed read/command APIs.
+- New agent types through service-principal registration and evaluation.
+- New enterprise controls through stricter policy packs and private extension catalogs.
+
+### AI Construction Notes
+
+When an agent receives “make this available to admins,” it must ask which administrators, in which organization, for which resources, with what side effects, and whether approval remains required. It should never translate a role label directly into a wildcard permission.
+
+### AI Memory Anchor
+
+> **A principal is not a permission. Authorization is the evaluated relationship between actor, action, resource, scope, policy, and impact.**
+
+### Implementation Checklist
+
+- [x] All requested user types are defined.
+- [x] Responsibilities, capabilities, dependencies, failure modes, recovery, and future evolution are documented.
+- [x] Permission and capability matrix is included with explicit scope caveat.
+- [x] Role lifecycle, authorization, and enterprise boundaries are visualized.
+- [x] Visual asset placeholders cover role and workspace concepts.
+- [ ] Runtime identity, policy, and role schemas are defined in downstream security and architecture work.
+- [ ] End-user permission UX is implemented later.
+
+---
+
+## 21. Product Philosophy — Why CAT Is a Platform Instead of a Tool
+
+### Human Explanation
+
+A **tool** helps a person perform a bounded task. A **platform** provides the reusable capabilities, contracts, participants, governance, and state needed for many tasks and products to operate coherently.
+
+A content editor can be a tool. A link checker can be a tool. A campaign report can be a tool. CAT may contain all of those capabilities, but its identity is larger: CAT coordinates a living commerce operation in which multiple people, agents, domains, integrations, workflows, and knowledge assets work together over time.
+
+CAT is a platform because it provides:
+
+- a persistent operating context rather than a one-off session;
+- multiple specialized capabilities rather than one isolated task;
+- stable domain and integration contracts;
+- identity, permissions, policy, and approval boundaries;
+- agent registration, task execution, and evaluation;
+- shared knowledge, memory, decisions, and outcomes;
+- extension points for connectors, workflows, templates, and future modules;
+- a way for multiple user types and organizations to participate;
+- an ecosystem path for contributors, partners, enterprises, and future Omni products.
+
+The platform thesis does not mean that every feature must be public, configurable, or extensible on day one. It means that the Core is designed with durable boundaries so that extension can be added without rewriting the identity and safety model.
+
+### AI Context
+
+An AI agent must evaluate a proposed feature at two levels:
+
+1. **Immediate utility:** does it solve a real user or business problem?
+2. **Platform fit:** does it use or strengthen a stable contract that other workflows can safely consume?
+
+Platform fit must not become an excuse to build abstractions without evidence. The correct sequence is:
+
+```text
+Validate a useful capability → define its boundary → stabilize its contract → expose it when reuse is real.
+```
+
+An AI agent must not expose internal implementation as a public plugin surface merely because it can be called. It must identify permission scope, versioning, ownership, support, observability, and revocation.
+
+### Business Perspective
+
+The platform strategy compounds value. Each approved connector, evaluation pattern, workflow, knowledge relationship, and governance rule can reduce the cost of future capabilities. This creates a long-term moat in:
+
+- accumulated commerce knowledge;
+- reliable agent/domain contracts;
+- integration coverage;
+- trusted human/AI operating practices;
+- enterprise governance;
+- reusable Omni System platform primitives.
+
+The platform strategy also changes how CAT is measured. A tool can be judged by a single task's success. A platform must be judged by the quality and safety of the ecosystem it enables.
+
+### Technical Perspective
+
+A platform requires stable boundaries and an evolution model:
+
+| Platform property | CAT implication |
+|---|---|
+| Contract surface | APIs, events, task schemas, plugin manifests, knowledge schemas |
+| Participant model | Humans, AI agents, developers, enterprises, integrations |
+| Governance | Permissions, approval, audit, review, revocation |
+| State | Persistent workflows, domain records, memory, decisions, outcomes |
+| Compatibility | Versioning, migrations, deprecation, backward compatibility |
+| Discovery | Documentation, registries, capability metadata, examples |
+| Observability | Usage, failures, quality, security, financial and operational outcomes |
+| Economics | Optional packaging, enterprise support, partner and marketplace paths |
+
+The platform boundary is not the same as a public API boundary. Internal contracts can be stable without being public, and public contracts must be narrower and more governed than internal ones.
+
+### Official Decisions
+
+| ID | Official Decision | Consequence |
+|---|---|---|
+| P2-PLAT-DEC-001 | CAT is a platform for autonomous and supervised commerce operations, not a single-purpose tool. | Product planning must consider reuse, governance, and lifecycle integration. |
+| P2-PLAT-DEC-002 | Platform expansion proceeds from a strong Core through stable contracts. | Optional capabilities should not destabilize Core identity. |
+| P2-PLAT-DEC-003 | Extensibility is governed. | Plugins, agents, integrations, and workflows declare permissions, ownership, compatibility, and lifecycle. |
+| P2-PLAT-DEC-004 | Knowledge and outcomes are platform assets. | Participants contribute to a compounding institutional memory under review. |
+| P2-PLAT-DEC-005 | Enterprise and partner customization should use policy and extension surfaces instead of Core forks. | The product remains maintainable and auditable. |
+
+### Recommendations
+
+- Prove a capability in CAT Core before extracting it as a reusable Omni System primitive.
+- Keep public contracts smaller than internal implementation surfaces.
+- Provide examples and validation tools for every supported extension type.
+- Treat support, deprecation, revocation, and security as part of platform design.
+- Make extension discovery useful to both developers and AI agents.
+- Prefer configuration and policy for deployment variation; reserve plugins for behavior that genuinely needs code or a specialized contract.
+
+### Experimental Ideas
+
+- A local platform simulator that runs a complete campaign with synthetic data and no external side effect.
+- A contract marketplace score based on compatibility, evaluation quality, security posture, and real usage.
+- AI-generated extension plans that produce manifests, tests, documentation, and risk assessments for human review.
+- A “platform maturity score” that tracks contract stability, knowledge reuse, and ecosystem health.
+
+### Future Ideas
+
+- Public and private extension marketplaces.
+- Partner SDKs and certified integration programs.
+- Enterprise solution bundles combining policy, connectors, workflows, and reports.
+- Future Omni System products built on extracted identity, knowledge, agent, and governance primitives.
+- Cross-product organization and billing capabilities once contracts are mature.
+
+### Visual Overview
+
+**Diagram ID:** P2-PLAT-004<br>
+**Diagram Title:** Tool-to-Platform Progression<br>
+**Purpose:** Explain the additional responsibilities CAT accepts by operating as a platform.
+
+```mermaid
+flowchart LR
+    Tool[Bounded tool<br/>one task, one user, short context]
+    Tool --> Workflow[Connected workflow<br/>several tasks and state]
+    Workflow --> Platform[CAT platform<br/>domains, agents, governance, knowledge]
+    Platform --> Ecosystem[Ecosystem<br/>partners, extensions, enterprises, future products]
+
+    Tool -->|adds| Task[Task execution]
+    Workflow -->|adds| State[Durable state and coordination]
+    Platform -->|adds| Contracts[Identity, contracts, policy, learning]
+    Ecosystem -->|adds| Participants[Trusted participants and reuse]
+```
+
+**Diagram ID:** P2-PLAT-005<br>
+**Diagram Title:** CAT Platform Value Compounding<br>
+**Purpose:** Show how use of the platform creates reusable assets without treating raw activity as knowledge automatically.
+
+```mermaid
+flowchart TB
+    Capability[Capability or extension] --> Operation[Governed operation]
+    Operation --> Outcome[Observed outcome]
+    Outcome --> Review[Validation and interpretation]
+    Review --> Knowledge[Curated knowledge and decision record]
+    Knowledge --> Better[Better future context and contracts]
+    Better --> Capability
+
+    Governance[Identity, security, approval, audit] --> Operation
+    Governance --> Review
+```
+
+### Visual Asset Placeholder — CAT Developer and Extension Portal
+
+| Field | Value |
+|---|---|
+| **Visual Asset Name** | CAT Developer and Extension Portal |
+| **Purpose** | Present APIs, events, SDKs, plugin manifests, compatibility versions, examples, evaluations, permissions, ownership, and support status to developers and AI coding agents. |
+| **Recommended Resolution** | 2560 × 1600 px desktop documentation portal; 1920 × 1080 px interactive contract explorer |
+| **Suggested Location inside `/design`** | `/design/DeveloperExperience/ExtensionPortal/` |
+| **Mood** | Precise, welcoming, technical, and trustworthy |
+| **Style** | Clean dark documentation surface with restrained cosmic accents, searchable contracts, side-by-side examples, explicit maturity badges |
+| **Reference Category** | Developer portal / API explorer / platform documentation |
+
+### Mermaid Diagram(s)
+
+**Diagram ID:** P2-PLAT-006<br>
+**Diagram Title:** Core, Contracts, and Ecosystem Layers<br>
+**Purpose:** Show how the governed platform grows outward without allowing extensions to redefine Core authority.
+
+```mermaid
+graph TB
+    Core[CAT Core<br/>identity, lifecycle, governance, canonical domains]
+    Contracts[Stable contracts<br/>APIs, events, tasks, knowledge, extension manifests]
+    FirstParty[First-party agents and modules]
+    Partners[Verified partner extensions]
+    Community[Community or local extensions]
+    Enterprise[Enterprise policies and private catalogs]
+    Future[Future Omni products]
+
+    Core --> Contracts
+    Contracts --> FirstParty
+    Contracts --> Partners
+    Contracts --> Community
+    Contracts --> Enterprise
+    Contracts --> Future
+
+    FirstParty -->|outcomes and lessons| Core
+    Partners -->|governed events and results| Core
+    Community -->|scoped results| Core
+    Enterprise -->|policy and feedback| Core
+    Future -->|shared contracts only| Core
+```
+
+### Architecture Map
+
+#### Platform Asset Map
+
+| Asset | Owned by | Reused by | Governance |
+|---|---|---|---|
+| Core domain behavior | CAT domain owner | CAT workflows and approved clients | Architecture, security, domain review |
+| API/event contract | Contract owner | Agents, modules, partners, future products | Versioning and compatibility |
+| Agent role | Agent owner | Orchestrator and workflows | Evaluation, permissions, autonomy |
+| Knowledge artifact | Knowledge owner plus contributor | Humans and agents | Provenance, confidence, lifecycle |
+| Workflow template | Workflow owner | Users, agents, enterprises | Approval, compatibility, outcome monitoring |
+| Connector | Integration/domain owner | Relevant workflows | Credentials, reliability, external policy |
+| Plugin | Plugin author and marketplace owner | Approved deployments | Sandbox, permissions, review, revocation |
+| Enterprise policy | Enterprise owner | Organization users and agents | Local governance within CAT safeguards |
+
+#### Platform Health Questions
+
+| Question | Healthy platform behavior |
+|---|---|
+| Can a new consumer use the capability? | Contract, documentation, example, and permission path exist |
+| Can an old consumer survive a change? | Versioning, migration, or compatibility plan exists |
+| Can an extension be removed? | Ownership, dependency, disable, and revocation path exists |
+| Can a human understand an AI action? | Evidence, context, decision, approval, and outcome are linked |
+| Can an incident be reconstructed? | Trace, event, state, and audit records are available |
+| Can a new domain be added? | Domain contract and platform extension point are clear |
+
+### Cross References
+
+- Ecosystem philosophy: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Section 15.
+- Developer and community ecosystem: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Sections 15.10–15.15.
+- Repository contribution model: [`../CONTRIBUTING.md`](../CONTRIBUTING.md).
+- API and extension detail target: [`context/04_ARCHITECTURE.md`](./04_ARCHITECTURE.md), [`context/15_DIRECTORY_STRUCTURE.md`](./15_DIRECTORY_STRUCTURE.md).
+
+### Dependencies
+
+The platform strategy depends on stable Core identity, domain contracts, Identity and Security, versioning, documentation, observability, ownership, support, and a trustworthy knowledge lifecycle. It also depends on resisting premature public exposure of unstable internals.
+
+### Risks
+
+| Risk | Consequence | Control |
+|---|---|---|
+| Platform before product value | Complexity without validated users or outcomes | Prove Core workflows before broad ecosystem investment |
+| “Everything is an extension” | Core becomes incoherent and setup becomes difficult | Keep identity-defining capabilities in Core |
+| “Everything is Core” | Maintenance and security burden grow | Use placement and promotion criteria |
+| Unversioned public contracts | Ecosystem breakage | Version, deprecate, and test compatibility |
+| Marketplace grows faster than trust | Security and reputation incidents | Review, sandbox, monitor, and revoke |
+| Platform metrics reward activity | More extensions but less value | Measure quality, reliability, outcomes, and adoption |
+
+### Anti-patterns
+
+- Launching a marketplace before permissions and revocation exist.
+- Calling a private internal function an SDK.
+- Making every enterprise request a Core branch.
+- Treating ecosystem contributors as unaccountable to the platform's policies.
+- Exposing sensitive data because an extension requests it.
+- Measuring platform success by number of APIs or plugins alone.
+
+### Best Practices
+
+- Keep Core opinionated about identity, governance, lifecycle, and canonical meaning.
+- Keep extensions explicit about permissions and support boundaries.
+- Use compatibility tests and deprecation windows.
+- Let real reuse justify abstraction.
+- Record extension outcomes and failures as platform knowledge.
+- Publish examples that show safe usage, not only happy-path calls.
+
+### Extension Points
+
+- APIs and event streams.
+- Workflow and task templates.
+- Agent skills and model routes.
+- Connectors and provider adapters.
+- Content, reporting, and policy packs.
+- Enterprise private catalogs.
+- Future Omni System shared services.
+
+### AI Construction Notes
+
+When an AI agent is asked to “make this a platform capability,” it must identify the intended consumers, contract stability, permission surface, lifecycle owner, support model, and removal strategy. If there is only one consumer and no evidence of reuse, the agent should recommend a well-bounded internal module before a public extension.
+
+### AI Memory Anchor
+
+> **Platform value comes from stable, governed reuse—not from exposing every internal function.**
+
+### Implementation Checklist
+
+- [x] Tool versus platform distinction is explicit.
+- [x] Platform assets, participants, contracts, and governance are mapped.
+- [x] Core-to-ecosystem expansion is visualized.
+- [x] Developer/extension portal visual metadata is provided.
+- [x] Risks of premature or ungoverned platformization are documented.
+- [ ] Public SDK and marketplace contracts are defined only after Core maturity.
+
+---
+
+## 22. AI-Native Design — Every Feature Begins with AI Workflows
+
+### Human Explanation
+
+AI-native design means CAT is designed around AI as an active operator from the beginning. AI is not a text box added to a human-first application, and it is not a suggestion layer attached to a traditional workflow. Every feature should answer how AI discovers the need, gathers context, reasons about options, performs work, reports uncertainty, requests human judgment, observes the result, and learns.
+
+An AI-native feature has two simultaneous interfaces:
+
+1. **Human interface:** understandable intent, evidence, control, explanation, and correction.
+2. **Agent interface:** structured context, capabilities, contracts, policies, tools, state, and evaluation.
+
+The feature is complete only when both interfaces are coherent. A feature that humans can click but agents cannot reason about is not fully AI-native. A feature that an agent can call but humans cannot supervise is not acceptable for consequential work.
+
+The AI-native feature loop is:
+
+```text
+Discover → contextualize → plan → authorize → execute → observe → explain → learn
+```
+
+AI-native does not mean AI-only. It means the system assumes AI participation while preserving human authority and accessible alternatives.
+
+### AI Context
+
+For every feature, the AI agent should identify:
+
+- the agent or model role;
+- the human intent and user types;
+- the context required before reasoning;
+- the tools and data scopes allowed;
+- the output contract and uncertainty representation;
+- the approval and escalation rule;
+- the observation and evaluation signal;
+- the memory and knowledge update;
+- the fallback when the model, retrieval, policy, or external provider fails.
+
+Prompts are not the entire AI architecture. Prompt behavior must be backed by permissions, schemas, evaluators, traces, state, and human review.
+
+### Business Perspective
+
+AI-native design is how CAT can scale beyond human attention while retaining trust. It changes product prioritization from “where can we add AI?” to “where can an intelligent, governed operator reduce a bottleneck or improve a decision?”
+
+It also creates a durable advantage when knowledge compounds. A generic AI output can be copied by competitors. A governed system that remembers product outcomes, channel behavior, source reliability, approval patterns, and Treasury results becomes more useful through operation.
+
+### Technical Perspective
+
+AI-native features require a cognitive and operational substrate:
+
+| Requirement | Technical consequence |
+|---|---|
+| Context before action | Retrieval, memory, source and policy resolution |
+| Role-specific behavior | Agent manifests, tools, prompts, model routes, evaluators |
+| Bounded autonomy | Permission and approval gateway |
+| Durable work | Workflow state, task persistence, retries, checkpoints |
+| Explainability | Evidence, reasoning summary, version and trace links |
+| Continuous learning | Outcome capture, review state, knowledge lifecycle |
+| Model substitution | Provider abstraction, routing, evaluation, cost controls |
+| Safety | Input validation, output checks, sandboxing, monitoring |
+| Human control | Approval, correction, rejection, override, rollback |
+
+### Official Decisions
+
+| ID | Official Decision | Consequence |
+|---|---|---|
+| P2-AI-DEC-001 | CAT features are designed for AI-first workflows, not merely AI-assisted user clicks. | Feature specifications must include agent participation and context requirements. |
+| P2-AI-DEC-002 | AI capabilities are role-specific and bounded. | Agents declare tools, data, outputs, autonomy, and escalation. |
+| P2-AI-DEC-003 | Human-readable and machine-readable interfaces are both required. | APIs, schemas, explanations, and UI surfaces evolve together. |
+| P2-AI-DEC-004 | AI output is not automatically truth or authority. | Provenance, evaluation, policy, and approval remain required. |
+| P2-AI-DEC-005 | Model providers are replaceable behind evaluation and routing contracts. | CAT must not define its identity by one model or vendor. |
+| P2-AI-DEC-006 | Outcomes and lessons are part of AI feature completion. | A generated result without observable outcome and learning path is incomplete. |
+
+### Recommendations
+
+- Start feature design with a workflow and context map before a prompt.
+- Separate retrieval context, tool capability, policy, and output schema.
+- Use structured outputs and validation for every agent boundary.
+- Make uncertainty and source evidence visible to humans.
+- Evaluate agent behavior against representative tasks, edge cases, and harmful cases.
+- Log model, prompt, tool, source, policy, and approval versions for consequential work.
+- Design low-risk fallbacks so the system degrades gracefully without pretending success.
+
+### Experimental Ideas
+
+- Agents that propose their own missing-context questions before acting.
+- Model routing learned from task quality, cost, latency, and risk.
+- A “knowledge freshness budget” that determines when an agent must refresh evidence.
+- Human feedback captured as structured evaluation labels instead of only comments.
+- A sandbox in which agents can practice workflows against synthetic Commerce and Treasury records.
+
+### Future Ideas
+
+- Proactive agents that detect opportunities and create work without user prompts.
+- Multi-agent planning with formally evaluated collaboration protocols.
+- Organization-specific private models and retrieval stores.
+- Adaptive user interfaces that surface only the evidence relevant to a current decision.
+- AI-assisted documentation synchronization between code, contracts, and context.
+
+### Visual Overview
+
+**Diagram ID:** P2-AI-001<br>
+**Diagram Title:** AI-Native Feature Lifecycle<br>
+**Purpose:** Show the required AI, human, governance, execution, and learning steps for a CAT feature.
+
+```mermaid
+flowchart LR
+    Intent[Human or system intent] --> Context[Retrieve context, evidence, memory, policy]
+    Context --> Plan[Agent plan or recommendation]
+    Plan --> Validate[Schema, quality, safety, and confidence checks]
+    Validate --> Authority{Human approval or policy authorization?}
+    Authority -->|Required| Human[Human review and decision]
+    Authority -->|Not required| Execute[Bounded execution]
+    Human -->|Approve| Execute
+    Human -->|Reject or revise| Replan[Record and re-plan]
+    Replan --> Plan
+    Execute --> Observe[Observe outcome, cost, and side effect]
+    Observe --> Explain[Explain status and evidence]
+    Explain --> Learn[Evaluate and update knowledge]
+    Learn --> Context
+```
+
+**Diagram ID:** P2-AI-002<br>
+**Diagram Title:** AI Feature Contract<br>
+**Purpose:** Show the artifacts that must surround an AI capability so that a prompt is not mistaken for a complete system.
+
+```mermaid
+graph TD
+    Feature[AI-native feature]
+    Feature --> Role[Agent role and owner]
+    Feature --> Context[Knowledge and memory context]
+    Feature --> Tools[Tools and permission scopes]
+    Feature --> Prompt[Prompt and model route]
+    Feature --> Schema[Input/output schema]
+    Feature --> Policy[Approval and safety policy]
+    Feature --> Eval[Evaluation and quality rubric]
+    Feature --> Trace[Trace, audit, and outcome]
+    Feature --> Fallback[Failure and recovery strategy]
+```
+
+**Diagram ID:** P2-AI-003<br>
+**Diagram Title:** Human and Agent Dual Interface<br>
+**Purpose:** Show that a CAT capability must be understandable to humans and actionable by AI systems through shared canonical state.
+
+```mermaid
+graph LR
+    Canonical[Canonical workflow and domain state]
+    Canonical --> HumanSurface[Human surface<br/>explanation, evidence, approval, correction]
+    Canonical --> AgentSurface[Agent surface<br/>schema, tools, context, status, result]
+    HumanSurface --> Canonical
+    AgentSurface --> Canonical
+    Policy[Shared policy and permissions] --> HumanSurface
+    Policy --> AgentSurface
+    Knowledge[Shared knowledge and provenance] --> HumanSurface
+    Knowledge --> AgentSurface
+```
+
+### Visual Asset Placeholder — KATA AI-Native Command Center
+
+| Field | Value |
+|---|---|
+| **Visual Asset Name** | KATA AI-Native Command Center |
+| **Purpose** | Illustrate how human intent, agent activity, pending approvals, evidence, Treasury impact, and learning state appear as one supervised operating environment. |
+| **Recommended Resolution** | 5120 × 2880 px master cinematic view; 3840 × 2160 px production desktop; accessible 1920 × 1080 px mode |
+| **Suggested Location inside `/design`** | `/design/UI/KATACommandCenter/` |
+| **Mood** | Living intelligence, controlled power, clarity under complexity |
+| **Style** | Cosmic cat persona, 3D globe, layered glass panels, restrained particles, explicit text and accessible status indicators, configurable motion |
+| **Reference Category** | AI command center / supervisory interface / spatial dashboard |
+
+### Mermaid Diagram(s)
+
+**Diagram ID:** P2-AI-004<br>
+**Diagram Title:** AI-Native Feature Readiness Gate<br>
+**Purpose:** Provide a decision tree for deciding whether an AI feature is sufficiently specified for implementation.
+
+```mermaid
+flowchart TD
+    Feature[Feature proposal] --> Outcome{Clear user/business outcome?}
+    Outcome -->|No| Clarify[Clarify intent and success]
+    Outcome -->|Yes| Context{Required context and sources known?}
+    Context -->|No| ClarifyContext[Define retrieval and provenance]
+    Context -->|Yes| Role{Agent role and owner defined?}
+    Role -->|No| DefineRole[Define role and accountability]
+    Role -->|Yes| Tools{Tools and permissions scoped?}
+    Tools -->|No| ScopeTools[Define least privilege]
+    Tools -->|Yes| Approval{Risk and approval path defined?}
+    Approval -->|No| DefinePolicy[Define policy and human boundary]
+    Approval -->|Yes| Eval{Evaluation and fallback defined?}
+    Eval -->|No| DefineEval[Define quality, safety, and recovery]
+    Eval -->|Yes| Ready[AI-native implementation-ready]
+
+    Clarify --> Feature
+    ClarifyContext --> Feature
+    DefineRole --> Feature
+    ScopeTools --> Feature
+    DefinePolicy --> Feature
+    DefineEval --> Feature
+```
+
+**Diagram ID:** P2-AI-005<br>
+**Diagram Title:** Model and Prompt Change Control<br>
+**Purpose:** Show how a model or prompt change becomes a governed improvement rather than an invisible behavior change.
+
+```mermaid
+flowchart LR
+    Change[Model or prompt change] --> Offline[Offline evaluation]
+    Offline --> Compare[Compare quality, safety, cost, latency]
+    Compare --> Review[Human and owner review]
+    Review --> Pilot[Scoped pilot or feature flag]
+    Pilot --> Monitor[Monitor production outcomes]
+    Monitor --> Promote[Promote and record decision]
+    Monitor --> Rollback[Rollback and investigate]
+    Promote --> Knowledge[Update knowledge and documentation]
+    Rollback --> Knowledge
+```
+
+### Architecture Map
+
+#### AI-Native Capability Ownership
+
+| Capability | Owner | AI responsibility | Human responsibility |
+|---|---|---|---|
+| Context retrieval | Knowledge owner | Retrieve relevant evidence within permission | Review provenance and policy for high-impact work |
+| Task planning | CATA/AI owner | Decompose and route | Set intent, constraints, and priorities |
+| Domain execution | Domain/agent owner | Perform scoped work | Approve material side effects |
+| Output quality | Domain and evaluation owner | Validate and report uncertainty | Decide acceptable risk and quality thresholds |
+| Model/prompt route | AI owner | Select approved route | Approve material route/policy changes |
+| Outcome learning | Knowledge/learning owner | Propose lesson and confidence | Promote high-impact knowledge or policy |
+
+#### AI-Native Data and Control Dependencies
+
+| Artifact | Produced by | Consumed by | Required controls |
+|---|---|---|---|
+| Intent | Human, event, schedule | CATA/Automation | Identity, scope, priority |
+| Context bundle | Knowledge/retrieval | Agent/model | Provenance, permissions, freshness |
+| Plan | CATA/agent | Policy/human/domain | Alternatives, confidence, impact |
+| Output | Agent/domain | Validator/human/executor | Schema, quality, safety, version |
+| Approval | Human/policy | Executor | Exact scope, expiry, audit |
+| Outcome | Domain/Analytics/Treasury | Knowledge/owners | Correlation, attribution, reconciliation |
+
+### Cross References
+
+- Root AI philosophy: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Section 12.
+- AI engineering philosophy: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Section 14.
+- Agent ecosystem target: [`context/05_AGENTS.md`](./05_AGENTS.md).
+- Knowledge target: [`context/06_KNOWLEDGE_ENGINE.md`](./06_KNOWLEDGE_ENGINE.md).
+- Prompting target: [`context/18_PROMPTING.md`](./18_PROMPTING.md).
+- Human interaction target: [`context/10_UI_UX.md`](./10_UI_UX.md).
+
+### Dependencies
+
+AI-native design depends on Identity, Security, Knowledge, Automation, domain contracts, model/provider abstraction, prompt versioning, evaluation data, observability, user interfaces, and approval workflows. Removing any one can turn an apparently intelligent feature into an ungoverned or unauditable one.
+
+### Risks
+
+| Risk | Consequence | Control |
+|---|---|---|
+| AI-first becomes prompt-first | Missing permissions, state, evaluation, and recovery | Require the full AI feature contract |
+| Model output is treated as truth | Unsafe decisions and poor explainability | Provenance, validation, confidence, human review |
+| Context window becomes a data boundary | Sensitive or irrelevant data leaks into prompts | Scoped retrieval and classification |
+| Automation hides human choice | Accountability disappears | Explicit approval and decision records |
+| Learning changes behavior silently | Unreviewed policy drift | Promotion gates and versioned knowledge |
+| Model changes break quality | Production regression | Offline evaluation, pilot, rollback |
+| AI interface excludes humans | Operators cannot supervise or correct | Dual interface and accessible fallback |
+
+### Anti-patterns
+
+- Adding a chat box to a human-first workflow and calling it AI-native.
+- Putting secrets or unrestricted database access into an agent tool.
+- Letting a prompt decide whether an action is authorized.
+- Using a model response as a financial or legal record without validation.
+- Changing prompts in production without versioning or evaluation.
+- Treating “the model knows” as a provenance statement.
+- Building an autonomous path with no human explanation or recovery route.
+
+### Best Practices
+
+- Design from intent, context, action, outcome, and learning.
+- Give each agent a role, owner, tool scope, evaluator, and escalation path.
+- Keep human-facing explanations linked to machine traces.
+- Test uncertainty, adversarial input, missing context, and provider failure.
+- Make model and prompt behavior reproducible enough to investigate.
+- Capture useful human corrections as structured learning data.
+
+### Extension Points
+
+- New agents and skills through role manifests and evaluations.
+- New models through provider and routing contracts.
+- New retrieval sources through provenance-aware adapters.
+- New evaluators through quality and safety interfaces.
+- New human interaction surfaces through canonical workflow APIs.
+- New AI coding workflows through `.ai` context and development standards.
+
+### AI Construction Notes
+
+An AI coding agent should never begin with “what prompt should I write?” It should begin with “what decision or operation is being automated, what context is allowed, who owns it, what can go wrong, and how will the result be verified?” Prompt design follows that analysis.
+
+### AI Memory Anchor
+
+> **AI-native means context before action, policy before side effect, evidence with output, and learning after outcome.**
+
+### Implementation Checklist
+
+- [x] AI-native design is defined beyond prompt usage.
+- [x] Human and agent dual interfaces are explicit.
+- [x] Feature contract and readiness gate are documented.
+- [x] Model/prompt change control is visualized.
+- [x] KATA command-center visual asset metadata is included.
+- [ ] Detailed agent manifests, evaluators, and prompt contracts are authored downstream.
+- [ ] Runtime AI feature evaluation infrastructure is implemented later.
+
+---
+
+## 23. Future Platform Expansion — Plugins, Contracts, and Ecosystem Evolution
+
+### Human Explanation
+
+CAT must be extensible, but extension must not mean uncontrolled modification. The platform expands through **contracts**: stable descriptions of what a module can do, which data it reads, which permissions it needs, which events it consumes or emits, how it fails, who owns it, and how it can be disabled or replaced.
+
+The principal extension classes are:
+
+- **Connector:** translates an external provider into an existing CAT domain contract.
+- **Workflow template:** composes existing capabilities into a repeatable operating sequence.
+- **Agent skill:** adds a bounded capability to an existing agent or introduces a new specialized agent.
+- **Content or prompt pack:** adds governed templates, evaluation cases, or domain language.
+- **Policy pack:** adds stricter organization or industry rules without weakening CAT safeguards.
+- **Report or projection pack:** adds read models and analysis without becoming a source of truth.
+- **Plugin:** a packaged, permission-scoped extension that can be installed, evaluated, updated, disabled, or revoked.
+- **Future product module:** a capability that deserves separate Omni System ownership and a stable cross-product contract.
+
+The plugin philosophy is conservative by design. A plugin may extend CAT only through an approved seam. It may not bypass Identity, Security, approval, audit, Treasury integrity, knowledge provenance, or domain ownership.
+
+### AI Context
+
+An AI agent proposing an extension must classify it before coding:
+
+```text
+Extension type:
+Consumer(s):
+Owning domain:
+Permissions:
+Data read:
+Data write:
+Events consumed:
+Events emitted:
+External side effects:
+Approval requirement:
+Compatibility target:
+Failure and disable path:
+Owner and support posture:
+```
+
+The agent must also state whether the extension is Official, Recommended, Experimental, or Future. “Plugin” is a packaging category, not a trust level.
+
+### Business Perspective
+
+Extensions let CAT cover diverse affiliate networks, markets, channels, enterprise policies, and operating styles without putting every specialized requirement into the Core roadmap. They create a way for partners and contributors to add value while giving Omni System a mechanism to protect users and brand trust.
+
+The long-term ecosystem strategy has three concentric rings:
+
+1. **Core ring:** identity, governance, lifecycle, canonical domain rules, knowledge principles, and essential Commerce/AI/Treasury capabilities.
+2. **Trusted extension ring:** first-party and verified partner connectors, agents, workflows, policy packs, and reports.
+3. **Community/private ring:** organization-specific and experimental extensions with narrower permissions and stronger isolation.
+
+### Technical Perspective
+
+An extension contract should include:
+
+- manifest identity and owner;
+- compatible CAT version and contract versions;
+- capabilities and permissions;
+- data classifications and retention;
+- commands, events, queries, and tools;
+- required configuration and secrets;
+- human approval requirements;
+- resource and rate limits;
+- observability and health signals;
+- evaluation and security evidence;
+- upgrade, migration, disable, and revoke behavior;
+- support and liability boundary.
+
+A plugin installation is a state transition, not a file copy. CAT must inspect, authorize, install, validate, activate, monitor, update, disable, and remove it with traceability.
+
+### Official Decisions
+
+| ID | Official Decision | Consequence |
+|---|---|---|
+| P2-EXT-DEC-001 | CAT supports future expansion through governed contracts and extension points. | New modules must declare boundaries rather than modify Core invisibly. |
+| P2-EXT-DEC-002 | Connectors isolate external provider behavior. | Provider API changes, credentials, and rate limits remain adapter concerns. |
+| P2-EXT-DEC-003 | Plugins declare permissions, ownership, compatibility, and lifecycle. | CAT can evaluate and revoke extensions. |
+| P2-EXT-DEC-004 | High-risk extension permissions require elevated review and approval. | Publishing, financial, credential, identity, and autonomy-expanding permissions are not ordinary capabilities. |
+| P2-EXT-DEC-005 | Enterprise customizations should use private extensions and policies rather than Core forks. | The platform preserves upgradeability and shared safety fixes. |
+| P2-EXT-DEC-006 | Public marketplace distribution is a future capability, not a current Phase A implementation claim. | Documentation and contracts may prepare for it without pretending it exists. |
+
+### Recommendations
+
+- Start with private/internal extensions before opening public distribution.
+- Keep early extension permissions narrow, read-heavy, observable, and revocable.
+- Require signed or otherwise integrity-protected packages when a distribution mechanism is implemented.
+- Use semantic compatibility and migration documentation.
+- Score trust using evidence, not popularity alone.
+- Provide a clear owner and support status for every extension.
+- Make extension health and deprecation visible to users and AI agents.
+
+### Experimental Ideas
+
+- Capability-based plugin sandboxing with simulated external effects.
+- Automated extension review that combines static analysis, contract tests, permission inspection, and agent evaluation.
+- A trust score based on security findings, uptime, compatibility, outcome quality, review history, and maintainer responsiveness.
+- A plugin composition graph that warns when two extensions create conflicting policy or data behavior.
+- AI-generated migration plans for extension version changes, subject to human review.
+
+### Future Ideas
+
+- Official marketplace with first-party, verified partner, community-reviewed, private, and experimental catalogs.
+- Enterprise private marketplace and approval workflow.
+- Revenue sharing and partner economics when platform governance and support are mature.
+- Omni System-wide extension registry.
+- Cross-product agent and knowledge packages with explicit data boundaries.
+- Regional extension catalogs for market-specific programs and compliance.
+
+### Visual Overview
+
+**Diagram ID:** P2-EXT-001<br>
+**Diagram Title:** Governed Extension Lifecycle<br>
+**Purpose:** Show how a plugin or module moves from proposal through validation, installation, operation, update, and removal.
+
+```mermaid
+flowchart LR
+    Proposal[Extension proposal] --> Manifest[Manifest and contract]
+    Manifest --> Build[Build and package]
+    Build --> Test[Compatibility, security, and evaluation]
+    Test --> Review[Human/owner review]
+    Review --> Catalog[Approved private or public catalog]
+    Catalog --> Install[Scoped installation]
+    Install --> Verify[Permission and health verification]
+    Verify --> Activate[Activate under policy]
+    Activate --> Observe[Monitor outcomes and risk]
+    Observe --> Update[Versioned update]
+    Update --> Test
+    Observe --> Disable[Disable or quarantine]
+    Disable --> Recover[Restore, migrate, or remove]
+    Recover --> Archive[Archive evidence and ownership]
+```
+
+**Diagram ID:** P2-EXT-002<br>
+**Diagram Title:** Extension Trust Rings<br>
+**Purpose:** Show how trust level and capability scope should become stricter as an extension gains access or distribution.
+
+```mermaid
+graph TB
+    Core[CAT Core<br/>highest trust, strongest ownership]
+    FirstParty[First-party extensions]
+    Verified[Verified partners]
+    Community[Community-reviewed]
+    Private[Private/local enterprise]
+    Experimental[Sandbox experiments]
+
+    Core --> FirstParty --> Verified --> Community
+    Core --> Private
+    Core --> Experimental
+
+    Permissions[Permission scope and review depth]
+    Permissions --> Core
+    Permissions --> FirstParty
+    Permissions --> Verified
+    Permissions --> Community
+    Permissions --> Private
+    Permissions --> Experimental
+```
+
+**Diagram ID:** P2-EXT-003<br>
+**Diagram Title:** Extension Contract Surface<br>
+**Purpose:** Identify the metadata and interfaces an extension must expose before CAT can safely activate it.
+
+```mermaid
+graph TD
+    Extension[Extension package]
+    Extension --> Identity[Identity, owner, version]
+    Extension --> Compat[Compatibility and migrations]
+    Extension --> Permissions[Capabilities and permissions]
+    Extension --> Data[Data classifications and retention]
+    Extension --> Contracts[Commands, events, queries, tools]
+    Extension --> Config[Configuration and secrets]
+    Extension --> Approval[Approval and autonomy needs]
+    Extension --> Health[Health, metrics, traces, alerts]
+    Extension --> Security[Security and evaluation evidence]
+    Extension --> Lifecycle[Disable, revoke, update, remove]
+```
+
+### Visual Asset Placeholder — CAT Extension Marketplace and Private Catalog
+
+| Field | Value |
+|---|---|
+| **Visual Asset Name** | CAT Extension Marketplace and Private Catalog |
+| **Purpose** | Provide a future discovery, review, installation, permission, compatibility, trust, update, and revocation experience for plugins and ecosystem assets. |
+| **Recommended Resolution** | 3840 × 2160 px marketplace overview; 1920 × 1080 px extension detail; 1440 × 900 px enterprise approval view |
+| **Suggested Location inside `/design`** | `/design/Marketplace/ExtensionCatalog/` |
+| **Mood** | Curated, trustworthy, expansive without feeling uncontrolled |
+| **Style** | Dark glass catalog, clear trust badges, permission disclosures, compatibility matrix, evidence panels, accessible filters |
+| **Reference Category** | Extension marketplace / enterprise private catalog / package governance |
+
+### Plugin/Extension Subsystem Contract
+
+- **Purpose:** Discover, validate, install, operate, update, disable, revoke, and remove governed extensions.
+- **Owner:** Platform ecosystem/marketplace owner, with Security, Architecture, and domain owners approving relevant permissions.
+- **Responsibilities:** Define manifests; validate packages; assess trust; enforce permissions; manage compatibility; isolate execution; monitor health; record ownership; support rollback and revocation.
+- **Inputs:** Extension package; manifest; signatures/integrity evidence; compatibility target; permissions; configuration; review decisions; telemetry.
+- **Outputs:** Catalog listing; installation record; activation state; permission decision; health state; usage/outcome events; deprecation/revocation notices.
+- **Dependencies:** Identity; Security; Administration; Settings; Foundation; domain contracts; evaluation; observability; package storage.
+- **Extension Points:** Connector SDK; agent skill SDK; workflow template SDK; policy pack SDK; report/projection SDK; private catalog.
+- **Failure Modes:** Malicious package; incompatible version; excessive permission; runtime crash; data leak; provider failure; abandoned maintenance; conflicting extension behavior.
+- **Recovery Strategy:** Prevent activation; sandbox; disable; revoke; roll back version; isolate data; restore prior configuration; notify owners; preserve forensic and review evidence.
+- **Future Evolution:** Marketplace economics, partner certification, cross-product registries, and federated extension governance.
+
+### Extension Contract Example
+
+A conceptual manifest should answer the following without reading implementation source:
+
+```yaml
+name: example-affiliate-connector
+kind: connector
+owner: verified-partner-or-team
+version: 1.0.0
+compatible_cat_contracts:
+  - affiliate.link.v1
+permissions:
+  - affiliate.program.read
+  - affiliate.link.prepare
+  - network.example.request
+data_access:
+  reads:
+    - product.public
+    - campaign.scoped
+  writes:
+    - affiliate.link.draft
+external_side_effects: false
+approval_required: true
+emits:
+  - affiliate.link.validated
+health:
+  checks:
+    - provider_auth
+    - rate_limit
+    - schema_compatibility
+lifecycle:
+  disable_supported: true
+  rollback_supported: true
+  owner_contact_required: true
+```
+
+This is a documentation example of the information contract. It is not a claim that this manifest format has been implemented.
+
+### Mermaid Diagram(s)
+
+**Diagram ID:** P2-EXT-004<br>
+**Diagram Title:** Extension Permission Decision Tree<br>
+**Purpose:** Show how CAT should classify extension access before installation or activation.
+
+```mermaid
+flowchart TD
+    Extension[Extension requests capability] --> Data{What data does it access?}
+    Data --> Public[Public/low sensitivity]
+    Data --> Private[Private or organization data]
+    Data --> Sensitive[Financial, identity, credential, or restricted data]
+    Public --> Effect{External side effect?}
+    Private --> Effect
+    Sensitive --> HighReview[Elevated Security and owner review]
+    Effect -->|No| Scoped[Scoped permission and compatibility review]
+    Effect -->|Yes| RiskReview[Approval, sandbox, rate, and rollback review]
+    HighReview --> RiskReview
+    Scoped --> Activate[Activate if evidence passes]
+    RiskReview --> Activate
+    Activate --> Monitor[Continuous monitoring and revocation path]
+```
+
+**Diagram ID:** P2-EXT-005<br>
+**Diagram Title:** Future Ecosystem Evolution Timeline<br>
+**Purpose:** Sequence platform expansion so that governance and stable Core capabilities mature before public ecosystem scale.
+
+```mermaid
+timeline
+    title CAT extension and ecosystem evolution
+    Phase A : Document Core identity, domains, contracts, and governance
+    Core implementation : Validate internal modules, agents, workflows, and integrations
+    Private extension phase : Add internal and enterprise-private connectors and templates
+    Verified partner phase : Certify selected extensions with permissions and support
+    Marketplace phase : Curated distribution, trust, compatibility, and revocation
+    Omni platform phase : Extract stable primitives for future Omni System products
+```
+
+### Architecture Map
+
+#### Extension Placement Matrix
+
+| Need | Extension type | Core change allowed? | Minimum governance |
+|---|---|---:|---|
+| Adapt a provider to existing Affiliate contract | Connector | No by default | Credential, reliability, data, and compatibility review |
+| Reuse existing tasks in a new sequence | Workflow template | No | Approval, state, and outcome review |
+| Add a bounded reasoning or execution capability | Agent skill | No by default | Role, tools, evaluation, autonomy, Security review |
+| Add organization-specific restriction | Policy pack | No weakening of CAT safeguards | Administration, Security, owner approval |
+| Add specialized read model | Report/projection pack | No canonical writes | Data access, freshness, and metric review |
+| Change Core identity, approval model, or canonical meaning | Core module | Yes only by explicit decision | Architecture, product, Security, and affected domain review |
+
+#### Extension Owner Matrix
+
+| Lifecycle event | Owner | Required participants |
+|---|---|---|
+| Proposal | Author | Domain/architecture owner |
+| Contract review | Contract owner | Security, affected domains |
+| Package validation | Platform/marketplace | Automated checks, author |
+| Permission approval | Security and resource owner | Enterprise/admin if local |
+| Activation | Deployment/administration | Owner and support |
+| Health monitoring | Extension owner | Platform observability |
+| Incident response | Extension owner | Security, marketplace, affected domain |
+| Deprecation/removal | Platform and extension owner | Users, enterprises, consumers |
+
+### Cross References
+
+- Root plugin and marketplace vision: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Sections 15.8–15.10.
+- API-first ecosystem: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Section 15.10.
+- Third-party integrations: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Section 15.11.
+- Enterprise and developer ecosystems: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md), Sections 15.13–15.14.
+- Security and deployment context targets: [`context/17_SECURITY.md`](./17_SECURITY.md), [`context/16_DEPLOYMENT.md`](./16_DEPLOYMENT.md).
+
+### Dependencies
+
+Future expansion depends on stable Core contracts, identity and permissions, security review, package integrity, compatibility testing, ownership, support, observability, and a reliable disable/revoke path. Public marketplace economics additionally depend on legal, support, trust, and operational maturity.
+
+### Risks
+
+| Risk | Consequence | Control |
+|---|---|---|
+| Extension permission too broad | Data leak, financial loss, reputation damage | Least privilege and elevated review |
+| Plugin version incompatible | Workflow failure or corrupted projections | Compatibility metadata and migration tests |
+| Abandoned extension | Security and reliability debt | Owner/contact requirement, health state, deprecation |
+| Extension conflicts with policy | Governance bypass | Policy evaluation at activation and execution |
+| Marketplace trust is opaque | Users install unsafe assets | Evidence, permission disclosure, trust levels, revocation |
+| Enterprise forks Core | Fragmented upgrades and security | Private extensions and policy surfaces |
+
+### Anti-patterns
+
+- Treating a package registry as a security review.
+- Installing a plugin because it has a good description or rating.
+- Allowing an extension to access raw Treasury or Identity data without purpose and scope.
+- Letting a plugin override approval or audit behavior.
+- Publishing experimental agents as stable production assets.
+- Removing an extension without preserving outcome, decision, and incident history.
+
+### Best Practices
+
+- Make installation and activation explicit lifecycle states.
+- Review permissions before code quality alone.
+- Require extensions to be observable and removable.
+- Use private catalogs for enterprise-specific assets.
+- Publish compatibility and support posture.
+- Track outcomes and security findings over the full extension lifecycle.
+- Preserve a human owner even when an AI agent maintains the extension.
+
+### Extension Points
+
+This section itself defines the primary future extension surfaces:
+
+- connector contracts;
+- workflow templates;
+- agent skills;
+- policy packs;
+- report/projection packs;
+- content and prompt packs;
+- private enterprise catalogs;
+- future Omni System shared registries.
+
+### AI Construction Notes
+
+An AI agent must not generate an extension that requests broad permissions “for flexibility.” It should design the narrowest permission set, propose a manifest, add contract and failure tests, document the owner and removal path, and label any unverified behavior as experimental.
+
+### AI Memory Anchor
+
+> **Every extension must declare what it is, what it can touch, who owns it, how it fails, and how CAT can stop it.**
+
+### Implementation Checklist
+
+- [x] Future platform expansion is defined through contracts.
+- [x] Connector, workflow, agent, policy, report, and plugin classes are distinguished.
+- [x] Extension lifecycle, trust rings, contract surface, and permission decisions are visualized.
+- [x] Plugin subsystem purpose, owner, responsibilities, inputs, outputs, dependencies, extension points, failures, recovery, and future evolution are documented.
+- [x] Marketplace/private catalog visual asset metadata is included.
+- [x] Public marketplace is clearly classified as future, not implemented.
+- [ ] Extension SDKs, registries, package formats, and runtime sandboxing are defined in later architecture work.
+
+---
+
+## 24. Part 2 Mental Model and Implementation-Readiness Contract
+
+### Human Explanation
+
+A reader who has completed Part 2 should be able to describe CAT internally without opening the Architecture or Tech Stack documents:
+
+- CAT is a platform organized into seven conceptual planes.
+- Twelve domains own distinct meanings and collaborate through contracts.
+- Commerce, AI, and Treasury are value stacks connected by identity, workflow, knowledge, and governance.
+- KATA is the human-facing boundary; CATA coordinates internal work; domain components execute responsibilities.
+- Humans, AI agents, developers, enterprises, and other user types have different responsibilities and scopes.
+- Components communicate through commands, events, queries, retrieval, approvals, and adapter contracts.
+- AI-native design requires context, policy, evaluation, explanation, and learning—not only prompts.
+- Future expansion uses governed plugins, connectors, workflows, policies, reports, and stable extension contracts.
+
+This is a mental model, not a replacement for implementation specifications. The next documents must make these boundaries concrete with schemas, APIs, deployment choices, coding standards, security controls, agent manifests, and tests.
+
+### AI Context
+
+Part 2 is sufficient to route most project-level tasks to the correct detailed context document. It is not sufficient to implement a subsystem without loading that document. An AI agent must treat the Part 2 checklists and memory anchors as routing and review aids, not as hidden runtime specifications.
+
+### Business Perspective
+
+The platform model gives CAT a path from a documented foundation to a durable ecosystem. It protects the flagship product from both extremes:
+
+- a closed tool that cannot grow; and
+- an ungoverned platform that cannot be trusted.
+
+The intended path is controlled expansion: prove value, stabilize boundaries, expose contracts, evaluate extensions, and let knowledge and outcomes compound.
+
+### Technical Perspective
+
+Part 2 defines architectural prerequisites:
+
+- plane and domain ownership;
+- canonical versus derived data;
+- component communication semantics;
+- user and service-principal authorization;
+- workflow state and failure recovery;
+- knowledge and Treasury integration;
+- AI feature contracts;
+- extension lifecycle and revocation.
+
+A detailed design that omits one of these prerequisites is incomplete even if its code path works in a happy-path demo.
+
+### Visual Overview
+
+**Diagram ID:** P2-CLOSE-001<br>
+**Diagram Title:** CAT Part 2 Mental Model<br>
+**Purpose:** Provide one final conceptual map from platform organization to domains, actors, contracts, and future extension without replacing the detailed architecture documents.
+
+```mermaid
+flowchart TB
+    Platform[CAT governed platform]
+    Platform --> Planes[Seven conceptual planes]
+    Planes --> Domains[Twelve meaning-owning domains]
+    Domains --> Trinity[Commerce, AI, Treasury value stacks]
+    Actors[Humans, agents, developers, enterprises] --> Identity[Identity and policy]
+    Identity --> Contracts[Commands, events, queries, retrieval, approvals]
+    Contracts --> Trinity
+    Trinity --> Outcomes[Commerce, financial, operational, and learning outcomes]
+    Outcomes --> Knowledge[Knowledge, memory, decisions, and evidence]
+    Knowledge --> Platform
+    Contracts --> Extensions[Governed connectors, workflows, skills, policies, plugins]
+    Extensions --> Platform
+```
+
+### Mermaid Diagram(s)
+
+**Diagram ID:** P2-CLOSE-002<br>
+**Diagram Title:** Part 2 Task Routing Map<br>
+**Purpose:** Help a human or AI contributor route a future implementation task to the correct conceptual owner before loading detailed documents.
+
+```mermaid
+flowchart LR
+    Task[New task] --> Classify{What changes?}
+    Classify -->|Human interaction or explanation| Experience[Experience/KATA]
+    Classify -->|Identity, access, policy, admin| Governance[Identity/Governance/Admin]
+    Classify -->|Task state, scheduling, coordination| Automation[Automation/CATA]
+    Classify -->|Market, affiliate, content, marketing| Commerce[Commerce domains]
+    Classify -->|Memory, retrieval, model, learning| Intelligence[Knowledge/AI]
+    Classify -->|Metrics, earnings, payouts, budget| Measure[Analytics/Treasury]
+    Classify -->|Events, storage, secrets, runtime| Foundation[Foundation/Integration]
+    Experience --> Load[Load owner context and contract]
+    Governance --> Load
+    Automation --> Load
+    Commerce --> Load
+    Intelligence --> Load
+    Measure --> Load
+    Foundation --> Load
+    Load --> Review[Check policy, dependencies, failure, recovery, and status]
+```
+
+### Official Decisions
+
+| ID | Part 2 decision area | Decision |
+|---|---|---|
+| P2-CLOSE-DEC-001 | Platform structure | CAT uses seven conceptual planes to orient internal organization. |
+| P2-CLOSE-DEC-002 | Domain structure | Twelve domains own distinct meanings; specialized Commerce domains remain related but not merged. |
+| P2-CLOSE-DEC-003 | Communication | Commands, events, queries, retrieval, approvals, and adapters have distinct semantics. |
+| P2-CLOSE-DEC-004 | User authority | Human roles, AI service principals, developers, and enterprises have distinct scopes and responsibilities. |
+| P2-CLOSE-DEC-005 | Platform strategy | Core identity and governance remain controlled while stable contracts enable extension. |
+| P2-CLOSE-DEC-006 | AI-native design | Every feature requires context, policy, evaluation, human explanation, outcome, and learning consideration. |
+| P2-CLOSE-DEC-007 | Future expansion | Public marketplace and broad Omni federation remain future capabilities, not current implementation claims. |
+
+### Recommendations
+
+- Use this part as the conceptual index before reading detailed architecture or stack documents.
+- Turn each subsystem contract into a detailed specification before implementation.
+- Resolve ownership conflicts through decisions rather than code conventions.
+- Keep diagrams and tables synchronized with the written model.
+- Use the memory anchors in agent bootstrap and review prompts.
+
+### Experimental Ideas
+
+- Generate an AI-readable platform manifest from the plane, domain, user, and extension tables.
+- Build a documentation graph that checks whether every component has an owner, contract, and recovery path.
+- Create synthetic end-to-end simulations from the diagrams before production runtime exists.
+
+### Future Ideas
+
+- Part 3 can expand ecosystem and platform relationships, implementation scenarios, and long-term evolution.
+- Part 4 can integrate formal decisions, readiness criteria, and final overview closure.
+- Later context documents can promote the conceptual contracts here into schemas and APIs.
+
+### Risks
+
+| Risk | Consequence | Control |
+|---|---|---|
+| Part 2 is treated as implementation detail | Future changes bypass detailed context and testing | Keep conceptual and concrete documents linked but distinct |
+| Architecture and Overview diverge | Onboarding produces conflicting mental models | Review cross-document changes and authority |
+| Domain contracts remain prose only | Code reintroduces accidental coupling | Convert contracts into schemas, tests, and ownership metadata |
+| Visual concepts become accessibility or performance failures | Product trust and usability suffer | Validate visual assets against UI, performance, and accessibility standards |
+| Status claims outrun evidence | Stakeholders misunderstand maturity | Update status only with documented evidence |
+
+### Anti-patterns
+
+- Starting Tech Stack decisions before the platform boundaries are understood.
+- Reading a diagram as a literal deployment topology without checking Architecture.
+- Treating a user-type matrix as a substitute for runtime authorization.
+- Treating future plugins or marketplace concepts as current product commitments.
+- Implementing a subsystem without filling its required contract fields.
+
+### Best Practices
+
+- Load Part 1 and Part 2 before detailed implementation planning.
+- Keep product meaning, domain ownership, and technical placement separate.
+- Preserve every boundary in code, tests, documentation, and observability.
+- Use the diagrams as review aids and update them when relationships change.
+- Capture implementation evidence in later context and status updates.
+
+### Extension Points
+
+- Future parts can extend the platform mental model without rewriting Part 1.
+- Detailed documents can link each contract field to a schema, API, test, and owner.
+- Architecture maps can be generated or validated from implementation metadata.
+- The AI workspace can use the memory anchors as retrieval keys and task-routing hints.
+
+### Cross References
+
+- Part 1 completion contract: [Section 14](#14-part-1-completion-contract).
+- Root project context: [`context/00_PROJECT_CONTEXT.md`](./00_PROJECT_CONTEXT.md).
+- Next context documents: [`context/02_PROJECT_RULES.md`](./02_PROJECT_RULES.md), [`context/03_TECH_STACK.md`](./03_TECH_STACK.md), [`context/04_ARCHITECTURE.md`](./04_ARCHITECTURE.md), [`context/05_AGENTS.md`](./05_AGENTS.md).
+- Current project status: [`../.ai/PROJECT_STATUS.md`](../.ai/PROJECT_STATUS.md).
+
+### Dependencies
+
+Part 2 depends on Part 1's identity, lifecycle, capability, value, and boundary model. Later implementation documents depend on Part 2's planes, domains, component relationships, user authority, AI-native requirements, and extension rules.
+
+### AI Construction Notes
+
+Before beginning a later implementation task, an AI agent should be able to answer the following from Part 2:
+
+```text
+Which plane owns the change?
+Which domain owns the meaning?
+Which principal initiates it?
+Which contract carries it?
+Which policy authorizes it?
+Which component executes it?
+Which records prove what happened?
+How does it fail and recover?
+What knowledge and Treasury outcomes are created?
+```
+
+If the agent cannot answer these questions, it should load the relevant context or request clarification before changing code.
+
+### AI Memory Anchor
+
+> **CAT is a governed platform: seven planes organize execution, twelve domains own meaning, three pillars create value, and contracts connect people, agents, data, and outcomes.**
+
+### Implementation Checklist
+
+- [x] Part 2 explains CAT's internal platform organization before detailed Architecture or Tech Stack documents.
+- [x] The seven-plane structure is defined and visualized.
+- [x] The Commerce AI Trinity is expanded into internal stacks with ownership and communication.
+- [x] All twelve requested domains are documented with engineering contracts.
+- [x] High-level component relationships, dependency directions, context maps, and sequence flows are included.
+- [x] All requested user types, responsibilities, capabilities, and permissions are documented.
+- [x] Platform philosophy, AI-native design, plugin philosophy, and future expansion are included.
+- [x] Visual Asset Placeholders are included for future UI, workflow, role, domain, command-center, and extension surfaces.
+- [x] Official Decisions, Recommendations, Experimental Ideas, and Future Ideas are separated.
+- [x] AI Memory Anchors are included for each major section.
+- [x] Failure modes, recovery strategies, risks, anti-patterns, best practices, extension points, dependencies, cross references, and AI construction notes are included.
+- [ ] Detailed runtime implementation remains the responsibility of downstream context and engineering phases.
+
+---
+
+*End of Part 2 of `context/01_PROJECT_OVERVIEW.md`. Part 3 continues the executive and engineering overview with deeper ecosystem relationships, operating scenarios, and platform evolution while preserving the internal organization defined here.*
