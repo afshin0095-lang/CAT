@@ -58,7 +58,7 @@ Status:
 | 01_PROJECT_OVERVIEW.md | Completed (Part 4 Completed) | 100% |
 | 02_PROJECT_RULES.md | Completed (Part 4 Completed) | 100% |
 | 03_TECH_STACK.md | Completed (Parts 1–4 Final) | 100% |
-| 04_ARCHITECTURE.md | Not Started | 0% |
+| 04_ARCHITECTURE.md | In Progress (Part 1) | 25% |
 | 05_AGENTS.md | Not Started | 0% |
 | 06_KNOWLEDGE_ENGINE.md | Not Started | 0% |
 | 07_TREASURY_CORE.md | Not Started | 0% |
@@ -97,27 +97,7 @@ Status:
 
 Current Task:
 
-context/03_TECH_STACK.md
-
-Part:
-
-4 (Final)
-
-Status:
-
-Completed — official implementation roadmap, bootstrap/build/deployment pipelines, AI startup protocol, first 100 commits, and completion contract
-
-Estimated Remaining Parts For This Document:
-
-0
-
----
-
-# Next Task
-
-Continue:
-
-context/03_TECH_STACK.md
+context/04_ARCHITECTURE.md
 
 Part:
 
@@ -125,33 +105,51 @@ Part:
 
 Status:
 
-Not Started
+In Progress — architecture foundation blueprint, views, boundaries, invariants, governance, diagrams, and validation contract
+
+Estimated Remaining Parts For This Document:
+
+3
+
+---
+
+# Next Task
+
+Continue:
+
+context/04_ARCHITECTURE.md
+
+Part:
+
+2
+
+Status:
+
+Next task — not started
 
 ---
 
 # Next Tasks
 
-1. Tech Stack
+1. Architecture — Part 2
 
-2. Architecture
+2. AI Agents
 
-3. AI Agents
+3. Knowledge Engine
 
-4. Knowledge Engine
+4. Treasury Core
 
-5. Treasury Core
+5. Affiliate Engine
 
-6. Affiliate Engine
+6. Content Engine
 
-7. Content Engine
+7. UI/UX
 
-8. UI/UX
+8. Design Language
 
-9. Design Language
+9. Decisions
 
-10. Decisions
-
-11. Terminology
+10. Terminology
 
 ---
 
@@ -193,4 +191,4 @@ Implementation
 
 # Last Update
 
-2026-08-03 — Completed `context/03_TECH_STACK.md` Part 4, the final part. Added the official bootstrap/build order, database and AI agent build sequences, local/CI/deployment/validation pipelines, AI startup and coding contracts, repository and infrastructure evolution strategy, first 100 commits roadmap, readiness matrices, technology register, and Technology Stack Completion Contract. **03_TECH_STACK.md is now 100% complete.**
+2026-08-03 — Completed `context/04_ARCHITECTURE.md` Part 1. Added the architecture philosophy, vision, principles, AI-native, modular, layered, event-driven, DDD, Clean, hexagonal, CQRS, event-sourcing, boundary, invariant, cross-cutting, decision, view-model, diagram, implementation, and validation foundations. **04_ARCHITECTURE.md is now 25% complete. Next task: Part 2.**
