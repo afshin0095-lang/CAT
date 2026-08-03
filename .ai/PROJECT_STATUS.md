@@ -59,7 +59,7 @@ Status:
 | 02_PROJECT_RULES.md | Completed (Part 4 Completed) | 100% |
 | 03_TECH_STACK.md | Completed (Parts 1–4 Final) | 100% |
 | 04_ARCHITECTURE.md | Completed (Parts 1–4 Final) | 100% |
-| 05_AGENTS.md | Not Started | 0% |
+| 05_AGENTS.md | In Progress (Part 1 Completed) | 10% |
 | 06_KNOWLEDGE_ENGINE.md | Not Started | 0% |
 | 07_TREASURY_CORE.md | Not Started | 0% |
 | 08_AFFILIATE_ENGINE.md | Not Started | 0% |
@@ -97,19 +97,19 @@ Status:
 
 Current Task:
 
-context/04_ARCHITECTURE.md
+context/05_AGENTS.md
 
 Part:
 
-4 (Final)
+1
 
 Status:
 
-Completed — executable runtime blueprint, complete lifecycles, failure and recovery scenarios, scaling, high availability, disaster recovery, multi-region architecture, and final completion contract
+Completed — Agent Architecture Bible foundation: philosophy, agent-first architecture, responsibility, identity, classification, capabilities, authority, trust, lifecycle, governance, design, communication, evolution, model standard, diagrams, and implementation controls
 
 Estimated Remaining Parts For This Document:
 
-0
+Part 2 and later
 
 ---
 
@@ -121,11 +121,11 @@ context/05_AGENTS.md
 
 Part:
 
-1
+2
 
 Status:
 
-Next task — not started
+Next task — continue the Agent Architecture Bible
 
 ---
 
@@ -169,15 +169,15 @@ Never leave this file outdated.
 
 Overall Repository
 
-██████████████░░░░░░░░
+███████████████░░░░░░░
 
-62%
+63%
 
 Documentation
 
-█████████████░░░░░░░░░
+██████████████░░░░░░░░
 
-55%
+56%
 
 Implementation
 
@@ -189,4 +189,4 @@ Implementation
 
 # Last Update
 
-2026-08-04 — Completed `context/04_ARCHITECTURE.md` Part 4, the final part. Added the executable runtime blueprint, end-to-end request/event/knowledge/memory/AI decision/domain lifecycles, user and admin journeys, failure and recovery scenarios, scaling, high availability, disaster recovery, multi-region architecture, implementation timelines, diagrams, evidence cards, and the final completion contract. **04_ARCHITECTURE.md is now 100% complete. Next task: `context/05_AGENTS.md`.**
+2026-08-03 — Completed `context/05_AGENTS.md` Part 1. Added the official Agent Architecture Bible foundation: agent philosophy, agent-first architecture, human/AI responsibility, identity, classification, capabilities, authority, trust, lifecycle, governance, design, communication, evolution, the Agent Model Standard, eight diagrammed views, and implementation-ready controls. **05_AGENTS.md is now 10% complete. Next task: Part 2.**
