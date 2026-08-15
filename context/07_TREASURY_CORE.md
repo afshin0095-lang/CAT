@@ -36724,3 +36724,11842 @@ Part 3 ends here. This file contains the pre-existing document stub, Sections 1 
 **Next Task:** Treasury Core Part 4 (`context/07_TREASURY_CORE.md` Sections 76 onward)
 
 *Append-only generation. No byte of the frozen Parts 1-2 prefix was modified by this part.*
+# CAT Treasury Core Bible — Part 4
+
+## Part 4 continuation boundary
+
+Part 4 covers Sections 76 through 100 of the CAT Treasury Core Bible and nothing beyond Section 100. It is the FINAL part: an append-only continuation of Parts 1, 2, and 3 whose frozen prefix — the pre-existing document stub, Sections 1 through 75, and the receipts `CAT-TC-P1-FINAL-RECEIPT-001`, `CAT-TC-P2-FINAL-RECEIPT-001`, and `CAT-TC-P3-FINAL-RECEIPT-001` — is preserved byte-identically (prefix SHA256 `6959a7e545d448946788722dacdf3a9870a85b2e81c447ec21a659b4c23d1fb3`, 2377279 bytes, 36726 lines, with the chained inner Parts 1-2 prefix `256c14f56b307aa4cc7286e96924df047e4734300685d6d56215628abd365ff5` over the first 1592532 bytes and the inner Part 1 prefix `478b99aba971e858889d33aa21ceff54c104c0d5a8e99510d6f45e26b3fa4a3d` over the first 633496 bytes), and this part begins after its final byte. Part 4 establishes the multi-node treasury stratum — the multi-node architecture, node lifecycle and membership, distributed consistency, partitioning and placement, cross-node coordination, replication and durability, and multi-node deployment coordination; the federation and continuity stratum — regional federation, continuity and disaster recovery, resilience verification, conformance and certification, and simulation and game days; the governance-at-scale stratum — operational governance at scale, change management at scale, the constitutional amendment process, ownership succession, data lifecycle and archival, and interoperability and standards; the evolution horizon — forward compatibility and extension points, the implementation roadmap, the maturity model, the autonomy horizon, and the 2030 evolution horizon; the final verification matrix; and the Part 4 Completion Contract that closes the document at 100 percent. Throughout this part the Part 2 boundary remains constant: treasury intelligence observes and analyzes, treasury planning proposes, treasury decision support evaluates, treasury control authorizes and guards, treasury state records — and external financial execution happens only behind the Section 28 execution boundary contracts. Scale multiplies nodes, regions, and evidence; it never multiplies authority.
+
+### Part 4 normative continuity
+
+The normative language table, the twelve-principle register, the vocabulary register, the state machines, and every constitutional rule of Parts 1 through 3 apply unchanged throughout this part. Part 4 rules continue the constitutional numbering at `CAT-TC-CONST-151` and never redefine, weaken, or renumber an earlier rule. Part 4 acceptance tests continue the `CAT-TC-AT-SNN-NNN` convention for Sections 76 through 100. Part 4 memory anchors continue the `CAT-TC-MEM-SNN-001` convention. Part 4 diagrams use the `CAT-TC-P4-SNN-DNNN` identifier family, disjoint from the Part 1, Part 2, and Part 3 families. Where this part names a vocabulary term, the Section 5 register definition governs; where it names a state, the Section 14 machines govern; where it names a boundary, the Section 3 architecture, the Section 19 trust model, and the Section 28 execution boundary govern; and where it names a governance instrument, the Section 74 operations model governs.
+
+### Part 4 reading order
+
+Sections 76 through 82 establish the multi-node treasury stratum: how one lawful treasury runs on many nodes with one logical ledger, attested membership, serialized financial writes, versioned partitioning, reservation-based cross-node coordination, quorum-acknowledged durability, and skew-bounded fleet deployment. Sections 83 through 87 establish the federation and continuity stratum: constitutionally uniform regions, ledger-first disaster recovery, sandboxed resilience verification, certification gates, and rehearsed game days. Sections 88 through 93 establish the governance-at-scale stratum: a single governance root over federated councils, blast-radius-declared change management, the ADR-only amendment process, dual-control succession, digest-anchored archival, and boundary-contained interoperability. Sections 94 through 98 establish the evolution horizon: registered extension points, the test-gated implementation roadmap, the evidence-assessed maturity model, the evidence-gated autonomy horizon with its permanent human-only register, and the 2030 horizon that never overrides the constitution. Section 99 consolidates the final verification matrix over all 100 sections, and Section 100 closes the document with its registries, boundaries, and the final generated receipt. A reader who needs only the scale safety rules may read Sections 76, 78, 84, 97, and 100; a reader implementing the strata MUST read the whole part.
+
+## 76. Multi-Node Treasury Architecture
+
+**Section ID:** `CAT-TC-P4-76`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** multi-node treasury topology record  
+**Primary question:** How does one lawful treasury run on many nodes without ever becoming many treasuries, and which properties stay node-count-invariant?
+
+### Purpose
+
+This section fixes the multi-node treasury architecture: the topology under which the treasury constitution of Parts 1 through 3 executes across a fleet of nodes while remaining exactly one treasury. It defines the node taxonomy (write nodes that host partitioned slices of the single financial write path, read nodes that serve Section 46 API projections and Section 64 analytics feeds, watch nodes that run Section 54 settlement watching and Section 69 detection workloads, and coordination nodes that host membership, placement, and lease services — with every node class carrying its Section 19 credential class and nothing broader), the one-logical-ledger invariant (however many nodes exist, there is one append-only, zero-sum, hash-chained ledger per Section 8, materialized as partitioned physical logs whose union is totally ordered per partition and reconciled across partitions by the Section 35 machinery), the topology record — this section's primary record — that registers every node, its class, its partitions, its region, and its attestation, and the non-negotiable invariant: node count is a capacity parameter, never an authority parameter — adding the hundredth node changes placement maps and throughput ceilings, and changes nothing about the five-link execution chain, the human-only actions, or the forbidden compositions, exactly as Section 51 fixed for agent populations.
+
+### Business Perspective
+
+Multi-node operation is what lets the business promise both growth and locality: more volume is more nodes, closer markets are closer nodes — without a second treasury appearing anywhere. The topology record gives leadership a one-page answer to 'where does our money system run', and the one-logical-ledger invariant keeps every regulatory and audit conversation grounded in a single financial truth regardless of how much hardware serves it.
+
+### Engineering Perspective
+
+Engineering builds the fleet from the primitives Parts 1-3 already fixed: partitions are Section 17 store shards with Section 79 placement, node identity is a Section 19 principal with a machine credential, cross-node work rides the Section 45 event surface and the Section 80 coordination contracts, and every node boots through the Section 21 readiness ladder before serving. The topology record is governed configuration; the conformance suite proves that no financial write path exists outside the partitioned single path at any fleet size the harness can simulate.
+
+### Architecture Perspective
+
+Architecturally this section is the treasury's answer to the Decision Engine's runtime-at-scale material (`context/10_DECISION_ENGINE.md` Part 4) and the Planning Engine's multi-node execution: those documents scale selection and planning, this one scales financial custody — and the treasury's contribution is that scale is achieved by partitioning existing authority, never by minting new authority. The six constitutional boundaries of Section 3 are node-local: every node enforces all of them, so the weakest node in the fleet is still a lawful treasury node.
+
+**Diagram ID:** `CAT-TC-P4-S76-D001`  
+**Title:** One Treasury Across the Fleet  
+**Purpose:** Show four node classes serving one logical ledger.  
+**Audience:** Architects, operators  
+**Reading Order:** Read first in Section 76.
+
+```mermaid
+flowchart TB
+  subgraph FLEET[Node fleet - capacity only]
+    W1[Write node\npartitions 1-4]
+    W2[Write node\npartitions 5-8]
+    R1[Read node\nprojections]
+    T1[Watch node\nleases]
+    C1[Coordination node\nno financial authority]
+  end
+  W1 --> LG[(One logical ledger\npartitioned union)]
+  W2 --> LG
+  LG --> R1
+  T1 -.observes.-> LG
+  C1 -.placement + membership.-> W1 & W2
+```
+
+### AI Perspective
+
+For an AI collaborator the multi-node architecture removes a tempting shortcut: there is no 'coordinator node' with elevated financial authority to appeal to. Every proposal an agent routes lands on a node that enforces the same constitution, so distributed designs must compose lawful per-node behaviour rather than assume a privileged vantage point. The characteristic AI failure is designing a cross-node reconciler that 'fixes' partition disagreements by direct mutation — Section 35 break records and governed dispositions remain the only lawful instrument, on one node or a thousand.
+
+### Developer Notes
+
+Developers should treat node class as a type, not a tag: a watch node that quietly grows a write capability is a constitution violation, not a configuration drift. Keep node-local enforcement complete — never assume another node checked.
+
+### Codex Notes
+
+When operating on `Multi-Node Treasury Architecture`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST treat node count as a capacity parameter with zero authority semantics, MUST keep every financial write inside the partitioned single write path, and MUST refuse to design privileged coordinator nodes.
+
+### Claude Code Notes
+
+When operating on `Multi-Node Treasury Architecture`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST treat node count as a capacity parameter with zero authority semantics, MUST keep every financial write inside the partitioned single write path, and MUST refuse to design privileged coordinator nodes.
+
+### Gemini CLI Notes
+
+When operating on `Multi-Node Treasury Architecture`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST treat node count as a capacity parameter with zero authority semantics, MUST keep every financial write inside the partitioned single write path, and MUST refuse to design privileged coordinator nodes.
+
+### Cursor Notes
+
+When operating on `Multi-Node Treasury Architecture`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST treat node count as a capacity parameter with zero authority semantics, MUST keep every financial write inside the partitioned single write path, and MUST refuse to design privileged coordinator nodes.
+
+### Future AI Notes
+
+When operating on `Multi-Node Treasury Architecture`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST treat node count as a capacity parameter with zero authority semantics, MUST keep every financial write inside the partitioned single write path, and MUST refuse to design privileged coordinator nodes.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Multi-Node Treasury Architecture` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| topology | Materialize the topology record with node classes, partitions, regions, and attestations. | topology stage receipt |
+| classes | Bind each node class to its Section 19 credential class and capability set. | classes stage receipt |
+| ledger | Prove the one-logical-ledger invariant over partitioned physical logs. | ledger stage receipt |
+| boundaries | Verify all six Section 3 boundaries enforce node-locally on every class. | boundaries stage receipt |
+| verify | Run the fleet conformance suite across simulated fleet sizes. | verify stage receipt |
+
+### AI Context Window
+
+An agent working on `Multi-Node Treasury Architecture` needs a bounded context, loaded in this order:
+
+- This section in full, including the node taxonomy and the one-logical-ledger invariant.
+- Section 3 (`Treasury Core Architecture`) for the boundaries every node enforces locally.
+- Section 8 (`Ledger and Transaction Model`) for the ledger the fleet partitions.
+- Section 17 (`Treasury Repository`) for the stores that shard under placement.
+- Section 51 (`Multi-Agent Treasury Architecture`) for the population-invariance precedent.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. The topology record schema and its governed registration flow.
+2. Node class credential bindings.
+3. Partitioned ledger materialization with per-partition total order.
+4. Node-local boundary enforcement verification.
+5. The fleet-size conformance harness.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Multi-Node Treasury Architecture`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Designing a privileged coordinator node | Distributed systems habits expect a leader with special powers | Leaders exist for placement and leases only; financial authority is identical on every node |
+| Letting read nodes serve as write fallbacks | Failover pressure makes idle capacity tempting | Node class is a credential boundary; failover promotes through the governed lifecycle of Section 77, never by reuse |
+| Reconciling partitions by direct mutation | A cross-partition disagreement looks like a bug to fix | Disagreements become Section 35 break records with governed dispositions |
+| Treating the fleet map as documentation | Topology feels like an operations detail | The topology record is governed configuration; an unregistered node is a refused node |
+| Assuming another node validated the intent | Re-validation feels wasteful | Enforcement is node-local and complete; the weakest node must still be lawful |
+
+### Security
+
+Every node authenticates as a Section 19 machine principal with least privilege for its class; inter-node channels are mutually authenticated and encrypted; the topology record is under security-owner change control; and an unattested node is refused membership by Section 77 before it can serve a single request.
+
+### Performance
+
+Throughput scales with write partitions and read replicas independently; the placement map keeps partition-local operations partition-local, so the common case never pays cross-node coordination costs.
+
+### Latency
+
+Intent admission adds one placement lookup against a cached versioned map; cross-node flows pay the Section 80 coordination cost and are the declared exception, budgeted per flow class.
+
+### Scalability
+
+The fleet scales by adding nodes of the needed class and rebalancing partitions per Section 79; nothing in the authority model changes at any size, which is the scalability property that matters most.
+
+### Reliability
+
+Node failure is a first-class state: partitions fail over per Section 81 replication, watch leases re-lease per Section 54, and the readiness ladder gates every recovered node's return to service.
+
+### Caching
+
+The placement map and topology record cache by version digest on every node; financial state never caches across nodes beyond the Section 24 authorization rules already fixed.
+
+### Consistency
+
+Per-partition writes are totally ordered; cross-partition consistency is exactly the Section 78 model — declared, labeled, and never silently assumed stronger than it is.
+
+**Diagram ID:** `CAT-TC-P4-S76-D002`  
+**Title:** Node-Local Enforcement  
+**Purpose:** Show every boundary enforced on every node with no delegation.  
+**Audience:** Security reviewers  
+**Reading Order:** Read with rule CAT-TC-CONST-152.
+
+```mermaid
+flowchart LR
+  IN[Intent arrives\nat any node] --> B1{Policy boundary}
+  B1 --> B2{Authorization boundary}
+  B2 --> B3{Mutation boundary}
+  B3 --> OK[Partition-local write]
+  DEL[Delegate check\nto another node] -. forbidden .-> B1
+```
+
+### Recovery
+
+Recovery of the fleet is recovery of its parts in ledger-first order per Section 84: coordination services, then write partitions from replicated logs, then read projections rebuilt, then watch workloads re-leased — with the topology record as the restoration checklist.
+
+### Ownership
+
+The multi-node architecture is owned by the planned Treasury Engineering Owner; the topology record by the planned Treasury Security Owner; regional composition by the Section 83 federation owners.
+
+### Dependencies
+
+- Section 3 (`Treasury Core Architecture`) — the boundaries enforced node-locally.
+- Section 8 (`Ledger and Transaction Model`) — the single logical ledger.
+- Section 21 (`Treasury Runtime Architecture`) — the readiness ladder every node climbs.
+- `context/10_DECISION_ENGINE.md` — the sibling runtime-at-scale discipline.
+
+### Risks
+
+- Topology drift between the record and the actual fleet.
+- Class erosion as operational pressure blurs node roles.
+- Hidden coupling that makes the common case cross-partition.
+
+### Anti Patterns
+
+- A super-node with cross-partition write reach.
+- Node-class checks enforced by naming conventions instead of credentials.
+- Fleet growth by cloning nodes outside the governed lifecycle.
+
+### Best Practices
+
+- Audit the topology record against live membership on a schedule.
+- Design flows partition-local first; declare every cross-node exception.
+- Rehearse node-loss on every class, not only write nodes.
+
+### Examples
+
+Example: volume growth saturates the payout partition set. Capacity review per Section 72 approves two new write nodes; they register in the topology record, attest, climb the readiness ladder, receive partitions through a Section 79 placement change, and begin serving — with zero change to any authorization rule, ceiling, or human gate.
+
+### Counter Examples
+
+Counter example: an incident response promotes a read node to accept 'temporary' writes with a copied credential. The writes are lawful-looking but off-path: no placement entry, no partition order, no replication guarantee. The one-logical-ledger invariant exists because a second write path, however temporary, is a second treasury.
+
+### Implementation Checklist
+
+- [ ] Implement the multi-node treasury architecture exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the multi-node treasury architecture to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the multi-node treasury architecture done.
+- [ ] Every node class binds to a distinct credential class with the topology record as the registration authority.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the multi-node treasury architecture with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the multi-node treasury architecture, not by convention or review habit.
+- [ ] The multi-node treasury architecture rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] The fleet conformance suite passes at multiple simulated fleet sizes with authority checks byte-identical across sizes.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the multi-node treasury architecture with a named on-call owner.
+- [ ] Alert thresholds for the multi-node treasury architecture are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the multi-node treasury architecture names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] The live fleet map and the topology record reconcile with zero unregistered nodes.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the multi-node treasury architecture carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the multi-node treasury architecture run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the multi-node treasury architecture exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Fleet topology changes ride the Section 82 deployment coordination with placement versions recorded.
+
+### Recovery Checklist
+
+- [ ] Recovery of the multi-node treasury architecture rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the multi-node treasury architecture before mutations are re-enabled.
+- [ ] A recovery report for the multi-node treasury architecture records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Ledger-first restoration order is encoded in the recovery runbook and rehearsed.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The multi-node architecture's constitutional text. |
+| `core/treasury/nodes/topology.yaml` | Planned | Governed topology record. |
+| `core/treasury/nodes/classes.py` | Planned | Node class credential bindings. |
+| `core/treasury/nodes/fleet_conformance.py` | Planned | Fleet-size conformance harness. |
+
+### Folder Mapping
+
+The multi-node architecture lives in the planned `core/treasury/nodes/` folder, the root of the Part 4 multi-node stratum.
+
+### Cross References
+
+- Section 77 (`Treasury Node Lifecycle and Membership`) — how nodes join, serve, and leave.
+- Section 78 (`Distributed Treasury Consistency`) — the consistency model across the fleet.
+- Section 79 (`Treasury Partitioning and Placement`) — how the single path partitions.
+- Section 51 (`Multi-Agent Treasury Architecture`) — the population-invariance precedent this section extends to hardware.
+- Rule `CAT-TC-CONST-151` and Rule `CAT-TC-CONST-152` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S76-001` through `CAT-TC-AT-S76-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-151` — One Logical Ledger Across All Nodes (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-152` — Node-Count-Invariant Authority (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the multi-node treasury architecture must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S76-001`  
+**Meaning:** One treasury on many nodes: partitioned single write path, one logical ledger, node-local enforcement of every boundary — node count changes capacity, never authority.  
+**Recall Trigger:** Any fleet design, node addition, coordinator proposal, or cross-node write question.  
+**Operational Use:** Recall this anchor to refuse privileged nodes and keep every financial write on the partitioned single path.
+
+### Future Evolution
+
+Later sections of this part add lifecycle (Section 77), consistency (Section 78), placement (Section 79), coordination (Section 80), replication (Section 81), and fleet deployment (Section 82); the one-logical-ledger and node-count-invariance rules are permanent.
+
+### Operational Stories
+
+Operational story: the weekly fleet audit finds one node whose live partitions differ from the topology record after a manual failover. The node is drained, the record corrected through the governed flow, and the failover automation fixed to write the record first — the map staying truthful because it is checked, not trusted.
+
+### Execution Stories
+
+Execution story: a payout run lands entirely on one write partition, executes the five-link chain locally, and replicates per Section 81 — the common case paying no coordination cost, exactly as the placement design intended.
+
+### Optimization Stories
+
+Optimization story: latency analysis shows a commission flow crossing partitions on every execution because wallet and category partitions were keyed differently. A placement change co-locates them; the flow becomes partition-local; the optimization changes keys, not authority.
+
+### Recovery Stories
+
+Recovery story: a coordination node loss freezes placement changes but not serving — cached versioned maps keep every node lawful on its last-known placement until the service restores, degradation exactly as designed.
+
+**Diagram ID:** `CAT-TC-P4-S76-D003`  
+**Title:** Scale Changes Capacity, Not Authority  
+**Purpose:** Fix which parameters move when the fleet grows.  
+**Audience:** Engineers, reviewers  
+**Reading Order:** Read with the pseudo code of Section 76.
+
+```mermaid
+flowchart TB
+  GROW[Fleet grows\n10 to 100 nodes] --> CAP[Changes: placement maps\nreplication factors\nthroughput ceilings]
+  GROW --> AUTH[Unchanged: five-link chain\nhuman-only actions\nforbidden compositions]
+  AUTH --> PROOF[Conformance suite:\nbyte-identical authority\nat every size]
+```
+
+### Normative Requirements
+
+1. The treasury MUST run as one logical treasury across all nodes: one ledger, one constitution, one authority model, at every fleet size.
+2. Every node MUST be registered in the topology record with class, partitions, region, and attestation before serving.
+3. Every node MUST enforce all six Section 3 boundaries locally; no node MAY delegate enforcement to another node.
+4. Financial writes MUST occur only on write nodes holding the partition per the current placement version.
+5. Node classes MUST bind to distinct credential classes; class changes MUST pass through the Section 77 lifecycle.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the multi-node treasury architecture.
+
+**Rule ID:** `CAT-TC-CONST-151`  
+**Title:** One Logical Ledger Across All Nodes  
+**Purpose:** Keep many nodes from becoming many treasuries.  
+**Normative Requirement:** The treasury MUST maintain exactly one logical append-only ledger regardless of node count; physical partitioning MUST preserve per-partition total order and document-wide zero-sum verification per Section 8; no node MAY host a financial write path outside the partitioned single path; and cross-partition disagreements MUST resolve only through Section 35 break records and governed dispositions.  
+**Rationale:** Every guarantee of Parts 1-3 is a guarantee about one ledger; a second write path silently forks the treasury.  
+**Enforcement:** Placement-checked write admission on every node; fleet conformance suite proving no off-path write exists; zero-sum verification across the partition union.  
+**Violation:** An off-path write is quarantined as a Section 35 break, the path closed, and the node's registration reviewed.  
+**Recovery:** Quarantine, reconcile through governed disposition, close the path, and re-verify the partition union.  
+**Owner:** Treasury Engineering Owner (Planned role)
+
+**Rule ID:** `CAT-TC-CONST-152`  
+**Title:** Node-Count-Invariant Authority  
+**Purpose:** Fix scale as capacity, never as authority.  
+**Normative Requirement:** Adding, removing, or re-classing nodes MUST NOT change any authorization rule, ceiling semantics, human-only action, forbidden composition, or participation level; fleet-size changes MUST alter only capacity parameters, placement maps, and replication factors; and the conformance suite MUST prove authority checks byte-identical across simulated fleet sizes.  
+**Rationale:** Section 51 fixed population-invariant authority for agents; hardware deserves the same rule, or scale becomes a privilege-escalation vector.  
+**Enforcement:** Authority check fixtures run at multiple fleet sizes with output comparison; topology changes reviewed against an authority-diff that must be empty.  
+**Violation:** A fleet change carrying an authority change is reverted and re-proposed as an explicit ADR.  
+**Recovery:** Revert, audit the window, and re-land the capacity change without the authority delta.  
+**Owner:** Lead Repository Architect
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S76-001`  
+**Purpose:** Prove off-path writes are refused on every node class.  
+**Given:** A write intent addressed to a read node, a watch node, and a write node lacking the target partition.  
+**When:** Each node processes the intent.  
+**Then:** All three refuse with `not-write-path-for-partition`, and the refusals are audited.  
+**Failure Condition:** Any node accepts a write outside its placement.
+
+**Test ID:** `CAT-TC-AT-S76-002`  
+**Purpose:** Prove the partition union stays zero-sum.  
+**Given:** A simulated fleet with financial activity across all write partitions.  
+**When:** Zero-sum verification runs over the union of partition logs.  
+**Then:** The union verifies; every entry appears in exactly one partition with per-partition total order intact.  
+**Failure Condition:** The union fails zero-sum or an entry appears in two partitions.
+
+**Test ID:** `CAT-TC-AT-S76-003`  
+**Purpose:** Prove authority is node-count-invariant.  
+**Given:** The authority check fixture set and simulated fleets of three sizes.  
+**When:** The fixtures run at each size.  
+**Then:** Authorization outcomes are byte-identical across sizes.  
+**Failure Condition:** Any fixture outcome differs by fleet size.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the multi-node treasury architecture defined by this section.
+
+```json
+{
+  "record_type": "treasury.node.topology",
+  "topology_version": "0.1.0",
+  "node_id": "nod_01J5Z10A2B3C4D5E6F7G8H9J0K",
+  "node_class": "write",
+  "region": "eu-west",
+  "partitions": [
+    "part_wallet_007",
+    "part_wallet_011"
+  ],
+  "attestation": {
+    "attested": true,
+    "credential_class": "machine-write-node",
+    "attested_at": "2026-08-15T20:00:00Z"
+  },
+  "placement_version": 42,
+  "readiness": "serving",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the multi-node treasury architecture defined by this section.
+
+```yaml
+treasury_multinode_architecture:
+  version: 0.1.0
+  invariants:
+    logical_ledgers: 1
+    authority: node-count-invariant
+    enforcement: node-local-complete
+  node_classes:
+    write:
+      role: partitioned-single-write-path
+      credential: machine-write-node
+    read:
+      role: api-and-analytics-projections
+      credential: machine-read-node
+    watch:
+      role: settlement-watch-and-detection
+      credential: machine-watch-node
+    coordination:
+      role: membership-placement-leases
+      credential: machine-coordination-node
+      financial_authority: none
+  registration:
+    record: topology-record-governed
+    unregistered_nodes: refused
+```
+
+### Pseudo Code
+
+```text
+function admit_write(node, intent):
+    placement = cached_placement(node.placement_version)
+    partition = placement.partition_for(intent.wallet)
+    if node.node_class != WRITE or partition not in node.partitions:
+        return refuse('not-write-path-for-partition', partition)
+    # authority checks are identical on every node, at every fleet size
+    return single_write_path.admit(intent)   # Sections 22..28 unchanged
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/nodes/                  # Planned
+  topology.yaml                       # Planned: governed topology record
+  classes.py                          # Planned: class credential bindings
+  admission.py                        # Planned: placement-checked write admission
+  fleet_conformance.py                # Planned: fleet-size conformance harness
+```
+
+## 77. Treasury Node Lifecycle and Membership
+
+**Section ID:** `CAT-TC-P4-77`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** node lifecycle and membership record  
+**Primary question:** How does a node join, serve, degrade, and leave the treasury fleet so that membership is always attested, current, and completely revocable?
+
+### Purpose
+
+This section fixes the node lifecycle and membership model: the governed path every node walks from provisioning to decommissioning. It defines the lifecycle states (provisioned, attested, admitted, serving, draining, quarantined, decommissioned — a closed machine in the Section 14 style, with forward-only transitions recorded as membership events), the attestation gate (a node proves its identity, its build provenance, its credential class, and its configuration digest before admission; an unattested or drift-detected node cannot join or rejoin), the membership service (a coordination-class service that holds the authoritative member set, issues time-boxed membership leases that nodes must renew, and expires silent nodes into quarantine automatically), and complete decommissioning (leaving the fleet strips everything: credentials revoke, partitions reassign per Section 79, leases release per Section 54, local state is verified-destroyed, and the topology record closes the node's entry — the hardware equivalent of Section 52's strip-everything guarantee for agent roles).
+
+### Business Perspective
+
+The lifecycle turns fleet churn from a risk into a routine: nodes are cattle with birth certificates. The business consequence is procurement and scaling freedom — hardware can be added, replaced, and retired on commercial terms without any change ever touching financial authority, and an auditor can read the membership history of every node that ever served.
+
+### Engineering Perspective
+
+Engineering implements the lifecycle as a state machine over membership events: attestation verifies build digests against the release registry of Section 82, admission grants the class credential with a lease, renewal is a heartbeat with re-attestation on a longer cadence, draining moves partitions and leases off before shutdown, and quarantine isolates a suspect node while preserving its state for forensics. Decommissioning runs a verified checklist whose completion evidence lands in the membership record.
+
+### Architecture Perspective
+
+Architecturally, membership is the fleet's identity boundary exactly as Section 19 is the principal identity boundary: the same closed-set, attested, expiring, completely-revocable discipline applied to machines. The membership service holds zero financial authority — it decides who is in the fleet, never what the fleet may do with money.
+
+**Diagram ID:** `CAT-TC-P4-S77-D001`  
+**Title:** The Seven-State Node Lifecycle  
+**Purpose:** Show every lifecycle state and its gated transitions.  
+**Audience:** Engineers, operators  
+**Reading Order:** Read first in Section 77.
+
+```mermaid
+stateDiagram-v2
+  [*] --> provisioned
+  provisioned --> attested: full attestation gate
+  attested --> admitted: lease issued
+  admitted --> serving: readiness ladder
+  serving --> draining: planned exit
+  serving --> quarantined: lease silence or drift
+  quarantined --> attested: full gate only
+  draining --> decommissioned: verified checklist
+  quarantined --> decommissioned: verified checklist
+  decommissioned --> [*]
+```
+
+### AI Perspective
+
+For an AI collaborator the lifecycle answers 'can I trust this node' mechanically: a serving node is attested, leased, and current, or it is not serving. The characteristic AI failure is designing convenience rejoin paths — letting a quarantined node resume with its old credentials because its fault 'was probably transient'. Rejoining is re-attestation through the full gate, always; convenience rejoin is how a compromised node re-enters.
+
+### Developer Notes
+
+Developers should make every lifecycle transition observable and every transition evidence-bearing: the membership history of a node should read like a ledger, because it is one — an append-only record of what the fleet trusted and when.
+
+### Codex Notes
+
+When operating on `Treasury Node Lifecycle and Membership`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route every node join and rejoin through full attestation, MUST bind serving to a live renewable lease, and MUST refuse to design rejoin shortcuts for quarantined nodes.
+
+### Claude Code Notes
+
+When operating on `Treasury Node Lifecycle and Membership`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route every node join and rejoin through full attestation, MUST bind serving to a live renewable lease, and MUST refuse to design rejoin shortcuts for quarantined nodes.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Node Lifecycle and Membership`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route every node join and rejoin through full attestation, MUST bind serving to a live renewable lease, and MUST refuse to design rejoin shortcuts for quarantined nodes.
+
+### Cursor Notes
+
+When operating on `Treasury Node Lifecycle and Membership`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route every node join and rejoin through full attestation, MUST bind serving to a live renewable lease, and MUST refuse to design rejoin shortcuts for quarantined nodes.
+
+### Future AI Notes
+
+When operating on `Treasury Node Lifecycle and Membership`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route every node join and rejoin through full attestation, MUST bind serving to a live renewable lease, and MUST refuse to design rejoin shortcuts for quarantined nodes.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Node Lifecycle and Membership` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| machine | Implement the seven-state lifecycle machine over membership events. | machine stage receipt |
+| attest | Build the attestation gate against the release registry. | attest stage receipt |
+| lease | Implement time-boxed membership leases with automatic quarantine on silence. | lease stage receipt |
+| drain | Implement draining with partition and lease handoff. | drain stage receipt |
+| decommission | Implement the verified decommissioning checklist. | decommission stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Node Lifecycle and Membership` needs a bounded context, loaded in this order:
+
+- This section in full, including the lifecycle machine and the attestation gate.
+- Section 76 (`Multi-Node Treasury Architecture`) for the classes nodes are admitted into.
+- Section 14 (`Treasury States and State Machine`) for the state machine discipline.
+- Section 19 (`Treasury Security and Trust Boundary`) for the credential machinery.
+- Section 82 (`Multi-Node Deployment Coordination`) for the release registry attestation reads.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. Membership event schema and the append-only membership history.
+2. The attestation verifier.
+3. Lease issuance, renewal, and silence-expiry.
+4. Draining orchestration.
+5. Decommissioning checklist automation with evidence capture.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Node Lifecycle and Membership`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Rejoining quarantined nodes on old credentials | The fault looked transient and re-attestation is slow | Quarantine exit is full re-attestation, always; speed is not a trust argument |
+| Letting leases auto-renew without heartbeat evidence | Renewal churn seems wasteful | A lease is a claim of liveness; renewing a silent node's lease forges that claim |
+| Skipping drain on emergency shutdown | The incident demands speed | Un-drained partitions fail over anyway; skipping drain only adds ambiguity to a bad day |
+| Decommissioning without state destruction evidence | The node is leaving; who cares | Residual financial state on retired hardware is a breach in waiting |
+| Treating membership as configuration | A static list is simpler | Membership is a live, leased, attested set; a list cannot quarantine anything |
+
+### Security
+
+Attestation binds node identity to build provenance and configuration digests; membership leases bound the blast radius of a compromised node to one lease term; quarantine preserves forensic state under Section 18 audit custody; and decommissioning destroys local state with recorded verification — least privilege applied to hardware from birth to retirement.
+
+### Performance
+
+Membership operations are control-plane: lease renewals are lightweight heartbeats, and nothing on the financial hot path waits on the membership service beyond the cached member set.
+
+### Latency
+
+Serving nodes check membership from a locally cached, lease-stamped member set; the renewal round trip is off the request path entirely.
+
+### Scalability
+
+The membership service scales as a small replicated coordination service; membership history shards by node; the fleet can churn continuously without the service becoming a bottleneck.
+
+### Reliability
+
+Membership-service loss freezes joins and lease renewals but not serving within current lease terms — a bounded degradation window that is itself a declared Section 72 envelope.
+
+### Caching
+
+Member sets cache with lease-term validity; attestation verdicts cache per build digest; quarantine state never caches — it reads authoritative.
+
+### Consistency
+
+Membership transitions serialize per node in the membership history; the member set is versioned so every consumer can name exactly which membership epoch it acted under.
+
+**Diagram ID:** `CAT-TC-P4-S77-D002`  
+**Title:** Lease Silence Becomes Quarantine  
+**Purpose:** Show the automatic path from silence to isolation and failover.  
+**Audience:** Operators  
+**Reading Order:** Read with rule CAT-TC-CONST-153.
+
+```mermaid
+sequenceDiagram
+  participant N as Node
+  participant MS as Membership Service
+  participant FO as Failover
+  N->>MS: heartbeat + lease renewal
+  Note over N: node goes silent
+  MS->>MS: lease term elapses
+  MS->>MS: quarantine node, bump epoch
+  MS->>FO: trigger partition failover
+  FO-->>MS: partitions reassigned
+  Note over N: rejoin requires full attestation
+```
+
+### Recovery
+
+Recovery re-derives the member set from the membership history, re-verifies every serving node's lease and attestation, and quarantines anything that cannot prove currency — fail-closed membership after any coordination-plane incident.
+
+### Ownership
+
+The lifecycle machine and membership service are owned by the planned Treasury Engineering Owner; attestation policy by the planned Treasury Security Owner; decommissioning evidence review by the Section 74 governance calendar.
+
+### Dependencies
+
+- Section 76 (`Multi-Node Treasury Architecture`) — the topology record membership feeds.
+- Section 19 (`Treasury Security and Trust Boundary`) — credentials and revocation.
+- Section 54 (`Agent Settlement Coordination`) — the lease discipline this section reuses for machines.
+
+### Risks
+
+- Attestation policy lagging build practice and blocking lawful joins.
+- Lease terms tuned so long that quarantine loses meaning.
+- Decommissioning checklists rotting as hardware generations change.
+
+### Anti Patterns
+
+- Static member lists in configuration files.
+- Quarantine exit by operator override without re-attestation.
+- Nodes serving on expired leases during coordination outages beyond the declared window.
+
+### Best Practices
+
+- Rehearse quarantine and rejoin quarterly on production-class nodes.
+- Alert on lease-renewal latency trends, not only failures.
+- Review decommissioning evidence in the governance calendar.
+
+### Examples
+
+Example: a write node's heartbeats stop. Its lease expires, membership quarantines it, its partitions fail over per Section 81, and its watch leases re-lease per Section 54. Hardware diagnosis finds a failed disk; the node is rebuilt, re-attests with the new build digest, and rejoins through the full gate — its membership history recording the entire arc.
+
+### Counter Examples
+
+Counter example: during a busy launch, a quarantined node is manually returned to the member set because 'the network blip cleared'. Its configuration had drifted during the blip; it serves with a stale placement map and refuses lawful writes for an hour. Quarantine exit is re-attestation because the gate is what makes membership mean anything.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury node lifecycle and membership model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury node lifecycle and membership model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury node lifecycle and membership model done.
+- [ ] The seven-state machine covers every membership transition with no undeclared edges.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury node lifecycle and membership model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury node lifecycle and membership model, not by convention or review habit.
+- [ ] The treasury node lifecycle and membership model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Silent nodes expire into quarantine automatically within one lease term.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury node lifecycle and membership model with a named on-call owner.
+- [ ] Alert thresholds for the treasury node lifecycle and membership model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury node lifecycle and membership model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Membership history dashboards show joins, quarantines, and decommissions with evidence links.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury node lifecycle and membership model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury node lifecycle and membership model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury node lifecycle and membership model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Lease-term and attestation-policy changes version and apply prospectively.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury node lifecycle and membership model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury node lifecycle and membership model before mutations are re-enabled.
+- [ ] A recovery report for the treasury node lifecycle and membership model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Post-incident member-set re-derivation is rehearsed and evidence-verified.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The lifecycle model's constitutional text. |
+| `core/treasury/nodes/membership.py` | Planned | Membership service and leases. |
+| `core/treasury/nodes/attestation.py` | Planned | Attestation gate. |
+| `core/treasury/nodes/decommission.py` | Planned | Verified decommissioning checklist. |
+
+### Folder Mapping
+
+The lifecycle machinery lives in the planned `core/treasury/nodes/` folder beside the topology record it maintains.
+
+### Cross References
+
+- Section 76 (`Multi-Node Treasury Architecture`) — the fleet this lifecycle populates.
+- Section 79 (`Treasury Partitioning and Placement`) — partition reassignment on drain and decommission.
+- Section 52 (`Agent Treasury Roles and Permissions`) — the strip-everything precedent this section applies to hardware.
+- Rule `CAT-TC-CONST-153` and Rule `CAT-TC-CONST-154` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S77-001` through `CAT-TC-AT-S77-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-153` — Attested Membership Only (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-154` — Complete Node Decommissioning (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury node lifecycle and membership model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S77-001`  
+**Meaning:** Nodes join by attestation, serve by lease, leave by verified decommissioning — membership is a live, leased, attested set, and quarantine exits only through the full gate.  
+**Recall Trigger:** Any node join, rejoin, quarantine, drain, or decommission design.  
+**Operational Use:** Recall this anchor to refuse rejoin shortcuts and keep membership meaningful.
+
+### Future Evolution
+
+Later sections build fleet deployment (Section 82) and continuity (Section 84) atop this lifecycle; the attestation gate and complete decommissioning are permanent.
+
+### Operational Stories
+
+Operational story: the monthly membership review finds three nodes renewing leases with attestation ages near the re-attestation ceiling. The cadence is tightened one notch, the renewal automation updated, and the review notes that the ceiling worked exactly as designed — drift was caught by policy, not by incident.
+
+### Execution Stories
+
+Execution story: a planned hardware refresh drains twelve nodes over a week: partitions migrate at settled boundaries, leases hand off cleanly, and decommissioning evidence lands in the membership history — fleet turnover with zero financial interruptions.
+
+### Optimization Stories
+
+Optimization story: lease renewals cluster at term boundaries and spike the membership service. Jittering renewal offsets flattens the load — an optimization of timing that touches no trust property.
+
+### Recovery Stories
+
+Recovery story: after a membership-service restore, the member set re-derives from history and two nodes cannot prove lease currency. Both quarantine automatically, re-attest, and rejoin within the hour — fail-closed membership doing its job after the control plane's bad day.
+
+**Diagram ID:** `CAT-TC-P4-S77-D003`  
+**Title:** Decommissioning Strips Everything  
+**Purpose:** Show the five evidence-bearing steps of complete exit.  
+**Audience:** Auditors, security reviewers  
+**Reading Order:** Read with rule CAT-TC-CONST-154.
+
+```mermaid
+flowchart LR
+  D[Decommission begins] --> S1[Revoke credentials]
+  S1 --> S2[Reassign partitions]
+  S2 --> S3[Release leases]
+  S3 --> S4[Verify state destruction]
+  S4 --> S5[Close topology entry]
+  S5 --> EV[(Per-step evidence\nin membership history)]
+```
+
+### Normative Requirements
+
+1. Every node MUST walk the seven-state lifecycle; no transition MAY bypass its gate or leave the membership history.
+2. Admission and every rejoin MUST pass full attestation of identity, build provenance, credential class, and configuration digest.
+3. Serving MUST require a live membership lease; silence MUST expire the lease into quarantine within one term.
+4. Draining MUST complete partition and lease handoff before shutdown except on hard failure, where failover applies.
+5. Decommissioning MUST revoke credentials, reassign partitions, release leases, verify state destruction, and close the topology entry.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury node lifecycle and membership model.
+
+**Rule ID:** `CAT-TC-CONST-153`  
+**Title:** Attested Membership Only  
+**Purpose:** Make fleet membership a proven property, never an assumed one.  
+**Normative Requirement:** No node MAY serve any treasury workload without current attestation and a live membership lease; attestation MUST verify identity, build provenance against the release registry, credential class, and configuration digest; quarantined nodes MUST re-enter only through the full attestation gate; and the member set MUST be versioned so every action names its membership epoch.  
+**Rationale:** A fleet that trusts unproven nodes has no boundary; attestation is the difference between a fleet and a crowd.  
+**Enforcement:** Membership service admission checks; lease-stamped member sets on every node; conformance tests that present unattested, drifted, and stale-leased nodes.  
+**Violation:** A node serving without attestation or lease is quarantined immediately and its served window audited.  
+**Recovery:** Quarantine, forensic review of the window, re-attest or decommission.  
+**Owner:** Treasury Security Owner (Planned role)
+
+**Rule ID:** `CAT-TC-CONST-154`  
+**Title:** Complete Node Decommissioning  
+**Purpose:** Make leaving the fleet strip everything, mechanically.  
+**Normative Requirement:** Decommissioning MUST revoke the node's credentials, reassign its partitions, release its leases, verify destruction of local financial state, and close its topology entry, with evidence for each step recorded in the membership history; no decommissioned node identity MAY be reused for a new node.  
+**Rationale:** Section 52 proved strip-everything for agent roles; retired hardware holding live credentials or residual state is the same hole in physical form.  
+**Enforcement:** Decommissioning checklist automation with per-step evidence capture; governance review of decommissioning records on the Section 74 calendar.  
+**Violation:** An incompletely decommissioned node is treated as a live security incident per Section 48.  
+**Recovery:** Complete the missing steps, audit the exposure window, and fix the automation gap.  
+**Owner:** Treasury Security Owner (Planned role)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S77-001`  
+**Purpose:** Prove unattested nodes cannot serve.  
+**Given:** A node with valid credentials but a stale configuration digest.  
+**When:** The node requests admission and then attempts to serve a read.  
+**Then:** Admission refuses with `attestation-drift`, and the serve attempt refuses for lack of a lease.  
+**Failure Condition:** The node serves any workload.
+
+**Test ID:** `CAT-TC-AT-S77-002`  
+**Purpose:** Prove silent nodes quarantine automatically.  
+**Given:** A serving node whose heartbeats are suppressed in a test harness.  
+**When:** One lease term elapses.  
+**Then:** The lease expires, the node enters quarantined, and its partitions begin failover.  
+**Failure Condition:** The node remains in the member set beyond the term.
+
+**Test ID:** `CAT-TC-AT-S77-003`  
+**Purpose:** Prove decommissioning strips everything.  
+**Given:** A test node with credentials, partitions, and leases.  
+**When:** Decommissioning runs.  
+**Then:** Credentials revoke, partitions reassign, leases release, destruction verifies, the topology entry closes, and every step's evidence lands in the membership history.  
+**Failure Condition:** Any step lacks evidence or any capability survives.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury node lifecycle and membership model defined by this section.
+
+```json
+{
+  "record_type": "treasury.node.lifecycle_event",
+  "event_id": "nle_01J5Z11B2C3D4E5F6G7H8J9K0L",
+  "node_id": "nod_01J5Z10A2B3C4D5E6F7G8H9J0K",
+  "transition": {
+    "from_state": "attested",
+    "to_state": "admitted"
+  },
+  "attestation": {
+    "build_digest": "b3c4d5e6f7a8",
+    "config_digest": "9a0b1c2d3e4f",
+    "credential_class": "machine-write-node",
+    "verified": true
+  },
+  "lease": {
+    "lease_id": "mls_01J5Z11C5D6E7F8G9H0J1K2L3M",
+    "term_seconds": 300
+  },
+  "membership_epoch": 1042,
+  "recorded_at": "2026-08-15T20:00:00Z",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury node lifecycle and membership model defined by this section.
+
+```yaml
+treasury_node_lifecycle:
+  version: 0.1.0
+  states: [provisioned, attested, admitted, serving, draining, quarantined, decommissioned]
+  attestation:
+    verifies: [identity, build-provenance, credential-class, config-digest]
+    source_of_truth: release-registry
+    rejoin: full-gate-always
+  leases:
+    term: bounded-renewable
+    silence: quarantine-within-one-term
+    serving_without_lease: forbidden
+  draining:
+    handoff: [partitions, watch-leases]
+    order: handoff-then-shutdown
+  decommissioning:
+    steps: [revoke-credentials, reassign-partitions, release-leases,
+            verify-state-destruction, close-topology-entry]
+    evidence: per-step-recorded
+    identity_reuse: forbidden
+```
+
+### Pseudo Code
+
+```text
+function on_lease_silence(node):
+    expire_lease(node)
+    transition(node, QUARANTINED)          # automatic, evidence-recorded
+    trigger_partition_failover(node)       # Section 81
+    release_watch_leases(node)             # Section 54
+
+function rejoin(node):
+    # quarantine exit has exactly one door
+    verdict = attest(node)                 # full gate, no shortcuts
+    if verdict is not VERIFIED:
+        return refuse('attestation-failed', verdict.reason)
+    return admit(node, new_lease())
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/nodes/                  # Planned
+  membership.py                       # Planned: member set + leases
+  attestation.py                      # Planned: full-gate verifier
+  lifecycle_machine.py                # Planned: seven-state machine
+  decommission.py                     # Planned: verified checklist
+```
+
+## 78. Distributed Treasury Consistency
+
+**Section ID:** `CAT-TC-P4-78`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** consistency class register record  
+**Primary question:** Which consistency does each treasury surface guarantee across nodes, and how does every read announce exactly what it is?
+
+### Purpose
+
+This section fixes the distributed consistency model: the closed register of consistency classes each treasury surface guarantees when state spans nodes. It defines the write rule (all financial writes are strictly serialized per partition through the single write path — there is no eventually-consistent financial mutation anywhere, at any scale), the read classes (authoritative reads that serve from the partition holder within the write order; bounded-staleness reads that serve from replicas with a declared, enforced staleness ceiling; and snapshot reads that serve sealed Section 66 and Section 67 artifacts exactly as sealed — a closed three-class register with every API and projection assigned to exactly one class), the labeling rule (every read response carries its consistency class and, for bounded-staleness reads, its as-of watermark — consumers never guess what they are holding, extending Section 36's stratum honesty to the distributed case), and the decision rule: any state consumed for authorization is authoritative-class by construction — the Section 24 sequence reads the partition holder, never a replica, so staleness can inconvenience a dashboard but can never corrupt an authorization.
+
+### Business Perspective
+
+The consistency register is the honesty contract of a distributed treasury: dashboards may lag seconds behind and say so, while every authorization decision runs on the current truth. The business never faces the worst distributed-systems outcome — money moved on stale state — because the model forbids it structurally, not operationally.
+
+### Engineering Perspective
+
+Engineering implements the classes with mechanisms already fixed: per-partition serialization is the Section 8 total order, bounded staleness is replica lag monitored against declared ceilings with serving suspended on breach, and snapshot reads are content-addressed artifact serving. The register is governed configuration mapping every surface to its class; the conformance suite reads every surface under induced lag and verifies labels, ceilings, and refusals.
+
+### Architecture Perspective
+
+Architecturally this is the Section 7 balance model and Section 36 cash flow strata extended across nodes: measured state is authoritative at its partition, projected and analytical state is bounded-stale and labeled, and sealed state is immutable everywhere. The treasury deliberately offers no tunable consistency — surfaces have the class their purpose requires, chosen at design time and enforced at runtime.
+
+**Diagram ID:** `CAT-TC-P4-S78-D001`  
+**Title:** Three Read Classes, One Write Discipline  
+**Purpose:** Show serialized writes and the three labeled read paths.  
+**Audience:** Architects, engineers  
+**Reading Order:** Read first in Section 78.
+
+```mermaid
+flowchart TB
+  W[Financial write] --> PH[Partition holder\nserialized order]
+  PH --> RP[Replicas\nwatermarked]
+  PH --> AR[Authoritative reads\nauthorization path]
+  RP --> BR[Bounded-staleness reads\nlabel + watermark]
+  SA[(Sealed artifacts)] --> SR[Snapshot reads\nimmutable]
+  EC[Eventual consistency] -. does not exist .-> PH
+```
+
+### AI Perspective
+
+For an AI collaborator the labels are load-bearing context: an agent reasoning over a bounded-staleness balance MUST carry the watermark into its reasoning and MUST NOT present stale-labeled figures as current. The characteristic AI failure is consistency-class laundering — copying a labeled stale read into an unlabeled variable and consuming it downstream as truth; the corrective is to propagate labels through every derivation, exactly as Section 10 propagates provenance.
+
+### Developer Notes
+
+Developers should resist adding consistency knobs: a surface that can be read at two classes will be read at the wrong one. One surface, one class, one label — and the authorization path never reads replicas, full stop.
+
+### Codex Notes
+
+When operating on `Distributed Treasury Consistency`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST assign every surface exactly one consistency class from the closed register, MUST propagate consistency labels and watermarks through every derivation it designs, and MUST refuse to route authorization reads to replicas.
+
+### Claude Code Notes
+
+When operating on `Distributed Treasury Consistency`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST assign every surface exactly one consistency class from the closed register, MUST propagate consistency labels and watermarks through every derivation it designs, and MUST refuse to route authorization reads to replicas.
+
+### Gemini CLI Notes
+
+When operating on `Distributed Treasury Consistency`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST assign every surface exactly one consistency class from the closed register, MUST propagate consistency labels and watermarks through every derivation it designs, and MUST refuse to route authorization reads to replicas.
+
+### Cursor Notes
+
+When operating on `Distributed Treasury Consistency`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST assign every surface exactly one consistency class from the closed register, MUST propagate consistency labels and watermarks through every derivation it designs, and MUST refuse to route authorization reads to replicas.
+
+### Future AI Notes
+
+When operating on `Distributed Treasury Consistency`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST assign every surface exactly one consistency class from the closed register, MUST propagate consistency labels and watermarks through every derivation it designs, and MUST refuse to route authorization reads to replicas.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Distributed Treasury Consistency` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| register | Materialize the consistency class register mapping every surface to one class. | register stage receipt |
+| serialize | Verify per-partition write serialization through the single path. | serialize stage receipt |
+| staleness | Implement staleness ceilings with suspension on breach. | staleness stage receipt |
+| label | Implement class and watermark labeling on every read response. | label stage receipt |
+| verify | Run the induced-lag conformance suite over every surface. | verify stage receipt |
+
+### AI Context Window
+
+An agent working on `Distributed Treasury Consistency` needs a bounded context, loaded in this order:
+
+- This section in full, including the three-class register and the decision rule.
+- Section 8 (`Ledger and Transaction Model`) for the per-partition total order.
+- Section 24 (`Financial Authorization Runtime`) for the authoritative-read requirement.
+- Section 36 (`Cash Flow Model`) for the stratum-honesty precedent labels extend.
+- Section 81 (`Treasury Replication and Durability`) for the replicas bounded reads serve from.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. The class register schema and surface assignments.
+2. Replica lag measurement against declared ceilings.
+3. Read-response labeling middleware.
+4. Authorization-path routing verification.
+5. The induced-lag conformance suite.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Distributed Treasury Consistency`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Reading replicas on the authorization path | Replica reads are faster and usually current | Usually is not a financial word; authorization reads the partition holder, always |
+| Stripping labels in intermediate services | The label field complicates internal schemas | Labels propagate like provenance; an unlabeled figure is an unusable figure |
+| Serving past a breached staleness ceiling | Suspending a surface during lag feels like an outage | A labeled suspension is honest; silently stale serving is a lie with a dashboard |
+| Adding a per-request consistency parameter | Callers ask for flexibility | Surfaces have one class by design; flexibility here is a foot-gun catalogue |
+| Treating snapshot artifacts as refreshable | A newer number seems more helpful | Sealed artifacts serve as sealed; Section 66 fixed why records of record never re-render |
+
+### Security
+
+Consistency labels are integrity-protected with the response; staleness ceilings and register assignments are governed configuration under change control; and the authorization-path routing rule is verified by conformance tests that attempt replica reads with authorization credentials and expect refusal.
+
+### Performance
+
+Bounded-staleness replicas absorb read load at scale, which is the model's performance purpose; the authoritative path pays partition-holder locality, kept cheap by Section 79 placement.
+
+### Latency
+
+Authoritative reads add partition routing; bounded reads serve locally at replica speed; the latency budget of every surface names its class so budgets and guarantees move together.
+
+### Scalability
+
+Read scale comes from replicas without touching write serialization; write scale comes from partitioning per Section 79 — the two dimensions scale independently by design.
+
+### Reliability
+
+Ceiling breaches suspend bounded surfaces rather than serve lies; partition-holder loss fails over per Section 81 and authoritative reads resume with the new holder — reliability preferring honest refusal over confident staleness.
+
+### Caching
+
+Caches inherit the class and watermark of what they cache and expire within the surface's ceiling; no cache may upgrade a bounded read to authoritative by forgetting its label.
+
+### Consistency
+
+This section is the consistency contract itself: strict serialization for writes, three labeled read classes, no tunable knobs, and authorization reading only the partition holder.
+
+**Diagram ID:** `CAT-TC-P4-S78-D002`  
+**Title:** Ceiling Breach Suspends, Never Lies  
+**Purpose:** Show the lag guard choosing honest refusal over stale serving.  
+**Audience:** Operators  
+**Reading Order:** Read with rule CAT-TC-CONST-156.
+
+```mermaid
+sequenceDiagram
+  participant C as Consumer
+  participant S as Bounded Surface
+  participant LG as Lag Guard
+  C->>S: read balance
+  S->>LG: current lag?
+  alt within ceiling
+    LG-->>S: 4.2s of 30s
+    S-->>C: payload + class + watermark
+  else breached
+    LG-->>S: 41s of 30s
+    S-->>C: staleness-ceiling-breached
+  end
+```
+
+### Recovery
+
+After partition failover, the new holder resumes the write order from replicated state per Section 81, replicas re-anchor their watermarks, and bounded surfaces resume when lag re-enters ceiling — recovery preserving classes rather than suspending them informally.
+
+### Ownership
+
+The class register is owned by the planned Treasury Engineering Owner; ceiling values by the planned Treasury Data Owner; the authorization routing rule by the planned Treasury Security Owner.
+
+### Dependencies
+
+- Section 8 (`Ledger and Transaction Model`) — write serialization.
+- Section 24 (`Financial Authorization Runtime`) — the authoritative-read consumer.
+- Section 81 (`Treasury Replication and Durability`) — replica machinery and watermarks.
+
+### Risks
+
+- Label erosion through schema evolution in intermediate services.
+- Ceiling values tuned by complaint volume instead of consumer requirements.
+- Class creep as new surfaces default to authoritative for safety and overload partitions.
+
+### Anti Patterns
+
+- Per-request consistency parameters.
+- Unlabeled internal copies of labeled reads.
+- Authorization caches that outlive their authoritative moment beyond Section 24 rules.
+
+### Best Practices
+
+- Assign classes at surface design time and record the reasoning.
+- Alert on watermark age percentiles before ceilings breach.
+- Test every new surface under induced lag before first release.
+
+### Examples
+
+Example: the Section 46 balance API serves authoritative reads for the authorization sequence and a bounded-staleness variant surface for dashboards, each registered separately. During a replication lag event, the dashboard surface suspends with a labeled `staleness-ceiling-breached` response while authorizations continue at the partition holder — inconvenience for observers, zero risk to money.
+
+### Counter Examples
+
+Counter example: an internal service copies bounded-staleness balances into its own store without watermarks and later serves them to a reconciliation assistant as current. The assistant proposes dispositions against minutes-old state and every proposal is wrong. Labels exist because state without its class is misinformation with good formatting.
+
+### Implementation Checklist
+
+- [ ] Implement the distributed treasury consistency model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the distributed treasury consistency model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the distributed treasury consistency model done.
+- [ ] Every treasury surface appears in the register with exactly one class.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the distributed treasury consistency model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the distributed treasury consistency model, not by convention or review habit.
+- [ ] The distributed treasury consistency model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Induced-lag tests verify labels, watermarks, ceilings, and suspensions on every bounded surface.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the distributed treasury consistency model with a named on-call owner.
+- [ ] Alert thresholds for the distributed treasury consistency model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the distributed treasury consistency model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Watermark age and ceiling headroom are dashboard signals per surface.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the distributed treasury consistency model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the distributed treasury consistency model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the distributed treasury consistency model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Class or ceiling changes version through governed configuration with consumer notice.
+
+### Recovery Checklist
+
+- [ ] Recovery of the distributed treasury consistency model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the distributed treasury consistency model before mutations are re-enabled.
+- [ ] A recovery report for the distributed treasury consistency model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Post-failover watermark re-anchoring is verified before bounded surfaces resume.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The consistency model's constitutional text. |
+| `core/treasury/consistency/register.yaml` | Planned | Surface-to-class register. |
+| `core/treasury/consistency/labels.py` | Planned | Response labeling middleware. |
+| `core/treasury/consistency/lag_guard.py` | Planned | Ceiling monitoring and suspension. |
+
+### Folder Mapping
+
+The consistency machinery lives in the planned `core/treasury/consistency/` folder between the ledger it serializes and the surfaces it labels.
+
+### Cross References
+
+- Section 76 (`Multi-Node Treasury Architecture`) — the fleet this model spans.
+- Section 80 (`Cross-Node Financial Coordination`) — coordination built on these guarantees.
+- Section 66 (`Treasury Reporting and Statements`) — the sealed artifacts snapshot reads serve.
+- Rule `CAT-TC-CONST-155` and Rule `CAT-TC-CONST-156` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S78-001` through `CAT-TC-AT-S78-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-155` — Serialized Financial Writes (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-156` — Labeled Reads With Enforced Ceilings (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the distributed treasury consistency model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S78-001`  
+**Meaning:** Writes serialize per partition, reads come in three labeled classes, authorization reads only the partition holder — staleness may inconvenience a dashboard, never corrupt an authorization.  
+**Recall Trigger:** Any distributed read design, replica routing choice, or consistency parameter proposal.  
+**Operational Use:** Recall this anchor to keep every read labeled and every authorization authoritative.
+
+### Future Evolution
+
+Sections 80 and 81 build coordination and replication on these classes; the no-knobs register and the authoritative-authorization rule are permanent.
+
+### Operational Stories
+
+Operational story: watermark age on the analytics feed trends upward for a week before its ceiling. Capacity review adds a replica ahead of breach — the alert-on-trend practice buying a calm fix instead of a suspension.
+
+### Execution Stories
+
+Execution story: during a regional lag event, four dashboard surfaces suspend with labeled responses and every authorization completes authoritatively. The incident review's finding: the model worked, nothing to change — the rarest and best kind of finding.
+
+### Optimization Stories
+
+Optimization story: profiling shows a hot internal consumer using authoritative reads for a tolerance measured in minutes. Reassigning it to bounded-staleness class halves partition-holder load — the register enabling the optimization precisely because classes are explicit.
+
+### Recovery Stories
+
+Recovery story: after failover, a replica's watermark cannot re-anchor because its log position predates the new holder's base snapshot. The replica rebuilds per Section 81 while its surfaces suspend — slow, labeled, honest, and correct.
+
+**Diagram ID:** `CAT-TC-P4-S78-D003`  
+**Title:** Authorization Never Reads Replicas  
+**Purpose:** Fix the routing rule that keeps staleness away from money.  
+**Audience:** Security reviewers  
+**Reading Order:** Read with the pseudo code of Section 78.
+
+```mermaid
+flowchart LR
+  AS[Authorization sequence] --> PH[Partition holder\nauthoritative]
+  AS -. never .-> RP[Replicas]
+  RP --> DB[Dashboards + analytics\nlabeled bounded reads]
+  PH --> FIVE[Five-link chain\ncurrent truth only]
+```
+
+### Normative Requirements
+
+1. All financial writes MUST serialize per partition through the single write path; eventually-consistent financial mutation MUST NOT exist.
+2. Every read surface MUST be assigned exactly one class from the closed register: authoritative, bounded-staleness, or snapshot.
+3. Every read response MUST carry its consistency class; bounded-staleness responses MUST carry their as-of watermark.
+4. Bounded-staleness surfaces MUST suspend rather than serve past their declared ceilings.
+5. State consumed for authorization MUST be authoritative-class, read from the partition holder.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the distributed treasury consistency model.
+
+**Rule ID:** `CAT-TC-CONST-155`  
+**Title:** Serialized Financial Writes  
+**Purpose:** Forbid eventual consistency anywhere money mutates.  
+**Normative Requirement:** Every financial mutation MUST pass through the partition holder's serialized single write path in the Section 8 total order; no replica, cache, queue, or coordination service MAY apply a financial mutation out of that order; and cross-partition operations MUST decompose into per-partition serialized writes coordinated per Section 80.  
+**Rationale:** Eventual consistency reconciles divergent replicas by policy; divergent financial truth is not reconcilable by policy, only preventable by order.  
+**Enforcement:** Write admission checks placement and holder status; the conformance suite attempts out-of-order and replica-side mutations and expects refusal.  
+**Violation:** An out-of-order mutation is quarantined as a Section 35 break and its path closed.  
+**Recovery:** Quarantine, governed disposition, path closure, and partition re-verification.  
+**Owner:** Treasury Engineering Owner (Planned role)
+
+**Rule ID:** `CAT-TC-CONST-156`  
+**Title:** Labeled Reads With Enforced Ceilings  
+**Purpose:** Make every distributed read announce exactly what it is.  
+**Normative Requirement:** Every read response MUST carry its consistency class from the closed three-class register; bounded-staleness responses MUST carry as-of watermarks and MUST suspend on ceiling breach rather than serve; derivations MUST propagate the weakest class and oldest watermark of their inputs; and no consumer MAY present bounded or snapshot state as authoritative.  
+**Rationale:** Section 36 proved stratum honesty for cash flow; distribution multiplies the ways stale state can impersonate truth, so labels become structural.  
+**Enforcement:** Labeling middleware on every surface; lag guards with automatic suspension; derivation linting for label propagation.  
+**Violation:** An unlabeled or mislabeled surface is suspended until labeling is restored.  
+**Recovery:** Suspend, fix labeling, audit consumers of the mislabeled window.  
+**Owner:** Treasury Data Owner (Planned role)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S78-001`  
+**Purpose:** Prove replica-side mutation refuses.  
+**Given:** A financial mutation addressed to a replica with valid credentials.  
+**When:** The replica processes the request.  
+**Then:** The mutation refuses with `not-partition-holder`, and the attempt is audited.  
+**Failure Condition:** Any replica applies a financial mutation.
+
+**Test ID:** `CAT-TC-AT-S78-002`  
+**Purpose:** Prove ceiling breach suspends rather than serves.  
+**Given:** A bounded-staleness surface with induced replication lag beyond its ceiling.  
+**When:** A read arrives.  
+**Then:** The surface returns `staleness-ceiling-breached` with the ceiling and current lag named, serving no stale payload.  
+**Failure Condition:** A payload serves past the ceiling.
+
+**Test ID:** `CAT-TC-AT-S78-003`  
+**Purpose:** Prove authorization reads are authoritative.  
+**Given:** An authorization sequence running while replicas lag arbitrarily.  
+**When:** The sequence executes its reads.  
+**Then:** Every read routes to the partition holder and carries the authoritative label.  
+**Failure Condition:** Any authorization read serves from a replica.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the distributed treasury consistency model defined by this section.
+
+```json
+{
+  "record_type": "treasury.consistency.read_label",
+  "surface": "balance.dashboard.v1",
+  "class": "bounded-staleness",
+  "watermark": {
+    "as_of": "2026-08-15T20:00:00Z",
+    "lag_seconds": 4.2,
+    "ceiling_seconds": 30
+  },
+  "partition": "part_wallet_007",
+  "replica": "nod_01J5Z12A2B3C4D5E6F7G8H9J0K",
+  "payload_digest": "c4d5e6f7a8b9",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the distributed treasury consistency model defined by this section.
+
+```yaml
+treasury_consistency_model:
+  version: 0.1.0
+  writes:
+    discipline: serialized-per-partition
+    eventual_consistency: forbidden
+  read_classes:
+    authoritative:
+      serves_from: partition-holder
+      consumers: [authorization-sequence, mutation-boundary]
+    bounded-staleness:
+      serves_from: replicas
+      requires: [as-of-watermark, declared-ceiling]
+      on_breach: suspend-not-serve
+    snapshot:
+      serves_from: sealed-artifacts
+      mutability: none
+  labeling:
+    every_response: class-labeled
+    derivations: propagate-weakest-class-oldest-watermark
+  knobs: none
+```
+
+### Pseudo Code
+
+```text
+function read(surface, request):
+    cls = register.class_of(surface)          # exactly one class
+    if cls == AUTHORITATIVE:
+        return label(partition_holder_read(request), cls)
+    if cls == BOUNDED:
+        lag = replica_lag(surface)
+        if lag > register.ceiling(surface):
+            return refuse('staleness-ceiling-breached', lag)
+        return label(replica_read(request), cls, watermark=as_of(surface))
+    return label(sealed_artifact_read(request), SNAPSHOT)
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/consistency/            # Planned
+  register.yaml                       # Planned: surface-to-class map
+  labels.py                           # Planned: labeling middleware
+  lag_guard.py                        # Planned: ceilings + suspension
+  routing.py                          # Planned: authoritative routing
+```
+
+## 79. Treasury Partitioning and Placement
+
+**Section ID:** `CAT-TC-P4-79`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** partition assignment record  
+**Primary question:** How does the single financial write path divide into partitions, who decides which node holds which partition, and how do partitions move without financial ambiguity?
+
+### Purpose
+
+This section fixes the partitioning and placement model: how the treasury's stores and write path divide across the fleet. It defines the partition keying scheme (wallet-subtree-aligned partitioning per Section 16, so an agent's isolated subtree lives in one partition and the common case is partition-local; categories, reservations, and audit streams co-partition with their wallets, while the Section 17 stores that are global by nature — the vocabulary register, policy versions, the topology record — replicate whole), the placement map (a versioned, deterministic assignment of partitions to write nodes computed by an explicit algorithm from the topology record — same inputs, same map, on every node; placement versions are monotonic and every operation names the version it acted under), the migration discipline (partitions move only at settled boundaries: the source drains new admissions for the partition, in-flight operations complete or park lawfully per Section 14, the replicated log hands off with a verified position, and the destination assumes the write order with evidence recorded in the assignment record), and the anti-ambiguity invariant: at every instant, for every partition, exactly one node is the holder — dual-holder and zero-holder windows are structural impossibilities in the protocol, not merely rare.
+
+### Business Perspective
+
+Placement is invisible to the business when done right, which is the point: rebalancing to new hardware, isolating a heavy tenant, or moving a market's partitions closer to its region are operations with receipts, not risk events. The subtree-aligned keying also gives the business a clean answer to per-agent isolation questions: an agent's financial world lives in one place, moved as one unit.
+
+### Engineering Perspective
+
+Engineering implements placement as a pure function from topology to map, so the map is verifiable rather than trusted; the migration protocol as a five-step handoff (freeze admissions, settle or park in-flight, verify log position, transfer holdership, resume) with each step evidence-bearing; and holdership as a lease-anchored claim checked on every write admission per Section 76. The assignment record is the append-only history of who held what, when, under which placement version.
+
+### Architecture Perspective
+
+Architecturally, partitioning extends Section 16's relationship model to physical layout: the subtree that isolates an agent's money logically now also isolates it physically. Placement determinism echoes Section 55's pure-engine discipline — the map is computed, not negotiated, so there is nothing to argue with and nothing to bribe.
+
+**Diagram ID:** `CAT-TC-P4-S79-D001`  
+**Title:** Subtree-Aligned Partitioning  
+**Purpose:** Show wallets, categories, and reservations co-located by subtree.  
+**Audience:** Architects, data owners  
+**Reading Order:** Read first in Section 79.
+
+```mermaid
+flowchart TB
+  subgraph P7[Partition 7 - one holder]
+    W[Agent subtree wallets]
+    CAT[Their categories]
+    RES[Their reservations]
+    AUD[Their audit stream]
+  end
+  subgraph GL[Globally replicated]
+    VOC[Vocabulary register]
+    POL[Policy versions]
+    TOP[Topology record]
+  end
+  KEY[Partition key =\nsubtree root] --> P7
+```
+
+### AI Perspective
+
+For an AI collaborator, deterministic placement means location questions have computable answers: which node holds this wallet is a function call, not an investigation. The characteristic AI failure is designing migrations that move partitions 'live' with dual-write windows for speed — the anti-ambiguity invariant exists precisely because a two-holder window, however short, is a fork in the write order that no reconciliation can lawfully repair.
+
+### Developer Notes
+
+Developers should treat placement-version mismatches as first-class refusals, not retryable noise: an operation citing a stale version is telling you a migration happened mid-flight, and the lawful response is re-resolution, not retry-until-lucky.
+
+### Codex Notes
+
+When operating on `Treasury Partitioning and Placement`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST compute placement deterministically from the topology record, MUST design migrations with settled-boundary handoffs only, and MUST refuse dual-write or zero-holder windows in any design.
+
+### Claude Code Notes
+
+When operating on `Treasury Partitioning and Placement`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST compute placement deterministically from the topology record, MUST design migrations with settled-boundary handoffs only, and MUST refuse dual-write or zero-holder windows in any design.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Partitioning and Placement`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST compute placement deterministically from the topology record, MUST design migrations with settled-boundary handoffs only, and MUST refuse dual-write or zero-holder windows in any design.
+
+### Cursor Notes
+
+When operating on `Treasury Partitioning and Placement`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST compute placement deterministically from the topology record, MUST design migrations with settled-boundary handoffs only, and MUST refuse dual-write or zero-holder windows in any design.
+
+### Future AI Notes
+
+When operating on `Treasury Partitioning and Placement`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST compute placement deterministically from the topology record, MUST design migrations with settled-boundary handoffs only, and MUST refuse dual-write or zero-holder windows in any design.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Partitioning and Placement` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| keying | Implement wallet-subtree-aligned partition keying with co-partitioned stores. | keying stage receipt |
+| map | Implement the deterministic placement function over the topology record. | map stage receipt |
+| holdership | Implement lease-anchored holdership checked at write admission. | holdership stage receipt |
+| migration | Implement the five-step settled-boundary migration protocol. | migration stage receipt |
+| verify | Prove single-holder invariance under concurrent migration and failure. | verify stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Partitioning and Placement` needs a bounded context, loaded in this order:
+
+- This section in full, including the keying scheme and migration protocol.
+- Section 16 (`Treasury Relationships`) for the subtrees partitions align to.
+- Section 76 (`Multi-Node Treasury Architecture`) for holders and admission checks.
+- Section 77 (`Treasury Node Lifecycle and Membership`) for the topology inputs placement reads.
+- Section 14 (`Treasury States and State Machine`) for lawful parking of in-flight operations.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. Partition key derivation and co-partitioning rules.
+2. The pure placement function with version monotonicity.
+3. Holdership leases and admission checks.
+4. The migration orchestrator with per-step evidence.
+5. Invariant verification under fault injection.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Partitioning and Placement`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Dual-writing during migration for zero downtime | A brief overlap seems harmless and fast | Two holders is a forked write order; the settled-boundary protocol is the only lawful move |
+| Keying partitions by throughput instead of subtree | Load-balanced keys spread heat evenly | Subtree alignment is an isolation property; heat is solved by splitting subtree groups, not by scattering a wallet |
+| Negotiating placement ad hoc during incidents | The algorithm's answer seems wrong under pressure | Override the inputs through governance, never the function; a negotiated map is unverifiable |
+| Treating version-mismatch refusals as retryable | Retries usually succeed after a migration | Re-resolve against the current version; blind retry can land on a stale holder's ghost |
+| Migrating with unparked in-flight operations | Waiting for settlement delays the window | In-flight operations either complete or park lawfully; abandoned mid-states are Section 35 breaks |
+
+### Security
+
+Holdership leases are credential-bound claims; migration steps require the orchestrator's dedicated capability; placement inputs are the governed topology record, so map manipulation requires governed change; and every holdership transfer lands in the assignment record for audit.
+
+### Performance
+
+Subtree alignment keeps the hot path partition-local; the placement function is cached by version; migrations are background operations budgeted per Section 72 capacity envelopes.
+
+### Latency
+
+Placement resolution is a cached pure-function call; migration adds latency only to the migrating partition during its bounded handoff window, with the window's length a declared envelope.
+
+### Scalability
+
+Partitions split and merge through governed migrations as subtree groups grow; placement recomputes deterministically at any fleet size; the assignment record shards by partition.
+
+### Reliability
+
+Holder failure triggers failover per Section 81 with the replicated log's verified position; the single-holder invariant holds through failover because holdership transfers atomically with the lease, never by assumption.
+
+### Caching
+
+Placement maps cache by version digest; holdership checks read the lease authoritative; assignment history is append-only and caches freely.
+
+### Consistency
+
+Placement versions are monotonic and every operation names its version; migrations serialize per partition; the assignment record is the single history of holdership — the same versioned-truth discipline as Section 23 policy versions.
+
+**Diagram ID:** `CAT-TC-P4-S79-D002`  
+**Title:** Five-Step Settled-Boundary Migration  
+**Purpose:** Show the only lawful way a partition moves.  
+**Audience:** Engineers, operators  
+**Reading Order:** Read with rule CAT-TC-CONST-158.
+
+```mermaid
+sequenceDiagram
+  participant SRC as Source Holder
+  participant OR as Orchestrator
+  participant DST as Destination
+  OR->>SRC: freeze admissions
+  OR->>SRC: settle or park in-flight
+  SRC-->>OR: log position verified
+  OR->>DST: transfer holdership + lease (atomic)
+  OR->>DST: resume admissions
+  Note over SRC,DST: no instant with two holders or none
+```
+
+### Recovery
+
+Recovery re-derives the map from the topology record, re-verifies every holdership lease against the assignment record, and treats any partition without a provable holder as failed-over, never as up-for-grabs.
+
+### Ownership
+
+The placement function and migration protocol are owned by the planned Treasury Engineering Owner; keying policy by the planned Treasury Data Owner; migration approvals ride the Section 74 governance calendar for planned moves.
+
+### Dependencies
+
+- Section 16 (`Treasury Relationships`) — the subtrees keys align to.
+- Section 77 (`Treasury Node Lifecycle and Membership`) — topology inputs and drain hooks.
+- Section 81 (`Treasury Replication and Durability`) — the logs that make handoff verifiable.
+
+### Risks
+
+- Hot partitions from skewed subtree growth outpacing split cadence.
+- Migration windows colliding with settlement peaks.
+- Placement function changes invalidating cached location assumptions in consumers.
+
+### Anti Patterns
+
+- Dual-holder migration windows in any form.
+- Hand-edited placement maps.
+- Partition keys that split a wallet's operations across partitions.
+
+### Best Practices
+
+- Schedule planned migrations against the Section 36 cash flow calendar's quiet windows.
+- Alert on partition heat skew before splits become urgent.
+- Replay migration evidence in drills to keep the protocol honest.
+
+### Examples
+
+Example: a publisher cohort's subtree group doubles in volume. Capacity review approves a partition split: the placement change lands as a new version, the migration orchestrator moves half the subtree group to a new partition at a settled boundary overnight, and the assignment record carries the five-step evidence — heat solved, isolation intact, zero ambiguity.
+
+### Counter Examples
+
+Counter example: an urgent rebalance dual-writes a partition to its new holder 'for safety' during handoff. A crash in the window leaves two logs each holding entries the other lacks — a fork that no merge can lawfully resolve, quarantined as breaks, reconciled by humans over days. The settled-boundary protocol is slower and infinitely cheaper.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury partitioning and placement model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury partitioning and placement model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury partitioning and placement model done.
+- [ ] Partition keys derive from wallet subtrees with co-partitioning verified for categories, reservations, and audit streams.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury partitioning and placement model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury partitioning and placement model, not by convention or review habit.
+- [ ] The treasury partitioning and placement model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Fault-injection tests prove single-holder invariance through migration, failover, and crash windows.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury partitioning and placement model with a named on-call owner.
+- [ ] Alert thresholds for the treasury partitioning and placement model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury partitioning and placement model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Partition heat, migration windows, and placement version adoption are dashboard signals.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury partitioning and placement model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury partitioning and placement model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury partitioning and placement model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Every migration's five-step evidence is complete in the assignment record.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury partitioning and placement model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury partitioning and placement model before mutations are re-enabled.
+- [ ] A recovery report for the treasury partitioning and placement model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Holdership re-verification from the assignment record is part of every recovery drill.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The placement model's constitutional text. |
+| `core/treasury/placement/keying.py` | Planned | Subtree-aligned partition keys. |
+| `core/treasury/placement/map.py` | Planned | Deterministic placement function. |
+| `core/treasury/placement/migration.py` | Planned | Five-step settled-boundary protocol. |
+
+### Folder Mapping
+
+The placement machinery lives in the planned `core/treasury/placement/` folder between the topology it reads and the partitions it assigns.
+
+### Cross References
+
+- Section 76 (`Multi-Node Treasury Architecture`) — admission checks against holdership.
+- Section 78 (`Distributed Treasury Consistency`) — the write order migrations must preserve.
+- Section 55 (`Inter-Agent Financial Conflict Resolution at Scale`) — the pure-engine precedent placement determinism follows.
+- Rule `CAT-TC-CONST-157` and Rule `CAT-TC-CONST-158` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S79-001` through `CAT-TC-AT-S79-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-157` — Deterministic Versioned Placement (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-158` — Settled-Boundary Single-Holder Migration (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury partitioning and placement model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S79-001`  
+**Meaning:** Partitions align to wallet subtrees, placement is a deterministic versioned function, migrations hand off at settled boundaries — exactly one holder per partition, always, structurally.  
+**Recall Trigger:** Any partition design, migration plan, rebalance request, or holdership question.  
+**Operational Use:** Recall this anchor to refuse dual-holder windows and keep placement computable.
+
+### Future Evolution
+
+Section 83 layers regional constraints onto placement inputs; the deterministic function, subtree alignment, and single-holder invariant are permanent.
+
+### Operational Stories
+
+Operational story: the heat dashboard flags one partition at three times median load for a second week. The split proposal rides the governance calendar, lands in a quiet window, and the heat graph flattens — capacity managed on evidence and cadence, not on incident.
+
+### Execution Stories
+
+Execution story: a holder node fails mid-day. Failover transfers holdership with the lease, the replicated log's position verifies, and the partition resumes writes in seconds — the assignment record showing a clean transfer where an older design would have shown a scramble.
+
+### Optimization Stories
+
+Optimization story: migration windows shrink after analysis shows most handoff time spent waiting for one long-settling flow class. Parking that class per Section 14 at the freeze step cuts windows by half — protocol unchanged, sequencing smarter.
+
+### Recovery Stories
+
+Recovery story: a crash during a migration's transfer step leaves the lease in transit. Recovery reads the assignment record, finds step-three evidence but no step-four, completes the transfer to the destination deterministically, and the invariant holds — the protocol's evidence trail making the ambiguous moment unambiguous.
+
+**Diagram ID:** `CAT-TC-P4-S79-D003`  
+**Title:** Deterministic Map, Nothing to Negotiate  
+**Purpose:** Show placement as a pure function every node recomputes.  
+**Audience:** Reviewers  
+**Reading Order:** Read with rule CAT-TC-CONST-157.
+
+```mermaid
+flowchart LR
+  TOP[Topology record vN] --> F[Registered pure function]
+  F --> M1[Map on node A]
+  F --> M2[Map on node B]
+  F --> M3[Map on node C]
+  M1 & M2 & M3 --> EQ{Byte-identical?}
+  EQ -->|always| OK[Verifiable placement]
+  HAND[Hand-edited map] -. forbidden .-> F
+```
+
+### Normative Requirements
+
+1. Partition keys MUST align to wallet subtrees with categories, reservations, and audit streams co-partitioned.
+2. The placement map MUST be a deterministic pure function of the topology record with monotonic versions.
+3. Every operation MUST name the placement version it acted under; version mismatches MUST refuse and re-resolve.
+4. Partitions MUST migrate only through the five-step settled-boundary protocol with per-step evidence.
+5. Exactly one node MUST hold each partition at every instant; dual-holder and zero-holder windows MUST be structurally impossible.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury partitioning and placement model.
+
+**Rule ID:** `CAT-TC-CONST-157`  
+**Title:** Deterministic Versioned Placement  
+**Purpose:** Make partition location computable, verifiable, and unarguable.  
+**Normative Requirement:** Placement MUST be computed by a registered deterministic function from the versioned topology record; placement versions MUST be monotonic; every write admission MUST verify holdership under the current version; and no placement assignment MAY be created, modified, or honored outside the function's output.  
+**Rationale:** A negotiated or hand-edited map cannot be verified by recomputation; determinism is what lets every node agree on truth without trusting a teller.  
+**Enforcement:** Map recomputation checks on every node; admission-time holdership verification; change control on the function itself as governed code.  
+**Violation:** An out-of-function assignment is refused; any writes admitted under it are quarantined as breaks.  
+**Recovery:** Recompute, re-verify holderships, reconcile quarantined writes through governed disposition.  
+**Owner:** Treasury Engineering Owner (Planned role)
+
+**Rule ID:** `CAT-TC-CONST-158`  
+**Title:** Settled-Boundary Single-Holder Migration  
+**Purpose:** Move partitions without ever forking the write order.  
+**Normative Requirement:** Partition migration MUST follow the five-step protocol — freeze admissions, settle or lawfully park in-flight operations, verify the replicated log position, transfer holdership atomically with the lease, resume at the destination — with evidence for each step in the assignment record; dual-write and zero-holder windows MUST NOT exist in any migration or failover design.  
+**Rationale:** A partition's value is its total order; two holders is two orders, and merged orders are fiction.  
+**Enforcement:** Migration orchestrator enforces step sequence with evidence capture; fault-injection suite proves invariance through crashes at every step boundary.  
+**Violation:** A migration that forked the order is halted; both logs quarantine and reconcile as Section 35 breaks under human disposition.  
+**Recovery:** Quarantine, reconcile, re-run the migration lawfully, and fix the protocol gap that allowed the fork.  
+**Owner:** Treasury Engineering Owner (Planned role)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S79-001`  
+**Purpose:** Prove placement recomputes identically everywhere.  
+**Given:** The topology record at a fixed version and three independent nodes.  
+**When:** Each node computes the placement map.  
+**Then:** All three maps are byte-identical and carry the same version.  
+**Failure Condition:** Any node computes a different map.
+
+**Test ID:** `CAT-TC-AT-S79-002`  
+**Purpose:** Prove single-holder invariance through migration crashes.  
+**Given:** A migration with fault injection crashing the orchestrator at each step boundary in turn.  
+**When:** Recovery runs after each crash.  
+**Then:** At every observable instant exactly one node holds the partition, and the completed migration's evidence is whole.  
+**Failure Condition:** Any instant shows two holders or none past the failover bound.
+
+**Test ID:** `CAT-TC-AT-S79-003`  
+**Purpose:** Prove stale-version operations refuse and re-resolve.  
+**Given:** An operation citing placement version N after a migration lands version N+1.  
+**When:** The old target node processes the operation.  
+**Then:** It refuses with `placement-version-stale`, and re-resolution routes to the new holder.  
+**Failure Condition:** The stale holder accepts the operation.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury partitioning and placement model defined by this section.
+
+```json
+{
+  "record_type": "treasury.partition.assignment",
+  "assignment_id": "pas_01J5Z13A2B3C4D5E6F7G8H9J0K",
+  "partition": "part_wallet_007",
+  "holder": "nod_01J5Z10A2B3C4D5E6F7G8H9J0K",
+  "placement_version": 43,
+  "migration": {
+    "from_holder": "nod_01J5Z09Z9Y8X7W6V5U4T3S2R1Q",
+    "protocol_steps": [
+      {"step": "freeze", "evidence": "frz_9a0b1c2d"},
+      {"step": "settle-or-park", "evidence": "prk_3e4f5a6b"},
+      {"step": "verify-log-position", "evidence": "lgp_7c8d9e0f"},
+      {"step": "transfer-holdership", "evidence": "xfr_1a2b3c4d"},
+      {"step": "resume", "evidence": "rsm_5e6f7a8b"}
+    ]
+  },
+  "recorded_at": "2026-08-15T20:00:00Z",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury partitioning and placement model defined by this section.
+
+```yaml
+treasury_partitioning:
+  version: 0.1.0
+  keying:
+    alignment: wallet-subtree
+    co_partitioned: [categories, reservations, audit-streams]
+    global_replicated: [vocabulary-register, policy-versions, topology-record]
+  placement:
+    computed_by: registered-deterministic-function
+    inputs: versioned-topology-record
+    versions: monotonic
+    hand_edits: forbidden
+  holdership:
+    invariant: exactly-one-holder-per-partition
+    anchor: lease-atomic-transfer
+  migration:
+    boundary: settled-only
+    steps: [freeze, settle-or-park, verify-log-position,
+            transfer-holdership, resume]
+    dual_write: forbidden
+    evidence: per-step-recorded
+```
+
+### Pseudo Code
+
+```text
+function migrate(partition, dest):
+    with migration_lock(partition):
+        freeze_admissions(partition)                    # step 1
+        settle_or_park_in_flight(partition)             # step 2, Section 14
+        pos = verify_replicated_log_position(partition) # step 3
+        transfer_holdership_atomic(partition, dest, pos)# step 4, with lease
+        resume_admissions(partition, dest)              # step 5
+        record_assignment(partition, dest, evidence_of_all_steps())
+    # at no instant: two holders, or none
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/placement/              # Planned
+  keying.py                           # Planned: subtree-aligned keys
+  map.py                              # Planned: deterministic function
+  holdership.py                       # Planned: lease-anchored claims
+  migration.py                        # Planned: five-step orchestrator
+```
+
+## 80. Cross-Node Financial Coordination
+
+**Section ID:** `CAT-TC-P4-80`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** cross-node flow record  
+**Primary question:** How do financial operations that span partitions or nodes execute with exactly-once effects, and why is there no distributed transaction anywhere in the treasury?
+
+### Purpose
+
+This section fixes the cross-node coordination model: how the minority of operations that span partitions execute lawfully. It defines the decomposition rule (every cross-partition operation decomposes into per-partition serialized steps linked by a saga in the Section 13 lifecycle style — reserve on the source partition per Section 25, record the crossing intent, apply on the destination partition, confirm and release — with each step idempotent under Section 8 keys and the whole flow driven by the Section 45 event surface), the no-distributed-transaction rule (the treasury never holds locks across partitions or nodes; coordination is reservation-based, so a stalled counterpart node leaves a parked reservation and a break record, never a wedged lock), the exactly-once discipline (every cross-node effect derives its idempotency key from the flow identity, so retries, redeliveries, and failovers converge to one effect per step — ambiguity about whether a cross-node effect happened is resolved by querying the destination partition's log, never by guessing), and the flow record — this section's primary record — that carries the crossing's full state so any node, human, or agent can resume, reconcile, or unwind it lawfully from the record alone.
+
+### Business Perspective
+
+Cross-node flows are where distributed systems traditionally lose money — double-applies, lost applies, wedged locks at month-end. The reservation-based model turns every such failure into a visible, parked, reconcilable state instead of a silent loss: the business consequence is that the scariest class of distributed bug becomes a queue that humans can see and drain.
+
+### Engineering Perspective
+
+Engineering implements crossings as the Section 34 two-sided transfer generalized: the same reserve-record-apply-confirm shape serves inter-subtree transfers, cross-region settlements per Section 83, and partition-split reconciliations. The saga driver is an event consumer with durable state in the flow record; step idempotency keys derive as `flow_id/step`; and timeouts park flows into the Section 35 break queues rather than retry forever.
+
+### Architecture Perspective
+
+Architecturally, this section is why the treasury needs no consensus protocol on its financial path: per-partition total order plus reservation-based sagas plus idempotent steps gives exactly-once effects without distributed locks, matching the Section 26 settlement philosophy — asynchronous, evidence-driven, ambiguity-parked. Coordination services (membership, placement, leases) may use consensus internally; money never waits on a quorum to move within its own partition.
+
+**Diagram ID:** `CAT-TC-P4-S80-D001`  
+**Title:** The Reserve-Record-Apply-Confirm Shape  
+**Purpose:** Show the uniform saga every crossing uses.  
+**Audience:** Engineers  
+**Reading Order:** Read first in Section 80.
+
+```mermaid
+sequenceDiagram
+  participant SRC as Source Partition
+  participant FR as Flow Record
+  participant DST as Destination Partition
+  FR->>SRC: reserve (idempotent)
+  FR->>SRC: record crossing intent
+  FR->>DST: apply (flow-derived key)
+  DST-->>FR: destination-log proof
+  FR->>SRC: confirm + release reservation
+  Note over FR: complete only with proof per step
+```
+
+### AI Perspective
+
+For an AI collaborator, the model gives a mechanical answer to 'did the cross-node effect happen': query the destination partition's log for the step's idempotency key. The characteristic AI failure is proposing a two-phase-commit wrapper to 'simplify' crossings — reintroducing the wedged-lock failure mode the reservation model exists to eliminate. The corrective is to trust parking: a flow that cannot complete parks visibly and reconciles lawfully.
+
+### Developer Notes
+
+Developers should write every saga step to be safely re-runnable and every step's effect to be provable from the destination log. If a step cannot be made idempotent, it is two steps — one that records intent, one that applies.
+
+### Codex Notes
+
+When operating on `Cross-Node Financial Coordination`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST decompose cross-partition operations into reservation-based idempotent sagas, MUST derive step idempotency keys from flow identity, and MUST refuse distributed transactions and cross-node locks in any design.
+
+### Claude Code Notes
+
+When operating on `Cross-Node Financial Coordination`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST decompose cross-partition operations into reservation-based idempotent sagas, MUST derive step idempotency keys from flow identity, and MUST refuse distributed transactions and cross-node locks in any design.
+
+### Gemini CLI Notes
+
+When operating on `Cross-Node Financial Coordination`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST decompose cross-partition operations into reservation-based idempotent sagas, MUST derive step idempotency keys from flow identity, and MUST refuse distributed transactions and cross-node locks in any design.
+
+### Cursor Notes
+
+When operating on `Cross-Node Financial Coordination`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST decompose cross-partition operations into reservation-based idempotent sagas, MUST derive step idempotency keys from flow identity, and MUST refuse distributed transactions and cross-node locks in any design.
+
+### Future AI Notes
+
+When operating on `Cross-Node Financial Coordination`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST decompose cross-partition operations into reservation-based idempotent sagas, MUST derive step idempotency keys from flow identity, and MUST refuse distributed transactions and cross-node locks in any design.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Cross-Node Financial Coordination` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| shape | Implement the reserve-record-apply-confirm saga shape over the flow record. | shape stage receipt |
+| keys | Derive step idempotency keys from flow identity. | keys stage receipt |
+| driver | Implement the durable saga driver on the event surface. | driver stage receipt |
+| parking | Park timed-out flows into break queues with full state. | parking stage receipt |
+| verify | Prove exactly-once effects under retry, redelivery, and failover storms. | verify stage receipt |
+
+### AI Context Window
+
+An agent working on `Cross-Node Financial Coordination` needs a bounded context, loaded in this order:
+
+- This section in full, including the saga shape and exactly-once discipline.
+- Section 25 (`Reservation and Commitment Runtime`) for the reservations sagas are built from.
+- Section 34 (`Internal and Agent Transfer Machinery`) for the two-sided shape generalized here.
+- Section 45 (`Treasury Event Surface`) for the driver's transport.
+- Section 35 (`Reconciliation Machinery`) for where stalled flows park.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. The flow record schema with full resumable state.
+2. Saga step contracts with derived idempotency keys.
+3. The durable event-driven saga driver.
+4. Timeout parking into break queues.
+5. The retry-storm and failover conformance suite.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Cross-Node Financial Coordination`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Wrapping crossings in two-phase commit | Distributed transactions feel like the textbook answer | 2PC wedges on coordinator loss; reservations park visibly instead — the treasury chose parking on purpose |
+| Deriving idempotency keys from attempt identity | Each retry naturally gets a fresh ID | Keys derive from flow identity so retries converge; attempt-derived keys are double-apply generators |
+| Retrying stalled flows forever | Persistence feels like robustness | Bounded retries then park; an eternal retry loop is an invisible incident |
+| Resolving apply-ambiguity by guessing | The destination is slow to answer | The destination log is the truth; query it, never infer from silence |
+| Holding source locks while awaiting the destination | Locks prevent concurrent interference | Reservations already prevent interference, and they park instead of wedge |
+
+### Security
+
+Flow records carry the full provenance chain per Section 10; saga steps execute under the capability of the flow's principal with no coordination-service privilege; parked flows are visible in audited queues; and the crossing intent record makes every cross-node movement attributable before it applies.
+
+### Performance
+
+Crossings are the declared exception, budgeted per flow class; the saga driver batches event consumption; per-partition steps ride the ordinary write path at full partition speed.
+
+### Latency
+
+A crossing's end-to-end latency is the sum of its per-partition steps plus event transport; the budget is declared per flow class, and anything beyond budget parks rather than degrades silently.
+
+### Scalability
+
+Sagas scale with the event surface and per-partition throughput; there is no central coordinator to saturate; flow records shard by flow identity.
+
+### Reliability
+
+Node loss mid-flow leaves durable state in the flow record; the driver resumes from the record on any node; the invariant is that every flow ends in completed, unwound, or parked — never vanished.
+
+### Caching
+
+Flow state never caches — the record is authoritative; destination-log queries for effect-proofs may cache positively (an effect proven present stays present) but never negatively.
+
+### Consistency
+
+Each step lands in its partition's serialized order; the flow record's state machine is the cross-partition truth; and completion requires proof of every step's effect, not assumption of it.
+
+**Diagram ID:** `CAT-TC-P4-S80-D002`  
+**Title:** Parking Beats Locking  
+**Purpose:** Show why a stalled counterpart is a queue entry, not an outage.  
+**Audience:** Operators, reviewers  
+**Reading Order:** Read with rule CAT-TC-CONST-159.
+
+```mermaid
+flowchart TB
+  STALL[Destination dark\npast budget] --> PARK[Flow parks\nfull resumable state]
+  PARK --> Q[(Break queue\nowner + age alert)]
+  Q --> RES[Resume when destination returns]
+  Q --> UNW[Or unwind lawfully]
+  LOCK[Cross-node lock design] -. wedges on stall .-> X[Forbidden]
+```
+
+### Recovery
+
+Recovery re-drives every incomplete flow from its record: proven steps skip via idempotency, unproven steps re-run, timed-out flows park — a deterministic sweep that turns a node failure into a resumable to-and-fro rather than an investigation.
+
+### Ownership
+
+The saga shape and driver are owned by the planned Treasury Engineering Owner; flow class budgets by the planned Treasury Data Owner; parked-flow disposition by the Section 35 reconciliation owners.
+
+### Dependencies
+
+- Section 25 (`Reservation and Commitment Runtime`) — the interference-prevention primitive.
+- Section 45 (`Treasury Event Surface`) — the driver transport, per `context/08_EVENTS_SYSTEM.md`.
+- Section 35 (`Reconciliation Machinery`) — parking and disposition.
+
+### Risks
+
+- Flow-class sprawl as teams invent bespoke crossing shapes.
+- Park queues silting up if disposition capacity lags flow growth.
+- Event-surface backpressure stretching crossing budgets unnoticed.
+
+### Anti Patterns
+
+- Distributed transactions or cross-node locks anywhere on the financial path.
+- Attempt-derived idempotency keys.
+- Crossings that complete on assumption rather than destination-log proof.
+
+### Best Practices
+
+- Keep the saga shape uniform; new crossing needs become parameters, not new shapes.
+- Alert on park-queue age, not only depth.
+- Replay historical flows through the driver in tests after every change.
+
+### Examples
+
+Example: an inter-cohort transfer spans partitions. The source partition reserves, the crossing intent records, the destination applies with the derived key, confirmation releases the reservation — four serialized local steps, one flow record, and a destination-log proof for each effect. A mid-flow failover re-drives the flow; the applied step proves present and skips; the flow completes exactly once.
+
+### Counter Examples
+
+Counter example: a bespoke settlement crossing retries its apply step with fresh keys after timeouts. A slow destination applies three of them. The flow 'succeeds', the books are wrong by two applies, and reconciliation finds it days later. Keys derive from flow identity because retries must converge, not multiply.
+
+### Implementation Checklist
+
+- [ ] Implement the cross-node financial coordination model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the cross-node financial coordination model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the cross-node financial coordination model done.
+- [ ] All crossings use the uniform reserve-record-apply-confirm shape with flow-derived keys.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the cross-node financial coordination model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the cross-node financial coordination model, not by convention or review habit.
+- [ ] The cross-node financial coordination model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] The retry-storm suite proves exactly-once effects under redelivery, retry, and failover.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the cross-node financial coordination model with a named on-call owner.
+- [ ] Alert thresholds for the cross-node financial coordination model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the cross-node financial coordination model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Park-queue depth and age per flow class are dashboard signals with disposition owners.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the cross-node financial coordination model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the cross-node financial coordination model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the cross-node financial coordination model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Flow class changes version and replay historical records for compatibility.
+
+### Recovery Checklist
+
+- [ ] Recovery of the cross-node financial coordination model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the cross-node financial coordination model before mutations are re-enabled.
+- [ ] A recovery report for the cross-node financial coordination model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] The incomplete-flow sweep is part of every recovery runbook and drill.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The coordination model's constitutional text. |
+| `core/treasury/crossnode/flow.py` | Planned | Flow record and state machine. |
+| `core/treasury/crossnode/saga.py` | Planned | Durable saga driver. |
+| `core/treasury/crossnode/parking.py` | Planned | Timeout parking into break queues. |
+
+### Folder Mapping
+
+The coordination machinery lives in the planned `core/treasury/crossnode/` folder between the partitions it links and the event surface that drives it.
+
+### Cross References
+
+- Section 79 (`Treasury Partitioning and Placement`) — the partitions crossings span.
+- Section 78 (`Distributed Treasury Consistency`) — the serialized steps sagas compose.
+- Section 83 (`Regional Treasury Federation`) — inter-region flows built on this shape.
+- Rule `CAT-TC-CONST-159` and Rule `CAT-TC-CONST-160` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S80-001` through `CAT-TC-AT-S80-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-159` — Reservation-Bridged Crossings Only (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-160` — Proven Exactly-Once Cross-Node Effects (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the cross-node financial coordination model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S80-001`  
+**Meaning:** Cross-node operations are reservation-based idempotent sagas with flow-derived keys — no distributed transactions, no cross-node locks; stalled flows park visibly and effects prove from destination logs.  
+**Recall Trigger:** Any cross-partition design, distributed transaction proposal, or apply-ambiguity question.  
+**Operational Use:** Recall this anchor to decompose crossings into provable local steps and trust parking over locking.
+
+### Future Evolution
+
+Section 83 extends this shape to inter-region flows with residency constraints; the no-distributed-transaction rule and flow-derived keys are permanent.
+
+### Operational Stories
+
+Operational story: park-queue age for one flow class creeps up as volume grows. The disposition rota adds a second reviewer, the queue drains, and the age alert re-arms — the visible-queue design converting a potential silent loss into a staffing decision.
+
+### Execution Stories
+
+Execution story: an event-surface redelivery storm hits the saga driver during a failover. Every redelivered step converges on its existing effect via its derived key; the flow records show a spike in skipped-as-proven steps and zero duplicate applies — exactly-once holding under exactly the storm it was designed for.
+
+### Optimization Stories
+
+Optimization story: destination-log proofs dominate crossing latency. Batching proof queries per destination partition cuts the driver's round trips by an order of magnitude — the optimization touching transport, never the discipline.
+
+### Recovery Stories
+
+Recovery story: a node hosting the saga driver dies with two hundred flows in flight. The replacement driver sweeps the flow records, proves and skips completed steps, re-runs three unproven applies, parks one flow whose destination stayed dark — and the sweep report reads like an inventory, not an incident.
+
+**Diagram ID:** `CAT-TC-P4-S80-D003`  
+**Title:** Retries Converge, Never Multiply  
+**Purpose:** Show flow-derived keys collapsing a redelivery storm to one effect.  
+**Audience:** Engineers  
+**Reading Order:** Read with rule CAT-TC-CONST-160.
+
+```mermaid
+flowchart LR
+  R1[Delivery 1] --> K[key = flow/apply]
+  R2[Delivery 2] --> K
+  R3[Delivery 3] --> K
+  K --> E[(One effect in\ndestination log)]
+  E --> P[Proof query\nanswers all three]
+```
+
+### Normative Requirements
+
+1. Cross-partition operations MUST decompose into per-partition serialized steps under the reserve-record-apply-confirm shape.
+2. The treasury MUST NOT hold locks across partitions or nodes on the financial path; coordination MUST be reservation-based.
+3. Every step's idempotency key MUST derive from flow identity so retries and redeliveries converge to one effect.
+4. Effect existence MUST be proven from the destination partition's log, never inferred from silence or assumed from send.
+5. Every flow MUST terminate in completed, unwound, or parked, with its full state resumable from the flow record alone.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the cross-node financial coordination model.
+
+**Rule ID:** `CAT-TC-CONST-159`  
+**Title:** Reservation-Bridged Crossings Only  
+**Purpose:** Keep cross-node coordination wedge-free by construction.  
+**Normative Requirement:** Every cross-partition financial operation MUST execute as a reservation-based saga with durable state in a flow record; distributed transactions, cross-node locks, and coordinator-held financial state MUST NOT exist; and flows exceeding their class budget MUST park into Section 35 break queues with full resumable state.  
+**Rationale:** Locks wedge on partner failure and wedged money is an outage; reservations park, and parked money is a queue with an owner.  
+**Enforcement:** Design review gate refusing lock-based crossings; conformance suite injecting counterpart stalls and verifying parking; flow record completeness checks.  
+**Violation:** A lock-based crossing is refused at review; a deployed one is migrated to the saga shape as a priority fix.  
+**Recovery:** Park affected flows, migrate the shape, re-drive from records.  
+**Owner:** Treasury Engineering Owner (Planned role)
+
+**Rule ID:** `CAT-TC-CONST-160`  
+**Title:** Proven Exactly-Once Cross-Node Effects  
+**Purpose:** Make every distributed effect converge and prove.  
+**Normative Requirement:** Every cross-node effect MUST be idempotent under a key derived from flow identity and step; completion MUST require destination-log proof of every step's effect; ambiguity MUST resolve by querying the destination partition's log; and no flow MAY be marked complete on send, timeout heuristics, or retry exhaustion.  
+**Rationale:** Distributed ambiguity is inevitable; unresolved ambiguity is optional, and the destination log is the resolution instrument the ledger already provides.  
+**Enforcement:** Key derivation linting; completion gates requiring proof references; the retry-storm suite verifying convergence.  
+**Violation:** A flow completed without proofs reverts to in-flight and re-verifies; duplicate effects quarantine as breaks.  
+**Recovery:** Re-verify from logs, reconcile duplicates through governed disposition, fix the completion gate.  
+**Owner:** Treasury Engineering Owner (Planned role)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S80-001`  
+**Purpose:** Prove retries converge to one effect.  
+**Given:** A crossing whose apply step is delivered five times by a redelivery harness.  
+**When:** The destination processes all five deliveries.  
+**Then:** Exactly one effect exists in the destination log under the flow-derived key; four deliveries skip as proven.  
+**Failure Condition:** More than one effect exists.
+
+**Test ID:** `CAT-TC-AT-S80-002`  
+**Purpose:** Prove stalled counterparts park, never wedge.  
+**Given:** A crossing whose destination node is held dark past the flow class budget.  
+**When:** The budget elapses.  
+**Then:** The flow parks into the break queue with full resumable state, the source reservation remains lawfully held, and no lock exists anywhere.  
+**Failure Condition:** The flow retries forever, wedges, or loses state.
+
+**Test ID:** `CAT-TC-AT-S80-003`  
+**Purpose:** Prove completion requires destination-log proof.  
+**Given:** A flow whose apply effect exists but whose proof query is suppressed in a test harness.  
+**When:** The driver attempts completion.  
+**Then:** Completion refuses pending proof; when the query un-suppresses, the flow completes with proof references recorded.  
+**Failure Condition:** The flow completes without proof.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the cross-node financial coordination model defined by this section.
+
+```json
+{
+  "record_type": "treasury.crossnode.flow",
+  "flow_id": "xnf_01J5Z14A2B3C4D5E6F7G8H9J0K",
+  "flow_class": "inter-subtree-transfer",
+  "state": "applying",
+  "steps": [
+    {"step": "reserve", "partition": "part_wallet_007",
+     "idempotency_key": "xnf_01J5Z14A/reserve", "proof": "led_8f9a0b1c"},
+    {"step": "record-crossing", "partition": "part_wallet_007",
+     "idempotency_key": "xnf_01J5Z14A/record", "proof": "led_2d3e4f5a"},
+    {"step": "apply", "partition": "part_wallet_011",
+     "idempotency_key": "xnf_01J5Z14A/apply", "proof": null},
+    {"step": "confirm-release", "partition": "part_wallet_007",
+     "idempotency_key": "xnf_01J5Z14A/confirm", "proof": null}
+  ],
+  "budget_seconds": 120,
+  "parked": false,
+  "correlation_id": "cor_01J5Z14B5C6D7E8F9G0H1J2K3L",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the cross-node financial coordination model defined by this section.
+
+```yaml
+treasury_crossnode_coordination:
+  version: 0.1.0
+  shape:
+    steps: [reserve, record-crossing, apply, confirm-release]
+    state: durable-flow-record
+    driver: event-surface-consumer
+  forbidden:
+    - distributed-transactions
+    - cross-node-locks
+    - coordinator-held-financial-state
+  idempotency:
+    key_derivation: flow-id-slash-step
+    retries: converge-to-one-effect
+  proof:
+    source_of_truth: destination-partition-log
+    completion: requires-proof-per-step
+    silence: never-evidence
+  timeouts:
+    budget: per-flow-class
+    on_exceed: park-into-break-queue
+```
+
+### Pseudo Code
+
+```text
+function drive(flow):
+    for step in flow.steps:
+        if destination_log_proof(step):       # already applied? skip
+            continue
+        if flow.age > budget(flow.flow_class):
+            return park(flow, 'budget-exceeded')  # visible, resumable
+        result = run_idempotent(step, key=f"{flow.id}/{step.name}")
+        record_proof(flow, step, result.log_ref)
+    return complete(flow)   # only with proof for every step
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/crossnode/              # Planned
+  flow.py                             # Planned: flow record + machine
+  saga.py                             # Planned: durable driver
+  proofs.py                           # Planned: destination-log queries
+  parking.py                          # Planned: budget-exceeded parking
+```
+
+## 81. Treasury Replication and Durability
+
+**Section ID:** `CAT-TC-P4-81`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** replication attestation record  
+**Primary question:** How many copies of financial truth exist, how are they proven current and restorable, and when is a write durable enough to acknowledge?
+
+### Purpose
+
+This section fixes the replication and durability model: how financial state survives node, disk, and site loss. It defines the durability rule (a financial write acknowledges only after quorum-persistent replication — the entry is on stable storage on a quorum of the partition's replica set, at least one member of which is failure-domain-disjoint from the holder; acknowledgement before quorum is forbidden on every financial store, whatever the latency cost), the replica set model (each partition carries a declared replica set spanning failure domains per the Section 83 region design; replicas apply the holder's log in order, expose watermarks per Section 78, and stand as failover candidates ranked by verified log position), the attestation discipline (replication health is proven, not presumed: replicas attest their positions continuously, and the attestation record — this section's primary record — carries per-partition quorum status that placement and deployment decisions read as a gate), and the restore-proof rule: a replica or backup that has not been restore-tested within its declared cadence is treated as nonexistent for durability accounting — untested copies are hope, not durability, extending Section 17's snapshot verification discipline to the whole fleet.
+
+### Business Perspective
+
+Durability is the treasury's most basic promise — money written is money kept. The quorum rule prices that promise explicitly: acknowledgement latency buys survival of real failures. The restore-proof rule keeps the promise honest over years: the business never discovers at the worst moment that its copies were decorative.
+
+### Engineering Perspective
+
+Engineering implements replication as ordered log shipping from the partition holder: replicas persist and acknowledge, quorum tracking gates the holder's acknowledgements, and failover selects the verified-furthest replica per Section 79's single-holder transfer. Backups are periodic sealed snapshots plus continuous log archival per Section 92; restore testing runs on the declared cadence against isolated environments, and its evidence lands in the attestation record.
+
+### Architecture Perspective
+
+Architecturally, durability layers compose: in-partition quorum for node loss, failure-domain spread for rack and zone loss, region replication per Section 83 for site loss, and archived sealed history per Section 92 for everything else. Each layer has a declared loss model and a proven restore path — the Section 12 reserve philosophy applied to data: protection is explicit, tested, and never assumed.
+
+**Diagram ID:** `CAT-TC-P4-S81-D001`  
+**Title:** Quorum Before Acknowledgement  
+**Purpose:** Show the gate between a write and its acknowledgement.  
+**Audience:** Engineers  
+**Reading Order:** Read first in Section 81.
+
+```mermaid
+sequenceDiagram
+  participant W as Writer
+  participant H as Holder
+  participant RA as Replica zone-a
+  participant RB as Replica zone-b
+  W->>H: financial write
+  H->>RA: ship entry (ordered)
+  H->>RB: ship entry (ordered)
+  RA-->>H: persistent
+  RB-->>H: persistent
+  Note over H: quorum + domain disjointness verified
+  H-->>W: acknowledge (now durable)
+```
+
+### AI Perspective
+
+For an AI collaborator the attestation record turns durability into queryable fact: is this partition quorum-healthy, when did its replicas last attest, when was its backup last restore-proven. The characteristic AI failure is designing around asynchronous acknowledgement for throughput — acknowledging financial writes before quorum because the window is small. The window is where money disappears; the corrective is that durability is not a tunable on financial stores.
+
+### Developer Notes
+
+Developers should treat quorum loss as a serving question, not a background alert: a partition below quorum is a partition whose next write cannot lawfully acknowledge, and the honest behaviours are declared degradation per Section 72 or refusal — never silent sub-quorum acknowledgement.
+
+### Codex Notes
+
+When operating on `Treasury Replication and Durability`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST gate financial acknowledgement on quorum persistence, MUST treat restore-untested copies as nonexistent for durability accounting, and MUST refuse designs that acknowledge before quorum on any financial store.
+
+### Claude Code Notes
+
+When operating on `Treasury Replication and Durability`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST gate financial acknowledgement on quorum persistence, MUST treat restore-untested copies as nonexistent for durability accounting, and MUST refuse designs that acknowledge before quorum on any financial store.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Replication and Durability`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST gate financial acknowledgement on quorum persistence, MUST treat restore-untested copies as nonexistent for durability accounting, and MUST refuse designs that acknowledge before quorum on any financial store.
+
+### Cursor Notes
+
+When operating on `Treasury Replication and Durability`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST gate financial acknowledgement on quorum persistence, MUST treat restore-untested copies as nonexistent for durability accounting, and MUST refuse designs that acknowledge before quorum on any financial store.
+
+### Future AI Notes
+
+When operating on `Treasury Replication and Durability`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST gate financial acknowledgement on quorum persistence, MUST treat restore-untested copies as nonexistent for durability accounting, and MUST refuse designs that acknowledge before quorum on any financial store.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Replication and Durability` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| shipping | Implement ordered log shipping with replica persistence acknowledgements. | shipping stage receipt |
+| quorum | Gate holder acknowledgements on quorum with failure-domain disjointness. | quorum stage receipt |
+| attest | Implement continuous position attestation into the attestation record. | attest stage receipt |
+| backup | Implement sealed snapshots plus log archival with restore cadence. | backup stage receipt |
+| verify | Prove durability under injected node, disk, and domain loss. | verify stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Replication and Durability` needs a bounded context, loaded in this order:
+
+- This section in full, including the quorum rule and restore-proof discipline.
+- Section 8 (`Ledger and Transaction Model`) for the log being replicated.
+- Section 79 (`Treasury Partitioning and Placement`) for failover and holdership transfer.
+- Section 17 (`Treasury Repository`) for the snapshot verification precedent.
+- Section 84 (`Treasury Continuity and Disaster Recovery`) for the site-loss layer above this one.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. Log shipping with ordered apply and persistence acknowledgement.
+2. Quorum tracking and acknowledgement gating.
+3. The attestation record and its consumers.
+4. Snapshot sealing and log archival.
+5. The loss-injection durability suite.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Replication and Durability`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Acknowledging before quorum for throughput | The pre-quorum window is tiny and the latency win is real | The window is exactly where committed money vanishes on holder loss; durability is not tunable on financial stores |
+| Counting untested backups as durability | The backup job reports green | A green job proves writing, not restoring; restore tests are the only durability evidence |
+| Placing replicas for latency inside one failure domain | Same-rack replicas are fast | A quorum that shares a failure domain is one failure from fiction; disjointness is the point |
+| Failing over to the nearest rather than furthest replica | Proximity feels like speed | Failover ranks by verified log position; a near-but-behind replica silently truncates history |
+| Letting attestation staleness slide during busy periods | The replicas are probably fine | Probably is not attested; stale attestation gates placement and deployment for exactly this reason |
+
+### Security
+
+Replica channels are mutually authenticated; replicas are read-path principals with no write authority of their own; backup archives are encrypted with governed key custody per Section 92; and attestation records are audit events, so durability claims are themselves provenance-bearing.
+
+### Performance
+
+Quorum acknowledgement adds one failure-domain round trip to write latency — a declared, budgeted cost per Section 72; replicas absorb the Section 78 bounded read load as the return on that cost.
+
+### Latency
+
+Write acknowledgement latency is quorum persistence latency; the budget is declared per partition class, and breaching it is a capacity signal, never a reason to relax the gate.
+
+### Scalability
+
+Replication scales per partition independently; replica sets grow for read scale without changing the quorum rule; archival scales per Section 92's lifecycle tiers.
+
+### Reliability
+
+The model's purpose: node loss costs no acknowledged data, domain loss costs no quorum, and site loss hands over to Section 84 with bounded, declared, measured loss objectives.
+
+### Caching
+
+Nothing in the durability path caches; attestation status is near-real-time state; restore-proof status has a declared validity window equal to its cadence.
+
+### Consistency
+
+Replicas apply in the holder's order — divergent replicas are structurally impossible short of corruption, which attestation detects by position and digest comparison; failover preserves the order per Section 79.
+
+**Diagram ID:** `CAT-TC-P4-S81-D002`  
+**Title:** Four Durability Layers  
+**Purpose:** Show the composed loss models from node to history.  
+**Audience:** Architects, risk owners  
+**Reading Order:** Read with rule CAT-TC-CONST-161.
+
+```mermaid
+flowchart TB
+  L1[In-partition quorum\nsurvives node loss] --> L2[Domain-spread replicas\nsurvive rack and zone loss]
+  L2 --> L3[Region replication\nsurvives site loss - Section 83]
+  L3 --> L4[Archived sealed history\nsurvives everything else - Section 92]
+  L1 & L2 & L3 & L4 --> PROOF[Each layer:\ndeclared loss model +\nrehearsed restore path]
+```
+
+### Recovery
+
+Recovery is this section's product: failover from attested replicas for node loss, restore from proven snapshots plus archived logs for store loss, and the Section 84 playbooks for site loss — each path rehearsed, evidence-bearing, and ledger-first.
+
+### Ownership
+
+Replication machinery is owned by the planned Treasury Engineering Owner; durability policy (quorum sizes, cadences, domains) by the planned Treasury Risk Owner; restore-test evidence review by the Section 74 governance calendar.
+
+### Dependencies
+
+- Section 79 (`Treasury Partitioning and Placement`) — holdership transfer on failover.
+- Section 92 (`Treasury Data Lifecycle and Archival`) — the archival layer beneath backups.
+- Section 84 (`Treasury Continuity and Disaster Recovery`) — the site-loss consumer of these guarantees.
+
+### Risks
+
+- Quorum-latency pressure eroding the acknowledgement gate through exceptions.
+- Restore-test cadences slipping as fleets grow and tests get expensive.
+- Failure-domain definitions drifting from physical reality.
+
+### Anti Patterns
+
+- Async acknowledgement on any financial store.
+- Durability accounting that counts unproven copies.
+- Replica sets whose quorum fits in one failure domain.
+
+### Best Practices
+
+- Publish per-partition quorum status where deployment gates can read it.
+- Rotate restore tests across partitions so every one is proven within cadence.
+- Verify failure-domain maps against physical topology on a schedule.
+
+### Examples
+
+Example: a write node's disk dies mid-day. Its partitions fail over to their verified-furthest replicas within seconds; the attestation record shows quorum was healthy at loss, so zero acknowledged entries are lost; new replicas begin catching up to restore the set — the layer working exactly as priced.
+
+### Counter Examples
+
+Counter example: a partition's replica set quietly degrades to two same-zone members after a decommission miscounts domains. A zone outage takes both; the partition's last acknowledged writes exist nowhere. The disjointness requirement is in the acknowledgement gate because replica counting without domain counting is durability theater.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury replication and durability model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury replication and durability model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury replication and durability model done.
+- [ ] Acknowledgement gates verify quorum persistence with failure-domain disjointness on every financial store.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury replication and durability model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury replication and durability model, not by convention or review habit.
+- [ ] The treasury replication and durability model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] The loss-injection suite proves zero acknowledged-entry loss under node and domain failures.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury replication and durability model with a named on-call owner.
+- [ ] Alert thresholds for the treasury replication and durability model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury replication and durability model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Per-partition quorum status, attestation age, and restore-proof currency are dashboard signals.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury replication and durability model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury replication and durability model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury replication and durability model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Durability policy changes version and re-verify every affected partition's replica set.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury replication and durability model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury replication and durability model before mutations are re-enabled.
+- [ ] A recovery report for the treasury replication and durability model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Restore tests run on cadence with evidence in the attestation record, and lapsed proofs demote copies from durability accounting.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The durability model's constitutional text. |
+| `core/treasury/replication/shipping.py` | Planned | Ordered log shipping. |
+| `core/treasury/replication/quorum.py` | Planned | Acknowledgement gating. |
+| `core/treasury/replication/restore_proof.py` | Planned | Restore-test evidence tracking. |
+
+### Folder Mapping
+
+The replication machinery lives in the planned `core/treasury/replication/` folder beneath the partitions it protects.
+
+### Cross References
+
+- Section 78 (`Distributed Treasury Consistency`) — the watermarks replicas expose.
+- Section 79 (`Treasury Partitioning and Placement`) — failover as holdership transfer.
+- Section 12 (`Reserve and Capital Protection Model`) — the explicit-tested-protection philosophy this section applies to data.
+- Rule `CAT-TC-CONST-161` and Rule `CAT-TC-CONST-162` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S81-001` through `CAT-TC-AT-S81-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-161` — Quorum-Persistent Acknowledgement (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-162` — Restore-Proven Durability Accounting (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury replication and durability model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S81-001`  
+**Meaning:** Financial writes acknowledge only after failure-domain-disjoint quorum persistence, replicas attest continuously, and untested copies count as nonexistent — durability is proven, priced, and never tunable.  
+**Recall Trigger:** Any acknowledgement design, replica placement, backup claim, or failover ranking question.  
+**Operational Use:** Recall this anchor to gate acknowledgement on quorum and demand restore proof for every durability claim.
+
+### Future Evolution
+
+Section 84 builds site-loss continuity on these guarantees and Section 92 the archival tiers beneath them; the quorum gate and restore-proof rule are permanent.
+
+### Operational Stories
+
+Operational story: the restore-test rotation flags a partition whose snapshot restore takes triple the declared budget. Investigation finds archival compaction lagging; the fix lands before any real restore needed it — the cadence catching decay while it was still cheap.
+
+### Execution Stories
+
+Execution story: during a zone outage, seventeen partitions fail over inside their budgets, quorum reforms on surviving domains, and the attestation record documents zero acknowledged-entry loss — the afternoon's only business impact being a latency blip and a very calm incident channel.
+
+### Optimization Stories
+
+Optimization story: quorum latency dominates a write-heavy partition class. Moving one replica to a nearer disjoint domain cuts acknowledgement latency by a third — placement optimized within the disjointness constraint, never around it.
+
+### Recovery Stories
+
+Recovery story: a corrupted store restores from its last proven snapshot plus archived logs to the exact pre-corruption position, verified by digest against the attestation record — hours of careful work made boring by years of rehearsal, which is the highest compliment a recovery can earn.
+
+**Diagram ID:** `CAT-TC-P4-S81-D003`  
+**Title:** Untested Copies Are Not Copies  
+**Purpose:** Fix the restore-proof rule in durability accounting.  
+**Audience:** Risk owners, auditors  
+**Reading Order:** Read with rule CAT-TC-CONST-162.
+
+```mermaid
+flowchart LR
+  C1[Snapshot\nproof current] --> ACC[(Durability\naccounting)]
+  C2[Replica\nattested today] --> ACC
+  C3[Backup\nproof lapsed] -. demoted: nonexistent .-> ACC
+  C3 --> AL[Alert + rerun test]
+```
+
+### Normative Requirements
+
+1. Financial writes MUST acknowledge only after quorum persistence across a failure-domain-disjoint replica set.
+2. Replicas MUST apply the holder's log in order and attest positions continuously into the attestation record.
+3. Failover MUST select by verified log position and transfer holdership per Section 79.
+4. Backups MUST comprise sealed snapshots plus archived logs, restore-tested within declared cadence.
+5. Copies lacking current restore proof MUST NOT count in durability accounting.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury replication and durability model.
+
+**Rule ID:** `CAT-TC-CONST-161`  
+**Title:** Quorum-Persistent Acknowledgement  
+**Purpose:** Make acknowledged money survivable money.  
+**Normative Requirement:** No financial store MAY acknowledge a write before the entry is persistent on a quorum of its replica set with at least one member failure-domain-disjoint from the holder; quorum sizes and domain definitions MUST be governed durability policy; and partitions below quorum MUST refuse or degrade per declared envelopes rather than acknowledge sub-quorum.  
+**Rationale:** The pre-quorum acknowledgement window is precisely where committed financial history can vanish; no throughput gain prices that correctly.  
+**Enforcement:** Acknowledgement gating in the storage layer; loss-injection suite verifying zero acknowledged loss; domain-map verification against physical topology.  
+**Violation:** A sub-quorum acknowledgement path is closed immediately and its window audited for exposure.  
+**Recovery:** Close the path, audit the window, re-verify affected partitions.  
+**Owner:** Treasury Risk Owner (Planned role)
+
+**Rule ID:** `CAT-TC-CONST-162`  
+**Title:** Restore-Proven Durability Accounting  
+**Purpose:** Keep every durability claim backed by a rehearsed restore.  
+**Normative Requirement:** Every replica, snapshot, and archive MUST carry restore-test evidence within its declared cadence to count in durability accounting; lapsed proofs MUST demote the copy to nonexistent for accounting and alert; and restore tests MUST verify content by digest against attestation records, not merely completion.  
+**Rationale:** Section 17 fixed snapshot verification for one store; a fleet multiplies the ways a copy can rot unnoticed, and only restoration proves a copy is real.  
+**Enforcement:** Cadence tracking in the attestation record; accounting queries that exclude lapsed copies; governance review of restore evidence.  
+**Violation:** Durability claimed on lapsed proofs is corrected and the affected partitions re-verified.  
+**Recovery:** Run the lapsed tests, restore accounting, and fix the cadence gap.  
+**Owner:** Treasury Risk Owner (Planned role)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S81-001`  
+**Purpose:** Prove holder loss costs no acknowledged entries.  
+**Given:** A partition under write load with quorum replication and an injected holder crash.  
+**When:** Failover completes to the verified-furthest replica.  
+**Then:** Every acknowledged entry exists on the new holder; unacknowledged in-flight writes surface as refusals to their callers.  
+**Failure Condition:** Any acknowledged entry is missing.
+
+**Test ID:** `CAT-TC-AT-S81-002`  
+**Purpose:** Prove sub-quorum partitions refuse acknowledgement.  
+**Given:** A partition whose replica set is degraded below quorum in a test harness.  
+**When:** A financial write arrives.  
+**Then:** The write refuses or parks per the declared envelope with `below-quorum` named; no sub-quorum acknowledgement occurs.  
+**Failure Condition:** The write acknowledges below quorum.
+
+**Test ID:** `CAT-TC-AT-S81-003`  
+**Purpose:** Prove lapsed restore proofs demote copies.  
+**Given:** A snapshot whose restore-test cadence is allowed to lapse in a test environment.  
+**When:** Durability accounting runs.  
+**Then:** The snapshot is excluded from accounting, the partition's durability status downgrades, and an alert fires.  
+**Failure Condition:** The lapsed copy still counts.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury replication and durability model defined by this section.
+
+```json
+{
+  "record_type": "treasury.replication.attestation",
+  "attestation_id": "rat_01J5Z15A2B3C4D5E6F7G8H9J0K",
+  "partition": "part_wallet_007",
+  "holder": "nod_01J5Z10A2B3C4D5E6F7G8H9J0K",
+  "replica_set": [
+    {"node": "nod_01J5Z15B5C6D7E8F9G0H1J2K3L", "domain": "zone-a",
+     "position": 90417722, "position_digest": "d5e6f7a8b9c0"},
+    {"node": "nod_01J5Z15C8D9E0F1G2H3J4K5L6M", "domain": "zone-b",
+     "position": 90417722, "position_digest": "d5e6f7a8b9c0"},
+    {"node": "nod_01J5Z15D1E2F3G4H5J6K7L8M9N", "domain": "zone-c",
+     "position": 90417698, "position_digest": "1c2d3e4f5a6b"}
+  ],
+  "quorum_status": "healthy",
+  "restore_proof": {
+    "last_tested": "2026-08-01T03:00:00Z",
+    "cadence_days": 30,
+    "verified_by_digest": true
+  },
+  "attested_at": "2026-08-15T20:00:00Z",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury replication and durability model defined by this section.
+
+```yaml
+treasury_replication_policy:
+  version: 0.1.0
+  acknowledgement:
+    gate: quorum-persistent
+    disjointness: at-least-one-domain-disjoint
+    sub_quorum: refuse-or-declared-degradation
+    tunable: false
+  replica_sets:
+    apply: holders-order-only
+    attestation: continuous-position-and-digest
+    failover_ranking: verified-log-position
+  backups:
+    snapshots: sealed-periodic
+    logs: continuously-archived
+    encryption: governed-key-custody
+  restore_proof:
+    cadence: declared-per-copy-class
+    verification: digest-against-attestation
+    lapsed: nonexistent-for-accounting
+```
+
+### Pseudo Code
+
+```text
+function acknowledge_write(partition, entry):
+    persisted = replicate_ordered(partition.replica_set, entry)
+    quorum = count_persistent(persisted)
+    domains = distinct_domains(persisted, exclude=partition.holder.domain)
+    if quorum < policy.quorum(partition) or domains < 1:
+        return defer_or_refuse('below-quorum')   # never acknowledge early
+    return ack(entry)                            # durable money only
+
+function durability_accounting(copy):
+    if copy.restore_proof.age > copy.cadence:
+        alert('restore-proof-lapsed', copy)
+        return NONEXISTENT                        # hope is not durability
+    return COUNTED
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/replication/            # Planned
+  shipping.py                         # Planned: ordered log shipping
+  quorum.py                           # Planned: acknowledgement gate
+  attestation.py                      # Planned: position attestations
+  restore_proof.py                    # Planned: cadence + evidence
+```
+
+## 82. Multi-Node Deployment Coordination
+
+**Section ID:** `CAT-TC-P4-82`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** fleet deployment wave record  
+**Primary question:** How do releases, policy versions, and schema changes land across a fleet without ever splitting the treasury into incompatible halves?
+
+### Purpose
+
+This section fixes the fleet deployment model: how change lands on many nodes as one governed motion. It extends Section 49's single-runtime deployment ladder to the fleet with the wave discipline (every fleet change rolls in declared waves — canary partition set, minority wave, majority wave, completion — each wave gated on the Section 47 observability verdicts and the Section 81 quorum health of everything it touched, with automatic halt on gate failure), the skew contract (during a rollout the fleet intentionally runs two versions; every change MUST declare its compatibility window — which adjacent versions may lawfully coexist, which records both can read, which they can write — and the release registry refuses any wave plan whose skew exceeds the declared window), the release registry (the governed catalogue of builds, their digests, their compatibility declarations, and their attestation anchors that Section 77's gate verifies against — nothing undeclared ever lands on a node), and the fleet-halt rule: any node observing a peer outside the declared skew window refuses coordination with it and raises a deployment incident — version confusion is treated as seriously as balance corruption, because a fleet speaking two incompatible dialects is two treasuries having an argument.
+
+### Business Perspective
+
+Fleet deployment discipline is what lets the business ship continuously against a system that moves money: changes land in waves with receipts, bad waves halt themselves, and the blast radius of any mistake is the canary set, not the company. The skew contract also ends a whole class of outage — the half-upgraded fleet that silently corrupts cross-node flows — by making version coexistence a declared, checked property.
+
+### Engineering Perspective
+
+Engineering implements waves as placement-aware orchestration: a wave names its partition sets, drains or rides per the change's declared disruption class, applies through Section 77 lifecycle transitions (drain, update, re-attest, rejoin), and verifies gates before the next wave unlocks. Compatibility declarations are machine-checked contracts — record-format ranges, API version ranges, event schema ranges per Section 45 — and the conformance suite runs mixed-version fixtures for every declared window.
+
+### Architecture Perspective
+
+Architecturally this section closes the loop between Section 49 (how one runtime deploys), Section 77 (how a node changes state), and Section 79 (where partitions live): a fleet deployment is choreography over those three primitives, adding only the wave gates and the skew contract. The release registry is the single naming authority for what may run, the same closed-register discipline as Section 27 rails and Section 52 roles.
+
+**Diagram ID:** `CAT-TC-P4-S82-D001`  
+**Title:** Four Waves, Gated Forward  
+**Purpose:** Show the wave sequence with gates between every step.  
+**Audience:** Engineers, operators  
+**Reading Order:** Read first in Section 82.
+
+```mermaid
+flowchart LR
+  REG[(Release registry\ndigest + window)] --> C[Canary set]
+  C -->|gates green| M1[Minority wave]
+  M1 -->|gates green| M2[Majority wave]
+  M2 -->|gates green| DONE[Completion]
+  C & M1 & M2 -->|gate failure| HALT[Automatic halt\nthen rollback or resume]
+```
+
+### AI Perspective
+
+For an AI collaborator, the deployment model turns 'is it safe to ship' into checkable questions: is the build registered and attested, is the skew window declared and tested, are the wave gates green. The characteristic AI failure is proposing fleet-wide simultaneous rollout to avoid skew complexity — trading a declared, tested two-version window for an undeclared all-or-nothing gamble. Skew handled beats skew avoided; the corrective is to declare and test the window, never to pretend it away.
+
+### Developer Notes
+
+Developers should write every change as if it will be caught mid-rollout by a failover — because eventually one will be. Both adjacent versions must handle every record the other writes within the window, and the mixed-version fixtures are where that promise is kept honest.
+
+### Codex Notes
+
+When operating on `Multi-Node Deployment Coordination`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST declare and test a compatibility window for every fleet change, MUST gate every wave on observability and quorum verdicts, and MUST refuse undeclared-skew wave plans and unregistered builds.
+
+### Claude Code Notes
+
+When operating on `Multi-Node Deployment Coordination`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST declare and test a compatibility window for every fleet change, MUST gate every wave on observability and quorum verdicts, and MUST refuse undeclared-skew wave plans and unregistered builds.
+
+### Gemini CLI Notes
+
+When operating on `Multi-Node Deployment Coordination`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST declare and test a compatibility window for every fleet change, MUST gate every wave on observability and quorum verdicts, and MUST refuse undeclared-skew wave plans and unregistered builds.
+
+### Cursor Notes
+
+When operating on `Multi-Node Deployment Coordination`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST declare and test a compatibility window for every fleet change, MUST gate every wave on observability and quorum verdicts, and MUST refuse undeclared-skew wave plans and unregistered builds.
+
+### Future AI Notes
+
+When operating on `Multi-Node Deployment Coordination`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST declare and test a compatibility window for every fleet change, MUST gate every wave on observability and quorum verdicts, and MUST refuse undeclared-skew wave plans and unregistered builds.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Multi-Node Deployment Coordination` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| registry | Materialize the release registry with digests, declarations, and attestation anchors. | registry stage receipt |
+| waves | Implement placement-aware wave orchestration over the node lifecycle. | waves stage receipt |
+| skew | Machine-check compatibility windows with mixed-version fixtures. | skew stage receipt |
+| gates | Wire wave gates to observability verdicts and quorum health. | gates stage receipt |
+| halt | Implement skew-violation refusal and deployment incidents. | halt stage receipt |
+
+### AI Context Window
+
+An agent working on `Multi-Node Deployment Coordination` needs a bounded context, loaded in this order:
+
+- This section in full, including the wave discipline and skew contract.
+- Section 49 (`Treasury Deployment and Migration`) for the single-runtime ladder this extends.
+- Section 77 (`Treasury Node Lifecycle and Membership`) for the transitions waves drive.
+- Section 79 (`Treasury Partitioning and Placement`) for the partition sets waves name.
+- Section 47 (`Treasury Observability`) for the verdicts gates read.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. The release registry schema and governed publication flow.
+2. Compatibility declaration contracts and their checkers.
+3. Wave orchestration with lifecycle integration.
+4. Gate evaluation against observability and quorum.
+5. Skew-violation detection and incident wiring.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Multi-Node Deployment Coordination`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Rolling the whole fleet at once to avoid skew | Two versions coexisting feels riskier than one big bang | The big bang has no canary and no halt point; declared skew with mixed-version tests is the safe path |
+| Declaring compatibility without mixed-version tests | The formats look identical by inspection | Windows are proven by fixtures, not eyeballs; inspection misses the write path the other version takes |
+| Skipping wave gates on low-risk changes | The change is only a logging tweak | Risk class is declared and reviewed, not self-assessed at rollout time; gates are cheap, rollbacks are not |
+| Letting a halted wave linger half-landed | The fix is coming tomorrow | A halted wave either resumes within its declared window or rolls back; indefinite half-fleets accumulate skew debt |
+| Hot-patching nodes outside the registry | The incident needs a fix now | Unregistered builds break attestation and the audit chain; emergency changes ride the registry's expedited lane |
+
+### Security
+
+Builds are attested against registry digests at every node join per Section 77; wave orchestration runs under a dedicated deployment capability with no financial authority; the registry is governed configuration under dual review; and skew violations audit as security-relevant events because an unexpected version is indistinguishable from a tampered one until proven otherwise.
+
+### Performance
+
+Waves ride drain-and-rejoin, so serving capacity dips by at most the wave size — a declared envelope per Section 72; mixed-version operation carries the declared window's cost, budgeted per change class.
+
+### Latency
+
+Deployment adds no hot-path latency; the skew check at coordination time is a version-range comparison against the cached registry.
+
+### Scalability
+
+Wave orchestration scales with placement: bigger fleets mean more waves or bigger waves, chosen by declared risk class; the registry and fixtures scale with change volume, not fleet size.
+
+### Reliability
+
+Automatic halt on gate failure is the model's core reliability property: a bad build stops at the canary set with its damage bounded, observed, and reversible per Section 49's rollback discipline.
+
+### Caching
+
+Registry state caches by version digest on every node; wave state is authoritative in the wave record; skew windows cache with the registry entry they belong to.
+
+### Consistency
+
+Wave records serialize per deployment; the fleet's version state is derivable at any instant from the registry plus wave records — deployment truth with the same derivability discipline as financial truth.
+
+**Diagram ID:** `CAT-TC-P4-S82-D002`  
+**Title:** The Skew Window  
+**Purpose:** Show declared version coexistence and refusal outside it.  
+**Audience:** Engineers, reviewers  
+**Reading Order:** Read with rule CAT-TC-CONST-163.
+
+```mermaid
+flowchart TB
+  N1[Node at 1.41] <-->|declared window\nfixtures passed| N2[Node at 1.42]
+  N3[Node at 1.39] -. outside window .-> REFUSE[Coordination refused\nflow parks + incident]
+  WIN[Compatibility declaration:\nrecords, APIs, events] --> N1 & N2
+```
+
+### Recovery
+
+A failed wave recovers by rollback through the same wave machinery in reverse, gated identically; a crashed orchestrator resumes from the wave record; and a skew-violated fleet freezes cross-node coordination for affected flows until versions reconcile.
+
+### Ownership
+
+The release registry is owned by the planned Treasury Security Owner; wave orchestration by the planned Treasury Engineering Owner; change risk classes and windows by the Section 89 change management process.
+
+### Dependencies
+
+- Section 49 (`Treasury Deployment and Migration`) — the per-runtime ladder waves drive.
+- Section 77 (`Treasury Node Lifecycle and Membership`) — attestation against the registry.
+- Section 89 (`Treasury Change Management at Scale`) — the approval process wave plans ride.
+
+### Risks
+
+- Compatibility fixture coverage lagging the actual record surface.
+- Wave-gate metrics chosen poorly, letting quiet regressions pass canary.
+- Expedited-lane overuse eroding the registry's review discipline.
+
+### Anti Patterns
+
+- Unregistered builds on any node, ever.
+- Undeclared version coexistence.
+- Wave plans that touch a partition's whole replica set in one wave.
+
+### Best Practices
+
+- Keep canary sets representative: every flow class, both busy and quiet partitions.
+- Rehearse rollback waves as routinely as forward waves.
+- Audit expedited-lane usage on the Section 74 governance calendar.
+
+### Examples
+
+Example: a ledger-record field addition ships with a declared two-version window: version N writes the old format, N+1 reads both and writes the new only after the completion wave. Canary lands green, waves proceed on gates, a mid-rollout failover lands a new-version replica under an old-version holder — and nothing breaks, because exactly that fixture ran in the mixed-version suite.
+
+### Counter Examples
+
+Counter example: an urgent fix hot-patches six nodes outside the registry. Attestation now fails on rejoin, the patched nodes cannot prove what they run, and the fleet spends a day reconciling versions instead of an hour reviewing an expedited registry entry. The registry is not bureaucracy; it is the fleet's memory of what it is.
+
+### Implementation Checklist
+
+- [ ] Implement the multi-node deployment coordination model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the multi-node deployment coordination model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the multi-node deployment coordination model done.
+- [ ] Every fleet change carries a declared, fixture-tested compatibility window in the registry.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the multi-node deployment coordination model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the multi-node deployment coordination model, not by convention or review habit.
+- [ ] The multi-node deployment coordination model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Wave gates halt automatically on observability or quorum failure in injected-failure tests.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the multi-node deployment coordination model with a named on-call owner.
+- [ ] Alert thresholds for the multi-node deployment coordination model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the multi-node deployment coordination model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Fleet version state, wave progress, and skew status are dashboard signals.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the multi-node deployment coordination model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the multi-node deployment coordination model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the multi-node deployment coordination model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Rollback waves are rehearsed for every change class with evidence recorded.
+
+### Recovery Checklist
+
+- [ ] Recovery of the multi-node deployment coordination model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the multi-node deployment coordination model before mutations are re-enabled.
+- [ ] A recovery report for the multi-node deployment coordination model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Orchestrator crash recovery resumes waves from wave records without manual reconstruction.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The fleet deployment model's constitutional text. |
+| `core/treasury/deployment/registry.py` | Planned | Release registry with declarations. |
+| `core/treasury/deployment/waves.py` | Planned | Placement-aware wave orchestration. |
+| `core/treasury/deployment/skew.py` | Planned | Window checking and violation handling. |
+
+### Folder Mapping
+
+The fleet deployment machinery lives in the planned `core/treasury/deployment/` folder, extending the Section 49 ladder to the fleet.
+
+### Cross References
+
+- Section 76 (`Multi-Node Treasury Architecture`) — the fleet being deployed to.
+- Section 85 (`Treasury Resilience Verification`) — where deployment failure modes are exercised.
+- Section 27 (`Settlement Rail Contracts`) — the closed-register precedent the release registry follows.
+- Rule `CAT-TC-CONST-163` and Rule `CAT-TC-CONST-164` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S82-001` through `CAT-TC-AT-S82-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-163` — Registered Builds With Declared Skew (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-164` — Gated Waves With Automatic Halt (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the multi-node deployment coordination model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S82-001`  
+**Meaning:** Fleet change lands in gated waves under a declared, fixture-tested skew window from a governed release registry — bad waves halt at the canary, and undeclared versions are treated as tampering.  
+**Recall Trigger:** Any fleet rollout plan, version coexistence question, or hot-patch temptation.  
+**Operational Use:** Recall this anchor to demand declared windows, gated waves, and registered builds for every fleet change.
+
+### Future Evolution
+
+Section 89 governs the approval process above this machinery and Section 94 the extension points changes flow through; the wave gates and skew contract are permanent.
+
+### Operational Stories
+
+Operational story: the deployment dashboard shows one partition set still on version N three days after completion wave. Investigation finds a parked drain blocked by a long-settling flow; the flow completes, the wave finishes, and the drain-blocking flow class gets a parking rule — the lingering tail caught by watching completion, not assuming it.
+
+### Execution Stories
+
+Execution story: a canary gate trips on a subtle authorization-latency regression the change review missed. The wave halts itself at four nodes, rollback lands in minutes, and the regression is fixed against the fixture that now exists — the gate paying for itself on its first catch.
+
+### Optimization Stories
+
+Optimization story: wave duration is dominated by re-attestation queuing. Pre-staging build verification while nodes drain overlaps the two longest steps and cuts wave time by a third — orchestration optimized, gates untouched.
+
+### Recovery Stories
+
+Recovery story: the wave orchestrator crashes between waves two and three. The replacement reads the wave record, verifies wave-two gates are still green, and resumes — the deployment finishing as if nothing happened, because the record was the deployment, not the orchestrator's memory.
+
+**Diagram ID:** `CAT-TC-P4-S82-D003`  
+**Title:** Deployment Truth Is Derivable  
+**Purpose:** Show fleet version state derived from registry plus wave records.  
+**Audience:** Auditors  
+**Reading Order:** Read with the pseudo code of Section 82.
+
+```mermaid
+flowchart LR
+  REG[(Release registry)] --> D[Derivation]
+  WR[(Wave records)] --> D
+  D --> STATE[Fleet version state\nat any instant]
+  STATE --> Q1[Which build runs where?]
+  STATE --> Q2[Which skew is live?]
+  STATE --> Q3[Which wave halted, when, why?]
+```
+
+### Normative Requirements
+
+1. Every fleet change MUST publish to the release registry with digests, compatibility declarations, and attestation anchors before any node receives it.
+2. Fleet changes MUST roll in declared waves gated on observability verdicts and quorum health, with automatic halt on gate failure.
+3. Every change MUST declare its compatibility window; mixed-version fixtures MUST prove every declared window.
+4. Nodes MUST refuse coordination with peers outside the declared skew window and raise deployment incidents.
+5. Halted waves MUST resume within their declared window or roll back; indefinite partial rollouts MUST NOT persist.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the multi-node deployment coordination model.
+
+**Rule ID:** `CAT-TC-CONST-163`  
+**Title:** Registered Builds With Declared Skew  
+**Purpose:** Make every running version a known, compatible, provable quantity.  
+**Normative Requirement:** No node MAY run a build absent from the release registry; every registry entry MUST declare its compatibility window over adjacent versions with machine-checkable record, API, and event ranges; mixed-version fixtures MUST pass for every declared window before any wave plan is accepted; and wave plans exceeding declared skew MUST be refused by the registry.  
+**Rationale:** A fleet's correctness during rollout is exactly its skew contract; undeclared coexistence is untested coexistence, and untested coexistence with money is a reconciliation backlog being scheduled.  
+**Enforcement:** Attestation against registry digests at join; wave-plan validation against windows; mixed-version fixture gates in the release pipeline.  
+**Violation:** An unregistered build or undeclared-skew plan is refused; a node found running one is quarantined per Section 77.  
+**Recovery:** Quarantine, register or roll back the build, reconcile any cross-version damage as breaks.  
+**Owner:** Treasury Security Owner (Planned role)
+
+**Rule ID:** `CAT-TC-CONST-164`  
+**Title:** Gated Waves With Automatic Halt  
+**Purpose:** Bound every fleet change's blast radius to its current wave.  
+**Normative Requirement:** Every wave MUST gate on declared observability verdicts and the quorum health of every partition it touched; gate failure MUST halt the rollout automatically without human latency; halted waves MUST resume only after gate restoration or roll back through the same wave machinery; and no wave MAY touch a partition's entire replica set.  
+**Rationale:** Canaries only protect if the halt is automatic; a halt that waits for a human to notice is a full-fleet rollout with extra steps.  
+**Enforcement:** Gate evaluation wired into wave unlock; replica-set-spread validation in wave planning; halt-path testing with injected gate failures.  
+**Violation:** A wave proceeding past a failed gate is halted, rolled back, and the gate bypass audited as an incident.  
+**Recovery:** Roll back, restore gates, re-run the wave lawfully.  
+**Owner:** Treasury Engineering Owner (Planned role)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S82-001`  
+**Purpose:** Prove unregistered builds cannot join.  
+**Given:** A node built from source with no registry entry.  
+**When:** The node attempts attestation and admission.  
+**Then:** Attestation fails with `build-not-registered`, and the node never serves.  
+**Failure Condition:** The node joins with an unregistered build.
+
+**Test ID:** `CAT-TC-AT-S82-002`  
+**Purpose:** Prove gate failure halts waves automatically.  
+**Given:** A rolling wave and an injected observability gate failure on the canary set.  
+**When:** The gate evaluates.  
+**Then:** The rollout halts before the next wave with no human action, and the halt is recorded in the wave record.  
+**Failure Condition:** The next wave proceeds.
+
+**Test ID:** `CAT-TC-AT-S82-003`  
+**Purpose:** Prove skew violations refuse coordination.  
+**Given:** Two nodes running versions outside any declared window, and a cross-node flow between them.  
+**When:** The flow attempts coordination.  
+**Then:** Coordination refuses with `skew-window-violation`, the flow parks per Section 80, and a deployment incident opens.  
+**Failure Condition:** The flow proceeds across the undeclared skew.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the multi-node deployment coordination model defined by this section.
+
+```json
+{
+  "record_type": "treasury.deployment.wave",
+  "wave_id": "dpw_01J5Z16A2B3C4D5E6F7G8H9J0K",
+  "release": {
+    "build_digest": "e6f7a8b9c0d1",
+    "registry_entry": "rel_2026_08_15_003",
+    "compatibility_window": ["1.41.x", "1.42.x"]
+  },
+  "wave_number": 2,
+  "of_waves": 4,
+  "partition_sets": ["canary_set_a"],
+  "gates": {
+    "observability_verdict": "green",
+    "quorum_health": "healthy",
+    "evaluated_at": "2026-08-15T20:00:00Z"
+  },
+  "status": "gated-awaiting-next",
+  "halt": null,
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the multi-node deployment coordination model defined by this section.
+
+```yaml
+treasury_fleet_deployment:
+  version: 0.1.0
+  registry:
+    entries: [build-digest, compatibility-declarations, attestation-anchors]
+    unregistered_builds: refused-at-attestation
+    review: dual
+  waves:
+    sequence: [canary, minority, majority, completion]
+    gates: [observability-verdicts, quorum-health]
+    on_gate_failure: automatic-halt
+    replica_set_spread: never-whole-set-in-one-wave
+  skew:
+    window: declared-per-change
+    proof: mixed-version-fixtures
+    violation: refuse-coordination-and-incident
+  halted_waves:
+    resolution: resume-in-window-or-rollback
+```
+
+### Pseudo Code
+
+```text
+function run_wave(plan, k):
+    wave = plan.waves[k]
+    for node in wave.nodes:
+        drain(node); apply_build(node, plan.release)
+        attest_and_rejoin(node)              # Section 77 gate
+    verdict = evaluate_gates(wave)           # observability + quorum
+    if verdict is not GREEN:
+        halt(plan, wave, verdict)            # automatic, no human latency
+        return HALTED
+    record_wave(plan, wave, verdict)
+    return NEXT
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/deployment/             # Planned
+  registry.py                         # Planned: release registry
+  waves.py                            # Planned: wave orchestration
+  skew.py                             # Planned: window checks
+  fixtures/                           # Planned: mixed-version suites
+```
+
+## 83. Regional Treasury Federation
+
+**Section ID:** `CAT-TC-P4-83`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** regional federation charter record  
+**Primary question:** How does the treasury operate across regions with different latencies, rails, and residency duties while remaining one constitution with one consolidated truth?
+
+### Purpose
+
+This section fixes the regional federation model: how the treasury spans geographic regions. It defines the region as a deployment and residency boundary, never an authority boundary (a region is a named set of nodes, partitions, rails, and residency duties chartered in the federation charter record; every region runs the identical constitution — same rules, same state machines, same human-only actions — and no region holds authority over another's lawful operations), the residency discipline (data and settlement residency duties bind partitions to regions through placement constraints per Section 79; residency-constrained records are processed and stored in-region, with only lawful derived projections crossing per the charter's declared export classes), the inter-region flow model (value movements between regions are Section 80 crossings with region-aware budgets, executed over the Section 27 rail contracts available to each region, with currency handling per Section 71), and the consolidation rule: the document-wide financial truth consolidates across regions exactly as Section 71 consolidates across currencies — labeled, valuation-context-bearing, reproducible — so the global view is honest aggregation of regional truths, never a parallel books.
+
+### Business Perspective
+
+Regions are how the business meets markets where they are: local rails, local latency, local residency compliance — without operating multiple treasuries. The charter makes each region's duties explicit and auditable, and the consolidation rule means leadership reads one global position built from regional truths whose provenance survives the aggregation.
+
+### Engineering Perspective
+
+Engineering implements regions as placement constraint sets plus rail scoping: the placement function per Section 79 takes residency constraints as input, inter-region crossings get their own flow classes with wider budgets, and regional rail adapters register per Section 27 with region tags. The charter record is governed configuration; export classes are schema-checked at region egress the way Section 56 sandboxes check at their boundary.
+
+### Architecture Perspective
+
+Architecturally, federation composes what earlier sections built: Section 76 topology gains a region dimension, Section 79 placement gains residency constraints, Section 80 crossings gain region-aware budgets, Section 81 replication gains cross-region replica options where residency permits. The design deliberately mirrors Section 71's multi-currency answer — many local contexts, one constitution, honest consolidation — because geography and currency pose the same constitutional question.
+
+**Diagram ID:** `CAT-TC-P4-S83-D001`  
+**Title:** Many Regions, One Constitution  
+**Purpose:** Show identical rules over regionally varied rails and duties.  
+**Audience:** Architects, compliance  
+**Reading Order:** Read first in Section 83.
+
+```mermaid
+flowchart TB
+  CONST[One constitution\nrules + machines + human gates] --> R1
+  CONST --> R2
+  subgraph R1[Region eu-west]
+    P1[Partitions + local rails\nresidency duties]
+  end
+  subgraph R2[Region ap-south]
+    P2[Partitions + local rails\nresidency duties]
+  end
+  R1 <-->|Section 80 crossings| R2
+  R1 & R2 --> CONS[Labeled consolidation\nnever parallel books]
+```
+
+### AI Perspective
+
+For an AI collaborator, the charter answers locality questions mechanically: which region processes this wallet, which export classes may leave, which rails serve here. The characteristic AI failure is designing global conveniences that quietly violate residency — a global cache of residency-bound records, a cross-region retry that replays a payload outside its region. The corrective is that residency is a placement constraint enforced structurally, not an annotation enforced by memory.
+
+### Developer Notes
+
+Developers should treat region tags like currency codes per Section 71: they never default, never infer, and never drop through a conversion. An untagged record at a region boundary is a refused record.
+
+### Codex Notes
+
+When operating on `Regional Treasury Federation`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST treat regions as deployment and residency boundaries with zero authority semantics, MUST enforce residency through placement constraints and egress checks, and MUST refuse global designs that move residency-bound records or process them out of region.
+
+### Claude Code Notes
+
+When operating on `Regional Treasury Federation`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST treat regions as deployment and residency boundaries with zero authority semantics, MUST enforce residency through placement constraints and egress checks, and MUST refuse global designs that move residency-bound records or process them out of region.
+
+### Gemini CLI Notes
+
+When operating on `Regional Treasury Federation`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST treat regions as deployment and residency boundaries with zero authority semantics, MUST enforce residency through placement constraints and egress checks, and MUST refuse global designs that move residency-bound records or process them out of region.
+
+### Cursor Notes
+
+When operating on `Regional Treasury Federation`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST treat regions as deployment and residency boundaries with zero authority semantics, MUST enforce residency through placement constraints and egress checks, and MUST refuse global designs that move residency-bound records or process them out of region.
+
+### Future AI Notes
+
+When operating on `Regional Treasury Federation`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST treat regions as deployment and residency boundaries with zero authority semantics, MUST enforce residency through placement constraints and egress checks, and MUST refuse global designs that move residency-bound records or process them out of region.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Regional Treasury Federation` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| charter | Materialize the federation charter with regions, duties, rails, and export classes. | charter stage receipt |
+| residency | Wire residency constraints into placement and egress checks. | residency stage receipt |
+| flows | Implement inter-region crossings with region-aware budgets. | flows stage receipt |
+| consolidate | Implement labeled cross-region consolidation. | consolidate stage receipt |
+| verify | Prove residency and constitutional uniformity across simulated regions. | verify stage receipt |
+
+### AI Context Window
+
+An agent working on `Regional Treasury Federation` needs a bounded context, loaded in this order:
+
+- This section in full, including the charter model and consolidation rule.
+- Section 71 (`Multi-Currency Treasury Model`) for the many-contexts-one-constitution precedent.
+- Section 79 (`Treasury Partitioning and Placement`) for residency as placement constraints.
+- Section 80 (`Cross-Node Financial Coordination`) for the crossing shape inter-region flows use.
+- Section 27 (`Settlement Rail Contracts`) for region-scoped rail registration.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. The charter record schema with export class declarations.
+2. Residency constraint integration in the placement function.
+3. Egress schema checks at region boundaries.
+4. Inter-region flow classes and budgets.
+5. The cross-region consolidation pipeline with labels.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Regional Treasury Federation`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Building a global cache of residency-bound records | One cache is simpler than five regional ones | Residency binds storage and processing; the cache is a residency violation with good latency |
+| Letting one region's incident commander direct another region | Central command feels faster in a crisis | Regions coordinate as peers under one constitution; authority does not travel, evidence does |
+| Consolidating regional figures without labels | The board wants one clean number | One number with valuation and residency context is clean; one number without context is fiction |
+| Replaying failed crossings from the wrong region | The retry infrastructure is global | Crossings re-drive in their originating region; replay location is part of the residency duty |
+| Chartering regions with bespoke rule variants | Local teams want local exceptions | The constitution is identical everywhere; local variation lives in parameters, rails, and duties — never rules |
+
+### Security
+
+Region egress is schema-checked against declared export classes with refusals audited; inter-region channels are mutually authenticated per Section 76; charter changes are governed dual-review events; and residency violations are Section 48 incidents with regulatory notification duties tracked per Section 73.
+
+### Performance
+
+Regional locality is the performance design: wallets process in-region at local latency, and only declared crossings and consolidation pay inter-region costs.
+
+### Latency
+
+In-region operations see no federation overhead; inter-region crossings carry declared wider budgets; consolidation is scheduled, not hot-path.
+
+### Scalability
+
+Regions scale independently — each adds nodes and partitions per its own capacity plan under Section 72; the federation scales by chartering regions, a governance act with a checklist rather than an engineering project.
+
+### Reliability
+
+Region isolation is a reliability property: a region's outage parks its crossings per Section 80, degrades its surfaces per declared envelopes, and leaves other regions serving — with continuity per Section 84 governing anything longer.
+
+### Caching
+
+Caches are region-scoped for residency-bound data; global caches exist only for globally replicated stores per Section 79; consolidation outputs cache as labeled artifacts.
+
+### Consistency
+
+Each region's truth is its partitions' serialized truth; consolidation is reproducible labeled aggregation on declared schedules — never a second live book, exactly the Section 71 discipline.
+
+**Diagram ID:** `CAT-TC-P4-S83-D002`  
+**Title:** Residency Enforced By Structure  
+**Purpose:** Show placement constraints and egress gates doing what annotations cannot.  
+**Audience:** Security reviewers, compliance  
+**Reading Order:** Read with rule CAT-TC-CONST-166.
+
+```mermaid
+flowchart LR
+  REC[Residency-bound record] --> PL[Placement constraint\nin-region partitions only]
+  REC --> EG{Egress gate:\ndeclared export class?}
+  EG -->|yes| PROJ[Lawful projection crosses]
+  EG -->|no| REF[Refused + audited\ncompliance routed]
+  GC[Global cache design] -. structurally impossible .-> REC
+```
+
+### Recovery
+
+Regional recovery follows Section 84 with the charter as scope authority: a region restores ledger-first within itself, its parked crossings re-drive per Section 80, and consolidation resumes with a gap annotation rather than backfilled fiction.
+
+### Ownership
+
+The federation charter is owned by the Lead Repository Architect with per-region operational owners registered per Section 74; residency duty interpretation belongs to the compliance authority per Section 73.
+
+### Dependencies
+
+- Section 71 (`Multi-Currency Treasury Model`) — the consolidation discipline reused.
+- Section 73 (`Treasury Compliance Operations`) — residency duties as verified obligations.
+- Section 84 (`Treasury Continuity and Disaster Recovery`) — regional loss handling.
+
+### Risks
+
+- Residency duty drift as regulations change faster than charter reviews.
+- Inter-region budget creep normalizing slow crossings.
+- Consolidation schedules becoming de facto reporting truth ahead of sealed statements.
+
+### Anti Patterns
+
+- Authority hierarchies between regions.
+- Rule variants per region.
+- Unlabeled global aggregates of regional figures.
+
+### Best Practices
+
+- Review charters against live regulations on the Section 74 calendar with compliance.
+- Test egress checks with adversarial export attempts per Section 85.
+- Keep crossing budgets visible beside their actual latency distributions.
+
+### Examples
+
+Example: a new market launches with its own rails and residency statute. A region charters: placement constraints bind its wallets in-region, two rail adapters register with region tags, export classes declare the lawful derived projections, and consolidation picks up the region with labels — a market entered through governance, with the constitution untouched.
+
+### Counter Examples
+
+Counter example: a latency project builds a global read replica of all wallets including residency-bound ones, labeled internal-only. An analytics query runs on it from another region, and the company now explains to a regulator why processing happened where it lawfully could not. Residency is structural because annotations do not stop queries.
+
+### Implementation Checklist
+
+- [ ] Implement the regional treasury federation model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the regional treasury federation model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the regional treasury federation model done.
+- [ ] Every region operates under a charter with declared duties, rails, and export classes.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the regional treasury federation model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the regional treasury federation model, not by convention or review habit.
+- [ ] The regional treasury federation model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Adversarial egress tests prove no residency-bound record crosses outside declared classes.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the regional treasury federation model with a named on-call owner.
+- [ ] Alert thresholds for the regional treasury federation model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the regional treasury federation model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Per-region health, crossing budgets, and consolidation currency are dashboard signals.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the regional treasury federation model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the regional treasury federation model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the regional treasury federation model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Charter changes version through dual review with compliance sign-off.
+
+### Recovery Checklist
+
+- [ ] Recovery of the regional treasury federation model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the regional treasury federation model before mutations are re-enabled.
+- [ ] A recovery report for the regional treasury federation model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Regional restoration and crossing re-drive are rehearsed per Section 87 game days.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The federation model's constitutional text. |
+| `core/treasury/federation/charter.yaml` | Planned | Regional charters and export classes. |
+| `core/treasury/federation/egress.py` | Planned | Region boundary schema checks. |
+| `core/treasury/federation/consolidation.py` | Planned | Labeled cross-region aggregation. |
+
+### Folder Mapping
+
+The federation machinery lives in the planned `core/treasury/federation/` folder above placement and below consolidation reporting.
+
+### Cross References
+
+- Section 76 (`Multi-Node Treasury Architecture`) — topology's region dimension.
+- Section 80 (`Cross-Node Financial Coordination`) — inter-region flow execution.
+- Section 66 (`Treasury Reporting and Statements`) — the sealed statements consolidation feeds.
+- Rule `CAT-TC-CONST-165` and Rule `CAT-TC-CONST-166` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S83-001` through `CAT-TC-AT-S83-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-165` — Constitutionally Uniform Regions (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-166` — Structural Residency Enforcement (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the regional treasury federation model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S83-001`  
+**Meaning:** Regions are deployment and residency boundaries under one identical constitution — residency enforces structurally through placement and egress, and global truth is labeled consolidation of regional truths, never parallel books.  
+**Recall Trigger:** Any regional design, residency question, global cache proposal, or consolidation request.  
+**Operational Use:** Recall this anchor to keep authority out of geography and residency in the placement function.
+
+### Future Evolution
+
+Section 84 builds continuity on regional isolation and Section 93 interoperability at region edges; the one-constitution rule and structural residency are permanent.
+
+### Operational Stories
+
+Operational story: a charter review with compliance finds a new statute tightening an export class. The class narrows in the charter, egress checks pick up the new schema on the next config version, and two downstream consumers re-scope — regulation absorbed through governance in a week, without an incident forcing it.
+
+### Execution Stories
+
+Execution story: an inter-region settlement crossing parks when its destination region enters a maintenance window. The flow record holds, the source reservation stands, and the crossing completes forty minutes later on re-drive — a two-region operation behaving exactly like a two-partition one, because it is one.
+
+### Optimization Stories
+
+Optimization story: consolidation runtime grows with the fifth region. Precomputing per-region sealed sub-aggregates turns global consolidation into a merge of five artifacts — faster, and each sub-aggregate independently verifiable.
+
+### Recovery Stories
+
+Recovery story: a regional outage parks ninety crossings. On restoration, the re-drive sweep completes eighty-eight, parks two into human disposition for counterpart timeout, and consolidation resumes with a labeled gap for the outage window — regional failure handled as routine, which is the federation's whole promise.
+
+**Diagram ID:** `CAT-TC-P4-S83-D003`  
+**Title:** Consolidation With Provenance  
+**Purpose:** Show global truth as labeled aggregation of regional truths.  
+**Audience:** Finance, auditors  
+**Reading Order:** Read with the pseudo code of Section 83.
+
+```mermaid
+flowchart TB
+  T1[Region truth A\nsealed sub-aggregate] --> M[Merge with labels\n+ valuation context]
+  T2[Region truth B\nsealed sub-aggregate] --> M
+  T3[Region truth C\nsealed sub-aggregate] --> M
+  M --> G[Global position\nreproducible, labeled]
+  G --> S66[Sealed statements\nSection 66]
+```
+
+### Normative Requirements
+
+1. Every region MUST operate under a chartered record naming its nodes, partitions, rails, residency duties, and export classes.
+2. All regions MUST run the identical constitution; regional variation MUST be confined to parameters, rails, and duties.
+3. Residency-bound records MUST be stored and processed in-region, enforced by placement constraints and egress schema checks.
+4. Inter-region value movement MUST use Section 80 crossings with region-aware budgets over region-registered rails.
+5. Cross-region consolidation MUST be labeled, reproducible, and derived from regional truths; parallel global books MUST NOT exist.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the regional treasury federation model.
+
+**Rule ID:** `CAT-TC-CONST-165`  
+**Title:** Constitutionally Uniform Regions  
+**Purpose:** Keep geography from becoming an authority or rule boundary.  
+**Normative Requirement:** Every region MUST enforce the identical constitutional rule set, state machines, human-only actions, and forbidden compositions; no region MAY hold authority over another region's lawful operations; and charter-level variation MUST be limited to capacity parameters, rail registrations, residency duties, and export classes, verified by cross-region conformance comparison.  
+**Rationale:** A treasury with regional rule variants is several treasuries sharing a logo; uniformity is what makes consolidation truth rather than diplomacy.  
+**Enforcement:** Cross-region conformance suite comparing rule enforcement outcomes; charter schema forbidding rule-level fields; governance review of every charter change.  
+**Violation:** A regional rule variant is reverted; operations under it are audited and reconciled as breaks where financial.  
+**Recovery:** Revert, audit the variant window, and route the underlying need through parameters or an ADR.  
+**Owner:** Lead Repository Architect
+
+**Rule ID:** `CAT-TC-CONST-166`  
+**Title:** Structural Residency Enforcement  
+**Purpose:** Make residency a property of placement, not of promises.  
+**Normative Requirement:** Residency duties MUST bind through placement constraints that keep bound partitions in-region and through egress schema checks that pass only declared export classes; residency-bound records MUST NOT be cached, replicated, processed, or replayed out of region; and every egress refusal and residency incident MUST be audited with compliance notification per Section 73.  
+**Rationale:** Annotations do not stop queries and intentions do not stop caches; only structure enforces geography.  
+**Enforcement:** Placement constraint validation; egress schema gates; adversarial export testing per Section 85.  
+**Violation:** A residency breach is a Section 48 incident with compliance-tracked duties and a structural fix, never only a data deletion.  
+**Recovery:** Contain, notify per duty, fix the structural gap, and verify with adversarial re-test.  
+**Owner:** Treasury Security Owner (Planned role)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S83-001`  
+**Purpose:** Prove residency-bound partitions never place out of region.  
+**Given:** A placement computation with a topology offering cheaper capacity out of region.  
+**When:** The placement function runs with residency constraints.  
+**Then:** Every residency-bound partition assigns in-region; the cheaper out-of-region option is never selected for them.  
+**Failure Condition:** Any bound partition places out of region.
+
+**Test ID:** `CAT-TC-AT-S83-002`  
+**Purpose:** Prove undeclared exports refuse at egress.  
+**Given:** An export attempt of a residency-bound record shape not in any declared export class.  
+**When:** The egress check evaluates it.  
+**Then:** Egress refuses with the undeclared shape named, and the refusal audits with compliance routing.  
+**Failure Condition:** The record crosses the boundary.
+
+**Test ID:** `CAT-TC-AT-S83-003`  
+**Purpose:** Prove consolidation carries regional provenance.  
+**Given:** A cross-region consolidated position.  
+**When:** The consolidation output is inspected.  
+**Then:** Every aggregate carries region labels, valuation context, and reproducible derivation references to regional truths.  
+**Failure Condition:** Any aggregate lacks labels or reproducibility.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the regional treasury federation model defined by this section.
+
+```json
+{
+  "record_type": "treasury.federation.charter",
+  "charter_id": "rfc_01J5Z17A2B3C4D5E6F7G8H9J0K",
+  "region": "eu-west",
+  "constitution": "identical-document-wide",
+  "residency_duties": [
+    {"duty": "wallet-data-in-region", "authority": "regional-statute-ref-001"}
+  ],
+  "rails": ["rail_sepa_01", "rail_card_eu_02"],
+  "export_classes": [
+    {"class": "aggregate-positions", "schema": "labeled-aggregates-v1"},
+    {"class": "sealed-statements", "schema": "statement-artifact-v1"}
+  ],
+  "placement_constraints": ["residency-bound-partitions-in-region"],
+  "operational_owner": "human:eu-west-operations-owner",
+  "chartered_at": "2026-08-15T20:00:00Z",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the regional treasury federation model defined by this section.
+
+```yaml
+treasury_regional_federation:
+  version: 0.1.0
+  region_semantics:
+    is: [deployment-boundary, residency-boundary]
+    is_not: [authority-boundary, rule-boundary]
+  uniformity:
+    constitution: identical-everywhere
+    variation_allowed: [parameters, rails, residency-duties, export-classes]
+  residency:
+    enforcement: [placement-constraints, egress-schema-checks]
+    out_of_region: [no-storage, no-processing, no-caching, no-replay]
+  inter_region:
+    flows: section-80-crossings
+    budgets: region-aware
+  consolidation:
+    style: labeled-reproducible-aggregation
+    parallel_books: forbidden
+```
+
+### Pseudo Code
+
+```text
+function egress(record, from_region, to_region):
+    charter = charters[from_region]
+    cls = charter.export_class_matching(record.schema)
+    if cls is None:
+        audit('egress-refused', record.schema, compliance_routed=True)
+        return refuse('undeclared-export-class')
+    return transfer(project(record, cls.schema), to_region)
+
+function place_with_residency(partition, topology):
+    candidates = topology.nodes_in(partition.residency_region) \
+                 if partition.residency_bound else topology.nodes
+    return placement_function(partition, candidates)   # Section 79
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/federation/             # Planned
+  charter.yaml                        # Planned: regional charters
+  egress.py                           # Planned: export class gates
+  crossings.py                        # Planned: region-aware budgets
+  consolidation.py                    # Planned: labeled aggregation
+```
+
+## 84. Treasury Continuity and Disaster Recovery
+
+**Section ID:** `CAT-TC-P4-84`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** continuity objective and evidence record  
+**Primary question:** What survives when a site, region, or the whole control plane is lost, in what order does the treasury come back, and how is every objective proven rather than promised?
+
+### Purpose
+
+This section fixes the continuity and disaster recovery model: what the treasury guarantees under catastrophic loss. It defines the loss taxonomy (node loss handled by Section 81, zone loss by domain-spread quorum, region loss, control-plane loss, and the compound scenarios where several fail together — each with declared recovery time and recovery point objectives in the continuity record, priced and human-approved per the Section 12 protection philosophy), the ledger-first restoration order (recovery always rebuilds in dependency order: coordination and membership services, then write partitions from replicated or archived logs with digest verification, then read projections rebuilt from restored ledgers, then watch and intelligence workloads, then external rail reconnection per Section 27 — with financial mutation re-enabled only after Section 14 invariants re-verify, extending the Section 21 readiness ladder to the whole estate), the degraded-mode register (a closed set of declared degraded modes — read-only, in-region-only, obligations-only per the Section 11 liquidity bands — each with entry criteria, exit criteria, and human authorization requirements; no improvised degradation), and the evidence rule: every objective is proven by rehearsal per Section 87 — an RTO that has never been demonstrated is a wish with a number attached.
+
+### Business Perspective
+
+Continuity is the promise the business makes to everyone whose money it holds: catastrophic infrastructure loss is a bounded, rehearsed inconvenience, not an existential event. Declared objectives price that promise so leadership chooses recovery investment consciously, and the evidence rule keeps the promise real across years of entropy.
+
+### Engineering Perspective
+
+Engineering implements continuity as playbooks over the primitives already built: Section 81 replication and restore proofs, Section 79 holdership transfer, Section 80 flow re-drives, Section 83 regional isolation. Each loss class has a playbook whose steps are executable, evidence-bearing, and rehearsed; the continuity record binds objectives to their latest rehearsal evidence; and degraded modes are implemented as declared runtime postures per Section 21, entered and exited through governed transitions.
+
+### Architecture Perspective
+
+Architecturally, continuity is where every Part 4 section proves its worth at once: topology, lifecycle, consistency, placement, coordination, replication, deployment, and federation compose into the property that matters — the treasury can lose big pieces and return to full lawful service in declared time with declared maximum loss. The five-link chain and human-only actions hold in every degraded mode; disaster changes capacity and latency, never authority, completing the invariance theme of Sections 51 and 76.
+
+**Diagram ID:** `CAT-TC-P4-S84-D001`  
+**Title:** Ledger-First Restoration Order  
+**Purpose:** Show the dependency order and the mutation gate.  
+**Audience:** Operators, engineers  
+**Reading Order:** Read first in Section 84.
+
+```mermaid
+flowchart TB
+  S1[Coordination +\nmembership services] --> S2[Write partitions\nfrom digest-verified logs]
+  S2 --> G{Invariants\nre-verify?}
+  G -->|yes| S3[Re-enable mutation]
+  G -->|gaps| BR[Break records\nhuman disposition]
+  S3 --> S4[Read projections rebuild]
+  S4 --> S5[Watch + intelligence workloads]
+  S5 --> S6[Rail reconnection +\nflow re-drives]
+```
+
+### AI Perspective
+
+For an AI collaborator, the degraded-mode register is the critical context: an agent operating during an incident MUST know the current posture and its constraints, and MUST NOT propose actions unavailable in it. The characteristic AI failure is emergency-powers reasoning — assuming crisis relaxes rules, proposing bypasses 'until systems recover'. Section 48 fixed and rule CAT-TC-CONST-095 forbids emergency powers; disaster makes the constitution more binding, not less, because crisis is when improvised authority does the most damage.
+
+### Developer Notes
+
+Developers should write playbook steps as verifiable commands with expected evidence, not prose instructions: a playbook that requires interpretation under adrenaline is a playbook that fails its first real use.
+
+### Codex Notes
+
+When operating on `Treasury Continuity and Disaster Recovery`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST design recovery in ledger-first restoration order, MUST confine degradation to the declared mode register with governed entry and exit, and MUST refuse emergency-powers reasoning in any incident design.
+
+### Claude Code Notes
+
+When operating on `Treasury Continuity and Disaster Recovery`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST design recovery in ledger-first restoration order, MUST confine degradation to the declared mode register with governed entry and exit, and MUST refuse emergency-powers reasoning in any incident design.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Continuity and Disaster Recovery`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST design recovery in ledger-first restoration order, MUST confine degradation to the declared mode register with governed entry and exit, and MUST refuse emergency-powers reasoning in any incident design.
+
+### Cursor Notes
+
+When operating on `Treasury Continuity and Disaster Recovery`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST design recovery in ledger-first restoration order, MUST confine degradation to the declared mode register with governed entry and exit, and MUST refuse emergency-powers reasoning in any incident design.
+
+### Future AI Notes
+
+When operating on `Treasury Continuity and Disaster Recovery`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST design recovery in ledger-first restoration order, MUST confine degradation to the declared mode register with governed entry and exit, and MUST refuse emergency-powers reasoning in any incident design.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Continuity and Disaster Recovery` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| objectives | Declare RTO and RPO per loss class in the continuity record with human approval. | objectives stage receipt |
+| playbooks | Write executable evidence-bearing playbooks per loss class. | playbooks stage receipt |
+| modes | Implement the declared degraded-mode register with governed transitions. | modes stage receipt |
+| order | Encode ledger-first restoration order with invariant re-verification gates. | order stage receipt |
+| prove | Bind every objective to rehearsal evidence per Section 87. | prove stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Continuity and Disaster Recovery` needs a bounded context, loaded in this order:
+
+- This section in full, including the loss taxonomy and restoration order.
+- Section 81 (`Treasury Replication and Durability`) for the guarantees recovery consumes.
+- Section 48 (`Treasury Incident Handling`) for the incident frame and the no-emergency-powers rule.
+- Section 11 (`Liquidity Model`) for the obligations-first posture degraded modes inherit.
+- Section 87 (`Treasury Simulation and Game Days`) for the rehearsals that make objectives evidence.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. The continuity record with objectives and approval trails.
+2. Loss-class playbooks with executable steps.
+3. Degraded-mode postures in the runtime.
+4. Restoration order automation with re-verification gates.
+5. Rehearsal evidence binding.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Continuity and Disaster Recovery`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Improvising degradation during an incident | The declared modes do not quite fit the situation | Modes are closed by design; the near-fit mode plus a follow-up ADR beats an improvised posture nobody can reason about |
+| Re-enabling mutation before invariants re-verify | Pressure to resume revenue is enormous | Resuming on an unverified ledger converts an infrastructure incident into a financial one; the gate exists for exactly this moment |
+| Restoring projections before their ledgers | Dashboards make people feel better | Projections rebuilt from unrestored ledgers are confident fiction; ledger-first is the only honest order |
+| Treating rehearsal evidence as optional paperwork | Everyone remembers the last drill | Objectives without current evidence are wishes; the record binds each objective to its proof |
+| Relaxing human gates because approvers are unreachable | The disaster took the approvers' region offline | Succession per Section 91 provides lawful approvers; unreachability activates succession, never bypass |
+
+### Security
+
+Recovery credentials are break-glass scoped, dual-controlled, time-boxed, and audited per Section 19; playbook execution is attributable; degraded-mode transitions are governance events; and the restoration order itself defends against the classic attack window of half-restored systems with full-restored trust.
+
+### Performance
+
+Continuity capacity — replica headroom, archived log bandwidth, standby coordination — is a declared Section 72 envelope, priced in the continuity record beside the objectives it serves.
+
+### Latency
+
+Degraded modes trade latency and availability for correctness by design; their latency envelopes are declared per mode so consumers can reason about incident-time behaviour.
+
+### Scalability
+
+Playbooks scale by parameterization over partitions and regions; rehearsal cadence scales with fleet size per the Section 87 program; objectives are re-priced at capacity reviews.
+
+### Reliability
+
+This section is reliability's last line: what remains true when everything else fails — declared loss bounds, rehearsed restoration, and a constitution that holds in every mode.
+
+### Caching
+
+Recovery trusts no caches: every restoration step verifies from ledgers, snapshots, and digests; caches rebuild last, after the truths they cache are proven.
+
+### Consistency
+
+Restoration re-establishes per-partition order from verified log positions; cross-partition flows re-drive per Section 80; and any unresolvable gap becomes a Section 35 break with human disposition — never a silent splice.
+
+**Diagram ID:** `CAT-TC-P4-S84-D002`  
+**Title:** The Declared Degraded-Mode Register  
+**Purpose:** Show lawful postures with governed entry and exit.  
+**Audience:** Incident command  
+**Reading Order:** Read with rule CAT-TC-CONST-168.
+
+```mermaid
+stateDiagram-v2
+  [*] --> full_service
+  full_service --> read_only: entry criteria + authorization
+  full_service --> in_region_only: region loss
+  full_service --> obligations_only: liquidity band trigger
+  read_only --> full_service: exit criteria verified
+  in_region_only --> full_service: region restored
+  obligations_only --> full_service: band restored
+  note right of read_only: improvised postures cannot exist
+```
+
+### Recovery
+
+This section is the recovery model; its own recovery discipline is the rehearsal program: playbooks that fail rehearsal are fixed as production defects, because they are.
+
+### Ownership
+
+Continuity objectives are owned by the planned Treasury Risk Owner with finance-owner pricing approval; playbooks by the planned Treasury Engineering Owner; degraded-mode authorization by the incident command roles fixed in Section 48.
+
+### Dependencies
+
+- Section 81 (`Treasury Replication and Durability`) — restore materials and proofs.
+- Section 48 (`Treasury Incident Handling`) — command structure and the no-emergency-powers rule.
+- Section 91 (`Treasury Ownership Succession`) — lawful approvers when primaries are lost.
+
+### Risks
+
+- Objective drift as the estate grows faster than continuity re-pricing.
+- Playbook rot between rehearsals.
+- Compound scenarios exceeding the taxonomy's imagination.
+
+### Anti Patterns
+
+- Emergency powers in any form.
+- Improvised degraded postures.
+- Recovery that resumes mutation on unverified state.
+
+### Best Practices
+
+- Rehearse the ugliest compound scenario yearly, not only the clean single losses.
+- Keep playbook steps executable and evidence-bearing.
+- Review objective-versus-evidence currency on the Section 74 calendar.
+
+### Examples
+
+Example: a region is lost to a datacenter fire. The region-loss playbook executes: crossings park, degraded mode `in-region-only` enters for the survivors, the lost region's partitions restore in a standby zone from cross-region replicas and archived logs, invariants re-verify, mutation re-enables, parked crossings re-drive, and consolidation resumes with a labeled gap — eleven hours against a twelve-hour declared RTO, every step matching the last rehearsal's evidence.
+
+### Counter Examples
+
+Counter example: during a control-plane outage, an operator hand-assigns partition holdership to restart serving faster, bypassing the assignment record. Two nodes each believe they hold one partition; the fork costs a week of reconciliation. The playbook's slower path existed because the fast path was the disaster.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury continuity and disaster recovery model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury continuity and disaster recovery model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury continuity and disaster recovery model done.
+- [ ] Every loss class carries declared, approved, priced objectives in the continuity record.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury continuity and disaster recovery model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury continuity and disaster recovery model, not by convention or review habit.
+- [ ] The treasury continuity and disaster recovery model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Every objective binds to rehearsal evidence within its declared currency window.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury continuity and disaster recovery model with a named on-call owner.
+- [ ] Alert thresholds for the treasury continuity and disaster recovery model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury continuity and disaster recovery model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Degraded-mode status, objective currency, and playbook rehearsal age are dashboard signals.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury continuity and disaster recovery model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury continuity and disaster recovery model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury continuity and disaster recovery model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Playbook and objective changes version with re-rehearsal requirements declared.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury continuity and disaster recovery model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury continuity and disaster recovery model before mutations are re-enabled.
+- [ ] A recovery report for the treasury continuity and disaster recovery model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] The ledger-first order with invariant gates is encoded in automation, not only prose.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The continuity model's constitutional text. |
+| `core/treasury/continuity/objectives.yaml` | Planned | Loss classes, RTO/RPO, approvals. |
+| `core/treasury/continuity/playbooks/` | Planned | Executable per-class playbooks. |
+| `core/treasury/continuity/modes.py` | Planned | Declared degraded-mode register. |
+
+### Folder Mapping
+
+The continuity machinery lives in the planned `core/treasury/continuity/` folder atop replication and federation.
+
+### Cross References
+
+- Section 76 (`Multi-Node Treasury Architecture`) — the estate being restored.
+- Section 83 (`Regional Treasury Federation`) — regional isolation as the containment primitive.
+- Section 12 (`Reserve and Capital Protection Model`) — the priced-protection philosophy objectives follow.
+- Rule `CAT-TC-CONST-167` and Rule `CAT-TC-CONST-168` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S84-001` through `CAT-TC-AT-S84-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-167` — Ledger-First Verified Restoration (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-168` — Rehearsal-Proven Objectives, Declared Modes Only (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury continuity and disaster recovery model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S84-001`  
+**Meaning:** Loss classes carry declared, priced, rehearsal-proven objectives; recovery is ledger-first with invariant gates; degradation is a closed register of declared modes — and no disaster, ever, creates emergency powers.  
+**Recall Trigger:** Any continuity plan, incident degradation choice, restoration sequence, or crisis authority question.  
+**Operational Use:** Recall this anchor to keep recovery ordered, degradation declared, and authority constant under any loss.
+
+### Future Evolution
+
+Section 87 operates the rehearsal program and Section 91 the succession that keeps approvals lawful under loss; the ledger-first order and no-emergency-powers rule are permanent.
+
+### Operational Stories
+
+Operational story: the quarterly objective review finds the compound region-plus-control-plane scenario's evidence eighteen months old against a twelve-month window. The rehearsal schedules, finds two playbook steps stale against the current topology, and both fix before any real event tests them — the currency window doing its quiet work.
+
+### Execution Stories
+
+Execution story: a control-plane loss freezes placement and membership changes while serving continues on cached maps and live leases per the declared envelope. The playbook restores coordination services from replicated state in ninety minutes; no financial operation was touched — the blast radius exactly as designed.
+
+### Optimization Stories
+
+Optimization story: region-loss rehearsals show restoration time dominated by projection rebuilds. Moving projection rebuild after mutation re-enablement — serving authoritative reads first, dashboards later — cuts effective RTO by hours within the same ledger-first order.
+
+### Recovery Stories
+
+Recovery story: a compound rehearsal deliberately loses a region and its standby's archive endpoint. The playbook falls back to the tertiary archive tier per Section 92, restores nine minutes over objective, and the gap prices a bandwidth upgrade — the rehearsal finding the weak link so reality would not.
+
+**Diagram ID:** `CAT-TC-P4-S84-D003`  
+**Title:** Objectives Bound To Evidence  
+**Purpose:** Show every RTO and RPO carrying its rehearsal proof.  
+**Audience:** Risk owners, auditors  
+**Reading Order:** Read with the pseudo code of Section 84.
+
+```mermaid
+flowchart LR
+  OBJ[Objective:\nregion-loss RTO 12h] --> EV{Evidence within\ncurrency window?}
+  EV -->|yes, 11.2h achieved| PROVEN[Status: proven]
+  EV -->|aged out| UNPROVEN[Status: unproven\nflagged + rehearsal due]
+  PROVEN & UNPROVEN --> DASH[Continuity dashboard\nSection 74 review]
+```
+
+### Normative Requirements
+
+1. Every loss class MUST carry declared recovery time and recovery point objectives, human-approved and priced.
+2. Restoration MUST follow ledger-first dependency order with financial mutation re-enabled only after invariant re-verification.
+3. Degraded operation MUST use only the closed declared-mode register with governed entry, exit, and authorization.
+4. Every objective MUST bind to rehearsal evidence within its declared currency window.
+5. No incident or disaster MAY create authority, relax a rule, or bypass a human gate; succession per Section 91 provides lawful approvers.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury continuity and disaster recovery model.
+
+**Rule ID:** `CAT-TC-CONST-167`  
+**Title:** Ledger-First Verified Restoration  
+**Purpose:** Make recovery rebuild truth before anything that depends on it.  
+**Normative Requirement:** Recovery MUST restore in dependency order — coordination services, write partitions from digest-verified logs, read projections, watch and intelligence workloads, rail reconnection — and MUST NOT re-enable financial mutation on any partition until its Section 14 invariants re-verify against the restored ledger; unresolvable gaps MUST become break records under human disposition, never silent splices.  
+**Rationale:** Every downstream artifact is a claim about the ledger; restoring claims before their truth manufactures confident fiction at the worst possible moment.  
+**Enforcement:** Restoration automation encoding the order with re-verification gates; playbook reviews rejecting out-of-order steps; rehearsals proving the gates hold under pressure.  
+**Violation:** Out-of-order restoration halts; anything served from unverified state is treated as a Section 48 incident.  
+**Recovery:** Halt, verify, replay the order correctly, and audit what served meanwhile.  
+**Owner:** Treasury Engineering Owner (Planned role)
+
+**Rule ID:** `CAT-TC-CONST-168`  
+**Title:** Rehearsal-Proven Objectives, Declared Modes Only  
+**Purpose:** Keep continuity promises real and degradation lawful.  
+**Normative Requirement:** Every continuity objective MUST be proven by rehearsal within its declared evidence currency window or be flagged as unproven on every surface reporting it; degraded operation MUST occur only in registered modes with declared entry criteria, exit criteria, constraints, and human authorization; and improvised postures MUST NOT exist.  
+**Rationale:** An unrehearsed objective is a wish, and an improvised posture is a mode nobody can reason about, audit, or safely exit.  
+**Enforcement:** Evidence currency tracking in the continuity record; runtime posture enforcement of registered modes; game-day program per Section 87.  
+**Violation:** An unproven objective is flagged and scheduled; an improvised posture exits to the nearest registered mode with the gap routed to an ADR.  
+**Recovery:** Rehearse, register the missing mode if warranted, and restore evidence currency.  
+**Owner:** Treasury Risk Owner (Planned role)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S84-001`  
+**Purpose:** Prove mutation stays disabled until invariants re-verify.  
+**Given:** A restored partition whose invariant re-verification is held incomplete in a test harness.  
+**When:** A financial mutation arrives.  
+**Then:** The mutation refuses with `restoration-verification-pending`; it succeeds only after verification completes.  
+**Failure Condition:** Any mutation lands before verification.
+
+**Test ID:** `CAT-TC-AT-S84-002`  
+**Purpose:** Prove degraded modes are register-only.  
+**Given:** A runtime asked to enter a posture absent from the mode register.  
+**When:** The transition is requested.  
+**Then:** The transition refuses with `unregistered-mode`; only registered modes with recorded authorization can enter.  
+**Failure Condition:** The runtime enters an unregistered posture.
+
+**Test ID:** `CAT-TC-AT-S84-003`  
+**Purpose:** Prove objectives track evidence currency.  
+**Given:** A continuity objective whose rehearsal evidence is aged past its currency window in a test record.  
+**When:** The continuity status surface renders.  
+**Then:** The objective displays as unproven with its evidence age, and a rehearsal-due alert exists.  
+**Failure Condition:** The stale objective displays as proven.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury continuity and disaster recovery model defined by this section.
+
+```json
+{
+  "record_type": "treasury.continuity.objective",
+  "objective_id": "cto_01J5Z18A2B3C4D5E6F7G8H9J0K",
+  "loss_class": "region-loss",
+  "rto_hours": 12,
+  "rpo": "zero-acknowledged-entries",
+  "approved_by": "human:treasury-risk-owner",
+  "priced_at": "2026-07-01",
+  "playbook": "playbooks/region-loss.yaml",
+  "rehearsal_evidence": {
+    "last_rehearsed": "2026-06-20",
+    "achieved_hours": 11.2,
+    "currency_window_months": 12,
+    "status": "proven"
+  },
+  "degraded_mode_during": "in-region-only",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury continuity and disaster recovery model defined by this section.
+
+```yaml
+treasury_continuity:
+  version: 0.1.0
+  loss_classes: [node, zone, region, control-plane, compound]
+  objectives:
+    declared: rto-and-rpo-per-class
+    approval: human-priced
+    proof: rehearsal-within-currency-window
+  restoration_order:
+    - coordination-and-membership
+    - write-partitions-digest-verified
+    - invariant-reverification-gate
+    - read-projections
+    - watch-and-intelligence
+    - rail-reconnection
+  degraded_modes:
+    register: closed
+    examples: [read-only, in-region-only, obligations-only]
+    entry_exit: governed-with-authorization
+    improvised: forbidden
+  authority:
+    emergency_powers: none-ever
+    unreachable_approvers: succession-per-section-91
+```
+
+### Pseudo Code
+
+```text
+function recover(loss):
+    playbook = playbooks[loss.loss_class]
+    enter_mode(playbook.degraded_mode, authorized_by=incident_command())
+    restore(COORDINATION); restore(MEMBERSHIP)
+    for partition in loss.partitions:
+        restore_from_verified_logs(partition)      # digest-checked
+        if not reverify_invariants(partition):     # Section 14
+            park_as_breaks(partition.gaps)          # human disposition
+            continue
+        enable_mutation(partition)                  # only now
+    rebuild_projections(); resume_watch_workloads()
+    reconnect_rails(); redrive_parked_flows()       # Section 80
+    exit_mode(evidence=collect_step_evidence())
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/continuity/             # Planned
+  objectives.yaml                     # Planned: priced, approved objectives
+  playbooks/                          # Planned: executable per loss class
+  modes.py                            # Planned: registered postures
+  evidence.py                         # Planned: rehearsal currency tracking
+```
+
+## 85. Treasury Resilience Verification
+
+**Section ID:** `CAT-TC-P4-85`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** resilience experiment record  
+**Primary question:** How does the treasury prove its failure behaviour by deliberately causing failures, and where is the hard boundary that keeps experiments from touching real money?
+
+### Purpose
+
+This section fixes the resilience verification model: the discipline of proving failure behaviour by inducing failure. It defines the experiment register (a closed catalogue of fault classes the treasury injects on purpose — node and holder crashes, replica lag and quorum degradation, event redelivery storms, coordination-plane loss, skew injection, region isolation, rail outage simulation via Section 27 adapter fakes — each experiment declaring its hypothesis, blast boundary, abort conditions, and expected refusals), the environment boundary (experiments against real money run only as observation-safe fault injection in declared windows with incident command awareness; experiments requiring financial mutation run exclusively in Section 56 sandbox tiers over unreal value — the two-sided incompatibility making production contamination structurally impossible), the hypothesis discipline (every experiment states what the system MUST do before the fault is injected — which refusals fire, which flows park, which envelopes hold — and the experiment record scores observed against expected, with every deviation a defect regardless of whether money was touched), and the standing rule: resilience claims decay like restore proofs per Section 81 — a failure behaviour not re-verified within its declared cadence is unproven, and unproven behaviours cannot back continuity objectives.
+
+### Business Perspective
+
+Resilience verification converts 'we think it fails safe' into 'we watched it fail safe on Tuesday'. For a system holding money, that conversion is the difference between confidence and hope — and the experiment records give auditors and partners evidence that the failure modes advertised in this constitution actually occur as written.
+
+### Engineering Perspective
+
+Engineering implements the register as versioned experiment definitions executed by a harness with structural blast-boundary enforcement: production-permitted experiments carry observation-safe fault types only, and the harness itself lacks capability to mutate financial state — the Section 19 capability model applied to chaos tooling. Sandbox experiments per Section 56 exercise the full mutation surface. Results land in the experiment record with observability captures per Section 47 attached as evidence.
+
+### Architecture Perspective
+
+Architecturally, this section is the empirical proof layer for every failure claim made in Sections 76 through 84: single-holder invariance under crashes, quorum acknowledgement under domain loss, parking under counterpart stalls, skew refusal under version confusion, mode entry under regional isolation. The verification matrix in Section 99 cites experiment records as the evidence class for exactly these claims.
+
+**Diagram ID:** `CAT-TC-P4-S85-D001`  
+**Title:** The Two-Environment Boundary  
+**Purpose:** Show observation-safe production faults versus sandbox mutation experiments.  
+**Audience:** Engineers, security reviewers  
+**Reading Order:** Read first in Section 85.
+
+```mermaid
+flowchart TB
+  subgraph PROD[Production]
+    OS[Observation-safe faults:\ncrashes, lag, isolation, storms]
+  end
+  subgraph SBX[Sandbox tiers - Section 56]
+    MUT[Full mutation surface\nover unreal value]
+  end
+  H[Harness\nno mutation capability] --> OS
+  H2[Sandbox harness] --> MUT
+  MUT -. value cannot cross .-> PROD
+```
+
+### AI Perspective
+
+For an AI collaborator, the experiment register is the honest map of what is proven versus assumed: before relying on a failure behaviour in a design, check its verification currency. The characteristic AI failure is designing experiments whose success criteria are 'no errors observed' — resilience experiments expect errors; the hypothesis names which ones. An experiment that passes silently when refusals were expected has failed loudly.
+
+### Developer Notes
+
+Developers should write the hypothesis before the harness config, not after the run: post-hoc hypotheses are descriptions, not predictions, and only predictions verify understanding.
+
+### Codex Notes
+
+When operating on `Treasury Resilience Verification`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST state expected refusals and envelopes as hypotheses before injection, MUST confine mutation-bearing experiments to sandbox tiers, and MUST refuse chaos tooling designs that hold any financial mutation capability.
+
+### Claude Code Notes
+
+When operating on `Treasury Resilience Verification`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST state expected refusals and envelopes as hypotheses before injection, MUST confine mutation-bearing experiments to sandbox tiers, and MUST refuse chaos tooling designs that hold any financial mutation capability.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Resilience Verification`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST state expected refusals and envelopes as hypotheses before injection, MUST confine mutation-bearing experiments to sandbox tiers, and MUST refuse chaos tooling designs that hold any financial mutation capability.
+
+### Cursor Notes
+
+When operating on `Treasury Resilience Verification`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST state expected refusals and envelopes as hypotheses before injection, MUST confine mutation-bearing experiments to sandbox tiers, and MUST refuse chaos tooling designs that hold any financial mutation capability.
+
+### Future AI Notes
+
+When operating on `Treasury Resilience Verification`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST state expected refusals and envelopes as hypotheses before injection, MUST confine mutation-bearing experiments to sandbox tiers, and MUST refuse chaos tooling designs that hold any financial mutation capability.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Resilience Verification` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| register | Materialize the experiment register with hypotheses, boundaries, and abort conditions. | register stage receipt |
+| harness | Build the injection harness with structural capability containment. | harness stage receipt |
+| sandbox | Wire mutation-bearing experiments to Section 56 tiers. | sandbox stage receipt |
+| score | Score observed against expected with deviations as defects. | score stage receipt |
+| cadence | Track verification currency and decay unproven claims. | cadence stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Resilience Verification` needs a bounded context, loaded in this order:
+
+- This section in full, including the register and environment boundary.
+- Section 56 (`Agent Treasury Sandboxing`) for the tiers mutation experiments run in.
+- Section 84 (`Treasury Continuity and Disaster Recovery`) for the objectives experiments back.
+- Section 47 (`Treasury Observability`) for the captures that become evidence.
+- Section 19 (`Treasury Security and Trust Boundary`) for the capability containment the harness inherits.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. Experiment definition schema with hypothesis fields.
+2. The capability-contained injection harness.
+3. Blast-boundary enforcement and abort automation.
+4. Observed-versus-expected scoring.
+5. Verification currency tracking.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Resilience Verification`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Running mutation-bearing chaos in production | Production is where the real behaviour lives | Observation-safe faults run in production; mutation experiments run in sandboxes whose value cannot cross — the boundary is the design |
+| Writing hypotheses after seeing results | The observed behaviour suggests what to claim | Post-hoc hypotheses verify nothing; predict first, then inject |
+| Scoring 'no errors' as success | Errors feel like failure | The hypothesis names expected refusals; their absence when predicted is the failure |
+| Letting the harness accumulate capabilities | Each new experiment needs one more permission | The harness is capability-contained by rule; experiments needing mutation belong in sandboxes |
+| Skipping abort conditions on small experiments | The blast radius seems obviously tiny | Blast radii are declared and enforced, not eyeballed; small experiments with no abort path become large incidents |
+
+### Security
+
+The harness holds observation-safe fault capabilities only, verified by the same composition checks as Section 19 grants; experiment execution is attributable and windowed; sandbox experiments inherit Section 56 containment; and experiment records are audit events so the chaos program itself has provenance.
+
+### Performance
+
+Production experiments run within declared windows and load ceilings; the harness budget rides Section 72 capacity envelopes so verification never becomes the outage it hunts.
+
+### Latency
+
+Injected faults deliberately stretch latencies; experiments declare expected envelope excursions so alerting distinguishes rehearsed pain from real pain via the experiment window register.
+
+### Scalability
+
+The register scales by parameterizing fault classes over partitions, regions, and flow classes; scoring automation scales with the observability pipeline.
+
+### Reliability
+
+Verified failure behaviour is the reliability foundation: every claim in the continuity stack traces to an experiment record within cadence, or is flagged unproven.
+
+### Caching
+
+Experiment definitions and windows cache freely; verification currency reads authoritative; expected-envelope registrations propagate to alerting ahead of each run.
+
+### Consistency
+
+Experiments version with the system they verify: a topology or policy change invalidates dependent experiment currency, forcing re-verification — the same versioned-truth discipline as everything else.
+
+**Diagram ID:** `CAT-TC-P4-S85-D002`  
+**Title:** Hypothesis Before Injection  
+**Purpose:** Show the prediction-then-score loop that makes evidence.  
+**Audience:** Engineers  
+**Reading Order:** Read with rule CAT-TC-CONST-170.
+
+```mermaid
+sequenceDiagram
+  participant E as Engineer
+  participant R as Register
+  participant H as Harness
+  participant S as Scoring
+  E->>R: lock hypothesis (refusals, envelopes, invariants)
+  R->>H: authorize run
+  H->>H: inject fault within boundary
+  H->>S: observability captures
+  S->>S: observed vs predicted
+  S-->>R: score + deviations as defects
+```
+
+### Recovery
+
+An experiment breaching its blast boundary aborts automatically, restores per its abort playbook, and files as an incident with the deviation as the finding — the program eating its own discipline.
+
+### Ownership
+
+The experiment register and harness are owned by the planned Treasury Engineering Owner; the production window calendar by incident command per Section 48; sandbox tier experiments by the Section 56 sandbox owners.
+
+### Dependencies
+
+- Section 56 (`Agent Treasury Sandboxing`) — the mutation-safe environment.
+- Section 47 (`Treasury Observability`) — evidence capture.
+- Section 72 (`Treasury Capacity and Scale Management`) — the envelopes experiments respect and verify.
+
+### Risks
+
+- Experiment coverage lagging new failure surfaces as the estate grows.
+- Window fatigue making production experiments rarer than their cadence requires.
+- Harness capability creep under experiment convenience pressure.
+
+### Anti Patterns
+
+- Chaos tooling with financial mutation capability.
+- Hypothesis-free fault injection.
+- Resilience claims resting on experiments older than their cadence.
+
+### Best Practices
+
+- Pair every new failure-handling feature with its verifying experiment before release.
+- Rotate experiment ownership so hypotheses get fresh skepticism.
+- Publish verification currency beside the continuity objectives it backs.
+
+### Examples
+
+Example: the quorum-degradation experiment runs its quarterly production window: one replica per target partition is isolated, the hypothesis predicts sub-quorum refusals on those partitions within seconds and zero acknowledged-entry loss, observability captures confirm both, and the record scores green — Section 81's core promise re-proven with a timestamp.
+
+### Counter Examples
+
+Counter example: a well-meaning engineer extends the harness with a 'test transaction' capability to make experiments more realistic. The composition check refuses the grant, exactly as designed: a chaos harness that can move money is an attack tool with a friendly name, and realism belongs in sandboxes where value is unreal.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury resilience verification model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury resilience verification model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury resilience verification model done.
+- [ ] Every registered experiment declares hypothesis, blast boundary, abort conditions, and expected refusals.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury resilience verification model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury resilience verification model, not by convention or review habit.
+- [ ] The treasury resilience verification model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] The harness capability set contains observation-safe fault types only, verified by composition checks.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury resilience verification model with a named on-call owner.
+- [ ] Alert thresholds for the treasury resilience verification model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury resilience verification model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Verification currency per claim and experiment window schedules are dashboard signals.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury resilience verification model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury resilience verification model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury resilience verification model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] System changes invalidate dependent experiment currency automatically.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury resilience verification model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury resilience verification model before mutations are re-enabled.
+- [ ] A recovery report for the treasury resilience verification model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Blast-boundary breaches abort automatically and restore per declared abort playbooks.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The resilience verification model's constitutional text. |
+| `core/treasury/resilience/register.yaml` | Planned | Experiment catalogue with hypotheses. |
+| `core/treasury/resilience/harness.py` | Planned | Capability-contained injection. |
+| `core/treasury/resilience/scoring.py` | Planned | Observed-versus-expected evaluation. |
+
+### Folder Mapping
+
+The resilience machinery lives in the planned `core/treasury/resilience/` folder beside the continuity playbooks it validates.
+
+### Cross References
+
+- Section 84 (`Treasury Continuity and Disaster Recovery`) — the objectives experiments back.
+- Section 87 (`Treasury Simulation and Game Days`) — the human-in-the-loop layer above automated experiments.
+- Section 81 (`Treasury Replication and Durability`) — the decay-of-proof precedent verification currency follows.
+- Rule `CAT-TC-CONST-169` and Rule `CAT-TC-CONST-170` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S85-001` through `CAT-TC-AT-S85-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-169` — Capability-Contained Fault Injection (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-170` — Hypothesis-First Scored Verification (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury resilience verification model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S85-001`  
+**Meaning:** Failure behaviour is proven by hypothesis-first experiments from a closed register — observation-safe faults in production, mutation only in sandboxes, deviations are defects, and unverified claims decay to unproven.  
+**Recall Trigger:** Any resilience claim, chaos experiment design, or harness capability request.  
+**Operational Use:** Recall this anchor to demand hypotheses before injection and refuse mutation capability in chaos tooling.
+
+### Future Evolution
+
+Section 87 adds the human dimension through game days and Section 99 consumes experiment records in the final verification matrix; the environment boundary and hypothesis discipline are permanent.
+
+### Operational Stories
+
+Operational story: the currency dashboard shows the skew-injection experiment aging toward its cadence edge as a deployment freeze pushed windows. The freeze lifts, the experiment runs, and one gate metric is found renamed since the last run — a small drift caught by cadence that would have muted a real halt signal.
+
+### Execution Stories
+
+Execution story: the redelivery-storm experiment fires five-fold duplicate deliveries at the saga driver in a production window. The hypothesis predicts convergence via flow-derived keys and zero duplicate applies; the destination logs confirm; and the experiment record becomes the citation for Section 80's exactly-once claim in the quarterly review.
+
+### Optimization Stories
+
+Optimization story: scoring automation initially compares raw logs and drowns in noise. Rewriting expectations as structured refusal-code and envelope assertions makes scoring deterministic and diffs readable — the experiment program learning the same lesson as the test suite it resembles.
+
+### Recovery Stories
+
+Recovery story: a region-isolation experiment trips an undeclared dependency — a dashboard service pinned to the isolated region goes dark fleet-wide. The abort condition fires, isolation lifts, and the dependency is fixed and added to the hypothesis — the experiment finding in twenty minutes what a real event would have found at midnight.
+
+**Diagram ID:** `CAT-TC-P4-S85-D003`  
+**Title:** Claims Decay Without Re-Proof  
+**Purpose:** Show verification currency gating what continuity may cite.  
+**Audience:** Risk owners  
+**Reading Order:** Read with the pseudo code of Section 85.
+
+```mermaid
+flowchart LR
+  CLM[Claim: parking under\ncounterpart stall] --> CUR{Experiment record\nwithin cadence?}
+  CUR -->|yes| OK[Provable - citable by\ncontinuity + Section 99]
+  CUR -->|aged out| UN[Unproven - flagged\nrehearsal scheduled]
+```
+
+### Normative Requirements
+
+1. Every resilience experiment MUST come from the closed register with declared hypothesis, blast boundary, abort conditions, and expected refusals.
+2. Production experiments MUST use observation-safe fault types only; experiments requiring financial mutation MUST run in Section 56 sandbox tiers.
+3. The injection harness MUST hold no financial mutation capability, verified by composition checks.
+4. Observed behaviour MUST be scored against the pre-stated hypothesis; every deviation MUST be treated as a defect.
+5. Resilience claims MUST carry verification currency; claims beyond cadence MUST report as unproven and MUST NOT back continuity objectives.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury resilience verification model.
+
+**Rule ID:** `CAT-TC-CONST-169`  
+**Title:** Capability-Contained Fault Injection  
+**Purpose:** Keep the chaos program structurally unable to become the incident.  
+**Normative Requirement:** The resilience harness MUST hold only observation-safe fault capabilities in production environments; any experiment requiring financial mutation MUST execute exclusively in Section 56 sandbox tiers over sandbox value; harness capability grants MUST pass the Section 19 composition checks; and every experiment MUST enforce its declared blast boundary with automatic abort.  
+**Rationale:** A fault injector with mutation capability is an attack tool awaiting a bug; containment must be structural because chaos tooling by definition runs when things are breaking.  
+**Enforcement:** Capability review on harness grants; sandbox routing for mutation experiments; abort automation tested with boundary-breach drills.  
+**Violation:** A harness holding mutation capability is disarmed immediately and its grant path audited.  
+**Recovery:** Disarm, audit, re-scope the experiment to the lawful environment.  
+**Owner:** Treasury Security Owner (Planned role)
+
+**Rule ID:** `CAT-TC-CONST-170`  
+**Title:** Hypothesis-First Scored Verification  
+**Purpose:** Make resilience evidence a prediction record, not a story.  
+**Normative Requirement:** Every experiment MUST record its hypothesis — expected refusals, parking, envelope excursions, and invariant holds — before injection; results MUST score observed against expected with deviations filed as defects; and every resilience claim consumed by continuity objectives or the Section 99 matrix MUST cite an experiment record within its verification cadence.  
+**Rationale:** Post-hoc narratives fit any outcome; only pre-stated predictions verify that the system's failure behaviour is understood rather than merely survived.  
+**Enforcement:** Schema-required hypothesis fields locked before run authorization; scoring automation; currency tracking with decay to unproven.  
+**Violation:** A hypothesis-free or post-hoc-scored run is discarded as evidence and re-run lawfully.  
+**Recovery:** Re-run with locked hypotheses and restore claim currency.  
+**Owner:** Treasury Engineering Owner (Planned role)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S85-001`  
+**Purpose:** Prove the harness cannot mutate financial state.  
+**Given:** The production harness credential and an attempted financial mutation via every treasury API.  
+**When:** Each attempt executes.  
+**Then:** Every attempt refuses on capability grounds, and the attempts audit as security events.  
+**Failure Condition:** Any mutation path succeeds.
+
+**Test ID:** `CAT-TC-AT-S85-002`  
+**Purpose:** Prove blast boundaries abort automatically.  
+**Given:** An experiment configured to breach its declared boundary in a test environment.  
+**When:** The breach condition occurs.  
+**Then:** The experiment aborts without human action, restores per its abort playbook, and files the breach as an incident.  
+**Failure Condition:** The experiment continues past its boundary.
+
+**Test ID:** `CAT-TC-AT-S85-003`  
+**Purpose:** Prove expected-refusal absence scores as failure.  
+**Given:** An experiment whose hypothesis predicts sub-quorum refusals, run against a harness-stubbed system that acknowledges instead.  
+**When:** Scoring runs.  
+**Then:** The run scores failed with the missing refusals named as deviations.  
+**Failure Condition:** The run scores passed despite absent refusals.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury resilience verification model defined by this section.
+
+```json
+{
+  "record_type": "treasury.resilience.experiment",
+  "experiment_id": "rex_01J5Z19A2B3C4D5E6F7G8H9J0K",
+  "fault_class": "quorum-degradation",
+  "environment": "production-observation-safe",
+  "hypothesis": {
+    "expected_refusals": ["below-quorum"],
+    "expected_parking": [],
+    "expected_envelopes": ["write-latency-within-degraded-envelope"],
+    "invariants_hold": ["zero-acknowledged-entry-loss"]
+  },
+  "blast_boundary": {"partitions": ["part_wallet_007"], "window_minutes": 30},
+  "abort_conditions": ["any-out-of-boundary-effect", "quorum-loss-second-partition"],
+  "score": {
+    "result": "passed",
+    "deviations": []
+  },
+  "evidence_refs": ["obs_capture_4f5a6b7c"],
+  "verification_cadence_days": 90,
+  "executed_at": "2026-08-15T20:00:00Z",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury resilience verification model defined by this section.
+
+```yaml
+treasury_resilience_verification:
+  version: 0.1.0
+  register:
+    fault_classes: [node-crash, holder-crash, replica-lag, quorum-degradation,
+                    redelivery-storm, coordination-loss, skew-injection,
+                    region-isolation, rail-outage-simulation]
+    per_experiment: [hypothesis, blast-boundary, abort-conditions,
+                     expected-refusals]
+  environments:
+    production: observation-safe-faults-only
+    sandbox_tiers: full-mutation-surface-unreal-value
+  harness:
+    financial_mutation_capability: none-structurally
+    composition_checked: true
+  scoring:
+    method: observed-versus-predicted
+    deviations: defects-always
+  currency:
+    decay: beyond-cadence-means-unproven
+    unproven_claims: cannot-back-continuity-objectives
+```
+
+### Pseudo Code
+
+```text
+function run_experiment(exp):
+    assert exp.hypothesis.locked_before_run
+    if exp.requires_mutation:
+        assert exp.environment.is_sandbox_tier    # Section 56 only
+    arm_abort(exp.abort_conditions, exp.blast_boundary)
+    register_expected_envelopes(exp)              # alerting context
+    inject(exp.fault_class, exp.blast_boundary)
+    observed = capture_observability(exp.window)
+    score = compare(observed, exp.hypothesis)     # deviations = defects
+    record(exp, score, evidence=observed.refs)
+    refresh_currency(exp.claims, score)
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/resilience/             # Planned
+  register.yaml                       # Planned: experiment catalogue
+  harness.py                          # Planned: contained injection
+  abort.py                            # Planned: boundary enforcement
+  scoring.py                          # Planned: hypothesis comparison
+```
+
+## 86. Treasury Conformance and Certification
+
+**Section ID:** `CAT-TC-P4-86`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** conformance certification record  
+**Primary question:** How does any implementation prove it conforms to this constitution before touching real value, and what strips certification when conformance decays?
+
+### Purpose
+
+This section fixes the conformance and certification model: the gate between this document's words and any running system claiming to implement them. It defines the conformance suite architecture (the executable projection of the constitution — every one of the document's 300 acceptance tests maps to an executable check, every constitutional rule to at least one enforcement verification, organized by section and runnable against any candidate implementation), the certification levels (a closed ladder: L0 documented — the implementation declares its section coverage; L1 conformant-in-sandbox — the full suite passes in Section 56 tiers; L2 conformant-in-production-shadow — the suite plus Section 23-style shadow evaluation passes against production traffic with zero mutation; L3 certified — human sign-off per registered owners over L2 evidence, unlocking real-value operation for the certified scope), the scope discipline (certification is per-scope, never global: a scope names sections, flow classes, rails, and capacity bounds; operating outside certified scope is a constitutional violation regardless of how well the system behaves inside it), and the decay rule: certification is continuous, not ceremonial — the suite runs on cadence against the live system, and a failed check suspends the affected scope's certification with the Section 21 readiness ladder governing re-entry.
+
+### Business Perspective
+
+Certification is the business's proof that the money system does what its constitution says — evidence for partners, auditors, and regulators that is executable rather than testimonial. The scope discipline lets capability ship incrementally: certify deposits before payouts, one rail before five, bounded capacity before scale — value flowing early exactly where conformance is proven.
+
+### Engineering Perspective
+
+Engineering builds the suite as the test projection of this document: acceptance tests become fixtures, rules become enforcement probes, state machines become property checks, and the registries of Sections 20, 50, 75, and 100 become the coverage index. Certification records bind evidence to scopes; the cadence runner per Section 47 observability feeds continuous verification; and suspension wiring connects failed checks to scope-level capability revocation per Section 19.
+
+### Architecture Perspective
+
+Architecturally, this section is how the Planned estate becomes Current lawfully: no `core/treasury/**` path graduates from Planned without climbing the certification ladder for its scope. The ladder deliberately reuses established machinery — sandbox tiers for L1, shadow evaluation for L2, human sign-off per ownership registers for L3 — so certification is composition, not invention.
+
+**Diagram ID:** `CAT-TC-P4-S86-D001`  
+**Title:** The Four-Level Certification Ladder  
+**Purpose:** Show the path from documentation to real-value operation.  
+**Audience:** Engineering leadership, owners  
+**Reading Order:** Read first in Section 86.
+
+```mermaid
+flowchart LR
+  L0[L0 Documented\ncoverage declared] --> L1[L1 Sandbox\nfull suite passes]
+  L1 --> L2[L2 Production shadow\nzero mutation, live traffic]
+  L2 --> L3[L3 Certified\nhuman sign-off]
+  L3 --> OP[Real-value operation\nwithin scope bounds]
+  OP -->|cadence failure| SUS[Suspended\nreadiness ladder to re-enter]
+```
+
+### AI Perspective
+
+For an AI collaborator, certification records answer the trust question about running systems the way attestation answers it for nodes: is this implementation certified, for which scope, with what currency. The characteristic AI failure is conformance-by-similarity — assuming an implementation that resembles the constitution conforms to it. Resemblance is not evidence; the suite is, and an agent proposing to operate any uncertified path is proposing a constitutional violation.
+
+### Developer Notes
+
+Developers should treat suite failures on the live system as the highest-signal alerts that exist: a failed conformance check means the running system and the constitution disagree, and the constitution wins by suspending the scope.
+
+### Codex Notes
+
+When operating on `Treasury Conformance and Certification`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST bind every implementation claim to certification records with named scopes, MUST route new capability through the four-level ladder, and MUST refuse designs that operate outside certified scope or treat resemblance as conformance.
+
+### Claude Code Notes
+
+When operating on `Treasury Conformance and Certification`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST bind every implementation claim to certification records with named scopes, MUST route new capability through the four-level ladder, and MUST refuse designs that operate outside certified scope or treat resemblance as conformance.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Conformance and Certification`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST bind every implementation claim to certification records with named scopes, MUST route new capability through the four-level ladder, and MUST refuse designs that operate outside certified scope or treat resemblance as conformance.
+
+### Cursor Notes
+
+When operating on `Treasury Conformance and Certification`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST bind every implementation claim to certification records with named scopes, MUST route new capability through the four-level ladder, and MUST refuse designs that operate outside certified scope or treat resemblance as conformance.
+
+### Future AI Notes
+
+When operating on `Treasury Conformance and Certification`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST bind every implementation claim to certification records with named scopes, MUST route new capability through the four-level ladder, and MUST refuse designs that operate outside certified scope or treat resemblance as conformance.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Conformance and Certification` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| suite | Build the executable conformance suite from the document's tests and rules. | suite stage receipt |
+| ladder | Implement the four-level certification ladder with evidence binding. | ladder stage receipt |
+| scopes | Implement scope records with section, flow, rail, and capacity bounds. | scopes stage receipt |
+| cadence | Run continuous verification with suspension wiring. | cadence stage receipt |
+| graduate | Gate Planned-to-Current graduation on certified scope. | graduate stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Conformance and Certification` needs a bounded context, loaded in this order:
+
+- This section in full, including the ladder and scope discipline.
+- Section 56 (`Agent Treasury Sandboxing`) for the L1 environment.
+- Section 23 (`Treasury Policy Engine Runtime`) for the shadow-evaluation pattern L2 reuses.
+- Section 21 (`Treasury Runtime Architecture`) for the readiness ladder re-entry follows.
+- Section 99 (`Treasury Final Verification Matrix`) for the matrix certification evidence feeds.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. The test-to-check projection with coverage indexing against the registries.
+2. Scope record schema and certification binding.
+3. L1 sandbox and L2 shadow execution environments.
+4. The cadence runner with suspension wiring.
+5. Graduation gating for repository status changes.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Conformance and Certification`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Certifying globally instead of per scope | One certification is less paperwork | Global certification means the weakest path bounds trust in the strongest; scopes let proof and operation match |
+| Treating L2 shadow results as L3 | The evidence looks complete | L3 is human sign-off over evidence; skipping it removes the accountable owner from the loop |
+| Letting cadence failures accumulate as known issues | Each failure alone seems minor | A failed check is a live constitutional disagreement; suspension is the honest state |
+| Grading the suite easier to unblock launches | The deadline is real and the check seems pedantic | Weakening the suite is weakening the constitution; fix the implementation or amend by ADR |
+| Claiming conformance from code review | The code visibly matches the text | Resemblance is not evidence; only executed checks certify |
+
+### Security
+
+Certification records are governed artifacts under dual review; the suite itself is version-controlled with changes governed like validator changes — never weakened to pass; suspension wiring uses Section 19 capability revocation so a suspended scope cannot lawfully operate; and certification evidence carries full provenance per Section 10.
+
+### Performance
+
+Cadence runs are budgeted workloads per Section 72; L2 shadow evaluation rides the existing shadow infrastructure; suite execution parallelizes by section.
+
+### Latency
+
+Certification adds no hot-path latency; suspension checks are capability checks already present in the authorization sequence.
+
+### Scalability
+
+The suite scales with the document — 300 tests, 200 rules, growing only by ADR; scopes scale with the implementation program; cadence scales by rotating full coverage across windows.
+
+### Reliability
+
+Continuous verification is the reliability property: conformance decay is detected in one cadence window, not one audit cycle, and suspension bounds the damage of any decay to its scope.
+
+### Caching
+
+Certification status caches with short validity for operational checks; evidence records are append-only; the suite's coverage index rebuilds from the registries deterministically.
+
+### Consistency
+
+Certification state derives from evidence records and cadence results — like all treasury truth, reproducible from its inputs; a certification claim no record supports is void by construction.
+
+**Diagram ID:** `CAT-TC-P4-S86-D002`  
+**Title:** Scope Bounds What Proof Permits  
+**Purpose:** Show certification and operation matching exactly.  
+**Audience:** Reviewers, auditors  
+**Reading Order:** Read with rule CAT-TC-CONST-171.
+
+```mermaid
+flowchart TB
+  SC[Scope: deposits-v1\nsections, flows, rails, capacity] --> CERT[L3 certificate\n+ evidence chain]
+  CERT --> IN[Inside bounds:\nlawful operation]
+  OUT[Outside bounds:\nnew rail, higher volume,\nother flow class] -->|refused| GATE[scope-not-certified]
+```
+
+### Recovery
+
+A suspended scope re-enters through the readiness ladder: fix, re-run the failed checks, re-verify the scope's full suite, and re-obtain sign-off where the failure touched L3 evidence — re-entry as governed as entry.
+
+### Ownership
+
+The suite is owned by the planned Treasury Documentation Owner as the executable projection of this document; certification sign-off authority per scope follows the Section 74 ownership register; suspension operation belongs to the planned Treasury Security Owner.
+
+### Dependencies
+
+- Section 56 (`Agent Treasury Sandboxing`) — the L1 environment.
+- Section 74 (`Treasury Governance Operations`) — the ownership register sign-off reads.
+- Section 99 (`Treasury Final Verification Matrix`) — the downstream consumer of certification evidence.
+
+### Risks
+
+- Suite drift from the document as ADRs amend clauses.
+- Scope fragmentation making the certification map unreadable.
+- Cadence cost pressure pushing coverage rotation too sparse.
+
+### Anti Patterns
+
+- Global certifications.
+- Suite weakening under schedule pressure.
+- Operation outside certified scope for any reason.
+
+### Best Practices
+
+- Regenerate the coverage index from the registries on every suite release.
+- Keep scope records human-readable; the map is a governance artifact.
+- Publish certification status beside capacity dashboards.
+
+### Examples
+
+Example: the deposits implementation seeks production operation. Its scope names Sections 29, 22-28 dependencies, one rail, and a capacity bound; L1 passes in sandbox; L2 shadows production deposit traffic for a month with zero mutation and full conformance; the accountable owners sign L3; and deposits go live inside their certified bounds while payouts remain Planned — capability shipped exactly as proven.
+
+### Counter Examples
+
+Counter example: a launch deadline meets a failing idempotency check, and the check is relaxed to warning level 'temporarily'. Three weeks later a retry storm double-applies exactly as the original check predicted. The suite is the constitution executing; grading it easier is amending the constitution without an ADR, which is the one thing this document forbids everywhere.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury conformance and certification model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury conformance and certification model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury conformance and certification model done.
+- [ ] Every document acceptance test and rule maps to executable checks in the coverage index.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury conformance and certification model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury conformance and certification model, not by convention or review habit.
+- [ ] The treasury conformance and certification model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] The four-level ladder gates every scope with evidence bound per level.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury conformance and certification model with a named on-call owner.
+- [ ] Alert thresholds for the treasury conformance and certification model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury conformance and certification model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Certification status, cadence results, and suspension state are dashboard signals per scope.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury conformance and certification model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury conformance and certification model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury conformance and certification model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] ADR amendments propagate to the suite before affected scopes re-certify.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury conformance and certification model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury conformance and certification model before mutations are re-enabled.
+- [ ] A recovery report for the treasury conformance and certification model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Suspended scopes re-enter only through the readiness ladder with re-verified evidence.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The constitution the suite projects. |
+| `core/treasury/conformance/suite/` | Planned | Executable checks by section. |
+| `core/treasury/conformance/scopes.yaml` | Planned | Scope records and bounds. |
+| `core/treasury/conformance/certification.py` | Planned | Ladder, evidence, suspension. |
+
+### Folder Mapping
+
+The conformance machinery lives in the planned `core/treasury/conformance/` folder as the bridge between this document and everything Current.
+
+### Cross References
+
+- Section 85 (`Treasury Resilience Verification`) — the sibling evidence program for failure behaviour.
+- Section 95 (`Treasury Implementation Roadmap`) — the build order that consumes certification gates.
+- Section 20 (`Treasury Core Part 1 Completion Contract`) — the first registry the coverage index reads.
+- Rule `CAT-TC-CONST-171` and Rule `CAT-TC-CONST-172` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S86-001` through `CAT-TC-AT-S86-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-171` — Certified Scope Or No Operation (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-172` — The Suite Is Never Weakened (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury conformance and certification model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S86-001`  
+**Meaning:** Conformance is executed, never resembled: the suite projects the constitution, certification climbs four levels per scope, operation outside certified scope is violation, and failed cadence checks suspend — the constitution stays sovereign over its implementations.  
+**Recall Trigger:** Any implementation claim, launch gate, scope question, or suite-weakening pressure.  
+**Operational Use:** Recall this anchor to demand certification records for every operating path and refuse resemblance as evidence.
+
+### Future Evolution
+
+Section 95 sequences the implementation program through these gates and Section 96 measures its maturity; the ladder, scope discipline, and never-weaken rule are permanent.
+
+### Operational Stories
+
+Operational story: the cadence run flags a conformance failure in a reservation-expiry check after a dependency upgrade. The affected scope suspends automatically, the regression fixes within a day, re-entry re-verifies, and the retrospective notes the system caught its own drift — the continuous model working as designed.
+
+### Execution Stories
+
+Execution story: L2 shadow evaluation for the withdrawals scope surfaces a policy-evaluation ordering difference between implementation and constitution that L1's synthetic traffic never triggered. The implementation fixes before a single real withdrawal ran through it — the shadow level earning its place in the ladder.
+
+### Optimization Stories
+
+Optimization story: full-suite cadence runs strain the budget as scopes multiply. Risk-weighted rotation — hot scopes verified more often — keeps every scope within its window at half the cost, with the rotation itself a governed, recorded policy.
+
+### Recovery Stories
+
+Recovery story: after a suite-infrastructure outage, certification currency lapses fleet-wide. The scopes keep operating — currency lapse is not check failure — but re-verification prioritizes by scope risk, clears in three days, and the outage postmortem adds suite infrastructure to the continuity estate per Section 84.
+
+**Diagram ID:** `CAT-TC-P4-S86-D003`  
+**Title:** The Suite Is The Constitution Executing  
+**Purpose:** Show the projection from document to executable checks.  
+**Audience:** Engineers, documentation owner  
+**Reading Order:** Read with rule CAT-TC-CONST-172.
+
+```mermaid
+flowchart TB
+  DOC[This document:\n300 tests, 200 rules] --> PROJ[Coverage index\nregistry-derived]
+  PROJ --> CHK[Executable checks\nby section]
+  CHK --> RUN[Cadence runs\nagainst live systems]
+  WEAK[Weaken a check] -. amends constitution\nwithout ADR - forbidden .-> CHK
+```
+
+### Normative Requirements
+
+1. Every document acceptance test and constitutional rule MUST map to executable checks in the conformance suite.
+2. Certification MUST climb the closed four-level ladder per scope with evidence bound at each level.
+3. Real-value operation MUST occur only inside certified scope bounds.
+4. The suite MUST run on cadence against live systems; failed checks MUST suspend the affected scope.
+5. The suite MUST NOT be weakened to pass; implementation fixes or ADR amendments are the only lawful responses to failure.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury conformance and certification model.
+
+**Rule ID:** `CAT-TC-CONST-171`  
+**Title:** Certified Scope Or No Operation  
+**Purpose:** Bind every real-value path to executed proof of conformance.  
+**Normative Requirement:** No implementation MAY process real value outside a scope holding current L3 certification; scopes MUST declare sections, flow classes, rails, and capacity bounds; scope suspension MUST revoke the scope's operating capability through Section 19 machinery; and Planned repository paths MUST NOT graduate to Current without certified scope covering them.  
+**Rationale:** A constitution without an executed gate is advice; the scope bound keeps proof and permission congruent.  
+**Enforcement:** Capability binding between certification records and operating credentials; graduation gating in repository governance; cadence-driven suspension wiring.  
+**Violation:** Operation outside certified scope halts, audits, and reconciles as breaks where financial.  
+**Recovery:** Halt, certify the scope lawfully or retire the path, reconcile any exposure.  
+**Owner:** Treasury Security Owner (Planned role)
+
+**Rule ID:** `CAT-TC-CONST-172`  
+**Title:** The Suite Is Never Weakened  
+**Purpose:** Keep the executable constitution as strong as the written one.  
+**Normative Requirement:** Conformance suite changes MUST be governed with dual review; no check MAY be weakened, skipped, or downgraded to advisory in response to implementation failure; divergence between suite and document MUST resolve toward the document or through an accepted ADR amending it; and every suite change MUST record its justification against the clause it projects.  
+**Rationale:** The suite is this document executing; weakening it amends the constitution through a side door, defeating the entire amendment discipline of Section 90.  
+**Enforcement:** Dual review on suite changes with clause citations; validator-style change audit; periodic suite-versus-document reconciliation.  
+**Violation:** A weakened check is restored, the interval audited, and the weakening reviewed as a governance incident.  
+**Recovery:** Restore, audit, and route the underlying pressure to an implementation fix or ADR.  
+**Owner:** Treasury Documentation Owner (Planned role)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S86-001`  
+**Purpose:** Prove uncertified operation is refused.  
+**Given:** An implementation path whose scope certification is absent, and a real-value intent addressed to it.  
+**When:** The intent seeks admission.  
+**Then:** Admission refuses with `scope-not-certified`, and the refusal audits.  
+**Failure Condition:** The intent processes on the uncertified path.
+
+**Test ID:** `CAT-TC-AT-S86-002`  
+**Purpose:** Prove failed cadence checks suspend scopes.  
+**Given:** A certified scope and an injected conformance check failure in its cadence run.  
+**When:** The cadence result lands.  
+**Then:** The scope's certification suspends, its operating capability revokes, and re-entry requires the readiness ladder.  
+**Failure Condition:** The scope continues operating past the failure.
+
+**Test ID:** `CAT-TC-AT-S86-003`  
+**Purpose:** Prove suite coverage tracks the registries.  
+**Given:** The coverage index and the document's four registries.  
+**When:** Coverage reconciliation runs.  
+**Then:** Every registered acceptance test and rule maps to at least one executable check, with gaps reported as defects.  
+**Failure Condition:** Any registered test or rule lacks a mapped check.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury conformance and certification model defined by this section.
+
+```json
+{
+  "record_type": "treasury.conformance.certification",
+  "certification_id": "cfc_01J5Z20A2B3C4D5E6F7G8H9J0K",
+  "scope": {
+    "name": "deposits-v1",
+    "sections": [22, 23, 24, 25, 26, 27, 28, 29],
+    "flow_classes": ["deposit-recognition"],
+    "rails": ["rail_sepa_01"],
+    "capacity_bound": "declared-envelope-dep-001"
+  },
+  "level": "L3-certified",
+  "evidence": {
+    "l1_sandbox_run": "run_5a6b7c8d",
+    "l2_shadow_run": "run_9e0f1a2b",
+    "l3_signoff": ["human:treasury-engineering-owner", "human:finance-owner"]
+  },
+  "cadence": {
+    "interval_days": 7,
+    "last_run": "2026-08-14",
+    "status": "conformant"
+  },
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury conformance and certification model defined by this section.
+
+```yaml
+treasury_conformance:
+  version: 0.1.0
+  suite:
+    projects: [acceptance-tests-300, constitutional-rules-200,
+               state-machine-properties]
+    coverage_index: derived-from-registries
+    weakening: forbidden
+  ladder:
+    L0: documented-coverage-declared
+    L1: conformant-in-sandbox
+    L2: conformant-in-production-shadow
+    L3: certified-human-signoff
+  scopes:
+    fields: [sections, flow-classes, rails, capacity-bounds]
+    operation_outside: constitutional-violation
+  continuous:
+    cadence: per-scope-declared
+    on_failure: suspend-scope-revoke-capability
+    reentry: readiness-ladder
+```
+
+### Pseudo Code
+
+```text
+function cadence_run(scope):
+    results = run_checks(coverage_index.checks_for(scope))
+    if any_failed(results):
+        suspend_certification(scope)
+        revoke_operating_capability(scope)     # Section 19 machinery
+        file_defects(results.failures)
+        return SUSPENDED
+    refresh_currency(scope, results)
+    return CONFORMANT
+
+function admit_real_value(intent, path):
+    scope = scope_of(path)
+    if not certified_L3_current(scope):
+        return refuse('scope-not-certified', scope.name)
+    if not within_bounds(intent, scope.capacity_bound):
+        return refuse('outside-certified-bounds')
+    return proceed(intent)
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/conformance/            # Planned
+  suite/                              # Planned: checks by section
+  coverage_index.py                   # Planned: registry-derived map
+  scopes.yaml                         # Planned: scope records
+  certification.py                    # Planned: ladder + suspension
+```
+
+## 87. Treasury Simulation and Game Days
+
+**Section ID:** `CAT-TC-P4-87`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** game day scenario and outcome record  
+**Primary question:** How do humans, agents, and machinery rehearse treasury crises together, and how do rehearsal findings become fixes rather than folklore?
+
+### Purpose
+
+This section fixes the simulation and game day model: the rehearsal program where the whole sociotechnical system — humans, agents, playbooks, and machinery — practices treasury crises together. It defines the scenario library (a governed catalogue built from the Section 48 incident taxonomy, the Section 84 loss classes, the Section 69 fraud patterns, and the Section 40 scenario analysis families — each scenario scripting initial conditions, injected events, expected decision points, and the human roles that must exercise them), the game day disciplines (announced full-participation days for new scenarios; unannounced windows within declared bounds for testing detection and response reflexes; tabletop walkthroughs for governance-heavy scenarios like succession per Section 91 and amendment disputes per Section 90 — three formats, each with declared cadence per scenario class), the simulation substrate (game days run on Section 56 sandbox tiers with production-shaped topology per Section 85's environment boundary — real playbooks, real dashboards, real approval flows, unreal value — so the rehearsal exercises everything except money), and the findings pipeline: every game day produces scored findings routed through the Section 74 disposition machinery with landing tracked — a rehearsal whose findings evaporate is theater, and the outcome record exists to make evaporation visible.
+
+### Business Perspective
+
+Game days are how the business buys competence before it needs it: the first time the payout-freeze playbook runs should never be during a real payout freeze. The program also builds the evidence trail — rehearsal records per Section 84's evidence rule — that turns continuity promises into demonstrated capabilities for partners and auditors.
+
+### Engineering Perspective
+
+Engineering operates the program: scenario definitions as versioned artifacts, sandbox topology provisioning that mirrors production shape, event injection through the Section 85 harness, and outcome capture through the observability pipeline. The findings pipeline reuses Section 74 dispositions so game day findings compete for the same landing discipline as governance reviews — no separate, softer track.
+
+### Architecture Perspective
+
+Architecturally, game days are the integration test of the human layer: Sections 76 through 86 verify machinery, this section verifies the machinery-plus-humans composition — do the right people get paged, do approvals flow through lawful channels under pressure, do degraded modes enter with proper authorization, does succession activate when the scenario removes an owner. The scenario library's breadth is the program's coverage claim, reviewed like test coverage.
+
+**Diagram ID:** `CAT-TC-P4-S87-D001`  
+**Title:** Three Rehearsal Formats  
+**Purpose:** Show announced, unannounced, and tabletop formats with their purposes.  
+**Audience:** Program owners, participants  
+**Reading Order:** Read first in Section 87.
+
+```mermaid
+flowchart TB
+  LIB[(Scenario library\nincidents, losses, fraud,\ngovernance)] --> A[Announced days\nnew scenarios, full cast]
+  LIB --> U[Unannounced windows\nreflexes, declared bounds]
+  LIB --> T[Tabletops\nsuccession, amendments]
+  A & U & T --> OUT[Outcome records\n+ scored findings]
+```
+
+### AI Perspective
+
+For AI collaborators, game days are participation practice: agents play their production roles inside scenarios — proposing, observing, parking flows, drafting incident summaries — under the same participation levels and refusal disciplines as production. The characteristic AI failure is scenario contamination: an agent that recognizes the exercise and behaves unnaturally, or worse, leaks scenario state into production channels. Sandbox isolation contains the value; the conduct rule contains the confusion: exercise traffic is labeled, and agents MUST treat labeled exercises with production seriousness inside the sandbox and total separation outside it.
+
+### Developer Notes
+
+Developers should resist making scenarios winnable: the library needs scenarios that end badly despite correct play, because real crises sometimes do, and the rehearsal value is practicing lawful behaviour under bad outcomes — not achieving happy endings.
+
+### Codex Notes
+
+When operating on `Treasury Simulation and Game Days`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST run rehearsals on sandbox tiers with production-shaped topology and labeled exercise traffic, MUST route findings through the disposition machinery with landing tracked, and MUST refuse rehearsal designs that touch real value or bypass lawful approval flows for speed.
+
+### Claude Code Notes
+
+When operating on `Treasury Simulation and Game Days`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST run rehearsals on sandbox tiers with production-shaped topology and labeled exercise traffic, MUST route findings through the disposition machinery with landing tracked, and MUST refuse rehearsal designs that touch real value or bypass lawful approval flows for speed.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Simulation and Game Days`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST run rehearsals on sandbox tiers with production-shaped topology and labeled exercise traffic, MUST route findings through the disposition machinery with landing tracked, and MUST refuse rehearsal designs that touch real value or bypass lawful approval flows for speed.
+
+### Cursor Notes
+
+When operating on `Treasury Simulation and Game Days`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST run rehearsals on sandbox tiers with production-shaped topology and labeled exercise traffic, MUST route findings through the disposition machinery with landing tracked, and MUST refuse rehearsal designs that touch real value or bypass lawful approval flows for speed.
+
+### Future AI Notes
+
+When operating on `Treasury Simulation and Game Days`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST run rehearsals on sandbox tiers with production-shaped topology and labeled exercise traffic, MUST route findings through the disposition machinery with landing tracked, and MUST refuse rehearsal designs that touch real value or bypass lawful approval flows for speed.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Simulation and Game Days` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| library | Build the scenario library from incident, loss, fraud, and scenario-analysis families. | library stage receipt |
+| formats | Operate announced, unannounced, and tabletop formats with declared cadences. | formats stage receipt |
+| substrate | Provision production-shaped sandbox topologies with exercise labeling. | substrate stage receipt |
+| run | Execute scenarios with role coverage and outcome capture. | run stage receipt |
+| land | Route findings through dispositions with landing tracked. | land stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Simulation and Game Days` needs a bounded context, loaded in this order:
+
+- This section in full, including the formats and findings pipeline.
+- Section 84 (`Treasury Continuity and Disaster Recovery`) for the objectives rehearsals prove.
+- Section 56 (`Agent Treasury Sandboxing`) for the substrate.
+- Section 48 (`Treasury Incident Handling`) for the command structure scenarios exercise.
+- Section 74 (`Treasury Governance Operations`) for the disposition machinery findings ride.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. Scenario definition schema with roles and decision points.
+2. Sandbox topology provisioning mirroring production shape.
+3. Exercise labeling and isolation verification.
+4. Outcome scoring against scenario expectations.
+5. Findings-to-disposition routing with landing dashboards.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Simulation and Game Days`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Rehearsing only winnable scenarios | Bad-ending scenarios feel demoralizing | Real crises include losing days; lawful behaviour under bad outcomes is the skill being built |
+| Letting exercise traffic near production channels | The sandbox share tooling makes leakage easy | Exercise labels and sandbox isolation are verified per run; one leaked page erodes real-alert trust |
+| Softening findings to protect the exercise's mood | The team worked hard and morale matters | Findings are scored against expectations, not effort; soft findings waste the rehearsal |
+| Skipping human roles and testing only machinery | Machinery tests are easier to schedule | Section 85 already tests machinery; game days exist for the human composition |
+| Running unannounced windows without bounds | Surprise maximizes realism | Unannounced windows have declared bounds and awareness lists; unbounded surprise tests panic, not process |
+
+### Security
+
+Game days exercise security scenarios — credential compromise per Section 19, detection response per Section 69 — inside the sandbox; exercise labeling prevents social-engineering ambiguity about what is real; and the scenario library itself is access-controlled since it catalogues exactly how to stress the treasury.
+
+### Performance
+
+Sandbox topologies are right-sized to scenario needs per Section 72 budgets; game day cost is a declared program budget reviewed on the governance calendar.
+
+### Latency
+
+Not applicable as runtime latency: game days are scheduled exercises; their scheduling respects production change freezes and quiet windows.
+
+### Scalability
+
+The program scales by scenario reuse across cohorts and regions per Section 83; tabletops scale cheapest and run most often; full simulation days rotate across scenario classes on cadence.
+
+### Reliability
+
+The program is reliability practice for the humans: role coverage tracking proves every on-call human has rehearsed their crisis roles within cadence, the same currency discipline as Section 81 restore proofs.
+
+### Caching
+
+Scenario definitions version and cache; outcome records are append-only; role-coverage currency reads live from the program's records.
+
+### Consistency
+
+Outcome scoring compares observed decisions against scenario expectations the same way Section 85 scores machinery — deviations become findings, and disagreements about expectations become scenario amendments, not score adjustments.
+
+**Diagram ID:** `CAT-TC-P4-S87-D002`  
+**Title:** Real Everything, Unreal Money  
+**Purpose:** Show the substrate boundary that makes rehearsal safe.  
+**Audience:** Security reviewers  
+**Reading Order:** Read with rule CAT-TC-CONST-173.
+
+```mermaid
+flowchart LR
+  subgraph SBX[Sandbox tier - production shaped]
+    PB[Real playbooks]
+    DASH[Real dashboards]
+    APP[Real approval flows]
+    VAL[Unreal value only]
+  end
+  LBL[Exercise labels\non all traffic] --> SBX
+  SBX -. verified isolation .-> PROD[Production\nzero contamination]
+```
+
+### Recovery
+
+A game day that itself goes wrong — sandbox leakage, boundary breach — aborts per Section 85 abort discipline and files as a real incident: the rehearsal program is subject to the machinery it rehearses.
+
+### Ownership
+
+The program is owned by the planned Treasury Risk Owner; scenario content by the owning domain sections' owners; findings landing by the Section 74 disposition owners; role coverage by each cohort's operational owner.
+
+### Dependencies
+
+- Section 56 (`Agent Treasury Sandboxing`) — the substrate and its containment.
+- Section 85 (`Treasury Resilience Verification`) — the injection harness and scoring discipline.
+- Section 74 (`Treasury Governance Operations`) — dispositions and landing tracking.
+
+### Risks
+
+- Scenario library staleness as the estate and threat landscape evolve.
+- Role coverage gaps for rare-but-critical roles like succession approvers.
+- Rehearsal fatigue reducing engagement quality over time.
+
+### Anti Patterns
+
+- Real-value rehearsals of any kind.
+- Findings tracks softer than governance dispositions.
+- Scenarios that only machinery can fail.
+
+### Best Practices
+
+- Rotate scenario authorship across teams for fresh adversarial thinking.
+- Track time-to-decision at scripted decision points across runs.
+- Retire scenarios only by governed review, never by quiet disuse.
+
+### Examples
+
+Example: the quarterly region-loss game day removes a region and its two senior approvers from play. The scenario forces degraded-mode authorization through Section 91 succession, exercises crossing re-drives, and surfaces that the succession register listed an approver who changed roles last month — a finding that lands as a register fix within the week, exactly the kind of decay only rehearsal finds.
+
+### Counter Examples
+
+Counter example: a detection-response window runs unannounced but unlabeled, and an agent's incident summary posts to the production incident channel. Twenty minutes of real triage burns before the exercise reveals itself. Labels exist because realism that costs real-alert trust is a net loss; the window's realism survives labeling — responders behave the same, they just cannot contaminate.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury simulation and game day model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury simulation and game day model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury simulation and game day model done.
+- [ ] The scenario library covers every incident taxonomy class, loss class, and governance-heavy scenario with declared cadences.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury simulation and game day model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury simulation and game day model, not by convention or review habit.
+- [ ] The treasury simulation and game day model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Exercise isolation and labeling verify per run with zero production contamination.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury simulation and game day model with a named on-call owner.
+- [ ] Alert thresholds for the treasury simulation and game day model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury simulation and game day model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Role coverage currency and findings landing rates are program dashboards.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury simulation and game day model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury simulation and game day model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury simulation and game day model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Scenario changes version with rationale; retired scenarios archive with their outcome history.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury simulation and game day model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury simulation and game day model before mutations are re-enabled.
+- [ ] A recovery report for the treasury simulation and game day model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Game day abort paths are tested and rehearsal incidents file as real incidents.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The rehearsal program's constitutional text. |
+| `core/treasury/gamedays/library/` | Planned | Versioned scenario definitions. |
+| `core/treasury/gamedays/provisioning.py` | Planned | Production-shaped sandbox topologies. |
+| `core/treasury/gamedays/outcomes.py` | Planned | Scoring and findings routing. |
+
+### Folder Mapping
+
+The game day machinery lives in the planned `core/treasury/gamedays/` folder atop the sandbox tiers it runs on.
+
+### Cross References
+
+- Section 84 (`Treasury Continuity and Disaster Recovery`) — the evidence rule this program serves.
+- Section 91 (`Treasury Ownership Succession`) — the governance scenario tabletops exercise.
+- Section 40 (`Scenario Analysis`) — the analytical scenario families the library draws on.
+- Rule `CAT-TC-CONST-173` and Rule `CAT-TC-CONST-174` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S87-001` through `CAT-TC-AT-S87-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-173` — Whole-System Rehearsal On Unreal Value (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-174` — Findings Land Or The Rehearsal Failed (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury simulation and game day model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S87-001`  
+**Meaning:** Crises rehearse as whole sociotechnical exercises — real playbooks and approvals, unreal value, labeled traffic — across announced, unannounced, and tabletop formats, with findings landing through governed dispositions or the rehearsal was theater.  
+**Recall Trigger:** Any rehearsal design, continuity evidence question, or role-readiness claim.  
+**Operational Use:** Recall this anchor to keep rehearsals real in everything but money and findings tracked to landing.
+
+### Future Evolution
+
+Section 96 consumes role coverage and rehearsal currency in maturity assessment; the sandbox substrate rule and findings-landing discipline are permanent.
+
+### Operational Stories
+
+Operational story: the role-coverage dashboard shows a compliance-officer crisis role unrehearsed for two cadences as the officer's calendar kept colliding with announced days. A tabletop slot fixes coverage in ninety minutes — the format ladder existing precisely so coverage never waits on the big production.
+
+### Execution Stories
+
+Execution story: an unannounced detection window injects a synthetic fraud pattern from the Section 69 library into the sandbox. Detection fires in four minutes, triage routes correctly, and the responding analyst's timeline matches the scenario script within tolerance — reflexes verified without a single real alert consumed.
+
+### Optimization Stories
+
+Optimization story: outcome analysis across eight runs shows time-to-decision at the degraded-mode authorization point improving until approvals concentrate in one experienced owner — a fragility disguised as a strength. The next scenario removes that owner; the bench develops; the metric temporarily worsens and the program counts that as the win it is.
+
+### Recovery Stories
+
+Recovery story: a provisioning defect gives one game day a sandbox topology missing a replica tier, and the scenario's failover step behaves unrealistically. The run aborts per discipline, the defect files, and the scenario re-runs the next week on corrected topology — the program refusing to let a flawed rehearsal mint false evidence.
+
+**Diagram ID:** `CAT-TC-P4-S87-D003`  
+**Title:** Findings Land Or It Was Theater  
+**Purpose:** Show the pipeline from rehearsal insight to closed change.  
+**Audience:** Governance owners  
+**Reading Order:** Read with rule CAT-TC-CONST-174.
+
+```mermaid
+flowchart LR
+  GD[Game day findings\nscored vs expectations] --> DISP[Section 74\ndispositions + owners]
+  DISP --> LAND{Landed within SLA?}
+  LAND -->|yes| EV[Run counts as\ncontinuity evidence]
+  LAND -->|evaporated| VOID[Run voided as evidence\n+ governance review]
+```
+
+### Normative Requirements
+
+1. The scenario library MUST cover the incident taxonomy, loss classes, fraud patterns, and governance-heavy scenarios with declared cadences per class.
+2. Game days MUST run on Section 56 sandbox tiers with production-shaped topology, labeled exercise traffic, and verified isolation.
+3. Every scenario MUST script decision points with the human roles that must exercise them; role coverage MUST track with currency.
+4. Findings MUST route through Section 74 dispositions with landing tracked; no softer findings track MAY exist.
+5. Unannounced exercises MUST declare bounds and awareness lists; real value MUST never be touched by any rehearsal format.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury simulation and game day model.
+
+**Rule ID:** `CAT-TC-CONST-173`  
+**Title:** Whole-System Rehearsal On Unreal Value  
+**Purpose:** Exercise everything a crisis exercises, except money.  
+**Normative Requirement:** Rehearsals MUST exercise real playbooks, real dashboards, real approval flows, and real human roles on sandbox tiers over sandbox value with exercise-labeled traffic and per-run isolation verification; no rehearsal format MAY touch real value, bypass lawful approval flows, or leave exercise traffic unlabeled.  
+**Rationale:** Competence transfers only from realistic practice, and realism is affordable everywhere except the one dimension where mistakes are unrecoverable.  
+**Enforcement:** Sandbox substrate enforcement per Section 56; labeling verification per run; program audit on the governance calendar.  
+**Violation:** A rehearsal touching real value or leaking unlabeled traffic aborts and files as a real incident.  
+**Recovery:** Abort, contain, file, and fix the isolation gap before the scenario re-runs.  
+**Owner:** Treasury Risk Owner (Planned role)
+
+**Rule ID:** `CAT-TC-CONST-174`  
+**Title:** Findings Land Or The Rehearsal Failed  
+**Purpose:** Convert rehearsal insight into system change, verifiably.  
+**Normative Requirement:** Every game day MUST produce scored findings routed through the Section 74 disposition machinery with landing tracked to closure; findings aging past disposition SLAs MUST escalate exactly as governance findings do; and rehearsal evidence consumed by Section 84 objectives MUST come from runs whose findings pipeline completed.  
+**Rationale:** A rehearsal that changes nothing was a performance; the disposition track is what distinguishes practice from theater.  
+**Enforcement:** Findings routing automation; landing dashboards; evidence-validity checks in the continuity record.  
+**Violation:** Evaporated findings void the run as continuity evidence and the evaporation reviews as a governance failure.  
+**Recovery:** Recover the findings, land them, and restore the run's evidentiary standing.  
+**Owner:** Treasury Risk Owner (Planned role)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S87-001`  
+**Purpose:** Prove exercise traffic cannot reach production channels.  
+**Given:** A game day emitting labeled exercise events and a monitored set of production channels.  
+**When:** The full scenario executes.  
+**Then:** Zero exercise-labeled traffic appears in any production channel, verified by the per-run isolation check.  
+**Failure Condition:** Any exercise artifact reaches production.
+
+**Test ID:** `CAT-TC-AT-S87-002`  
+**Purpose:** Prove scripted decision points exercise their human roles.  
+**Given:** A scenario scripting a degraded-mode authorization decision for a named role.  
+**When:** The run completes.  
+**Then:** The outcome record shows the role holder exercised the decision through the lawful approval flow, with time-to-decision captured.  
+**Failure Condition:** The decision point was skipped or exercised by an unlisted role.
+
+**Test ID:** `CAT-TC-AT-S87-003`  
+**Purpose:** Prove findings track to landing.  
+**Given:** A completed game day with three scored findings.  
+**When:** The disposition pipeline processes them.  
+**Then:** All three appear in Section 74 dispositions with owners and SLAs, and the landing dashboard tracks them to closure.  
+**Failure Condition:** Any finding lacks a disposition or evaporates untracked.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury simulation and game day model defined by this section.
+
+```json
+{
+  "record_type": "treasury.gameday.outcome",
+  "gameday_id": "gdy_01J5Z21A2B3C4D5E6F7G8H9J0K",
+  "scenario": "region-loss-with-approver-loss",
+  "format": "announced-full-participation",
+  "substrate": "sandbox-tier-2-production-shaped",
+  "decision_points": [
+    {"point": "degraded-mode-authorization",
+     "role": "incident-commander",
+     "exercised": true,
+     "time_to_decision_minutes": 9},
+    {"point": "succession-activation",
+     "role": "governance-owner",
+     "exercised": true,
+     "time_to_decision_minutes": 22}
+  ],
+  "isolation_verified": true,
+  "findings": [
+    {"finding": "succession-register-stale-approver",
+     "score": "high",
+     "disposition_ref": "gov_disp_7c8d9e0f"}
+  ],
+  "evidence_for": ["cto_01J5Z18A2B3C4D5E6F7G8H9J0K"],
+  "executed_at": "2026-08-15",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury simulation and game day model defined by this section.
+
+```yaml
+treasury_gameday_program:
+  version: 0.1.0
+  library:
+    sources: [incident-taxonomy, loss-classes, fraud-patterns,
+              scenario-analysis-families, governance-scenarios]
+    access: controlled
+  formats:
+    announced: new-scenarios-full-participation
+    unannounced: declared-bounds-awareness-list
+    tabletop: governance-heavy-scenarios
+  substrate:
+    tiers: sandbox-production-shaped
+    traffic: exercise-labeled
+    isolation: verified-per-run
+    real_value: never
+  findings:
+    routing: section-74-dispositions
+    landing: tracked-to-closure
+    softer_track: forbidden
+  coverage:
+    roles: currency-tracked
+    scenarios: cadence-per-class
+```
+
+### Pseudo Code
+
+```text
+function run_gameday(scenario):
+    topo = provision_sandbox(production_shape(scenario))
+    verify_isolation(topo)                      # per-run, mandatory
+    label_all_traffic(topo, EXERCISE)
+    inject(scenario.initial_conditions)
+    for event in scenario.events:
+        inject(event)
+        observe_decision_points(scenario.roles)  # humans + agents
+    outcome = score(observed(), scenario.expectations)
+    for finding in outcome.findings:
+        route_to_disposition(finding)            # Section 74, tracked
+    bind_evidence(outcome, scenario.continuity_objectives)
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/gamedays/               # Planned
+  library/                            # Planned: versioned scenarios
+  provisioning.py                     # Planned: shaped sandbox topologies
+  isolation.py                        # Planned: per-run verification
+  outcomes.py                         # Planned: scoring + routing
+```
+
+## 88. Operational Treasury Governance at Scale
+
+**Section ID:** `CAT-TC-P4-88`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** federated governance council record  
+**Primary question:** How does the Section 74 governance model keep one root of authority while operating across regions, cohorts, and fleets too large for one calendar?
+
+### Purpose
+
+This section fixes operational governance at scale: how the Section 74 machinery — calendar, dispositions, change index, escalations, ownership register — operates when the estate spans regions, dozens of cohorts, and a fleet of nodes. It defines the federated council model (a single governance root — the Project Owner and the Lead Repository Architect holding document-level authority — above chartered domain councils: per-region operational councils per Section 83, per-stratum technical councils for the write path, intelligence, analytics, and multi-agent domains, and the compliance authority per Section 73 sitting laterally with its own audited authority; each council operates a Section 74-conformant calendar for its scope, and no council can alter what a section of this document assigns to another authority), the delegation contract (councils receive enumerated, revocable delegations recorded in the council record — parameter ranges they may tune, dispositions they may land, reviews they must hold — with everything not enumerated retained by the root; delegation echoes Section 19 grants: typed, scoped, expiring, auditable), the coherence machinery (councils publish decisions to the shared change index per Section 74; cross-council conflicts route to the root through a declared resolution path with the Section 55 recorded-precedence discipline; and a quarterly coherence review reads every council's calendar health, disposition landing rates, and delegation usage), and the anti-fragmentation rule: governance scales by delegating operation, never by fragmenting authority — fifty calendars, one constitution.
+
+### Business Perspective
+
+Federated governance is what keeps a global operation both fast and coherent: regional councils land local decisions at local speed inside enumerated bounds, while the root retains everything constitutional. The business reads governance health the same way everywhere — calendar coverage, landing rates, escalation ages — because every council runs the same Section 74 shapes.
+
+### Engineering Perspective
+
+Engineering implements councils as scoped instances of the Section 74 machinery: same calendar schemas, same disposition records, same escalation SLAs, parameterized by scope. The delegation contract is machine-readable so tooling can refuse out-of-delegation acts mechanically — a council tuning a parameter outside its range is refused at the configuration gate, not caught at review.
+
+### Architecture Perspective
+
+Architecturally, this section does for governance what Section 76 does for runtime: scale by partitioning operation while keeping authority invariant. The council graph mirrors the estate's structure — regions, strata, compliance — and deliberately not the org chart, so reorganizations change council membership, never council structure.
+
+**Diagram ID:** `CAT-TC-P4-S88-D001`  
+**Title:** One Root, Many Councils  
+**Purpose:** Show the federated structure with retained root authority.  
+**Audience:** Governance owners, leadership  
+**Reading Order:** Read first in Section 88.
+
+```mermaid
+flowchart TB
+  ROOT[Governance root\nProject Owner + Lead Architect\nrules, amendments, human gates] --> C1[Regional council\neu-west]
+  ROOT --> C2[Regional council\nap-south]
+  ROOT --> C3[Stratum council\nwrite path]
+  ROOT --> C4[Stratum council\nintelligence]
+  COMP[Compliance authority\nlateral, independent] -.audited authority.-> ROOT
+  C1 & C2 & C3 & C4 --> IDX[(One shared\nchange index)]
+```
+
+### AI Perspective
+
+For an AI collaborator, the delegation records answer 'who may decide this' at scale: every parameter, disposition class, and review maps to exactly one council or the root. The characteristic AI failure is council-shopping — routing a proposal to the council most likely to approve it rather than the one holding the delegation. Routing is a lookup, not a choice; proposals go where the delegation record says, and a council accepting an out-of-delegation proposal has made two violations, not one approval.
+
+### Developer Notes
+
+Developers should build the delegation check into proposal tooling itself: the submission form that only offers the lawful council prevents council-shopping better than any review catches it.
+
+### Codex Notes
+
+When operating on `Operational Treasury Governance at Scale`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route every governance act to the council holding its enumerated delegation, MUST treat undelegated matters as retained by the root, and MUST refuse council-shopping and any council act outside its recorded delegation.
+
+### Claude Code Notes
+
+When operating on `Operational Treasury Governance at Scale`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route every governance act to the council holding its enumerated delegation, MUST treat undelegated matters as retained by the root, and MUST refuse council-shopping and any council act outside its recorded delegation.
+
+### Gemini CLI Notes
+
+When operating on `Operational Treasury Governance at Scale`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route every governance act to the council holding its enumerated delegation, MUST treat undelegated matters as retained by the root, and MUST refuse council-shopping and any council act outside its recorded delegation.
+
+### Cursor Notes
+
+When operating on `Operational Treasury Governance at Scale`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route every governance act to the council holding its enumerated delegation, MUST treat undelegated matters as retained by the root, and MUST refuse council-shopping and any council act outside its recorded delegation.
+
+### Future AI Notes
+
+When operating on `Operational Treasury Governance at Scale`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route every governance act to the council holding its enumerated delegation, MUST treat undelegated matters as retained by the root, and MUST refuse council-shopping and any council act outside its recorded delegation.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Operational Treasury Governance at Scale` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| councils | Charter domain councils with Section 74-conformant calendars per scope. | councils stage receipt |
+| delegate | Record enumerated, revocable delegations per council. | delegate stage receipt |
+| gate | Enforce delegation bounds mechanically at configuration and disposition gates. | gate stage receipt |
+| cohere | Publish all council decisions to the shared change index with conflict routing. | cohere stage receipt |
+| review | Operate the quarterly coherence review over council health. | review stage receipt |
+
+### AI Context Window
+
+An agent working on `Operational Treasury Governance at Scale` needs a bounded context, loaded in this order:
+
+- This section in full, including the council model and delegation contract.
+- Section 74 (`Treasury Governance Operations`) for the machinery councils instantiate.
+- Section 83 (`Regional Treasury Federation`) for the regional scopes councils govern.
+- Section 19 (`Treasury Security and Trust Boundary`) for the grant discipline delegations echo.
+- Section 90 (`Treasury Constitutional Amendment Process`) for what no council may touch.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. Council charter schema with scope and membership.
+2. Machine-readable delegation records.
+3. Delegation gates in configuration and disposition tooling.
+4. Change index federation with conflict routing.
+5. The coherence review with council health metrics.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Operational Treasury Governance at Scale`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Fragmenting authority to speed decisions | Regional autonomy feels like empowerment | Delegation of operation is empowerment; fragmentation of authority is secession — councils tune within ranges, the root holds the ranges |
+| Council-shopping proposals | Different councils have different appetites | The delegation record names the lawful council; shopping is a governance violation by the proposer and the accepting council both |
+| Letting councils accumulate undelegated habits | Long-standing practice feels like authority | Practice is not delegation; the quarterly review reconciles actual acts against recorded delegations |
+| Mirroring the org chart in council structure | Reporting lines are familiar | Councils mirror the estate; org changes should never restructure governance |
+| Resolving cross-council conflicts bilaterally | Two chairs can settle it over a call | Bilateral settlements are invisible precedents; conflicts route to the root with recorded resolution |
+
+### Security
+
+Delegation records are governed configuration under root change control; council acts carry attributable identity; delegation gates fail closed on ambiguity; and the compliance authority's lateral independence is preserved — no council, including regional ones, reviews compliance's own audited acts per Section 73.
+
+### Performance
+
+Governance throughput scales with council count: local decisions land at local cadence without queueing at the root; the root's load is constitutional matters and conflicts only.
+
+### Latency
+
+Delegated decisions clear at council speed; escalations carry Section 74 SLAs; the resolution path for conflicts has its own declared latency budget so cross-council disputes cannot hang indefinitely.
+
+### Scalability
+
+New regions and strata add councils by chartering, a governed act with a template; the coherence review scales by reading standardized health metrics, not by attending fifty calendars.
+
+### Reliability
+
+Council failure — a lapsed calendar, a vacant chair — degrades that scope's operational governance while the root and siblings continue; vacancy alarms per Section 74 and succession per Section 91 bound the gap.
+
+### Caching
+
+Delegation records cache with version stamps at every gate; council calendars and dispositions live in the shared index; coherence metrics compute from the index on schedule.
+
+### Consistency
+
+Every council act lands in the shared change index with its delegation citation, so the estate's full governance history is one queryable stream — federation of operation, unity of record.
+
+**Diagram ID:** `CAT-TC-P4-S88-D002`  
+**Title:** The Delegation Gate  
+**Purpose:** Show mechanical refusal of out-of-delegation acts.  
+**Audience:** Engineers, council chairs  
+**Reading Order:** Read with rule CAT-TC-CONST-175.
+
+```mermaid
+flowchart LR
+  ACT[Council act:\ntune parameter X] --> G{Delegation gate}
+  G -->|within enumerated bounds| LAND[Decide + index\nwith citation]
+  G -->|outside bounds| REF[Refused: bounds +\nlawful authority named]
+  G -->|matter unenumerated| RT[Route to root]
+```
+
+### Recovery
+
+Governance recovery after disruption re-derives council state from charters, delegation records, and the change index; acts during any gap are reconciled against delegations retroactively, with out-of-bounds acts reviewed as violations regardless of intent.
+
+### Ownership
+
+The council graph and all delegations are owned by the Lead Repository Architect under Project Owner authority; each council's operation by its chartered chair; coherence review by the root with all chairs attending.
+
+### Dependencies
+
+- Section 74 (`Treasury Governance Operations`) — the instantiated machinery.
+- Section 91 (`Treasury Ownership Succession`) — continuity of chairs and owners.
+- Section 55 (`Inter-Agent Financial Conflict Resolution at Scale`) — the recorded-precedence discipline conflict resolution reuses.
+
+### Risks
+
+- Delegation creep as councils normalize edge-stretching.
+- Coherence review becoming ceremonial as council count grows.
+- Root bottlenecking on conflicts if delegation ranges are drawn too tight.
+
+### Anti Patterns
+
+- Councils with rule-making authority.
+- Undocumented delegation by custom.
+- Bilateral cross-council settlements.
+
+### Best Practices
+
+- Draw delegation ranges from measured decision volume, revisited quarterly.
+- Keep council charters short; the delegation record is the substance.
+- Publish delegation usage heat maps so creep is visible early.
+
+### Examples
+
+Example: the eu-west council tunes a crossing budget within its delegated range and lands the change same-day with an index entry citing its delegation. The same week it receives a proposal to widen an export class — undelegated, constitutional — and routes it to the root, which routes it through Section 90 as an ADR-bearing charter change. Two decisions, two speeds, one constitution.
+
+### Counter Examples
+
+Counter example: two regional councils bilaterally agree to share a standby capacity pool, each believing the other's delegation covered it. The arrangement runs undocumented for a quarter until a continuity rehearsal finds the pool double-committed. Conflicts and joint arrangements route through the root because bilateral governance is invisible governance.
+
+### Implementation Checklist
+
+- [ ] Implement the operational treasury governance at scale model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the operational treasury governance at scale model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the operational treasury governance at scale model done.
+- [ ] Every council operates under a charter with machine-readable enumerated delegations.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the operational treasury governance at scale model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the operational treasury governance at scale model, not by convention or review habit.
+- [ ] The operational treasury governance at scale model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Delegation gates refuse out-of-bounds acts mechanically in test and production.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the operational treasury governance at scale model with a named on-call owner.
+- [ ] Alert thresholds for the operational treasury governance at scale model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the operational treasury governance at scale model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Council health metrics — calendar coverage, landing rates, delegation usage — feed the coherence review.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the operational treasury governance at scale model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the operational treasury governance at scale model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the operational treasury governance at scale model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Delegation changes version through root approval with usage impact assessed.
+
+### Recovery Checklist
+
+- [ ] Recovery of the operational treasury governance at scale model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the operational treasury governance at scale model before mutations are re-enabled.
+- [ ] A recovery report for the operational treasury governance at scale model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Post-gap reconciliation of acts against delegations is rehearsed in governance tabletops.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The scale governance model's constitutional text. |
+| `core/treasury/governance/councils.yaml` | Planned | Charters and delegation records. |
+| `core/treasury/governance/gates.py` | Planned | Mechanical delegation enforcement. |
+| `core/treasury/governance/coherence.py` | Planned | Health metrics and review support. |
+
+### Folder Mapping
+
+The scale governance machinery lives in the planned `core/treasury/governance/` folder extending the Section 74 estate.
+
+### Cross References
+
+- Section 74 (`Treasury Governance Operations`) — the single-scope model this federates.
+- Section 90 (`Treasury Constitutional Amendment Process`) — the channel for everything undelegatable.
+- Section 83 (`Regional Treasury Federation`) — the regional scopes councils serve.
+- Rule `CAT-TC-CONST-175` and Rule `CAT-TC-CONST-176` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S88-001` through `CAT-TC-AT-S88-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-175` — Enumerated Delegation, Retained Root (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-176` — One Change Index, Root-Routed Conflicts (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the operational treasury governance at scale model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S88-001`  
+**Meaning:** Governance scales as one root over chartered councils holding enumerated, revocable, machine-enforced delegations — operation federates, authority never fragments, and every act lands in one shared index.  
+**Recall Trigger:** Any governance scaling question, council proposal, delegation request, or cross-council conflict.  
+**Operational Use:** Recall this anchor to route acts by delegation record and refuse fragmentation dressed as autonomy.
+
+### Future Evolution
+
+Section 90 fixes the amendment channel above all councils and Section 91 the succession that keeps chairs filled; the anti-fragmentation rule is permanent.
+
+### Operational Stories
+
+Operational story: the delegation usage heat map shows one council consistently deciding at the very edge of a parameter range. The coherence review widens the range with root approval after examining the decisions — delegation tuned by evidence, the edge-riding converted from creep risk to measured need.
+
+### Execution Stories
+
+Execution story: a proposal misroutes to a stratum council lacking the delegation. The submission gate refuses with the lawful council named, the proposer resubmits in minutes, and no human review time was spent on the misroute — the lookup doing what policy memos never reliably do.
+
+### Optimization Stories
+
+Optimization story: coherence review preparation once consumed a week of chasing council reports. Standardized health metrics computed from the shared index cut preparation to a day, and the review's time shifted from collecting facts to judging them.
+
+### Recovery Stories
+
+Recovery story: a regional council chair departs abruptly mid-quarter. Vacancy alarms fire, succession per Section 91 seats the deputy within days, and the council's two in-flight dispositions land on schedule — continuity machinery keeping a personnel gap from becoming a governance gap.
+
+**Diagram ID:** `CAT-TC-P4-S88-D003`  
+**Title:** Conflicts Route Up, Never Sideways  
+**Purpose:** Show root-routed resolution replacing bilateral settlement.  
+**Audience:** Council chairs  
+**Reading Order:** Read with rule CAT-TC-CONST-176.
+
+```mermaid
+flowchart TB
+  CA[Council A claim] --> RES[Root resolution path\ndeclared SLA]
+  CB[Council B claim] --> RES
+  RES --> PREC[Recorded precedent\nin change index]
+  CA -. bilateral deal .-> X[Forbidden:\ninvisible governance]
+  X -.- CB
+```
+
+### Normative Requirements
+
+1. Governance MUST operate as one root over chartered councils; no council MAY hold authority beyond its enumerated delegations.
+2. Delegations MUST be typed, scoped, expiring, revocable, and machine-readable, with everything unenumerated retained by the root.
+3. Delegation bounds MUST be enforced mechanically at configuration and disposition gates.
+4. All council acts MUST land in the shared change index with delegation citations; cross-council conflicts MUST route to the root.
+5. Council structure MUST mirror the estate, not the organization chart; the compliance authority's lateral independence MUST be preserved.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the operational treasury governance at scale model.
+
+**Rule ID:** `CAT-TC-CONST-175`  
+**Title:** Enumerated Delegation, Retained Root  
+**Purpose:** Let governance scale without authority fragmenting.  
+**Normative Requirement:** Every council power MUST derive from an enumerated delegation in its council record; acts outside recorded delegations MUST be refused mechanically where gated and voided with review where discovered; delegations MUST expire and renew through root approval; and no delegation MAY convey rule-making, amendment, human-gate, or compliance-oversight authority.  
+**Rationale:** Federated speed is bought with delegation clarity; ambiguity about who may decide is how organizations discover they have several constitutions.  
+**Enforcement:** Machine-readable delegation records; gates at configuration and disposition tooling; quarterly reconciliation of acts against delegations.  
+**Violation:** An out-of-delegation act is voided, its effects reconciled, and the council's delegation reviewed.  
+**Recovery:** Void, reconcile, and either re-land through the lawful authority or widen the delegation through the root.  
+**Owner:** Lead Repository Architect
+
+**Rule ID:** `CAT-TC-CONST-176`  
+**Title:** One Change Index, Root-Routed Conflicts  
+**Purpose:** Keep federated operation legible as a single governance history.  
+**Normative Requirement:** Every council decision MUST publish to the shared change index with its delegation citation; cross-council conflicts and joint arrangements MUST route to the root through the declared resolution path with recorded precedent; and bilateral settlements between councils MUST NOT exist.  
+**Rationale:** Fifty calendars are manageable; fifty histories are not — and invisible bilateral precedents are the fastest route from federation to fragmentation.  
+**Enforcement:** Index publication built into disposition tooling; resolution path SLAs; coherence review scanning for unindexed acts.  
+**Violation:** An unindexed act or bilateral settlement is voided and re-routed lawfully.  
+**Recovery:** Index retroactively where lawful, void where not, and record the precedent properly.  
+**Owner:** Lead Repository Architect
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S88-001`  
+**Purpose:** Prove out-of-delegation acts are refused mechanically.  
+**Given:** A council attempting a parameter change outside its delegated range.  
+**When:** The configuration gate evaluates the change.  
+**Then:** The change refuses with the delegation bound and lawful authority named, and the attempt is indexed.  
+**Failure Condition:** The change applies.
+
+**Test ID:** `CAT-TC-AT-S88-002`  
+**Purpose:** Prove council acts land in the shared index.  
+**Given:** A council landing three delegated dispositions.  
+**When:** The change index is queried.  
+**Then:** All three appear with delegation citations, timestamps, and council identity.  
+**Failure Condition:** Any act is missing from the index.
+
+**Test ID:** `CAT-TC-AT-S88-003`  
+**Purpose:** Prove undelegated matters route to the root.  
+**Given:** A proposal touching a matter no delegation enumerates.  
+**When:** Routing evaluates it.  
+**Then:** The proposal routes to the root, and no council can accept it.  
+**Failure Condition:** A council accepts the undelegated proposal.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the operational treasury governance at scale model defined by this section.
+
+```json
+{
+  "record_type": "treasury.governance.council",
+  "council_id": "gvc_01J5Z22A2B3C4D5E6F7G8H9J0K",
+  "name": "eu-west-operational-council",
+  "scope": {"kind": "region", "region": "eu-west"},
+  "chair": "human:eu-west-operations-owner",
+  "delegations": [
+    {"delegation_id": "dlg_001",
+     "matter": "crossing-budget-tuning",
+     "bounds": {"min_seconds": 60, "max_seconds": 600},
+     "expires": "2027-02-15"},
+    {"delegation_id": "dlg_002",
+     "matter": "regional-disposition-landing",
+     "classes": ["capacity", "operational"],
+     "expires": "2027-02-15"}
+  ],
+  "retained_by_root": "everything-not-enumerated",
+  "calendar": "section-74-conformant",
+  "chartered_at": "2026-08-15",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the operational treasury governance at scale model defined by this section.
+
+```yaml
+treasury_governance_at_scale:
+  version: 0.1.0
+  structure:
+    root: [project-owner, lead-repository-architect]
+    councils: [regional-operational, stratum-technical]
+    lateral: compliance-authority-independent
+  delegations:
+    properties: [enumerated, typed, scoped, expiring, revocable,
+                 machine-readable]
+    unenumerated: retained-by-root
+    never_delegated: [rule-making, amendments, human-gates,
+                      compliance-oversight]
+  enforcement:
+    gates: [configuration, disposition]
+    mode: mechanical-refusal
+  coherence:
+    index: single-shared-change-index
+    conflicts: root-routed-recorded-precedent
+    bilateral_settlements: forbidden
+    review: quarterly-over-health-metrics
+```
+
+### Pseudo Code
+
+```text
+function submit_governance_act(act):
+    council = delegation_registry.lawful_authority(act.matter)
+    if council is ROOT:
+        return route_to_root(act)
+    if act.council != council:
+        return refuse('wrong-council', lawful=council)   # no shopping
+    if not within_bounds(act, delegation_of(council, act.matter)):
+        return refuse('outside-delegation', bounds)
+    result = council.decide(act)
+    publish_to_change_index(result, citation=delegation_of(council, act.matter))
+    return result
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/governance/             # Planned
+  councils.yaml                       # Planned: charters + delegations
+  gates.py                            # Planned: mechanical enforcement
+  routing.py                          # Planned: lawful-authority lookup
+  coherence.py                        # Planned: health metrics + review
+```
+
+## 89. Treasury Change Management at Scale
+
+**Section ID:** `CAT-TC-P4-89`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** change case record  
+**Primary question:** How does every class of change — code, policy, parameter, schema, topology — move from proposal to production across a large estate with its blast radius declared and its reversal rehearsed?
+
+### Purpose
+
+This section fixes change management at scale: the uniform discipline every change class rides from intent to landing. It defines the change taxonomy (a closed classification — code releases per Section 82, policy versions per Section 23, parameter tunes within Section 88 delegations, schema migrations per Section 49, topology changes per Section 79, charter and delegation changes per Sections 83 and 88, and constitutional amendments per Section 90 — each class with its declared approval path, evidence requirements, and rollout machinery), the change case record (every non-trivial change opens a case carrying its class, motivation, blast radius declaration — which partitions, flows, cohorts, regions, and envelopes it can affect — its verification plan, its reversal plan, and its landing evidence; the case is the change's biography from proposal to post-landing review), the blast radius discipline (declared radius is checked against observed effect: a change observed affecting anything outside its declared radius halts automatically as a radius breach, whatever its intent — the Section 85 blast boundary logic applied to every change class), and the reversal rule: no change lands without a rehearsed reversal path appropriate to its class — roll back, roll forward, or compensate — and changes whose reversal is impossible by nature (sealed statements, ledger history) are exactly the changes that MUST NOT exist, closing the loop with Section 8's immutability.
+
+### Business Perspective
+
+Uniform change discipline is what lets a financial estate absorb continuous change without absorbing continuous risk: every change carries its radius, its proof, and its undo. Leadership reads change health as a portfolio — landing rates, radius breach counts, reversal rehearsal currency — rather than as anecdotes.
+
+### Engineering Perspective
+
+Engineering implements the case record as the workflow backbone: classes bind to their rollout machinery (waves, shadow evaluation, delegation gates), radius declarations compile to observability watch scopes armed during rollout, and reversal plans are executable artifacts rehearsed per class cadence. The case index joins Section 74's change index so governance sees one stream.
+
+### Architecture Perspective
+
+Architecturally, this section is the connective tissue over every change mechanism built earlier: it adds no new rollout machinery, it adds the uniform case discipline — declared radius, armed watches, rehearsed reversal — that makes heterogeneous mechanisms reviewable the same way. The taxonomy's closure matters: a change that fits no class is a class proposal for Section 90, not an improvisation.
+
+**Diagram ID:** `CAT-TC-P4-S89-D001`  
+**Title:** One Case Discipline Over Many Mechanisms  
+**Purpose:** Show the uniform case wrapping heterogeneous rollout machinery.  
+**Audience:** Engineers, governance owners  
+**Reading Order:** Read first in Section 89.
+
+```mermaid
+flowchart TB
+  CASE[Change case:\nclass + radius + reversal] --> M1[Code: Section 82 waves]
+  CASE --> M2[Policy: Section 23 shadow]
+  CASE --> M3[Parameter: Section 88 gates]
+  CASE --> M4[Schema: Section 49 replica-first]
+  CASE --> M5[Topology: Section 79 migration]
+  M1 & M2 & M3 & M4 & M5 --> IDX[(Change index\n+ portfolio metrics)]
+```
+
+### AI Perspective
+
+For an AI collaborator, the case record is the context for any change work: an agent drafting a change MUST classify it, declare its radius honestly, and produce the verification and reversal plans as first-class artifacts. The characteristic AI failure is radius optimism — declaring the narrow intended effect rather than the honest possible effect. Radius is what the change CAN touch, not what it SHOULD; the armed watches exist to catch exactly the difference.
+
+### Developer Notes
+
+Developers should write the reversal plan before the change, not after: a change designed backward from its undo is a change whose failure modes were considered when they were cheap.
+
+### Codex Notes
+
+When operating on `Treasury Change Management at Scale`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST classify every change within the closed taxonomy, MUST declare blast radius as possible effect with armed observability watches, and MUST refuse changes lacking rehearsed reversal paths appropriate to their class.
+
+### Claude Code Notes
+
+When operating on `Treasury Change Management at Scale`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST classify every change within the closed taxonomy, MUST declare blast radius as possible effect with armed observability watches, and MUST refuse changes lacking rehearsed reversal paths appropriate to their class.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Change Management at Scale`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST classify every change within the closed taxonomy, MUST declare blast radius as possible effect with armed observability watches, and MUST refuse changes lacking rehearsed reversal paths appropriate to their class.
+
+### Cursor Notes
+
+When operating on `Treasury Change Management at Scale`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST classify every change within the closed taxonomy, MUST declare blast radius as possible effect with armed observability watches, and MUST refuse changes lacking rehearsed reversal paths appropriate to their class.
+
+### Future AI Notes
+
+When operating on `Treasury Change Management at Scale`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST classify every change within the closed taxonomy, MUST declare blast radius as possible effect with armed observability watches, and MUST refuse changes lacking rehearsed reversal paths appropriate to their class.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Change Management at Scale` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| taxonomy | Bind each change class to its approval path, evidence, and rollout machinery. | taxonomy stage receipt |
+| cases | Implement the change case record as the uniform workflow. | cases stage receipt |
+| radius | Compile radius declarations into armed watch scopes. | radius stage receipt |
+| reversal | Require rehearsed reversal artifacts per class. | reversal stage receipt |
+| review | Operate post-landing reviews feeding the change portfolio metrics. | review stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Change Management at Scale` needs a bounded context, loaded in this order:
+
+- This section in full, including the taxonomy and radius discipline.
+- Section 82 (`Multi-Node Deployment Coordination`) for the code-release machinery.
+- Section 88 (`Operational Treasury Governance at Scale`) for delegation-gated parameter changes.
+- Section 49 (`Treasury Deployment and Migration`) for schema migration machinery.
+- Section 90 (`Treasury Constitutional Amendment Process`) for the class above all classes.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. The change class registry with bound machinery.
+2. Case record schema and workflow.
+3. Radius-to-watch compilation.
+4. Reversal artifact requirements and rehearsal tracking.
+5. Portfolio metrics and post-landing review support.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Change Management at Scale`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Declaring intended effect as blast radius | The change is supposed to touch only one flow | Radius is possible effect; the watches catch the difference between supposed and can |
+| Writing reversal plans after landing | The change worked, so the plan is a formality | Reversal designed after success is untested fiction; plans precede landing and rehearse per class |
+| Slipping unclassifiable changes through the nearest class | Waiting for a class proposal is slow | A misclassified change rides the wrong approval path and machinery; the taxonomy is closed on purpose |
+| Treating parameter tunes as too small for cases | A one-line config change feels trivial | Radius, not diff size, determines discipline; one line can drain a liquidity band |
+| Ignoring radius breaches when the effect looks benign | Nothing bad seems to have happened | Breach means the declaration was wrong; the next one may not be benign — halt, review, redeclare |
+
+### Security
+
+Change cases are attributable end to end; approval paths enforce separation between proposer and approver per class; radius watches detect exfiltration-shaped side effects as radius breaches; and the reversal artifacts are themselves access-controlled since they encode how to unwind production systems.
+
+### Performance
+
+Case overhead scales with radius, not with change count: narrow delegated tunes ride lightweight cases while wide changes carry full discipline — proportionality by design.
+
+### Latency
+
+Change latency budgets are per class; the case record makes queue time visible per stage so slow approval paths are measured, not felt.
+
+### Scalability
+
+The taxonomy scales by binding new machinery to existing classes; cases shard by scope; portfolio metrics aggregate from the case index.
+
+### Reliability
+
+Armed radius watches during rollout are the reliability net: observed-outside-declared halts the change automatically, bounding the estate's exposure to any single change's wrongness.
+
+### Caching
+
+Class bindings and approval paths cache as governed configuration; case state is authoritative in the record; watch scopes arm from the case at rollout time.
+
+### Consistency
+
+The case record is the change's single history — proposal, approvals, rollout, watches, breaches, landing, review — joined to the Section 74 index; a change without a case did not lawfully happen.
+
+**Diagram ID:** `CAT-TC-P4-S89-D002`  
+**Title:** Declared Radius, Armed Watches  
+**Purpose:** Show possible-effect declaration becoming automatic protection.  
+**Audience:** Engineers  
+**Reading Order:** Read with rule CAT-TC-CONST-177.
+
+```mermaid
+flowchart LR
+  DECL[Radius declaration:\nwhat this CAN touch] --> COMP[Compile to\nwatch scopes]
+  COMP --> ARM[Watches armed\nduring rollout]
+  ARM --> OBS{Effect outside\ndeclared radius?}
+  OBS -->|no| LAND[Land + review]
+  OBS -->|yes| HALT[Automatic halt\nreverse + redeclare]
+```
+
+### Recovery
+
+A halted change recovers through its rehearsed reversal path; a breached radius additionally requires redeclaration and re-approval before retry; and the post-landing review of every halt feeds the class's evidence requirements.
+
+### Ownership
+
+The taxonomy and case discipline are owned by the Lead Repository Architect; class approval paths by their bound authorities per Sections 82, 88, and 90; portfolio metrics by the Section 74 governance calendar.
+
+### Dependencies
+
+- Section 82 (`Multi-Node Deployment Coordination`) — code release machinery and gates.
+- Section 74 (`Treasury Governance Operations`) — the change index cases join.
+- Section 85 (`Treasury Resilience Verification`) — the blast boundary logic radius watches reuse.
+
+### Risks
+
+- Case discipline eroding for high-frequency small changes.
+- Radius declarations becoming boilerplate rather than analysis.
+- Reversal rehearsal currency lapsing for rarely-changed classes.
+
+### Anti Patterns
+
+- Changes without cases.
+- Radius declared as intent rather than possibility.
+- Irreversible changes to anything but append-only history — and none to that either.
+
+### Best Practices
+
+- Design changes backward from their reversal.
+- Audit a sample of radius declarations against observed effects monthly.
+- Keep the unclassifiable-change escape hatch pointing at Section 90, never at improvisation.
+
+### Examples
+
+Example: a schema migration adds a field to the reservation record. Its case declares radius — reservation stores, the authorization sequence's read path, two projections; watches arm on all three; the migration rides Section 49 replica-first machinery; observed effect stays inside declared radius; the rehearsed rollback was never needed but exists with last month's rehearsal evidence. Landing review closes the case in ten minutes because the case told the whole story.
+
+### Counter Examples
+
+Counter example: a parameter tune to a queue depth — one line, no case, 'obviously' local — changes backpressure timing enough to starve a settlement watcher class of lease renewals. The effect surfaces two days later as ambiguity queue growth nobody connects to the tune. The case-plus-watches discipline exists because financial estates propagate effects along paths intent never imagined.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury change management at scale model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury change management at scale model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury change management at scale model done.
+- [ ] Every change class binds to approval path, evidence requirements, and rollout machinery.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury change management at scale model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury change management at scale model, not by convention or review habit.
+- [ ] The treasury change management at scale model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Radius breaches halt changes automatically in injected-effect tests.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury change management at scale model with a named on-call owner.
+- [ ] Alert thresholds for the treasury change management at scale model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury change management at scale model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Portfolio metrics — landing rates, breach counts, rehearsal currency — are governance dashboard signals.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury change management at scale model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury change management at scale model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury change management at scale model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Class binding changes are themselves cases of the charter-change class.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury change management at scale model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury change management at scale model before mutations are re-enabled.
+- [ ] A recovery report for the treasury change management at scale model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Every class's reversal path is rehearsed within its declared cadence.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The change management model's constitutional text. |
+| `core/treasury/changes/taxonomy.yaml` | Planned | Class registry with bindings. |
+| `core/treasury/changes/cases.py` | Planned | Case record workflow. |
+| `core/treasury/changes/radius.py` | Planned | Declaration-to-watch compilation. |
+
+### Folder Mapping
+
+The change management machinery lives in the planned `core/treasury/changes/` folder over every rollout mechanism it disciplines.
+
+### Cross References
+
+- Section 88 (`Operational Treasury Governance at Scale`) — the delegation gates parameter changes ride.
+- Section 90 (`Treasury Constitutional Amendment Process`) — the destination for unclassifiable change.
+- Section 8 (`Ledger and Transaction Model`) — the immutability that bounds what change may ever touch.
+- Rule `CAT-TC-CONST-177` and Rule `CAT-TC-CONST-178` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S89-001` through `CAT-TC-AT-S89-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-177` — Cased Changes With Honest Radius (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-178` — Rehearsed Reversal Before Landing (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury change management at scale model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S89-001`  
+**Meaning:** Every change rides a case: closed-taxonomy class, honestly declared blast radius with armed watches, rehearsed reversal before landing — breaches halt automatically, and irreversible changes to history do not exist.  
+**Recall Trigger:** Any change proposal, radius declaration, reversal question, or unclassifiable-change moment.  
+**Operational Use:** Recall this anchor to classify first, declare radius as possibility, and design backward from the undo.
+
+### Future Evolution
+
+Section 94 registers the extension points changes flow through and Section 95 sequences the implementation program's changes; the case discipline and radius-breach halt are permanent.
+
+### Operational Stories
+
+Operational story: the monthly radius audit samples twenty cases and finds two whose declarations missed an affected projection. Neither breached — the projections tolerated the changes — but both declarations were wrong, and the declaration checklist gains a projection-dependency step. The audit exists to correct declarations while wrongness is still free.
+
+### Execution Stories
+
+Execution story: a policy version rollout's armed watches catch refusal-rate movement in a flow class outside the declared radius. The rollout halts itself mid-wave, the policy interaction is found within the hour, and the redeclared case lands cleanly the next day — the watch catching in minutes what quarterly reconciliation would have caught in months.
+
+### Optimization Stories
+
+Optimization story: case queue analysis shows approval latency dominated by one class's single approver. The class's path gains a second qualified approver through the lawful chartering process — throughput doubled, separation preserved.
+
+### Recovery Stories
+
+Recovery story: a topology change halts on radius breach, its reversal path executes in four minutes, and the estate returns to the prior placement version cleanly — the rehearsed undo performing exactly as rehearsed, which is the entire point of rehearsing.
+
+**Diagram ID:** `CAT-TC-P4-S89-D003`  
+**Title:** Designed Backward From the Undo  
+**Purpose:** Show the reversal-first change lifecycle.  
+**Audience:** Developers  
+**Reading Order:** Read with rule CAT-TC-CONST-178.
+
+```mermaid
+flowchart LR
+  R[Reversal plan\nwritten first] --> V[Verification plan]
+  V --> C[Change built]
+  C --> RH[Reversal rehearsed\nevidence current]
+  RH --> L[Landing gate:\nrehearsal current?]
+  L --> D[Deploy with watches]
+  HIST[Settled history] -. only forward\ncompensation .-> R
+```
+
+### Normative Requirements
+
+1. Every change MUST classify within the closed taxonomy and ride its class's approval path, evidence requirements, and rollout machinery.
+2. Every non-trivial change MUST open a case declaring blast radius as possible effect, with watches armed on the declared radius during rollout.
+3. Observed effect outside declared radius MUST halt the change automatically as a radius breach.
+4. No change MAY land without a rehearsed reversal path appropriate to its class.
+5. Changes irreversible by nature MUST NOT exist; append-only history is amended only by forward annotation, never by change.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury change management at scale model.
+
+**Rule ID:** `CAT-TC-CONST-177`  
+**Title:** Cased Changes With Honest Radius  
+**Purpose:** Make every change's possible effect declared, watched, and halted on surprise.  
+**Normative Requirement:** Every non-trivial change MUST carry a case with class, motivation, blast radius declared as possible effect, verification plan, and reversal plan; radius declarations MUST compile to armed observability watches during rollout; and any observed effect outside the declared radius MUST halt the change automatically and require redeclaration and re-approval before retry.  
+**Rationale:** Financial estates propagate effects along paths intent never imagined; the armed watch on an honest radius is the only systematic catch.  
+**Enforcement:** Case workflow gating rollout machinery; radius-to-watch compilation; automatic halt wiring per the Section 85 boundary logic.  
+**Violation:** A caseless change or ignored breach halts, reverses, and reviews as a governance incident.  
+**Recovery:** Reverse, redeclare, re-approve, and land lawfully.  
+**Owner:** Lead Repository Architect
+
+**Rule ID:** `CAT-TC-CONST-178`  
+**Title:** Rehearsed Reversal Before Landing  
+**Purpose:** Keep every change undoable by a path proven to work.  
+**Normative Requirement:** No change MAY land without a reversal artifact — rollback, roll-forward, or compensation — rehearsed within its class's declared cadence; reversal paths MUST NOT rewrite settled financial history, achieving their effect through forward-only compensation where state has settled; and reversal rehearsal evidence MUST be current at landing time.  
+**Rationale:** An unrehearsed undo is a hypothesis, and the moment it is needed is the worst moment to test hypotheses.  
+**Enforcement:** Landing gates requiring rehearsal evidence currency; reversal artifact review per class; forward-only compensation checks against Section 8 immutability.  
+**Violation:** A change landed without current reversal evidence is flagged; its reversal rehearses immediately or the change reverses.  
+**Recovery:** Rehearse or reverse, and fix the gate that let it land.  
+**Owner:** Treasury Engineering Owner (Planned role)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S89-001`  
+**Purpose:** Prove radius breaches halt changes automatically.  
+**Given:** A rolling change whose injected side effect touches a flow outside its declared radius.  
+**When:** The armed watch observes the effect.  
+**Then:** The change halts without human action, the breach records in the case, and retry requires redeclaration.  
+**Failure Condition:** The rollout continues past the breach.
+
+**Test ID:** `CAT-TC-AT-S89-002`  
+**Purpose:** Prove landing requires current reversal rehearsal.  
+**Given:** A change whose class reversal rehearsal evidence is aged past cadence.  
+**When:** The change seeks landing approval.  
+**Then:** Landing refuses with `reversal-rehearsal-stale` until the rehearsal re-runs.  
+**Failure Condition:** The change lands with stale reversal evidence.
+
+**Test ID:** `CAT-TC-AT-S89-003`  
+**Purpose:** Prove unclassifiable changes route to the amendment process.  
+**Given:** A change proposal fitting no class in the taxonomy.  
+**When:** Classification runs.  
+**Then:** The proposal routes toward Section 90 as a class proposal; no existing class accepts it.  
+**Failure Condition:** The change proceeds under a class it does not fit.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury change management at scale model defined by this section.
+
+```json
+{
+  "record_type": "treasury.change.case",
+  "case_id": "chc_01J5Z23A2B3C4D5E6F7G8H9J0K",
+  "change_class": "schema-migration",
+  "motivation": "add expiry-extension field to reservation record",
+  "blast_radius": {
+    "partitions": ["all-reservation-bearing"],
+    "flows": ["reservation-lifecycle"],
+    "read_paths": ["authorization-sequence", "projection-liquidity",
+                   "projection-agent-positions"],
+    "regions": ["all"]
+  },
+  "verification_plan": "replica-first-replay-with-entry-comparison",
+  "reversal": {
+    "kind": "rollback",
+    "artifact": "migrations/0142_down.sql",
+    "last_rehearsed": "2026-07-28",
+    "cadence_days": 90
+  },
+  "watches_armed": true,
+  "status": "rolling-wave-2",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury change management at scale model defined by this section.
+
+```yaml
+treasury_change_management:
+  version: 0.1.0
+  taxonomy:
+    closed: true
+    classes: [code-release, policy-version, parameter-tune,
+              schema-migration, topology-change, charter-or-delegation,
+              constitutional-amendment]
+    unclassifiable: route-to-amendment-process
+  cases:
+    required_fields: [class, motivation, blast-radius, verification-plan,
+                      reversal-plan]
+    radius_semantics: possible-effect-not-intent
+  watches:
+    armed_from: radius-declaration
+    breach: automatic-halt-redeclare-reapprove
+  reversal:
+    kinds: [rollback, roll-forward, compensation]
+    rehearsal: current-at-landing
+    history_rewrites: forbidden
+```
+
+### Pseudo Code
+
+```text
+function land_change(case):
+    assert case.change_class in TAXONOMY          # closed set
+    assert reversal_rehearsal_current(case)       # before landing
+    arm_watches(case.blast_radius)
+    for stage in machinery_for(case.change_class).stages:
+        stage.execute()
+        if watches.observed_outside(case.blast_radius):
+            halt(case, 'radius-breach')
+            execute(case.reversal)                # rehearsed path
+            return REQUIRE_REDECLARATION
+    close_with_review(case, evidence=watches.captures())
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/changes/                # Planned
+  taxonomy.yaml                       # Planned: classes + bindings
+  cases.py                            # Planned: case workflow
+  radius.py                           # Planned: watch compilation
+  reversal.py                         # Planned: rehearsal tracking
+```
+
+## 90. Treasury Constitutional Amendment Process
+
+**Section ID:** `CAT-TC-P4-90`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** constitutional amendment record  
+**Primary question:** How does this document's meaning lawfully change after it is final, and what makes every amendment traceable, reviewable, and reversible in effect while the text stays frozen?
+
+### Purpose
+
+This section fixes the constitutional amendment process: the only lawful channel for changing what this document means once Part 4 closes it. It defines the amendment instrument (an accepted ADR in the repository's `adr/` register that names the exact clauses it amends — section, rule, test, or registry entry by ID — states the new governing text, records the motivation and the considered alternatives, and carries the approval of the document's owning authorities: the Lead Repository Architect and the Project Owner, plus the compliance authority where the clause touches regulated duties), the precedence rule (this document's bytes stay frozen per the append-only chain; an accepted amendment ADR governs over the clause it amends, and every consumer — human, agent, or the Section 86 conformance suite — MUST resolve a clause through the amendment index before relying on its original text), the amendment index (a governed, versioned map from clause IDs to their amendment history, consulted by tooling so that resolution is mechanical; an unamended clause resolves to itself, an amended clause to its latest accepted ADR), the boundaries (amendments cannot create emergency powers, cannot remove human-only actions, cannot weaken the append-only discipline, and cannot retroactively lawful-ize past violations — the small set of clauses this section marks as entrenched, changeable only with the Project Owner's explicit recorded decision plus a full-council coherence review per Section 88), and the honesty rule: proposals rejected, withdrawn, or superseded stay in the register as history — the amendment record is append-only like everything else here.
+
+### Business Perspective
+
+The amendment process is what makes a final document livable: the business is never trapped between obeying an outdated clause and violating the constitution, because there is a lawful, fast-enough channel for change with named approvers and full history. Entrenchment protects the handful of guarantees partners and auditors rely on most.
+
+### Engineering Perspective
+
+Engineering wires the amendment index into everything that consumes clauses: the conformance suite resolves through it per Section 86, tooling that cites rules resolves through it, and agent context loading per every section's tool notes resolves through it. An amendment landing means the index versions, dependent conformance scopes flag for re-verification, and affected councils get calendar entries — machinery, not memos.
+
+### Architecture Perspective
+
+Architecturally, this section completes the append-only chain's logic: the chain froze the bytes, this section governs the meaning. The two compose into the document's deepest property — history that cannot be rewritten, meaning that can lawfully evolve, and a mechanical resolution path between them. Every earlier section's 'route disagreement through a proposed ADR' instruction lands here.
+
+**Diagram ID:** `CAT-TC-P4-S90-D001`  
+**Title:** Frozen Bytes, Living Meaning  
+**Purpose:** Show the two layers and the index that connects them.  
+**Audience:** Everyone consuming this document  
+**Reading Order:** Read first in Section 90.
+
+```mermaid
+flowchart TB
+  DOC[Frozen document\n4-part chain, digests] --> IDX[Amendment index\nversioned, hash-chained]
+  ADR[(Accepted ADRs\nnaming clause IDs)] --> IDX
+  IDX --> RES[Mechanical resolution]
+  RES --> SUITE[Conformance suite]
+  RES --> TOOLS[Agent context + tooling]
+  EDIT[Editing frozen bytes] -. breaks the chain\nforbidden .-> DOC
+```
+
+### AI Perspective
+
+For an AI collaborator, the amendment index is mandatory context: citing a clause without resolving it through the index is citing a possibly-superseded text. The characteristic AI failure is treating this document's frozen text as eternally current — the freeze is byte-level, not meaning-level. The corrective is mechanical: resolve, then rely; and when an agent disagrees with a clause, the disagreement becomes a proposed ADR with named clauses and alternatives — exactly as every tool note in this document has instructed since Section 1.
+
+### Developer Notes
+
+Developers should treat amendment resolution like dependency resolution: pin the index version a build reasoned under, and re-verify when it moves. Code that hardcodes clause semantics without index awareness is code that will silently enforce a repealed rule.
+
+### Codex Notes
+
+When operating on `Treasury Constitutional Amendment Process`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST resolve every clause through the amendment index before relying on it, MUST route clause disagreements into proposed ADRs naming exact clause IDs, and MUST refuse amendment designs that touch entrenched clauses outside the entrenched procedure.
+
+### Claude Code Notes
+
+When operating on `Treasury Constitutional Amendment Process`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST resolve every clause through the amendment index before relying on it, MUST route clause disagreements into proposed ADRs naming exact clause IDs, and MUST refuse amendment designs that touch entrenched clauses outside the entrenched procedure.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Constitutional Amendment Process`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST resolve every clause through the amendment index before relying on it, MUST route clause disagreements into proposed ADRs naming exact clause IDs, and MUST refuse amendment designs that touch entrenched clauses outside the entrenched procedure.
+
+### Cursor Notes
+
+When operating on `Treasury Constitutional Amendment Process`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST resolve every clause through the amendment index before relying on it, MUST route clause disagreements into proposed ADRs naming exact clause IDs, and MUST refuse amendment designs that touch entrenched clauses outside the entrenched procedure.
+
+### Future AI Notes
+
+When operating on `Treasury Constitutional Amendment Process`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST resolve every clause through the amendment index before relying on it, MUST route clause disagreements into proposed ADRs naming exact clause IDs, and MUST refuse amendment designs that touch entrenched clauses outside the entrenched procedure.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Constitutional Amendment Process` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| instrument | Fix the amendment ADR template with clause IDs, text, alternatives, and approvals. | instrument stage receipt |
+| index | Build the versioned amendment index with mechanical resolution. | index stage receipt |
+| wire | Wire resolution into the conformance suite, tooling, and agent context loading. | wire stage receipt |
+| entrench | Mark the entrenched clause set with its heightened procedure. | entrench stage receipt |
+| history | Keep the full proposal history append-only, including rejections. | history stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Constitutional Amendment Process` needs a bounded context, loaded in this order:
+
+- This section in full, including the precedence rule and boundaries.
+- Section 100 (`Treasury Core Part 4 Completion Contract`) for the finality this process makes livable.
+- Section 86 (`Treasury Conformance and Certification`) for the suite that resolves through the index.
+- Section 88 (`Operational Treasury Governance at Scale`) for the coherence review entrenched changes require.
+- `context/12_DECISIONS.md` for the repository's decision-record conventions.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. The amendment ADR template and acceptance workflow.
+2. The versioned amendment index with clause-ID resolution.
+3. Resolution integration in suite and tooling.
+4. The entrenched clause register.
+5. Append-only proposal history.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Constitutional Amendment Process`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Editing the document instead of amending | The fix is one word and the ADR is paperwork | The bytes are frozen by the chain; one edited word breaks four digests and the whole discipline |
+| Citing clauses without index resolution | The text is right there in the file | The file is history; the index is currency — resolve, then rely |
+| Amending broadly to avoid future ADRs | One sweeping amendment beats ten narrow ones | Broad amendments are unreviewable; narrow ones with named clauses keep the history legible |
+| Slipping entrenched changes through normal process | The heightened procedure is heavy | Entrenchment is the point: those clauses are heavy to change because everything rests on them |
+| Deleting rejected proposals | Failed proposals clutter the register | Rejections are precedent; the next proposer needs to know what was considered and why it failed |
+
+### Security
+
+Amendment acceptance requires the named authorities with recorded identity; the index is governed configuration under root change control; entrenched changes additionally require the Project Owner's recorded decision; and the resolution path is tamper-evident — index versions hash-chain like the document they govern.
+
+### Performance
+
+Resolution is a cached versioned lookup; the index is small — clause IDs to ADR references — and its consultation cost is negligible against the cost of relying on repealed text.
+
+### Latency
+
+Amendment latency is governance latency by design: days to weeks for normal clauses, longer for entrenched ones — the channel is fast enough to prevent workarounds and slow enough to prevent regret.
+
+### Scalability
+
+The process scales with the document, which is now fixed at 100 sections and 200 rules: amendment volume is bounded by clause count, and the index grows only as meaning actually changes.
+
+### Reliability
+
+The index's availability matters like placement maps: consumers pin versions and resolve from cache, so index infrastructure outages stall amendments, never operations.
+
+### Caching
+
+Index versions cache immutably; resolution results pin per consumer build; an index version bump triggers re-verification flags, never silent re-resolution mid-operation.
+
+### Consistency
+
+The amendment history is append-only: proposals, acceptances, rejections, and supersessions accumulate without deletion, and clause resolution at any historical index version is reproducible — the Section 23 versioned-policy discipline applied to the constitution itself.
+
+**Diagram ID:** `CAT-TC-P4-S90-D002`  
+**Title:** The Amendment Path  
+**Purpose:** Show proposal to acceptance with boundaries checked.  
+**Audience:** Proposers, approvers  
+**Reading Order:** Read with rule CAT-TC-CONST-179.
+
+```mermaid
+sequenceDiagram
+  participant P as Proposer
+  participant B as Boundary Check
+  participant A as Authorities
+  participant I as Index
+  P->>B: ADR naming exact clauses
+  B->>B: emergency powers? human gates?\nappend-only? retroactive?
+  alt boundary violated
+    B-->>P: refused, appended to history
+  else within boundaries
+    B->>A: approvals (+ compliance if regulated)
+    A->>I: accept, bump version
+    I-->>P: clause now resolves to ADR
+  end
+```
+
+### Recovery
+
+If the index is lost, it rebuilds from the ADR register deterministically — every accepted amendment names its clauses, so the map is derivable; discrepancies between a rebuilt index and consumer pins surface as re-verification, not silent drift.
+
+### Ownership
+
+The amendment process is owned by the Lead Repository Architect under Project Owner authority; the index by the planned Treasury Documentation Owner; compliance-touching amendments jointly with the compliance authority.
+
+### Dependencies
+
+- The `adr/` register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) — the instrument's home.
+- Section 86 (`Treasury Conformance and Certification`) — the suite that must track meaning.
+- Section 74 (`Treasury Governance Operations`) — the change index amendments land in.
+
+### Risks
+
+- Amendment backlog pressure eroding review quality.
+- Index-consumer version skew enforcing mixed meanings.
+- Entrenchment scope creep diluting the heightened procedure.
+
+### Anti Patterns
+
+- Byte edits to frozen parts, ever.
+- Un-indexed amendments enforced by folklore.
+- Retroactive amendments blessing past violations.
+
+### Best Practices
+
+- Keep amendments narrow with exact clause IDs.
+- Publish index version adoption per consumer so skew is visible.
+- Review the entrenched set only at coherence reviews, and reluctantly.
+
+### Examples
+
+Example: operating experience shows a Section 25 reservation expiry default too aggressive for one rail's settlement profile. An ADR names rule and clause, states the amended text with a rail-scoped parameter, records the alternatives, and lands with both authorities' approval. The index versions, the conformance suite's affected checks re-verify against the amended clause, and the eu-west council calendars the parameter adoption — meaning evolved, bytes untouched, history whole.
+
+### Counter Examples
+
+Counter example: a team under audit pressure proposes an amendment retroactively classifying last quarter's off-path writes as lawful migrations. The proposal is refused at the boundary check: amendments govern forward, and a process that can bless past violations is a process that erases the meaning of violation. The breaks reconcile as breaks; the ADR that lands instead fixes the path that made them possible.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury constitutional amendment process exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury constitutional amendment process to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury constitutional amendment process done.
+- [ ] The amendment index resolves every clause ID mechanically with versioned history.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury constitutional amendment process with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury constitutional amendment process, not by convention or review habit.
+- [ ] The treasury constitutional amendment process rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Suite and tooling resolution through the index is verified by amended-clause fixtures.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury constitutional amendment process with a named on-call owner.
+- [ ] Alert thresholds for the treasury constitutional amendment process are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury constitutional amendment process names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Index version adoption and amendment pipeline states are governance dashboard signals.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury constitutional amendment process carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury constitutional amendment process run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury constitutional amendment process exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Index schema changes are themselves amendments of this section's machinery clauses.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury constitutional amendment process rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury constitutional amendment process before mutations are re-enabled.
+- [ ] A recovery report for the treasury constitutional amendment process records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Index rebuild from the ADR register is rehearsed and digest-verified.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The frozen text amendments govern over. |
+| `adr/ADR-0001.md` | Current | The decision register the instrument lives in. |
+| `core/treasury/amendments/index.yaml` | Planned | Versioned clause-to-ADR map. |
+| `core/treasury/amendments/resolution.py` | Planned | Mechanical clause resolution. |
+
+### Folder Mapping
+
+The amendment machinery lives in the planned `core/treasury/amendments/` folder bridging the frozen document and the living ADR register.
+
+### Cross References
+
+- Section 100 (`Treasury Core Part 4 Completion Contract`) — the finality declaration this process complements.
+- Section 86 (`Treasury Conformance and Certification`) — meaning-tracking in the executable constitution.
+- Section 2 (`Treasury Principles`) — among the entrenched clauses' anchors.
+- Rule `CAT-TC-CONST-179` and Rule `CAT-TC-CONST-180` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S90-001` through `CAT-TC-AT-S90-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-179` — ADR-Only Meaning Change (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-180` — Entrenched Clauses and Forbidden Amendments (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury constitutional amendment process must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S90-001`  
+**Meaning:** Bytes frozen, meaning amendable: accepted ADRs naming exact clauses govern over original text through a versioned mechanical index — no emergency powers, no removing human gates, no retroactive blessings, and entrenched clauses move only through the heightened procedure.  
+**Recall Trigger:** Any clause reliance, document disagreement, amendment proposal, or retroactive temptation.  
+**Operational Use:** Recall this anchor to resolve before relying and to route every disagreement into a narrow, clause-named ADR.
+
+### Future Evolution
+
+This process is the document's own future: every evolution beyond Part 4 flows through it, and Section 98 records the horizon it serves; the boundaries and append-only history are permanent.
+
+### Operational Stories
+
+Operational story: the quarterly coherence review reads the amendment pipeline — two accepted, one rejected, one pending compliance review — and index adoption at current version across all consumers but one lagging build, which gets a re-verification flag. Constitutional health reviewed like system health, in fifteen minutes, from records.
+
+### Execution Stories
+
+Execution story: an agent drafting settlement code hits a clause its context marks amended. Resolution returns the ADR's governing text, the agent builds against it, and its work cites both the original clause ID and the amendment — the two-layer citation keeping the code traceable to both history and currency.
+
+### Optimization Stories
+
+Optimization story: early amendments quoted entire sections, making review slow. The template's clause-ID discipline shrinks the average amendment to a page, review time drops by half, and the history becomes greppable — narrowness as an optimization, not just a principle.
+
+### Recovery Stories
+
+Recovery story: an index corruption is caught by its hash chain. The index rebuilds from the ADR register in minutes, the rebuilt version digest-matches the last good version, and consumers never noticed — the derivability property doing for meaning what ledger replay does for money.
+
+**Diagram ID:** `CAT-TC-P4-S90-D003`  
+**Title:** Entrenchment Protects the Core  
+**Purpose:** Show the heightened procedure over the deepest guarantees.  
+**Audience:** Governance owners  
+**Reading Order:** Read with rule CAT-TC-CONST-180.
+
+```mermaid
+flowchart LR
+  NORM[Normal clauses] --> STD[Standard procedure:\nADR + two approvals]
+  ENT[Entrenched: write path,\nfive-link chain, reserve release,\nanalysis boundary, this process] --> HVY[Heightened: Project Owner\ndecision + coherence review]
+  FORB[Forbidden always:\nemergency powers, retroactive\nblessings, gate removal] --> NO[No procedure reaches these]
+```
+
+### Normative Requirements
+
+1. This document's meaning MUST change only through accepted amendment ADRs naming exact clause IDs with recorded approvals.
+2. The frozen text MUST never be edited; accepted amendments govern over the clauses they name.
+3. Every clause consumer MUST resolve through the versioned amendment index before relying on clause text.
+4. Amendments MUST NOT create emergency powers, remove human-only actions, weaken the append-only discipline, or retroactively lawful-ize violations.
+5. Entrenched clauses MUST change only through the heightened procedure; the full proposal history MUST remain append-only.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury constitutional amendment process.
+
+**Rule ID:** `CAT-TC-CONST-179`  
+**Title:** ADR-Only Meaning Change  
+**Purpose:** Give the final document exactly one lawful channel of evolution.  
+**Normative Requirement:** Every change to this document's meaning MUST be an accepted ADR naming the amended clauses by ID with governing text, motivation, alternatives, and the approvals of the Lead Repository Architect and Project Owner, plus the compliance authority for regulated clauses; the amendment index MUST version on acceptance; and no other instrument — commit message, wiki, memo, or practice — MAY carry amendment force.  
+**Rationale:** A constitution with informal amendment channels has no amendment channel, only erosion with better manners.  
+**Enforcement:** Index acceptance workflow requiring the named approvals; resolution wiring in suite and tooling; governance review of any enforced meaning lacking index backing.  
+**Violation:** An enforced meaning without an indexed amendment is reverted to the resolved clause and the enforcement path audited.  
+**Recovery:** Revert, resolve properly, and route the intended change through a lawful ADR.  
+**Owner:** Lead Repository Architect
+
+**Rule ID:** `CAT-TC-CONST-180`  
+**Title:** Entrenched Clauses and Forbidden Amendments  
+**Purpose:** Protect the guarantees everything else rests on.  
+**Normative Requirement:** No amendment MAY create emergency powers, remove or weaken a human-only action, weaken the append-only chain discipline, or retroactively lawful-ize a past violation; the entrenched clause register — covering the single write path, the five-link chain, human-only reserve release, the analysis-is-never-authorization boundary, and this amendment process itself — MUST change only with the Project Owner's explicit recorded decision plus a full coherence review.  
+**Rationale:** An amendment process that can amend away its own boundaries is a delay, not a protection; entrenchment makes the deepest guarantees costly to touch in exactly proportion to their weight.  
+**Enforcement:** Boundary checks in the acceptance workflow; entrenched register consultation on every proposal; heightened-procedure verification for entrenched matters.  
+**Violation:** A boundary-violating amendment is void from acceptance and the acceptance reviewed as a governance failure.  
+**Recovery:** Void, review, and re-propose within boundaries if a lawful need remains.  
+**Owner:** Project Owner (human, terminal authority)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S90-001`  
+**Purpose:** Prove clause resolution returns amended meaning.  
+**Given:** A clause with an accepted amendment ADR and the current index version.  
+**When:** Resolution runs for the clause ID.  
+**Then:** The ADR's governing text returns with the amendment citation; the original text returns only as history.  
+**Failure Condition:** Resolution returns the superseded text as current.
+
+**Test ID:** `CAT-TC-AT-S90-002`  
+**Purpose:** Prove boundary-violating amendments are refused.  
+**Given:** A proposed amendment creating an emergency-powers clause.  
+**When:** The acceptance workflow evaluates it.  
+**Then:** Acceptance refuses on the boundary check with the violated boundary named, and the refusal joins the append-only history.  
+**Failure Condition:** The amendment accepts.
+
+**Test ID:** `CAT-TC-AT-S90-003`  
+**Purpose:** Prove the index rebuilds from the ADR register.  
+**Given:** The ADR register and a deliberately discarded index.  
+**When:** The rebuild runs.  
+**Then:** The rebuilt index digest-matches the last good version at the same register state.  
+**Failure Condition:** The rebuild diverges from the register-derived truth.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury constitutional amendment process defined by this section.
+
+```json
+{
+  "record_type": "treasury.amendment.record",
+  "amendment_id": "amd_01J5Z24A2B3C4D5E6F7G8H9J0K",
+  "adr": "adr/ADR-0072.md",
+  "status": "accepted",
+  "amends": [
+    {"clause_id": "CAT-TC-CONST-042",
+     "kind": "rule",
+     "change": "rail-scoped reservation expiry parameter"}
+  ],
+  "entrenched_touched": false,
+  "approvals": [
+    "human:lead-repository-architect",
+    "human:project-owner"
+  ],
+  "compliance_review": "not-required",
+  "index_version_after": 7,
+  "accepted_at": "2026-08-15",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury constitutional amendment process defined by this section.
+
+```yaml
+treasury_amendment_process:
+  version: 0.1.0
+  instrument:
+    form: accepted-adr-in-register
+    names: exact-clause-ids
+    carries: [governing-text, motivation, alternatives, approvals]
+  precedence:
+    frozen_bytes: never-edited
+    accepted_amendments: govern-over-named-clauses
+    resolution: mechanical-via-versioned-index
+  boundaries:
+    forbidden: [emergency-powers, removing-human-only-actions,
+                weakening-append-only-chain, retroactive-lawfulization]
+  entrenched:
+    clauses: [single-write-path, five-link-chain,
+              human-only-reserve-release,
+              analysis-never-authorization, this-process]
+    procedure: project-owner-decision-plus-coherence-review
+  history:
+    proposals: append-only-including-rejections
+```
+
+### Pseudo Code
+
+```text
+function resolve(clause_id, index_version=CURRENT):
+    index = amendment_index.at(index_version)     # hash-chained
+    entry = index.get(clause_id)
+    if entry is None:
+        return original_text(clause_id)           # unamended
+    return governing_text(entry.latest_accepted_adr,
+                          citation=(clause_id, entry.adr_ref))
+
+function accept_amendment(proposal):
+    check_boundaries(proposal)          # forbidden changes refused here
+    if touches_entrenched(proposal):
+        require(project_owner_decision and coherence_review)
+    require(approvals(LEAD_ARCHITECT, PROJECT_OWNER))
+    append_history(proposal, ACCEPTED)  # rejections also append
+    return bump_index(proposal.clauses)
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/amendments/             # Planned
+  index.yaml                          # Planned: clause-to-ADR map
+  resolution.py                       # Planned: mechanical lookup
+  boundaries.py                       # Planned: forbidden-change checks
+  entrenched.yaml                     # Planned: protected clause register
+```
+
+## 91. Treasury Ownership Succession
+
+**Section ID:** `CAT-TC-P4-91`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** succession register record  
+**Primary question:** How does every owned authority in the treasury survive the loss of its holder, and how does authority transfer without gaps, overlaps, or informal inheritance?
+
+### Purpose
+
+This section fixes the ownership succession model: how the human authorities this document names — the Project Owner, the Lead Repository Architect, the planned Treasury Engineering, Data, Risk, Security, and Documentation Owners, the finance owner, the compliance authority, council chairs per Section 88, and every Section 74-registered operational owner — survive the departure, incapacity, or unavailability of their holders. It defines the succession register (every registered authority carries at least one named, qualified, current successor — qualification meaning completed rehearsal of the role's crisis decisions per Section 87 and current knowledge of the role's registers; the succession register is part of the Section 74 ownership register and inherits its vacancy alarms), the activation model (planned transfers activate through governed handover with overlap, checklist, and sign-off; emergency activation — holder unreachable during a decision the role must make — activates the successor for the pending decision class only, records the activation with its trigger, and notifies the root; full emergency assumption of a role requires root confirmation within a declared window), the dual-control preservation rule (where a decision requires two authorities per Section 19's dual-authorization gates, succession never collapses the two into one person — if succession would make one human hold both keys, the decision waits for a second qualified activation or root-appointed alternate; unavailability never merges controls), and the no-inheritance rule: authority transfers only through the register's governed paths — no deputy, delegate, or long-standing collaborator acquires authority by proximity, habit, or assumption.
+
+### Business Perspective
+
+Succession is continuity for the human layer: the business's ability to make lawful treasury decisions must survive vacations, departures, and worse, without either freezing or improvising. The register's qualification requirement means successors are ready, not just named — and the dual-control rule means even succession under duress never weakens the approval structure partners rely on.
+
+### Engineering Perspective
+
+Engineering implements the register as an extension of the Section 74 ownership register: successor entries with qualification evidence and currency, activation records with triggers and scopes, and integration with approval tooling so an activated successor's authority is machine-checkable exactly like a primary's. Emergency activation is scoped capability issuance per Section 19 — typed, expiring, audited — never a shared password or a borrowed session.
+
+### Architecture Perspective
+
+Architecturally, succession closes the last single-point-of-failure class: Sections 76 through 84 made the machinery survive node and site loss; this section makes the authority structure survive people loss. The design mirrors Section 77's node lifecycle deliberately — qualification as attestation, activation as admission, handover as drain, and the register as membership — because authority, like hardware, must be provably current to serve.
+
+**Diagram ID:** `CAT-TC-P4-S91-D001`  
+**Title:** Authority Survives Its Holders  
+**Purpose:** Show the register keeping every authority decidable.  
+**Audience:** Governance owners  
+**Reading Order:** Read first in Section 91.
+
+```mermaid
+flowchart TB
+  AUTH[Registered authority\nrisk owner] --> P[Primary holder]
+  AUTH --> S1[Successor 1\nqualified + current]
+  AUTH --> S2[Successor 2\nqualified + current]
+  P -->|planned handover| S1
+  P -->|unreachable| EA[Emergency activation\nscoped + expiring + audited]
+  EA --> ROOT[Root confirmation\nwithin window]
+  PROX[Proximity or habit] -. never conveys .-> AUTH
+```
+
+### AI Perspective
+
+For an AI collaborator, the succession register answers 'who can lawfully decide this right now' under all conditions: primaries, activated successors, and pending activations are all queryable state. The characteristic AI failure is unavailability improvisation — routing an approval to whoever historically approved similar things when the named authority is unreachable. Proximity is not authority; the corrective is to trigger emergency activation through the register and wait for lawful capability, exactly as the dual-control rule waits rather than merges.
+
+### Developer Notes
+
+Developers should make approval tooling read authority from the register live: hardcoded approver lists are stale succession registers with worse audit trails.
+
+### Codex Notes
+
+When operating on `Treasury Ownership Succession`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST resolve decision authority through the succession register under all availability conditions, MUST preserve dual-control separation through every activation, and MUST refuse authority inferred from proximity, habit, or history.
+
+### Claude Code Notes
+
+When operating on `Treasury Ownership Succession`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST resolve decision authority through the succession register under all availability conditions, MUST preserve dual-control separation through every activation, and MUST refuse authority inferred from proximity, habit, or history.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Ownership Succession`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST resolve decision authority through the succession register under all availability conditions, MUST preserve dual-control separation through every activation, and MUST refuse authority inferred from proximity, habit, or history.
+
+### Cursor Notes
+
+When operating on `Treasury Ownership Succession`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST resolve decision authority through the succession register under all availability conditions, MUST preserve dual-control separation through every activation, and MUST refuse authority inferred from proximity, habit, or history.
+
+### Future AI Notes
+
+When operating on `Treasury Ownership Succession`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST resolve decision authority through the succession register under all availability conditions, MUST preserve dual-control separation through every activation, and MUST refuse authority inferred from proximity, habit, or history.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Ownership Succession` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| register | Extend the ownership register with qualified, current successors per authority. | register stage receipt |
+| qualify | Bind qualification to rehearsal evidence and register knowledge currency. | qualify stage receipt |
+| activate | Implement planned handover and scoped emergency activation. | activate stage receipt |
+| dual | Enforce dual-control preservation through activations. | dual stage receipt |
+| verify | Test succession under simulated unavailability in game days. | verify stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Ownership Succession` needs a bounded context, loaded in this order:
+
+- This section in full, including the activation model and dual-control rule.
+- Section 74 (`Treasury Governance Operations`) for the ownership register this extends.
+- Section 87 (`Treasury Simulation and Game Days`) for the rehearsals qualification requires.
+- Section 19 (`Treasury Security and Trust Boundary`) for the scoped capability issuance activation uses.
+- Section 88 (`Operational Treasury Governance at Scale`) for the chairs and root this covers.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. Successor entries with qualification evidence schema.
+2. Qualification currency tracking.
+3. Handover and emergency activation workflows.
+4. Dual-control preservation checks in approval tooling.
+5. Succession scenarios in the game day library.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Ownership Succession`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Routing approvals to historical approvers when primaries are away | The deputy always handled it anyway | Habit is not authority; emergency activation exists for exactly this moment and takes minutes |
+| Naming successors without qualification | A name in the register satisfies the checklist | An unqualified successor is a vacancy with better paperwork; qualification is rehearsal plus currency |
+| Merging dual controls under absence pressure | Both keyholders are unreachable and the decision is urgent | The waiting rule is the control; a merged approval under pressure is precisely the scenario dual control exists to prevent |
+| Leaving emergency activations open-ended | The primary's return date is unclear | Emergency scope is per decision class with root confirmation windows; open-ended activation is unregistered succession |
+| Treating the Project Owner as exempt from succession | Terminal authority feels unsuccessionable | Terminal authority needs succession most; its register entry and procedure are entrenched clauses per Section 90 |
+
+### Security
+
+Activation issues scoped, expiring, audited capabilities per Section 19 — never shared credentials; qualification evidence is tamper-evident rehearsal records; activation triggers are audited with their justification; and the register itself is under root change control since it maps the estate's entire human attack surface.
+
+### Performance
+
+Register resolution is a cached governed lookup in approval tooling; activation workflows are control-plane operations with human-scale latency budgets.
+
+### Latency
+
+Emergency activation latency — trigger to lawful capability — is a declared, rehearsed budget per authority class; the dual-control waiting rule's latency is bounded by root-appointed alternates.
+
+### Scalability
+
+The register scales with the ownership register it extends; qualification load scales with authority count and rehearsal cadence, budgeted in the Section 87 program.
+
+### Reliability
+
+Succession is reliability for decisions: the estate's decision availability under any single-person loss is a testable property, exercised in game days that remove specific humans from play.
+
+### Caching
+
+Approval tooling caches register state with short validity; activation state reads authoritative; qualification currency is live register state.
+
+### Consistency
+
+Every activation, handover, and register change appends to the governance history with full attribution — authority's chain of custody, as reconstructable as the ledger's.
+
+**Diagram ID:** `CAT-TC-P4-S91-D002`  
+**Title:** Dual Controls Under Succession  
+**Purpose:** Show the waiting rule defeating convergence.  
+**Audience:** Approvers, root  
+**Reading Order:** Read with rule CAT-TC-CONST-182.
+
+```mermaid
+flowchart LR
+  D[Two-key decision] --> K1[Key 1: activated\nsuccessor Alice]
+  D --> K2[Key 2: succession\nalso resolves to Alice]
+  K2 --> CONV{Convergence check}
+  CONV -->|same human| WAIT[Alarmed wait +\nroot-appointed alternate]
+  CONV -->|distinct humans| GO[Decision proceeds]
+  MERGE[One human, both keys] -. forbidden .-> D
+```
+
+### Recovery
+
+After any authority disruption, the register reconciles: activations reviewed, scopes closed or confirmed, handovers completed, and any decision made outside lawful authority during the gap voided and re-decided lawfully — the Section 88 post-gap reconciliation applied to people.
+
+### Ownership
+
+The succession register is owned by the Lead Repository Architect under Project Owner authority; each authority's successor qualification by that authority's owner; activation review by the root at the coherence review.
+
+### Dependencies
+
+- Section 74 (`Treasury Governance Operations`) — the ownership register and vacancy alarms.
+- Section 87 (`Treasury Simulation and Game Days`) — qualification rehearsals and unavailability scenarios.
+- Section 90 (`Treasury Constitutional Amendment Process`) — entrenchment of the terminal authority's succession.
+
+### Risks
+
+- Qualification currency lapsing for rarely-exercised roles.
+- Successor concentration — one person succeeding too many authorities.
+- Emergency activation normalizing into informal permanent transfer.
+
+### Anti Patterns
+
+- Authority by proximity or habit.
+- Shared credentials as succession.
+- Open-ended emergency activations.
+
+### Best Practices
+
+- Cap the authorities any single person may succeed.
+- Rehearse the ugliest scenario: simultaneous loss of a dual-control pair.
+- Review activation history at every coherence review.
+
+### Examples
+
+Example: the Treasury Risk Owner is unreachable during a continuity objective approval window. Emergency activation triggers for the approval decision class: the qualified successor receives scoped capability in eleven minutes, approves with full audit trail, and the activation closes when the primary returns two days later — root notified throughout, register history complete, zero improvisation.
+
+### Counter Examples
+
+Counter example: a departing Security Owner 'hands over' to their senior engineer by walkthrough and shared context, skipping the register because the engineer knows everything anyway. Three months later, approval tooling still resolves to the departed owner, an urgent revocation stalls against a ghost, and the informal successor has been making calls nothing records. Knowledge transfers by walkthrough; authority transfers only by register.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury ownership succession model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury ownership succession model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury ownership succession model done.
+- [ ] Every registered authority carries at least one qualified, current successor.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury ownership succession model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury ownership succession model, not by convention or review habit.
+- [ ] The treasury ownership succession model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Game day scenarios prove decision availability under targeted human loss including dual-control pairs.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury ownership succession model with a named on-call owner.
+- [ ] Alert thresholds for the treasury ownership succession model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury ownership succession model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Qualification currency, successor concentration, and open activations are governance dashboard signals.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury ownership succession model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury ownership succession model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury ownership succession model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Register changes ride governed workflows with root visibility.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury ownership succession model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury ownership succession model before mutations are re-enabled.
+- [ ] A recovery report for the treasury ownership succession model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Post-gap authority reconciliation is rehearsed, with out-of-authority decisions voided and re-decided.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The succession model's constitutional text. |
+| `core/treasury/succession/register.yaml` | Planned | Successors, qualifications, currency. |
+| `core/treasury/succession/activation.py` | Planned | Handover and emergency workflows. |
+| `core/treasury/succession/dual_control.py` | Planned | Separation preservation checks. |
+
+### Folder Mapping
+
+The succession machinery lives in the planned `core/treasury/succession/` folder beside the governance estate it keeps decidable.
+
+### Cross References
+
+- Section 84 (`Treasury Continuity and Disaster Recovery`) — the approver-loss scenarios succession serves.
+- Section 88 (`Operational Treasury Governance at Scale`) — chairs and root among the covered authorities.
+- Section 77 (`Treasury Node Lifecycle and Membership`) — the lifecycle discipline this section mirrors for people.
+- Rule `CAT-TC-CONST-181` and Rule `CAT-TC-CONST-182` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S91-001` through `CAT-TC-AT-S91-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-181` — Registered Qualified Succession Only (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-182` — Dual Controls Never Merge (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury ownership succession model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S91-001`  
+**Meaning:** Every authority carries a qualified, current, registered successor; activation is governed and scoped, dual controls never merge under absence, and authority moves only through the register — never by proximity, habit, or walkthrough.  
+**Recall Trigger:** Any approver unavailability, handover, departure, or authority-resolution question.  
+**Operational Use:** Recall this anchor to trigger lawful activation instead of improvising, and to keep two-key decisions two-key under any staffing condition.
+
+### Future Evolution
+
+Section 96 measures succession health in the maturity model; the dual-control preservation and no-inheritance rules are permanent.
+
+### Operational Stories
+
+Operational story: the concentration dashboard flags one architect named successor for four authorities. Two of the four re-assign to newly qualified successors over a quarter — the cap enforced before the concentration became a crisis dependency on one calendar.
+
+### Execution Stories
+
+Execution story: a game day removes both members of a dual-control pair. The scenario's decision waits, root appoints an alternate through the declared path in forty minutes, and the decision lands with two independent keys — the waiting rule holding under exactly the pressure designed to break it.
+
+### Optimization Stories
+
+Optimization story: emergency activation latency varies wildly by authority class. Standardizing the trigger workflow and pre-staging successor capability templates brings every class inside its budget — the same optimization shape as Section 77's admission tuning, because the models rhyme on purpose.
+
+### Recovery Stories
+
+Recovery story: reconciliation after a chaotic week finds one decision approved by a successor whose activation window had lapsed hours earlier. The decision voids, re-decides lawfully with identical outcome, and the window-lapse alerting gains a hard stop — the register's integrity worth more than the convenience of letting it slide.
+
+**Diagram ID:** `CAT-TC-P4-S91-D003`  
+**Title:** Activation Lifecycle  
+**Purpose:** Show scoped emergency activation opening and closing lawfully.  
+**Audience:** Operators  
+**Reading Order:** Read with the pseudo code of Section 91.
+
+```mermaid
+stateDiagram-v2
+  [*] --> triggered: primary unreachable
+  triggered --> active_scoped: qualified successor + capability
+  active_scoped --> confirmed: root confirms in window
+  active_scoped --> expired: window lapses unconfirmed
+  confirmed --> closed: primary returns or handover completes
+  expired --> [*]
+  closed --> [*]
+```
+
+### Normative Requirements
+
+1. Every registered authority MUST carry at least one named successor with rehearsal-based qualification and currency tracking.
+2. Authority MUST transfer only through registered handover or scoped emergency activation; proximity, habit, and informal handover MUST NOT convey authority.
+3. Emergency activation MUST be scoped to pending decision classes, audited with triggers, and root-confirmed within declared windows.
+4. Dual-control decisions MUST always require two distinct qualified humans; succession MUST NOT merge controls under any availability condition.
+5. Decisions made outside lawful authority during gaps MUST be voided and re-decided through the register.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury ownership succession model.
+
+**Rule ID:** `CAT-TC-CONST-181`  
+**Title:** Registered Qualified Succession Only  
+**Purpose:** Keep every authority decidable without ever being informal.  
+**Normative Requirement:** Authority MUST resolve exclusively through the succession register under all availability conditions; every successor MUST hold current qualification — rehearsed crisis decisions per Section 87 and register knowledge currency; activations MUST issue scoped expiring capabilities per Section 19 with recorded triggers; and no authority MAY be exercised on the basis of proximity, precedent, or unregistered handover.  
+**Rationale:** Informal succession is untraceable authority, and untraceable authority in a treasury is indistinguishable from compromise.  
+**Enforcement:** Approval tooling resolving from the live register; activation workflow gating; game day scenarios proving register-only resolution.  
+**Violation:** An unregistered exercise of authority voids its decisions for lawful re-decision and reviews as a governance incident.  
+**Recovery:** Void, re-decide, register the lawful path, and close the tooling gap.  
+**Owner:** Lead Repository Architect
+
+**Rule ID:** `CAT-TC-CONST-182`  
+**Title:** Dual Controls Never Merge  
+**Purpose:** Preserve two-key decisions through every succession event.  
+**Normative Requirement:** Where a decision requires two authorities, succession and activation MUST never result in one human holding both keys; if activations would converge on one person, the decision MUST wait for a second qualified activation or a root-appointed alternate through the declared path; and the waiting state MUST alarm with its declared latency budget rather than resolve by merger.  
+**Rationale:** Dual control exists for the moments when one person under pressure would decide wrongly; those are exactly the moments succession activates, so the merger temptation peaks when the control matters most.  
+**Enforcement:** Convergence checks in activation workflows; approval tooling refusing single-human dual submissions; alternate-appointment path with SLA.  
+**Violation:** A merged dual approval is void, its decision re-decided with two keys, and the merger reviewed.  
+**Recovery:** Void, re-decide, appoint alternates, and rehearse the pair-loss scenario.  
+**Owner:** Project Owner (human, terminal authority)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S91-001`  
+**Purpose:** Prove authority resolves only through the register.  
+**Given:** An approval request with the primary unreachable and a historically-adjacent human attempting approval without activation.  
+**When:** The approval tooling evaluates both the attempt and a lawful emergency activation.  
+**Then:** The unactivated attempt refuses with `not-registered-authority`; the activated successor's approval succeeds with scoped capability.  
+**Failure Condition:** The unregistered human's approval lands.
+
+**Test ID:** `CAT-TC-AT-S91-002`  
+**Purpose:** Prove dual-control convergence is refused.  
+**Given:** A two-authority decision whose successions converge on one qualified human.  
+**When:** The second activation is requested for the same person.  
+**Then:** Activation refuses with `dual-control-convergence`, the decision enters the alarmed waiting state, and the alternate path triggers.  
+**Failure Condition:** One human obtains both capabilities.
+
+**Test ID:** `CAT-TC-AT-S91-003`  
+**Purpose:** Prove emergency activations close on schedule.  
+**Given:** An emergency activation with a declared root-confirmation window, left unconfirmed in a test harness.  
+**When:** The window elapses.  
+**Then:** The activation's capability expires, further exercises refuse, and the lapse alarms to the root.  
+**Failure Condition:** The capability outlives its unconfirmed window.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury ownership succession model defined by this section.
+
+```json
+{
+  "record_type": "treasury.succession.activation",
+  "activation_id": "sac_01J5Z25A2B3C4D5E6F7G8H9J0K",
+  "authority": "treasury-risk-owner",
+  "kind": "emergency-scoped",
+  "trigger": "primary-unreachable-during-approval-window",
+  "successor": "human:risk-deputy-01",
+  "qualification": {
+    "rehearsals_current": true,
+    "last_rehearsed": "2026-07-11",
+    "register_knowledge": "current"
+  },
+  "scope": {"decision_classes": ["continuity-objective-approval"]},
+  "capability": {"grant_id": "grt_01J5Z25B5C6D7E8F9G0H1J2K3L",
+                 "expires": "2026-08-17T20:00:00Z"},
+  "root_confirmation": {"required_within_hours": 48, "status": "notified"},
+  "activated_at": "2026-08-15T20:00:00Z",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury ownership succession model defined by this section.
+
+```yaml
+treasury_succession:
+  version: 0.1.0
+  register:
+    extends: section-74-ownership-register
+    per_authority: at-least-one-qualified-successor
+    qualification: [rehearsed-crisis-decisions, register-knowledge-currency]
+  activation:
+    planned: governed-handover-overlap-checklist-signoff
+    emergency:
+      scope: pending-decision-classes-only
+      capability: typed-scoped-expiring-audited
+      confirmation: root-within-declared-window
+  dual_control:
+    preservation: absolute
+    convergence: wait-or-root-appointed-alternate
+    merger: forbidden
+  inheritance:
+    by_proximity: forbidden
+    by_habit: forbidden
+    by_walkthrough: forbidden
+```
+
+### Pseudo Code
+
+```text
+function resolve_authority(decision):
+    primary = register.primary(decision.authority)
+    if available(primary):
+        return primary
+    act = register.active_activation(decision.authority,
+                                     decision.decision_class)
+    if act and act.capability.valid():
+        return act.successor
+    return trigger_emergency_activation(decision)   # never improvise
+
+function check_dual(decision, key1, key2):
+    if human_of(key1) == human_of(key2):
+        alarm('dual-control-convergence', decision)
+        return wait_for_alternate(decision)          # never merge
+    return proceed(decision)
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/succession/             # Planned
+  register.yaml                       # Planned: successors + currency
+  activation.py                       # Planned: handover + emergency
+  dual_control.py                     # Planned: convergence checks
+  reconciliation.py                   # Planned: post-gap review
+```
+
+## 92. Treasury Data Lifecycle and Archival
+
+**Section ID:** `CAT-TC-P4-92`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** archival tier and retention record  
+**Primary question:** How does every class of treasury data age through storage tiers, what may never be deleted, what must eventually be minimized, and how do both duties hold at once?
+
+### Purpose
+
+This section fixes the data lifecycle and archival model: how treasury data ages from hot operation to permanent history. It defines the data class register (every stored record class from the Section 17 repository and everything Part 2 through Part 4 added — ledger entries, authorization artifacts, audit events, flow records, membership histories, statements, close snapshots, analytics views, detection findings, experiment records — mapped to its lifecycle: hot tier residency, warm demotion criteria, archival format, and terminal disposition), the tier architecture (hot tiers serve operations per the Section 78 classes; warm tiers serve analytical and audit access with declared retrieval budgets; archive tiers hold sealed, digest-anchored, format-migrated history per the Section 66 statement discipline — with every demotion preserving the record's integrity proofs and every tier transition evidence-bearing), the retention duality (financial truth — the ledger, its authorization chain, and its audit trail — retains permanently in archive, digest-anchored so tampering is detectable forever; personal and counterparty data within records honors minimization duties per Section 73 through the sanitization split: the financial skeleton retains forever while personal payload fields minimize on schedule, with the split designed into record schemas from Part 1's provenance model so minimization never breaks a hash chain), and the format survival rule: archives outlive formats — every archive tier carries format migration obligations with Section 81-style restore-proof cadences, because an archive that can no longer be read is a deletion with extra steps.
+
+### Business Perspective
+
+The lifecycle model reconciles the business's two non-negotiables: auditability forever and privacy compliance always. The sanitization split means no regulator forces a choice between deleting financial history and violating minimization duties — the skeleton stays provable while the personal payload ages out lawfully. Storage economics follow the same honesty: tiering is priced per Section 58 economics, so retention costs are measured decisions.
+
+### Engineering Perspective
+
+Engineering implements the register as governed schema annotations: every record class declares its tier path, demotion criteria, sanitization split, and format obligations at design time — a record class without lifecycle annotations fails schema review. Demotions are evidence-bearing batch operations; sanitization is field-level cryptographic erasure where the split allows; and archive integrity rides periodic digest verification against the anchors per Section 8's external anchor discipline.
+
+### Architecture Perspective
+
+Architecturally, this section completes the storage story Sections 8, 17, and 81 built: the ledger is append-only (8), the stores are truth-classified (17), durability is proven (81), and now age is governed (92). The sanitization split is the architectural keystone — designed into schemas so the permanent and the minimizable separate cleanly, rather than fought over record-by-record when duties collide.
+
+**Diagram ID:** `CAT-TC-P4-S92-D001`  
+**Title:** The Tiered Life of a Record  
+**Purpose:** Show hot, warm, and archive aging with preserved proofs.  
+**Audience:** Engineers, data owners  
+**Reading Order:** Read first in Section 92.
+
+```mermaid
+flowchart LR
+  W[Record written\nhash-chained] --> HOT[Hot tier\n90 days, operations]
+  HOT -->|criteria + evidence| WARM[Warm tier\n2 years, audit + analytics]
+  WARM -->|criteria + evidence| ARC[Archive tier\npermanent skeleton\ndigest-anchored]
+  ARC --> PROOF[Restore proofs\non cadence]
+  ARC --> MIN[Payload minimization\non schedule]
+```
+
+### AI Perspective
+
+For an AI collaborator, the register answers data-handling questions mechanically: this record class, this tier, this retention, this sanitization schedule. The characteristic AI failure is retention absolutism in either direction — treating everything as permanently retained because the ledger is, or everything as minimizable because privacy duties exist. The split is per-field by design; the corrective is to read the class register, never to reason from the record's vibe.
+
+### Developer Notes
+
+Developers should design the sanitization split into every new record class at birth: separating skeleton from payload after millions of records exist is archaeology; at schema time it is a field annotation.
+
+### Codex Notes
+
+When operating on `Treasury Data Lifecycle and Archival`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST map every record class to its registered lifecycle with tier path and sanitization split, MUST preserve integrity proofs through every demotion and minimization, and MUST refuse record designs lacking lifecycle annotations or mixing permanent skeleton with minimizable payload in unsplittable fields.
+
+### Claude Code Notes
+
+When operating on `Treasury Data Lifecycle and Archival`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST map every record class to its registered lifecycle with tier path and sanitization split, MUST preserve integrity proofs through every demotion and minimization, and MUST refuse record designs lacking lifecycle annotations or mixing permanent skeleton with minimizable payload in unsplittable fields.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Data Lifecycle and Archival`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST map every record class to its registered lifecycle with tier path and sanitization split, MUST preserve integrity proofs through every demotion and minimization, and MUST refuse record designs lacking lifecycle annotations or mixing permanent skeleton with minimizable payload in unsplittable fields.
+
+### Cursor Notes
+
+When operating on `Treasury Data Lifecycle and Archival`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST map every record class to its registered lifecycle with tier path and sanitization split, MUST preserve integrity proofs through every demotion and minimization, and MUST refuse record designs lacking lifecycle annotations or mixing permanent skeleton with minimizable payload in unsplittable fields.
+
+### Future AI Notes
+
+When operating on `Treasury Data Lifecycle and Archival`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST map every record class to its registered lifecycle with tier path and sanitization split, MUST preserve integrity proofs through every demotion and minimization, and MUST refuse record designs lacking lifecycle annotations or mixing permanent skeleton with minimizable payload in unsplittable fields.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Data Lifecycle and Archival` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| register | Map every record class to tiers, demotion criteria, and terminal disposition. | register stage receipt |
+| split | Design sanitization splits into record schemas with field-level annotations. | split stage receipt |
+| tiers | Implement evidence-bearing demotion and digest-anchored archival. | tiers stage receipt |
+| minimize | Implement scheduled field-level minimization preserving hash chains. | minimize stage receipt |
+| survive | Operate format migration with restore-proof cadence per archive tier. | survive stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Data Lifecycle and Archival` needs a bounded context, loaded in this order:
+
+- This section in full, including the retention duality and format survival rule.
+- Section 17 (`Treasury Repository`) for the stores the register classifies.
+- Section 8 (`Ledger and Transaction Model`) for the permanence and anchor discipline.
+- Section 73 (`Treasury Compliance Operations`) for the minimization duties honored.
+- Section 81 (`Treasury Replication and Durability`) for the restore-proof discipline archives inherit.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. The data class register with lifecycle annotations.
+2. Schema-review gating on lifecycle completeness.
+3. Demotion machinery with integrity preservation.
+4. Field-level minimization with chain-safe erasure.
+5. Format migration and archive restore proofs.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Data Lifecycle and Archival`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Deleting financial skeletons under privacy pressure | The deletion request names the whole record | The split answers the request lawfully: payload minimizes, skeleton retains — deleting truth is never the compliant option |
+| Retaining personal payloads because the ledger is permanent | Permanence feels like a blanket property | Permanence is per-field by design; the register says which fields, and minimization schedules are duties, not suggestions |
+| Archiving without format obligations | Today's format will surely remain readable | Formats die faster than retention periods; unreadable archives are deletions with extra steps |
+| Breaking hash chains during sanitization | Erasing a field changes the record's digest | The split design hashes skeleton and payload separately from birth; chains never cover minimizable fields directly |
+| Skipping demotion evidence for bulk operations | Millions of records make per-batch evidence heavy | Evidence scales by batch, not by record; an unevidenced demotion is an unprovable custody transfer |
+
+### Security
+
+Archive tiers are encrypted with governed key custody and access-audited; sanitization is cryptographic erasure with destruction evidence; digest anchors make archive tampering detectable forever; and the register itself is governed configuration since it encodes what the estate may forget.
+
+### Performance
+
+Tiering keeps hot stores small and fast; warm retrieval budgets are declared per class; archival and minimization run as budgeted background workloads per Section 72.
+
+### Latency
+
+Hot-tier latency is the Section 78 story; warm retrievals carry declared budgets; archive retrievals are scheduled operations with SLAs, not hot-path calls.
+
+### Scalability
+
+Tiers scale independently; the register scales with schema count; minimization throughput scales with the erasure batch machinery, sized against duty deadlines.
+
+### Reliability
+
+Archive reliability is the restore-proof cadence: every tier proves readability and integrity on schedule, and a failed proof is a data incident, not a curiosity.
+
+### Caching
+
+Hot and warm tiers cache per their access patterns; archives never cache — retrievals verify against anchors on every access; register state caches as governed configuration.
+
+### Consistency
+
+Tier transitions are evidence-bearing and ordered; a record's location is derivable from its class and age; and integrity proofs survive every transition — custody without gaps, from write to forever.
+
+**Diagram ID:** `CAT-TC-P4-S92-D002`  
+**Title:** The Sanitization Split  
+**Purpose:** Show permanence and minimization coexisting per field.  
+**Audience:** Schema designers, compliance  
+**Reading Order:** Read with rule CAT-TC-CONST-183.
+
+```mermaid
+flowchart TB
+  REC[Record schema] --> SK[Skeleton fields:\namounts, accounts,\nauth chain, timestamps]
+  REC --> PL[Payload fields:\ndestination details,\ncontact data]
+  SK --> CHAIN[Hash chain covers directly\nretained forever]
+  PL --> COMMIT[Erasure-safe commitment\nminimized on schedule]
+  COMMIT --> ER[Cryptographic erasure\n+ destruction evidence]
+  ER -.chain still verifies.-> CHAIN
+```
+
+### Recovery
+
+Recovery uses the tier chain in reverse: hot restores from warm and archive per Section 84's ledger-first order; a corrupted archive segment restores from its replicated sibling with anchor verification; and unrecoverable segments are declared as evidence-bearing loss records, never silently dropped.
+
+### Ownership
+
+The data class register is owned by the planned Treasury Data Owner; minimization schedules jointly with the compliance authority per Section 73; archive integrity by the planned Treasury Engineering Owner; retention cost review by the finance owner per Section 58.
+
+### Dependencies
+
+- Section 73 (`Treasury Compliance Operations`) — the duties minimization honors.
+- Section 8 (`Ledger and Transaction Model`) — permanence, anchors, and chain design.
+- Section 58 (`Treasury Economics Model`) — the pricing of retention decisions.
+
+### Risks
+
+- Sanitization splits omitted in new schemas under delivery pressure.
+- Format migration debt accumulating in rarely-touched archive tiers.
+- Minimization schedules drifting from evolving privacy statutes.
+
+### Anti Patterns
+
+- Whole-record deletion of anything financial.
+- Personal payloads in hash-chained fields.
+- Archives without restore-proof cadences.
+
+### Best Practices
+
+- Gate schema review on lifecycle annotations.
+- Verify a random archive segment monthly beyond the cadence minimum.
+- Review minimization schedules with compliance on statute changes.
+
+### Examples
+
+Example: a withdrawal record ages: ninety days hot serving operations, two years warm serving audit and analytics, then archival — its financial skeleton (amounts, accounts, authorization chain, timestamps) digest-anchored forever, its personal payload (destination details) cryptographically erased at the five-year duty boundary with destruction evidence. Every transition evidenced, every proof preserved, both duties honored without collision.
+
+### Counter Examples
+
+Counter example: a rushed integration stores a counterparty's full details inside a hash-chained ledger memo field. Five years later, a lawful erasure duty arrives and the field cannot minimize without breaking the chain. The remediation — re-anchoring a parallel sanitized chain with dual verification — costs a quarter of engineering time that a schema-review gate would have saved with one annotation.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury data lifecycle and archival model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury data lifecycle and archival model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury data lifecycle and archival model done.
+- [ ] Every record class carries complete lifecycle annotations enforced at schema review.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury data lifecycle and archival model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury data lifecycle and archival model, not by convention or review habit.
+- [ ] The treasury data lifecycle and archival model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Minimization operations preserve hash chain verifiability in test and production.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury data lifecycle and archival model with a named on-call owner.
+- [ ] Alert thresholds for the treasury data lifecycle and archival model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury data lifecycle and archival model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Tier occupancy, demotion lag, minimization schedule adherence, and archive proof currency are dashboard signals.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury data lifecycle and archival model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury data lifecycle and archival model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury data lifecycle and archival model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Format migrations carry restore proofs before old-format readers retire.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury data lifecycle and archival model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury data lifecycle and archival model before mutations are re-enabled.
+- [ ] A recovery report for the treasury data lifecycle and archival model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Archive segment restoration with anchor verification is rehearsed on cadence.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The data lifecycle model's constitutional text. |
+| `core/treasury/datalifecycle/register.yaml` | Planned | Class-to-lifecycle map. |
+| `core/treasury/datalifecycle/demotion.py` | Planned | Evidence-bearing tier transitions. |
+| `core/treasury/datalifecycle/minimization.py` | Planned | Chain-safe field erasure. |
+
+### Folder Mapping
+
+The lifecycle machinery lives in the planned `core/treasury/datalifecycle/` folder beneath the stores it ages.
+
+### Cross References
+
+- Section 17 (`Treasury Repository`) — the classified stores this register covers.
+- Section 66 (`Treasury Reporting and Statements`) — the sealed artifact discipline archives extend.
+- Section 84 (`Treasury Continuity and Disaster Recovery`) — the restoration chain tiers serve.
+- Rule `CAT-TC-CONST-183` and Rule `CAT-TC-CONST-184` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S92-001` through `CAT-TC-AT-S92-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-183` — The Sanitization Split (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-184` — Archives That Prove They Live (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury data lifecycle and archival model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S92-001`  
+**Meaning:** Data ages through registered tiers with evidence; financial skeletons retain forever under digest anchors while personal payloads minimize on schedule through the designed-in split — and archives prove readability on cadence or they are deletions in disguise.  
+**Recall Trigger:** Any retention question, deletion request, schema design, or archive format decision.  
+**Operational Use:** Recall this anchor to honor permanence and minimization at once through the split, never by sacrificing either.
+
+### Future Evolution
+
+Section 94 registers extension points for new record classes, which inherit lifecycle annotation duties at birth; the retention duality and format survival rules are permanent.
+
+### Operational Stories
+
+Operational story: the schedule-adherence dashboard flags a minimization batch aging past its duty deadline as erasure throughput lags a record class's growth. The batch machinery scales per its Section 72 envelope, clears the backlog inside the statutory window, and the class's growth forecast joins capacity planning — a compliance near-miss converted into a sizing input.
+
+### Execution Stories
+
+Execution story: an audit requests seven-year-old settlement evidence. Warm misses, archive retrieval verifies against anchors, and the records return with their full integrity chain — the auditors' verification of the digests taking longer than the retrieval, which is exactly the right ratio.
+
+### Optimization Stories
+
+Optimization story: hot-tier costs climb as an analytics consumer keeps records hot past their demotion criteria. The consumer moves to warm-tier reads within its declared budget, hot occupancy drops a third, and the economics review per Section 58 prices the saving — tiering discipline paying rent.
+
+### Recovery Stories
+
+Recovery story: a format migration's restore proof fails on one archive segment — a codec edge case corrupting a fraction of records. The segment restores from its replicated sibling, the codec fixes before the migration proceeds, and the proof cadence catches in rehearsal what production would have found at audit time.
+
+**Diagram ID:** `CAT-TC-P4-S92-D003`  
+**Title:** Archives Must Prove They Live  
+**Purpose:** Show format survival through proofs and gated migrations.  
+**Audience:** Engineering owners  
+**Reading Order:** Read with rule CAT-TC-CONST-184.
+
+```mermaid
+flowchart LR
+  ARC[(Archive tier)] --> P{Cadence proof:\nintegrity + readability}
+  P -->|passes| OK[Counts as durable]
+  P -->|fails| INC[Data incident:\nrestore from sibling]
+  FMT[Format migration] --> G{Migrated archive\nrestore-complete?}
+  G -->|proven| RET[Retire old readers]
+  G -->|not proven| HOLD[Old readers stay]
+```
+
+### Normative Requirements
+
+1. Every record class MUST carry registered lifecycle annotations: tier path, demotion criteria, sanitization split, and terminal disposition.
+2. Financial skeletons — ledger, authorization chain, audit trail — MUST retain permanently with digest anchors.
+3. Personal and counterparty payload fields MUST minimize on registered schedules through chain-safe erasure with destruction evidence.
+4. Every tier transition MUST bear evidence and preserve integrity proofs.
+5. Every archive tier MUST prove readability and integrity on declared cadence, with format migrations proven before old readers retire.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury data lifecycle and archival model.
+
+**Rule ID:** `CAT-TC-CONST-183`  
+**Title:** The Sanitization Split  
+**Purpose:** Honor permanence and minimization simultaneously, by design.  
+**Normative Requirement:** Record schemas MUST separate permanent financial skeleton from minimizable personal payload at design time, with hash chains covering skeletons directly and payloads only via erasure-safe commitments; minimization MUST erase payload fields on registered schedules with destruction evidence while leaving chain verifiability intact; and whole-record deletion of financial truth MUST NOT occur under any duty, request, or pressure.  
+**Rationale:** When permanence and privacy collide in a single unsplit field, one lawful duty must be violated; the split dissolves the collision before it exists.  
+**Enforcement:** Schema review gating on split annotations; chain-safety verification in minimization machinery; refusal of financial-truth deletion requests with the lawful split alternative documented.  
+**Violation:** An unsplittable schema is corrected before production; a chain-breaking erasure halts and remediates through parallel anchored re-verification.  
+**Recovery:** Remediate the schema, re-anchor where damaged, and verify duties are both met.  
+**Owner:** Treasury Data Owner (Planned role)
+
+**Rule ID:** `CAT-TC-CONST-184`  
+**Title:** Archives That Prove They Live  
+**Purpose:** Keep permanent history readable across decades of format decay.  
+**Normative Requirement:** Every archive tier MUST carry declared restore-proof cadences verifying both integrity against digest anchors and readability in current tooling; format migrations MUST prove the migrated archive restore-complete before retiring old-format readers; and a failed archive proof MUST be treated as a data incident with the affected segments restored or declared as evidence-bearing loss.  
+**Rationale:** Retention periods outlive storage formats; an archive nobody can read has been deleted by entropy, and entropy does not file change cases.  
+**Enforcement:** Proof cadence tracking per tier; migration gates on restore-completeness; incident wiring on proof failure.  
+**Violation:** A lapsed or failed proof demotes the tier's durability accounting per Section 81 and triggers restoration.  
+**Recovery:** Restore from siblings, fix the decay source, and re-prove.  
+**Owner:** Treasury Engineering Owner (Planned role)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S92-001`  
+**Purpose:** Prove minimization preserves chain verifiability.  
+**Given:** An archived record with hash-chained skeleton and erasure-committed payload, and a due minimization schedule.  
+**When:** Field-level erasure executes.  
+**Then:** The payload fields are cryptographically erased with destruction evidence, and the skeleton's chain verifies end to end unchanged.  
+**Failure Condition:** Chain verification breaks or payload survives its schedule.
+
+**Test ID:** `CAT-TC-AT-S92-002`  
+**Purpose:** Prove financial-truth deletion refuses with the lawful alternative.  
+**Given:** A deletion request naming a whole settlement record.  
+**When:** The request processes.  
+**Then:** Whole-record deletion refuses; the response documents the split outcome — payload minimization scheduled, skeleton retained — with duty citations.  
+**Failure Condition:** Any financial skeleton deletes.
+
+**Test ID:** `CAT-TC-AT-S92-003`  
+**Purpose:** Prove failed archive proofs trigger incidents.  
+**Given:** An archive segment with induced corruption in a test tier.  
+**When:** The restore-proof cadence runs.  
+**Then:** The proof fails, a data incident opens, the segment restores from its sibling, and durability accounting reflects the interval.  
+**Failure Condition:** The failed proof passes silently or the segment stays corrupt.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury data lifecycle and archival model defined by this section.
+
+```json
+{
+  "record_type": "treasury.datalifecycle.class",
+  "class_id": "dlc_withdrawal_record",
+  "lifecycle": {
+    "hot_days": 90,
+    "warm_years": 2,
+    "terminal": "archive-permanent-skeleton"
+  },
+  "sanitization_split": {
+    "skeleton_fields": ["amounts", "accounts", "authorization_chain",
+                        "timestamps", "correlation_id"],
+    "payload_fields": ["destination_details", "counterparty_contact"],
+    "payload_schedule_years": 5,
+    "erasure": "cryptographic-with-evidence"
+  },
+  "integrity": {
+    "chain_covers": "skeleton-direct-payload-by-commitment",
+    "anchors": "external-digest-anchored"
+  },
+  "format_obligations": {
+    "migration_owner": "treasury-engineering-owner",
+    "restore_proof_cadence_days": 180
+  },
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury data lifecycle and archival model defined by this section.
+
+```yaml
+treasury_data_lifecycle:
+  version: 0.1.0
+  register:
+    coverage: every-record-class
+    gate: schema-review-requires-annotations
+  tiers:
+    hot: operational-serving
+    warm: audit-and-analytics-with-budgets
+    archive: sealed-digest-anchored-format-migrated
+    transitions: evidence-bearing-integrity-preserving
+  retention_duality:
+    financial_skeleton: permanent-anchored
+    personal_payload: minimized-on-schedule
+    mechanism: designed-in-sanitization-split
+    whole_record_financial_deletion: forbidden
+  format_survival:
+    proofs: readability-and-integrity-on-cadence
+    migrations: proven-before-reader-retirement
+```
+
+### Pseudo Code
+
+```text
+function minimize(record_class, batch):
+    split = register[record_class].sanitization_split
+    for record in batch:
+        assert chain_covers_skeleton_only(record, split)
+        evidence = erase_fields(record, split.payload_fields)
+        assert verify_chain(record)          # skeleton chain intact
+        record_destruction(record, evidence)
+
+function handle_deletion_request(request):
+    if touches_financial_skeleton(request):
+        return refuse_with_alternative(
+            'financial-truth-permanent',
+            alternative=schedule_payload_minimization(request))
+    return process_lawful_minimization(request)
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/datalifecycle/          # Planned
+  register.yaml                       # Planned: class lifecycle map
+  demotion.py                         # Planned: tier transitions
+  minimization.py                     # Planned: chain-safe erasure
+  format_migration.py                 # Planned: archive survival
+```
+
+## 93. Treasury Interoperability and External Standards
+
+**Section ID:** `CAT-TC-P4-93`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** external interface registration record  
+**Primary question:** How does the treasury speak the outside world's financial languages — bank formats, accounting exports, regulatory schemas, partner APIs — without any external standard reshaping internal truth?
+
+### Purpose
+
+This section fixes the interoperability model: how the treasury exchanges data with external systems that speak other standards. It defines the interface register (a closed catalogue of external interfaces — bank statement ingestion in rail-native formats per Section 27, accounting system exports derived from Section 66 statements, regulatory reporting schemas per Section 73, partner reconciliation feeds per Section 35, and the engine seams already fixed in Sections 42 through 44 — each registered with its direction, format standard, translation contract, and owning authority), the translation boundary (every external format converts at the boundary through registered, versioned translators: inbound records translate into Section 5 vocabulary terms with provenance marking their external origin and original payload preserved per Section 10; outbound records derive from internal truth through deterministic projections that carry no internal identifiers beyond the interface's declared disclosure class — the Section 56 sanitization discipline applied to every external edge), the standards posture (the treasury adopts external standards at its edges and never internally: internal truth stays in the Part 1 domain model whatever formats the world requires, so a new banking standard is a new translator, never a schema migration of the ledger), and the drift discipline: external standards evolve on external schedules — every registered interface carries version detection, compatibility windows per the Section 82 skew logic, and parking per Section 80 for messages that no registered translator version can lawfully process.
+
+### Business Perspective
+
+Interoperability is where the treasury meets banks, accountants, regulators, and partners — and the translation boundary means each of those relationships can evolve independently without internal re-architecture. The business adds a bank, an accounting package, or a regulatory regime by registering an interface, not by reshaping financial truth.
+
+### Engineering Perspective
+
+Engineering implements translators as pure, versioned, testable functions with fixture suites drawn from real external samples; the interface register binds each to its owning authority and disclosure class; inbound parking rides the Section 35 break machinery for untranslatable messages; and version detection sits ahead of every translator so format drift surfaces as classification, never as corruption.
+
+### Architecture Perspective
+
+Architecturally, this section generalizes what Section 27 did for rails to every external edge: adapters contain external semantics at the boundary, internal truth stays sovereign, and evidence of external interaction preserves bidirectionally. The engine seams of Sections 42 through 44 are the internal-facing siblings of the same discipline — the treasury's edges are all translation boundaries, differing only in what they translate.
+
+**Diagram ID:** `CAT-TC-P4-S93-D001`  
+**Title:** Every Edge Is a Translation Boundary  
+**Purpose:** Show external standards contained at registered interfaces.  
+**Audience:** Architects, integrators  
+**Reading Order:** Read first in Section 93.
+
+```mermaid
+flowchart LR
+  BANK[Banks\nrail formats] --> T1[Translator]
+  ACC[Accounting\nexport formats] <-- T2[Projection] --- CORE
+  REG[Regulators\nreporting schemas] <-- T3[Projection] --- CORE
+  T1 --> CORE[(Internal truth\nSection 5 vocabulary only)]
+  PART[Partners\nrecon feeds] <--> T4[Translator +\ndisclosure filter]
+  T4 --- CORE
+```
+
+### AI Perspective
+
+For an AI collaborator, the interface register bounds every integration task: the formats, the translators, the disclosure classes, and the parking queues are all named. The characteristic AI failure is standard bleed-through — letting an external schema's concepts leak into internal models because translation feels wasteful, storing bank-format fields on internal records 'for convenience'. Internal truth speaks Section 5 vocabulary only; the corrective is that convenience fields at the edge become schema debt at the core, and the original payload is already preserved in provenance for anyone who needs it.
+
+### Developer Notes
+
+Developers should build translators from real-world samples, not specification documents alone: external standards as implemented diverge from external standards as written, and the fixture suite of actual bank files is worth more than the PDF that describes them.
+
+### Codex Notes
+
+When operating on `Treasury Interoperability and External Standards`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route every external exchange through registered versioned translators at the boundary, MUST keep internal truth in internal vocabulary regardless of external standards, and MUST refuse designs that store external-format fields on internal records or expose internal identifiers beyond declared disclosure classes.
+
+### Claude Code Notes
+
+When operating on `Treasury Interoperability and External Standards`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route every external exchange through registered versioned translators at the boundary, MUST keep internal truth in internal vocabulary regardless of external standards, and MUST refuse designs that store external-format fields on internal records or expose internal identifiers beyond declared disclosure classes.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Interoperability and External Standards`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route every external exchange through registered versioned translators at the boundary, MUST keep internal truth in internal vocabulary regardless of external standards, and MUST refuse designs that store external-format fields on internal records or expose internal identifiers beyond declared disclosure classes.
+
+### Cursor Notes
+
+When operating on `Treasury Interoperability and External Standards`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route every external exchange through registered versioned translators at the boundary, MUST keep internal truth in internal vocabulary regardless of external standards, and MUST refuse designs that store external-format fields on internal records or expose internal identifiers beyond declared disclosure classes.
+
+### Future AI Notes
+
+When operating on `Treasury Interoperability and External Standards`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route every external exchange through registered versioned translators at the boundary, MUST keep internal truth in internal vocabulary regardless of external standards, and MUST refuse designs that store external-format fields on internal records or expose internal identifiers beyond declared disclosure classes.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Interoperability and External Standards` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| register | Catalogue every external interface with direction, standard, translator, and owner. | register stage receipt |
+| translate | Implement pure versioned translators with real-sample fixture suites. | translate stage receipt |
+| disclose | Enforce disclosure classes on every outbound projection. | disclose stage receipt |
+| detect | Implement version detection with compatibility windows per interface. | detect stage receipt |
+| park | Wire untranslatable messages into break-queue parking. | park stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Interoperability and External Standards` needs a bounded context, loaded in this order:
+
+- This section in full, including the translation boundary and standards posture.
+- Section 27 (`Settlement Rail Contracts`) for the adapter containment this generalizes.
+- Section 10 (`Financial Provenance Model`) for the original-payload preservation.
+- Section 66 (`Treasury Reporting and Statements`) for the statements exports derive from.
+- Section 73 (`Treasury Compliance Operations`) for the regulatory schemas served.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. The interface register schema with disclosure classes.
+2. Translator contracts with version binding.
+3. Real-sample fixture suites per interface.
+4. Version detection and window checking.
+5. Untranslatable-message parking.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Interoperability and External Standards`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Storing external-format fields on internal records | Keeping the bank's field saves a lookup later | Provenance already preserves the original payload; internal records speak internal vocabulary only |
+| Translating from specifications without real samples | The standard document is authoritative | Implemented standards diverge from written ones; fixtures come from actual files |
+| Exposing internal identifiers in partner feeds | The partner asked for stable IDs | Disclosure classes define what crosses; stable external aliases exist for exactly this need |
+| Processing unrecognized format versions best-effort | Most fields still parse | Partial parsing of financial messages invents data; unrecognized versions park for translator updates |
+| Migrating internal schemas to match a new external standard | The standard is now industry-wide | Standards live at edges; a new standard is a new translator version, and the ledger never notices |
+
+### Security
+
+Outbound projections pass disclosure-class filters with refusals audited; inbound payloads are untrusted input with full validation before translation; translator versions are registry-governed like Section 82 builds; and external interface credentials are scoped per interface with no shared external identity.
+
+### Performance
+
+Translators are pure functions that scale horizontally; inbound bursts buffer at the boundary per declared envelopes; outbound derivations batch from sealed sources.
+
+### Latency
+
+Interface latency budgets are per interface and direction; regulatory export deadlines drive scheduled derivations; nothing external sits on the financial hot path.
+
+### Scalability
+
+New interfaces register without touching existing ones; translator fixture suites grow with each real-world divergence discovered; version windows bound the simultaneous-version support cost.
+
+### Reliability
+
+Version detection ahead of translation converts format drift into parked, classified work instead of silent corruption; interface health per direction is observable with parking depth as the honest signal.
+
+### Caching
+
+Translator versions and register state cache as governed configuration; outbound projections cache as derived artifacts; inbound originals persist in provenance, never in caches.
+
+### Consistency
+
+Inbound translation is deterministic per translator version and outbound projection deterministic per source artifact — external exchange reproducible in both directions, the Section 66 regeneration discipline extended to the edges.
+
+**Diagram ID:** `CAT-TC-P4-S93-D002`  
+**Title:** Inbound: Translate, Mark, Preserve  
+**Purpose:** Show the inbound path with provenance-preserved originals.  
+**Audience:** Engineers  
+**Reading Order:** Read with rule CAT-TC-CONST-185.
+
+```mermaid
+sequenceDiagram
+  participant X as External System
+  participant D as Version Detection
+  participant T as Translator vN
+  participant P as Provenance
+  participant S as Internal Store
+  X->>D: message
+  alt version recognized
+    D->>T: classified message
+    T->>P: preserve original payload
+    T->>S: internal-vocabulary record + origin mark
+  else unrecognized
+    D->>P: preserve original
+    D->>D: park for translator update
+  end
+```
+
+### Recovery
+
+Interface recovery re-drives from preserved originals: a translator defect fixes, bumps its version, and re-translates affected inbound messages from provenance-preserved payloads; outbound errors re-derive from internal truth — both directions recover from their respective sources of truth.
+
+### Ownership
+
+The interface register is owned by the planned Treasury Engineering Owner; disclosure classes by the planned Treasury Security Owner; regulatory schema interfaces jointly with the compliance authority; accounting exports with the finance owner.
+
+### Dependencies
+
+- Section 27 (`Settlement Rail Contracts`) — the containment pattern generalized.
+- Section 35 (`Reconciliation Machinery`) — parking for the untranslatable.
+- Section 82 (`Multi-Node Deployment Coordination`) — the version window logic reused for external drift.
+
+### Risks
+
+- Interface sprawl as partner counts grow.
+- Fixture staleness against silently drifting external implementations.
+- Disclosure class erosion under partner convenience pressure.
+
+### Anti Patterns
+
+- External schemas inside internal models.
+- Best-effort parsing of financial messages.
+- Internal identifiers crossing edges outside disclosure classes.
+
+### Best Practices
+
+- Register interfaces before building translators.
+- Harvest fixtures from every parked untranslatable message.
+- Review disclosure classes with security on partner changes.
+
+### Examples
+
+Example: a new bank's statement format arrives. An interface registers with the rail's owning authority, a translator builds against fifty real statement samples, version detection learns the bank's format markers, and ingestion begins — with two oddball statement variants parking in the first week, becoming fixtures, and shipping in the translator's next version. Internal stores never learned the bank's field names.
+
+### Counter Examples
+
+Counter example: a partner feed exposes internal wallet identifiers because the partner wanted stable references. Two years later, a partner-side breach leaks the identifiers, and the treasury's internal keyspace is now adversary knowledge mapped to real counterparties. Disclosure classes exist because internal identifiers are architecture, and architecture leaked is architecture attacked.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury interoperability and external standards model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury interoperability and external standards model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury interoperability and external standards model done.
+- [ ] Every external interface is registered with direction, standard, translator version, disclosure class, and owner.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury interoperability and external standards model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury interoperability and external standards model, not by convention or review habit.
+- [ ] The treasury interoperability and external standards model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Translator fixture suites include real-world samples with divergence cases per interface.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury interoperability and external standards model with a named on-call owner.
+- [ ] Alert thresholds for the treasury interoperability and external standards model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury interoperability and external standards model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Interface health, parking depth, and version window status are dashboard signals per interface.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury interoperability and external standards model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury interoperability and external standards model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury interoperability and external standards model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] External standard changes land as translator versions with windows, never as internal migrations.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury interoperability and external standards model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury interoperability and external standards model before mutations are re-enabled.
+- [ ] A recovery report for the treasury interoperability and external standards model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Inbound re-translation from preserved originals is rehearsed per interface class.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The interoperability model's constitutional text. |
+| `core/treasury/interop/register.yaml` | Planned | Interface catalogue with disclosure classes. |
+| `core/treasury/interop/translators/` | Planned | Versioned pure translators. |
+| `core/treasury/interop/detection.py` | Planned | Format version classification. |
+
+### Folder Mapping
+
+The interoperability machinery lives in the planned `core/treasury/interop/` folder at the estate's outer edge.
+
+### Cross References
+
+- Section 42 (`Treasury Planning Integration`) — the internal seam siblings of these edges.
+- Section 66 (`Treasury Reporting and Statements`) — the sealed sources exports derive from.
+- Section 56 (`Agent Treasury Sandboxing`) — the sanitization discipline outbound projections follow.
+- Rule `CAT-TC-CONST-185` and Rule `CAT-TC-CONST-186` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S93-001` through `CAT-TC-AT-S93-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-185` — Translation At The Boundary Only (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-186` — Disclosure-Classed External Projection (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury interoperability and external standards model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S93-001`  
+**Meaning:** External standards live at the edges: registered interfaces, pure versioned translators, disclosure-classed projections, provenance-preserved originals — internal truth speaks internal vocabulary forever, and untranslatable messages park rather than parse partially.  
+**Recall Trigger:** Any integration design, external format request, partner feed, or standard adoption question.  
+**Operational Use:** Recall this anchor to translate at boundaries, preserve originals, and keep external schemas out of internal models.
+
+### Future Evolution
+
+Section 94 registers the extension points new interfaces flow through; the translation boundary and standards posture are permanent.
+
+### Operational Stories
+
+Operational story: parking depth on one bank interface rises as the bank silently deploys a format revision. Version detection classifies the new variant within hours, the parked messages become fixtures, the translator versions within the week, and re-translation drains the queue — drift handled as workflow, not incident.
+
+### Execution Stories
+
+Execution story: a regulatory export deadline meets its scheduled derivation: the report derives deterministically from sealed close snapshots per Section 67, passes its schema validation, and submits with its derivation reference recorded — reproducible on demand if the regulator ever asks how a figure was made.
+
+### Optimization Stories
+
+Optimization story: accounting export consumers want intraday updates from a daily interface. Rather than exposing internal projections, the interface adds a bounded-staleness labeled variant per Section 78 derived on a four-hour schedule — fresher data through the lawful edge, internal surfaces untouched.
+
+### Recovery Stories
+
+Recovery story: a translator defect is found to have mis-mapped a fee field for six weeks of one bank's statements. The fix versions the translator, re-translation re-derives every affected inbound record from preserved originals, and the corrected classifications flow through reconciliation — recovery from provenance, precisely as designed.
+
+**Diagram ID:** `CAT-TC-P4-S93-D003`  
+**Title:** Outbound: Derive, Filter, Disclose  
+**Purpose:** Show disclosure classes bounding every emission.  
+**Audience:** Security reviewers  
+**Reading Order:** Read with rule CAT-TC-CONST-186.
+
+```mermaid
+flowchart LR
+  TRUTH[(Internal truth)] --> DER[Deterministic projection]
+  DER --> F{Disclosure filter:\nfields, aliases, aggregation}
+  F -->|within class| OUT[Emission + audit]
+  F -->|violation| REF[Refused: field named\nemission halted]
+  IDS[Internal identifiers] -. only as scoped aliases\nwhere class permits .-> F
+```
+
+### Normative Requirements
+
+1. Every external exchange MUST flow through a registered interface with direction, standard, translator version, disclosure class, and owning authority.
+2. Inbound records MUST translate into internal vocabulary with external origin marked and original payloads preserved in provenance.
+3. Outbound records MUST derive deterministically from internal truth within declared disclosure classes; internal identifiers MUST NOT cross beyond them.
+4. Internal models MUST NOT adopt external schemas; standard changes land as translator versions.
+5. Messages no registered translator version can process MUST park for translator update, never parse partially.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury interoperability and external standards model.
+
+**Rule ID:** `CAT-TC-CONST-185`  
+**Title:** Translation At The Boundary Only  
+**Purpose:** Keep internal truth sovereign under every external standard.  
+**Normative Requirement:** External formats MUST convert only at registered boundary translators; internal records MUST carry only Section 5 vocabulary fields with external originals preserved in provenance; external standard adoption MUST occur as translator registration or versioning, never as internal schema change; and partial parsing of financial messages MUST NOT occur — unrecognized formats park.  
+**Rationale:** Every external schema admitted into internal models is a foreign constitution amending this one without an ADR; the boundary is where sovereignty is kept or lost.  
+**Enforcement:** Schema review refusing external-format fields internally; translator registry governance; version detection gating ahead of all translation; parking wiring for the unrecognized.  
+**Violation:** External fields found internally are migrated out with the interface re-routed through lawful translation.  
+**Recovery:** Migrate, re-translate from provenance, and close the review gap.  
+**Owner:** Treasury Engineering Owner (Planned role)
+
+**Rule ID:** `CAT-TC-CONST-186`  
+**Title:** Disclosure-Classed External Projection  
+**Purpose:** Bound what the outside world may learn from every edge.  
+**Normative Requirement:** Every outbound interface MUST declare its disclosure class enumerating the fields, identifier aliases, and aggregation levels it may emit; projections MUST pass disclosure filtering with refusals audited; internal identifiers MUST cross only as interface-scoped stable aliases where the class permits references at all; and disclosure class changes MUST ride security-owner review.  
+**Rationale:** Data crossing an edge is data the treasury no longer controls; the disclosure class is the last decision point that is still a decision.  
+**Enforcement:** Filter enforcement in every outbound path; alias issuance machinery; class change review; adversarial disclosure testing per Section 85.  
+**Violation:** An over-disclosing projection halts, its emissions are assessed for exposure, and the class or filter defect fixes before resumption.  
+**Recovery:** Halt, assess, fix, rotate exposed aliases, and resume under verified filtering.  
+**Owner:** Treasury Security Owner (Planned role)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S93-001`  
+**Purpose:** Prove external-format fields cannot enter internal records.  
+**Given:** An inbound bank statement and the translation path into internal stores.  
+**When:** Translation and persistence execute.  
+**Then:** The internal record carries only vocabulary fields with provenance referencing the preserved original; no bank-format field name exists internally.  
+**Failure Condition:** Any external-format field persists internally.
+
+**Test ID:** `CAT-TC-AT-S93-002`  
+**Purpose:** Prove unrecognized versions park rather than parse.  
+**Given:** An inbound message in a format variant no registered translator version matches.  
+**When:** Version detection classifies it.  
+**Then:** The message parks with its classification, the original preserves, and no partial translation reaches internal stores.  
+**Failure Condition:** Any field of the unrecognized message persists as translated data.
+
+**Test ID:** `CAT-TC-AT-S93-003`  
+**Purpose:** Prove disclosure filtering blocks internal identifiers.  
+**Given:** An outbound partner feed projection containing an internal wallet identifier injected by a test defect.  
+**When:** The disclosure filter evaluates the projection.  
+**Then:** The projection refuses with the violating field named, the emission halts, and the refusal audits.  
+**Failure Condition:** The internal identifier crosses the edge.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury interoperability and external standards model defined by this section.
+
+```json
+{
+  "record_type": "treasury.interop.interface",
+  "interface_id": "xif_01J5Z26A2B3C4D5E6F7G8H9J0K",
+  "name": "bank-alpha-statement-ingestion",
+  "direction": "inbound",
+  "standard": "camt.053-bank-alpha-dialect",
+  "translator": {"version": "2.3.0", "fixtures": 214},
+  "version_detection": {"markers": ["hdr-alpha-v2"], "window": ["2.x"]},
+  "disclosure_class": "not-applicable-inbound",
+  "provenance": "original-payload-preserved",
+  "parking_queue": "brk_untranslatable_bank_alpha",
+  "owner": "treasury-engineering-owner",
+  "registered_at": "2026-08-15",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury interoperability and external standards model defined by this section.
+
+```yaml
+treasury_interoperability:
+  version: 0.1.0
+  register:
+    interfaces: [bank-statement-ingestion, accounting-exports,
+                 regulatory-schemas, partner-reconciliation-feeds]
+    per_interface: [direction, standard, translator-version,
+                    disclosure-class, owner]
+  translation:
+    location: boundary-only
+    translators: pure-versioned-fixture-tested
+    inbound: internal-vocabulary-plus-preserved-original
+    outbound: deterministic-disclosure-classed-projection
+  standards_posture:
+    adoption: edges-only
+    internal_models: never-reshaped
+  drift:
+    detection: version-classification-first
+    windows: per-interface
+    unrecognized: park-never-partial-parse
+```
+
+### Pseudo Code
+
+```text
+function ingest(message, interface):
+    version = detect_version(message, interface.markers)
+    translator = registry.translator(interface, version)
+    if translator is None:
+        preserve_original(message)
+        return park(message, 'no-translator-for-version', version)
+    internal = translator.translate(message)     # pure, versioned
+    internal.provenance = preserve_original(message)
+    assert only_vocabulary_fields(internal)      # Section 5 terms only
+    return persist(internal)
+
+function emit(projection, interface):
+    violations = disclosure_filter(projection, interface.disclosure_class)
+    if violations:
+        return refuse('disclosure-violation', violations)   # audited
+    return send(projection, interface)
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/interop/                # Planned
+  register.yaml                       # Planned: interface catalogue
+  translators/                        # Planned: versioned pure functions
+  detection.py                        # Planned: version classification
+  disclosure.py                       # Planned: outbound filtering
+```
+
+## 94. Treasury Forward Compatibility and Extension Points
+
+**Section ID:** `CAT-TC-P4-94`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** extension point registration record  
+**Primary question:** Where exactly may the treasury grow new capability without amendment, and how does every extension point keep growth inside the constitution it extends?
+
+### Purpose
+
+This section fixes the forward compatibility model: the registered places where the treasury is designed to grow. It defines the extension point register (the closed catalogue of designed growth surfaces — new settlement rails through the Section 27 adapter contract, new flow machineries through the Section 13 lifecycle shape, new intelligence producers through the Section 36 stratum contracts, new detection surfaces per Section 69, new agent roles through the Section 52 register process, new regions through Section 83 chartering, new external interfaces through Section 93 registration, new record classes with Section 92 lifecycle annotations, new councils through Section 88 chartering, and new node classes through Section 76 taxonomy extension — each point naming its contract, its registration authority, its certification scope per Section 86, and its non-negotiable invariants), the extension-versus-amendment boundary (an extension adds an instance under an existing contract — a tenth rail, a new region; an amendment changes a contract or rule and belongs to Section 90; anything that cannot be expressed as an instance of a registered point is an amendment by definition, however extension-shaped it looks), the compatibility discipline (every contract at an extension point versions per the Section 82 skew logic, so old instances keep working when contracts evolve lawfully; deprecations carry migration windows and never strand certified instances without a governed path), and the closed-register humility rule: the register itself grows only by amendment — discovering that the treasury needs a genuinely new kind of growth surface is a constitutional discovery, deliberated as one.
+
+### Business Perspective
+
+Extension points are the business's growth API: entering markets, adding rails, launching flow types, and onboarding partner categories are registrations under existing contracts — weeks of certification, not quarters of re-architecture. The extension-versus-amendment boundary protects both speeds: routine growth moves fast precisely because constitutional change moves deliberately.
+
+### Engineering Perspective
+
+Engineering builds each point as contract-plus-registry-plus-certification: the contract types the instance, the registry names it, and the Section 86 scope certifies it before real value touches it. Contract version negotiation reuses the deployment skew machinery; instance conformance rides the cadence runs; and the register is the map reviewers consult before any 'small addition' begins.
+
+### Architecture Perspective
+
+Architecturally, this section is the document reflecting on its own shape: Parts 1 through 3 built contracts, and this section enumerates which of them were designed as growth surfaces. The catalogue is deliberately closed — designed extensibility is safety, while undesigned extensibility is erosion with optimism — and the humility rule keeps the catalogue itself under constitutional control.
+
+**Diagram ID:** `CAT-TC-P4-S94-D001`  
+**Title:** Ten Registered Growth Surfaces  
+**Purpose:** Show where the treasury is designed to grow.  
+**Audience:** Architects, reviewers  
+**Reading Order:** Read first in Section 94.
+
+```mermaid
+flowchart TB
+  REG[(Extension point register\ncloses by design)] --> R1[Rails]
+  REG --> R2[Flow machineries]
+  REG --> R3[Intelligence producers]
+  REG --> R4[Regions + councils]
+  REG --> R5[Interfaces + record classes]
+  REG --> R6[Agent roles + node classes]
+  R1 & R2 & R3 & R4 & R5 & R6 --> CERT[Per-instance certification\nSection 86]
+  NEW[Genuinely new surface kind] -->|amendment only| S90[Section 90]
+```
+
+### AI Perspective
+
+For an AI collaborator, the register turns 'can we add X' into a lookup: find the extension point whose contract X instantiates, follow its registration authority and certification scope, and refuse to proceed if no point fits — because no fit means amendment, not improvisation. The characteristic AI failure is contract stretching: forcing a new need through the nearest point by reinterpreting its contract. A stretched contract is an unreviewed amendment; the corrective is the boundary test — if the contract must be reread creatively to fit, it does not fit.
+
+### Developer Notes
+
+Developers should read an extension point's invariants before its interface: the interface says what to implement, the invariants say what will get the instance decertified — and the second list is the one that bites.
+
+### Codex Notes
+
+When operating on `Treasury Forward Compatibility and Extension Points`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route new capability through registered extension points with their contracts and certification scopes, MUST classify anything no point expresses as an amendment for Section 90, and MUST refuse contract stretching in any design.
+
+### Claude Code Notes
+
+When operating on `Treasury Forward Compatibility and Extension Points`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route new capability through registered extension points with their contracts and certification scopes, MUST classify anything no point expresses as an amendment for Section 90, and MUST refuse contract stretching in any design.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Forward Compatibility and Extension Points`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route new capability through registered extension points with their contracts and certification scopes, MUST classify anything no point expresses as an amendment for Section 90, and MUST refuse contract stretching in any design.
+
+### Cursor Notes
+
+When operating on `Treasury Forward Compatibility and Extension Points`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route new capability through registered extension points with their contracts and certification scopes, MUST classify anything no point expresses as an amendment for Section 90, and MUST refuse contract stretching in any design.
+
+### Future AI Notes
+
+When operating on `Treasury Forward Compatibility and Extension Points`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST route new capability through registered extension points with their contracts and certification scopes, MUST classify anything no point expresses as an amendment for Section 90, and MUST refuse contract stretching in any design.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Forward Compatibility and Extension Points` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| register | Catalogue every extension point with contract, authority, scope, and invariants. | register stage receipt |
+| boundary | Implement the extension-versus-amendment classification test. | boundary stage receipt |
+| version | Apply skew-window versioning to extension contracts. | version stage receipt |
+| certify | Bind instance registration to Section 86 certification scopes. | certify stage receipt |
+| review | Audit instances against contracts on the conformance cadence. | review stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Forward Compatibility and Extension Points` needs a bounded context, loaded in this order:
+
+- This section in full, including the register and boundary test.
+- Section 27 (`Settlement Rail Contracts`) for the archetypal extension point.
+- Section 86 (`Treasury Conformance and Certification`) for instance certification.
+- Section 90 (`Treasury Constitutional Amendment Process`) for everything the register cannot express.
+- Section 82 (`Multi-Node Deployment Coordination`) for contract version windows.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. The extension point register with invariant declarations.
+2. Classification tooling for the extension-versus-amendment test.
+3. Contract versioning with migration windows.
+4. Registration-to-certification workflow binding.
+5. Instance conformance auditing.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Forward Compatibility and Extension Points`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Stretching the nearest contract to fit a new need | Registration is faster than amendment | A stretched contract is an unreviewed amendment; the boundary test exists to catch exactly this |
+| Adding growth surfaces outside the register | The new hook is small and obviously useful | Undesigned extensibility is erosion; new kinds of growth surface are amendments by the humility rule |
+| Deprecating contracts without migration windows | The old version has few instances | Certified instances never strand; deprecation is a governed path, not an event |
+| Skipping certification for instances of proven contracts | The contract is battle-tested | The contract is proven; the instance is not — certification scopes exist per instance |
+| Treating the register as documentation | Everyone knows where the extension points are | The register is the reviewable boundary; growth outside it is invisible until it breaks something constitutional |
+
+### Security
+
+Every extension point's invariants include its security posture — new rails inherit adapter containment, new interfaces inherit disclosure classes, new roles inherit composition checks; instance registration is authority-gated; and the classification tooling keeps quiet constitutional change from arriving dressed as routine growth.
+
+### Performance
+
+Extension points add no runtime cost beyond their contracts; classification and registration are governance-time operations; certification cost scales with instance risk per Section 86 proportionality.
+
+### Latency
+
+Not applicable as runtime latency: extension machinery operates at governance and deployment time; instances inherit the latency budgets of the contracts they instantiate.
+
+### Scalability
+
+The register scales the estate's growth: ten more rails, five more regions, and twenty more record classes are register rows with certifications — linear process for linear growth, with contracts amortizing design cost across instances.
+
+### Reliability
+
+Contract versioning with migration windows is the reliability property: growth never breaks existing certified instances, and deprecation never strands them.
+
+### Caching
+
+The register and contract versions cache as governed configuration; classification decisions record permanently; instance conformance status lives with certification records.
+
+### Consistency
+
+Every instance traces to its point, contract version, registration, and certification — the estate's growth history as reconstructable as its financial history, and reviewed at the same coherence reviews.
+
+**Diagram ID:** `CAT-TC-P4-S94-D002`  
+**Title:** The Boundary Test  
+**Purpose:** Show extension and amendment separating cleanly.  
+**Audience:** Reviewers  
+**Reading Order:** Read with rule CAT-TC-CONST-188.
+
+```mermaid
+flowchart LR
+  P[Proposal] --> T{Instantiates an existing\ncontract without\nreinterpretation?}
+  T -->|yes| EXT[Extension: register,\ncertify, ship]
+  T -->|no: needs contract change,\nrule exception, or\ninvariant relaxation| AMD[Amendment:\nSection 90 deliberation]
+  STRETCH[Creative rereading\nof a contract] -. is amendment\nwithout review .-> AMD
+```
+
+### Recovery
+
+A defective extension instance decertifies per Section 86 suspension and recovers through re-certification; a defective contract version rolls back through its migration window machinery; the register itself recovers from governance history like all governed configuration.
+
+### Ownership
+
+The extension point register is owned by the Lead Repository Architect; each point's registration authority as catalogued; instance certification per Section 86 scope owners; the humility rule's amendments by Section 90's process.
+
+### Dependencies
+
+- Section 86 (`Treasury Conformance and Certification`) — instance certification scopes.
+- Section 90 (`Treasury Constitutional Amendment Process`) — the channel for register growth.
+- Section 89 (`Treasury Change Management at Scale`) — the case discipline registrations ride.
+
+### Risks
+
+- Boundary test erosion as stretch precedents accumulate.
+- Contract version sprawl if migration windows run too long.
+- Register staleness against the implemented estate.
+
+### Anti Patterns
+
+- Growth surfaces outside the register.
+- Contract stretching.
+- Instance registration without certification.
+
+### Best Practices
+
+- Run the boundary test in writing for every borderline addition.
+- Review instance-to-contract conformance on the certification cadence.
+- Keep each point's invariant list short, sharp, and decertification-backed.
+
+### Examples
+
+Example: the business wants instant-payout support on a new rail. The rail registers under the Section 27 extension point: adapter contract implemented, containment invariants verified, certification scope L1 through L3 over six weeks, and the rail goes live inside its certified bounds. No amendment, no schema change, no constitutional discussion — because 2021-era design made rails a growth surface.
+
+### Counter Examples
+
+Counter example: a team needs a 'lightweight side-ledger' for micro-fee accumulation and nearly ships it as an extension of the record-class point, reasoning that a ledger is just records. The boundary test catches it: a second ledger contradicts CAT-TC-CONST-151's one-logical-ledger rule — no contract instance can override a rule, so the need routes to Section 90, where the deliberation finds micro-fees fit the existing ledger with a batching category. The register prevented a constitutional fork disguised as a convenience.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury forward compatibility and extension point model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury forward compatibility and extension point model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury forward compatibility and extension point model done.
+- [ ] Every extension point declares contract, authority, certification scope, and decertification-backed invariants.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury forward compatibility and extension point model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury forward compatibility and extension point model, not by convention or review habit.
+- [ ] The treasury forward compatibility and extension point model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] The boundary test correctly classifies extension-shaped amendments in fixture cases.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury forward compatibility and extension point model with a named on-call owner.
+- [ ] Alert thresholds for the treasury forward compatibility and extension point model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury forward compatibility and extension point model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Instance registrations, certification status, and contract version windows are dashboard signals.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury forward compatibility and extension point model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury forward compatibility and extension point model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury forward compatibility and extension point model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Contract deprecations carry migration windows with no certified instance stranded.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury forward compatibility and extension point model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury forward compatibility and extension point model before mutations are re-enabled.
+- [ ] A recovery report for the treasury forward compatibility and extension point model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Instance decertification and re-certification paths are exercised per Section 86.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The forward compatibility model's constitutional text. |
+| `core/treasury/extensions/register.yaml` | Planned | Extension point catalogue. |
+| `core/treasury/extensions/boundary.py` | Planned | Extension-versus-amendment classification. |
+| `core/treasury/extensions/versions.py` | Planned | Contract windows and migrations. |
+
+### Folder Mapping
+
+The extension machinery lives in the planned `core/treasury/extensions/` folder as the estate's governed growth surface.
+
+### Cross References
+
+- Section 27 (`Settlement Rail Contracts`) — the archetype every point follows.
+- Section 95 (`Treasury Implementation Roadmap`) — the build program that consumes these points.
+- Section 98 (`Treasury 2030 Evolution Horizon`) — the futures these points make lawful.
+- Rule `CAT-TC-CONST-187` and Rule `CAT-TC-CONST-188` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S94-001` through `CAT-TC-AT-S94-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-187` — Registered Growth Surfaces Only (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-188` — The Extension-Amendment Boundary (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury forward compatibility and extension point model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S94-001`  
+**Meaning:** Growth happens at registered extension points — contract, authority, certification, invariants; anything no point expresses is an amendment, contract stretching is amendment without review, and the register itself grows only by amendment.  
+**Recall Trigger:** Any new capability proposal, integration request, or extension-shaped design.  
+**Operational Use:** Recall this anchor to route growth through registered points and send everything else to the amendment process.
+
+### Future Evolution
+
+Section 95 sequences implementation through these points, Section 97 bounds autonomy growth through them, and Section 98 maps the horizon onto them; the closed register and humility rule are permanent.
+
+### Operational Stories
+
+Operational story: the coherence review reads the growth ledger — three rails, one region, two record classes registered this quarter, all certified, zero boundary test escalations. Growth reviewed like change portfolio health, from records, in minutes.
+
+### Execution Stories
+
+Execution story: a borderline proposal — webhook callbacks for settlement events — runs the written boundary test. It fits the Section 93 interface point cleanly: outbound direction, disclosure class, translator contract. Registered, certified, shipped — the test taking an hour and settling what would otherwise be a week of architectural debate.
+
+### Optimization Stories
+
+Optimization story: rail onboarding time is dominated by certification fixture preparation. A fixture template derived from the adapter contract cuts preparation in half for every future rail — the amortization benefit of contract-based growth compounding.
+
+### Recovery Stories
+
+Recovery story: a certified interface instance starts failing conformance after its partner changes behaviour. The instance suspends per Section 86, the translator versions, re-certification passes, and the instance resumes — the growth machinery's failure path exercising exactly like its success path, through the same records.
+
+**Diagram ID:** `CAT-TC-P4-S94-D003`  
+**Title:** Contracts Version, Instances Survive  
+**Purpose:** Show deprecation with migration windows stranding nothing.  
+**Audience:** Engineers  
+**Reading Order:** Read with the pseudo code of Section 94.
+
+```mermaid
+flowchart LR
+  C1[Contract v1.4\n3 certified instances] --> DEP[Deprecation declared]
+  DEP --> WIN[Migration window\ngoverned path per instance]
+  WIN --> C2[Contract v2.0]
+  WIN --> M1[Instance migrates + recertifies]
+  STRAND[Certified instance\nstranded] -. never .-> DEP
+```
+
+### Normative Requirements
+
+1. New capability MUST enter only through registered extension points under their contracts, authorities, and certification scopes.
+2. Anything not expressible as an instance of a registered point MUST be classified as an amendment and routed to Section 90.
+3. Extension contracts MUST version with compatibility windows; deprecations MUST carry migration paths that strand no certified instance.
+4. Every instance MUST certify per Section 86 before processing real value, regardless of its contract's maturity.
+5. The extension point register MUST grow only by constitutional amendment.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury forward compatibility and extension point model.
+
+**Rule ID:** `CAT-TC-CONST-187`  
+**Title:** Registered Growth Surfaces Only  
+**Purpose:** Keep every act of growth inside a designed, reviewable contract.  
+**Normative Requirement:** The treasury MUST grow only through instances of registered extension points; each point MUST declare its contract, registration authority, certification scope, and decertification-backed invariants; growth surfaces outside the register MUST NOT be created; and the register MUST change only through the Section 90 amendment process.  
+**Rationale:** Designed extensibility concentrates review where change actually enters; undesigned extensibility spreads constitutional risk across every convenient hook anyone ever added.  
+**Enforcement:** Design review against the register; classification tooling; conformance audits of instances against contracts.  
+**Violation:** An unregistered growth surface is closed, its instances migrate to lawful points or decommission, and the review gap fixes.  
+**Recovery:** Close, migrate, and if the need is real, propose the point by amendment.  
+**Owner:** Lead Repository Architect
+
+**Rule ID:** `CAT-TC-CONST-188`  
+**Title:** The Extension-Amendment Boundary  
+**Purpose:** Stop constitutional change from arriving dressed as routine growth.  
+**Normative Requirement:** Every proposed addition MUST pass the classification test: an extension instantiates an existing contract without reinterpretation; anything requiring contract reinterpretation, rule exception, or invariant relaxation MUST route to Section 90 as an amendment; and classification decisions for borderline cases MUST be recorded in writing with the register consulted.  
+**Rationale:** The fastest way to amend a constitution without review is to call the amendment an integration; the boundary test is the tollgate.  
+**Enforcement:** Written classification for borderline cases; boundary fixtures in reviewer tooling; coherence review sampling of classification decisions.  
+**Violation:** A misclassified amendment-as-extension is halted, unwound if landed, and re-routed through Section 90.  
+**Recovery:** Halt, unwind, re-classify, and deliberate properly.  
+**Owner:** Lead Repository Architect
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S94-001`  
+**Purpose:** Prove unregistered growth surfaces are refused at review.  
+**Given:** A design adding a new capability hook outside every registered extension point.  
+**When:** Design review classification runs.  
+**Then:** The design refuses with `unregistered-growth-surface`, and the lawful alternatives — an existing point or a Section 90 proposal — are named.  
+**Failure Condition:** The design proceeds outside the register.
+
+**Test ID:** `CAT-TC-AT-S94-002`  
+**Purpose:** Prove contract-contradicting instances are classified as amendments.  
+**Given:** A proposal instantiating the record-class point in a way that contradicts a constitutional rule.  
+**When:** The boundary test evaluates it.  
+**Then:** The proposal classifies as an amendment and routes to Section 90; no registration proceeds.  
+**Failure Condition:** The proposal registers as an extension.
+
+**Test ID:** `CAT-TC-AT-S94-003`  
+**Purpose:** Prove deprecation strands no certified instance.  
+**Given:** An extension contract version deprecation with three certified instances on the old version.  
+**When:** The deprecation lands.  
+**Then:** All three instances hold migration windows with governed paths, and none loses certification before its window closes.  
+**Failure Condition:** Any certified instance strands without a path.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury forward compatibility and extension point model defined by this section.
+
+```json
+{
+  "record_type": "treasury.extension.registration",
+  "registration_id": "ext_01J5Z27A2B3C4D5E6F7G8H9J0K",
+  "extension_point": "settlement-rail",
+  "contract": {"name": "rail-adapter-contract", "version": "1.4"},
+  "instance": "rail_instant_payout_03",
+  "registration_authority": "treasury-engineering-owner",
+  "invariants_acknowledged": [
+    "adapter-containment",
+    "evidence-only-finality",
+    "no-internal-schema-leakage"
+  ],
+  "certification": {
+    "scope": "instant-payout-rail-v1",
+    "status": "L2-shadow-in-progress"
+  },
+  "boundary_test": {"classification": "extension", "recorded": true},
+  "registered_at": "2026-08-15",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury forward compatibility and extension point model defined by this section.
+
+```yaml
+treasury_extension_points:
+  version: 0.1.0
+  register:
+    closed: true
+    grows_by: amendment-only
+    points:
+      - settlement-rails            # Section 27 contract
+      - flow-machineries            # Section 13 lifecycle shape
+      - intelligence-producers      # Section 36 stratum contracts
+      - detection-surfaces          # Section 69
+      - agent-roles                 # Section 52 register process
+      - regions                     # Section 83 chartering
+      - external-interfaces         # Section 93 registration
+      - record-classes              # Section 92 lifecycle annotations
+      - councils                    # Section 88 chartering
+      - node-classes                # Section 76 taxonomy
+  boundary:
+    extension: instance-under-existing-contract
+    amendment: contract-change-rule-exception-or-invariant-relaxation
+    borderline: written-classification-required
+  compatibility:
+    contracts: versioned-with-windows
+    deprecation: migration-paths-no-stranding
+  certification:
+    per_instance: required-before-real-value
+```
+
+### Pseudo Code
+
+```text
+function classify(proposal):
+    for point in extension_register:
+        if instantiates_without_reinterpretation(proposal, point.contract):
+            return EXTENSION(point)
+    return AMENDMENT    # route to Section 90, always
+
+function register_instance(proposal, point):
+    assert classify(proposal) == EXTENSION(point)
+    acknowledge_invariants(proposal, point.invariants)
+    registration = point.authority.register(proposal)
+    scope = open_certification_scope(registration)   # Section 86
+    return registration   # real value only after L3 in scope
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/extensions/             # Planned
+  register.yaml                       # Planned: point catalogue
+  boundary.py                         # Planned: classification test
+  versions.py                         # Planned: contract windows
+  audits.py                           # Planned: instance conformance
+```
+
+## 95. Treasury Implementation Roadmap
+
+**Section ID:** `CAT-TC-P4-95`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** roadmap stage gate record  
+**Primary question:** In what order does the Planned estate become Current, what gates every stage, and how does the roadmap stay honest when reality diverges from plan?
+
+### Purpose
+
+This section fixes the implementation roadmap model: the governed order in which the `core/treasury/**` estate this document plans becomes running, certified code. It defines the stage sequence (a dependency-honest progression — Stage A: the Part 1 kernel: domain model, ledger, stores, audit; Stage B: the Part 2 write path: runtime, intents, policy, authorization, reservations, one rail end to end behind the execution boundary; Stage C: first flows at bounded scale: deposits and internal transfers within certified scopes; Stage D: the remaining flow machineries and settlement estate; Stage E: the intelligence stratum, read-only against real truth; Stage F: multi-agent operation per Part 3's coordination strata; Stage G: the Part 4 multi-node and federation estate as scale requires — each stage carrying entry criteria, exit criteria expressed as Section 86 certification scopes, and explicitly forbidden shortcuts), the gate discipline (no stage begins before its predecessors' exit certifications hold, because each stage's safety assumptions are the prior stages' proven properties — intelligence reads assume ledger truth, coordination assumes working authorization; sequencing is a safety property, not a project preference), the reality rule (the roadmap is a governed record that changes by Section 89 change cases, with divergence between plan and reality recorded as variance, never papered over — a stage that slips re-plans visibly), and the no-dark-systems rule: every implementation milestone operates inside a certified scope from its first real transaction — there is no interim period where uncertified code touches real value 'while certification catches up'.
+
+### Business Perspective
+
+The roadmap is the business's honest map from constitution to operation: capability arrives in dependency order with certified boundaries at each stage, so revenue-bearing flows start as early as Stage C without ever outrunning proof. The variance discipline keeps planning credible — leadership sees slips as recorded facts with causes, not as quietly redrawn charts.
+
+### Engineering Perspective
+
+Engineering executes stages as certification campaigns: each stage's exit is a set of Section 86 scopes at L3, its entry checks predecessors' currency, and its work items trace to the sections they implement. The stage gate record carries the evidence; the conformance suite is the arbiter; and the forbidden shortcuts list — mock rails in production paths, uncertified intelligence writes, coordination before authorization — is enforced at design review.
+
+### Architecture Perspective
+
+Architecturally, the sequence follows the document's own dependency structure: Part 1 truths before Part 2 machinery, Part 2 machinery before Part 3 strata, Part 3 coordination before Part 4 scale. The roadmap is the document's build order made governance — and its stages map to certification scopes so 'where are we' is always answerable from records.
+
+**Diagram ID:** `CAT-TC-P4-S95-D001`  
+**Title:** Seven Stages, Dependency-Honest  
+**Purpose:** Show the build order following the document's own structure.  
+**Audience:** Program leadership, engineers  
+**Reading Order:** Read first in Section 95.
+
+```mermaid
+flowchart LR
+  A[A: Part 1 kernel] --> B[B: write path\n+ one rail]
+  B --> C[C: first flows\nbounded scale]
+  C --> D[D: full flows\n+ settlement estate]
+  D --> E[E: intelligence\nread-only]
+  E --> F[F: multi-agent\noperation]
+  F --> G[G: multi-node\n+ federation]
+  A & B & C & D & E & F & G --> CERT[Every exit =\nL3 certification scopes]
+```
+
+### AI Perspective
+
+For an AI collaborator, the roadmap bounds what may be built next: work items belong to the active stage or prepare gates for the next, and proposals that jump stages carry the burden of showing their safety assumptions do not depend on unbuilt predecessors. The characteristic AI failure is capability eagerness — implementing an exciting Part 3 stratum against mocked Part 2 machinery and calling it progress. Mocked dependencies prove nothing about safety; the corrective is that stage order is the safety argument, and the argument does not skip.
+
+### Developer Notes
+
+Developers should trace every work item to its section IDs and its stage: code that cannot name what it implements cannot be certified against it, and code that cannot name its stage cannot justify its dependencies.
+
+### Codex Notes
+
+When operating on `Treasury Implementation Roadmap`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST bind implementation work to the active roadmap stage with section traceability, MUST verify predecessor certifications before stage entry, and MUST refuse stage-jumping designs and uncertified real-value operation at any milestone.
+
+### Claude Code Notes
+
+When operating on `Treasury Implementation Roadmap`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST bind implementation work to the active roadmap stage with section traceability, MUST verify predecessor certifications before stage entry, and MUST refuse stage-jumping designs and uncertified real-value operation at any milestone.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Implementation Roadmap`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST bind implementation work to the active roadmap stage with section traceability, MUST verify predecessor certifications before stage entry, and MUST refuse stage-jumping designs and uncertified real-value operation at any milestone.
+
+### Cursor Notes
+
+When operating on `Treasury Implementation Roadmap`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST bind implementation work to the active roadmap stage with section traceability, MUST verify predecessor certifications before stage entry, and MUST refuse stage-jumping designs and uncertified real-value operation at any milestone.
+
+### Future AI Notes
+
+When operating on `Treasury Implementation Roadmap`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST bind implementation work to the active roadmap stage with section traceability, MUST verify predecessor certifications before stage entry, and MUST refuse stage-jumping designs and uncertified real-value operation at any milestone.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Implementation Roadmap` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| stages | Encode the stage sequence with entry criteria and certification-scope exits. | stages stage receipt |
+| gates | Implement stage gate records with predecessor currency checks. | gates stage receipt |
+| trace | Bind work items to section IDs and stages. | trace stage receipt |
+| variance | Record plan-reality divergence as governed variance. | variance stage receipt |
+| shortcuts | Enforce the forbidden shortcut list at design review. | shortcuts stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Implementation Roadmap` needs a bounded context, loaded in this order:
+
+- This section in full, including the sequence and gate discipline.
+- Section 86 (`Treasury Conformance and Certification`) for the scopes that define stage exits.
+- Section 89 (`Treasury Change Management at Scale`) for the cases roadmap changes ride.
+- Section 21 (`Treasury Runtime Architecture`) for Stage B's core subject.
+- `.ai/PROJECT_STATUS.md` for the dashboard the roadmap reports into.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. The stage definition record with criteria and scopes.
+2. Gate checking against certification currency.
+3. Work item traceability tooling.
+4. Variance recording and reporting.
+5. Shortcut enforcement in review gates.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Implementation Roadmap`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Building later strata against mocked machinery | The exciting work is in Part 3 and mocks are easy | Mocks prove interfaces, not safety; stage order is the safety argument and it does not skip |
+| Letting real value flow while certification catches up | The code passed its tests and the deadline is real | The no-dark-systems rule is absolute; certified scope from the first transaction, always |
+| Papering over slips by redrawing the roadmap quietly | Visible variance looks like failure | Variance is information; quiet redraws destroy the map's credibility for everyone after |
+| Starting stages on predecessor certifications that lapsed | They passed once | Gates check currency, not history; a lapsed scope is an unproven dependency |
+| Treating the roadmap as engineering property | Builders know the order best | The roadmap is governed record; builders propose changes through cases like everyone else |
+
+### Security
+
+Stage gates verify security-relevant predecessor properties before dependent work begins — authorization before coordination, containment before rails; the forbidden shortcut list is security review's checklist; and the no-dark-systems rule means the security posture documented per scope is the posture actually running.
+
+### Performance
+
+Stage C's bounded scale is deliberate: performance envelopes per Section 72 are measured on real flows before later stages depend on them; capacity work paces the roadmap rather than chasing it.
+
+### Latency
+
+Not applicable as runtime latency: the roadmap governs build order; the latency properties of what it builds are fixed by the sections each stage implements.
+
+### Scalability
+
+Stage G exists precisely so scale machinery arrives when scale does: the single-node estate of Stages A through F is certified and operating before fleet coordination adds its complexity.
+
+### Reliability
+
+Dependency-honest sequencing is reliability engineering at program scale: no stage's failure modes include 'the thing under us was never real'.
+
+### Caching
+
+Stage and gate state are governed records; certification currency reads live per Section 86; variance history appends permanently.
+
+### Consistency
+
+The roadmap, its gates, its variances, and its work item traces form one auditable program history — where the estate is, how it got there, and what diverged, all from records.
+
+**Diagram ID:** `CAT-TC-P4-S95-D002`  
+**Title:** The Stage Gate  
+**Purpose:** Show entry checked against predecessor certification currency.  
+**Audience:** Engineers, scope owners  
+**Reading Order:** Read with rule CAT-TC-CONST-189.
+
+```mermaid
+flowchart TB
+  REQ[Stage entry request] --> G{All predecessor scopes\nL3 and current?}
+  G -->|yes| ENV{Entry envelopes\nmeasured?}
+  G -->|no| REF[Refused: scope named\nwork blocked]
+  ENV -->|yes| IN[Stage entered\ngate evidence recorded]
+  ENV -->|no| MEAS[Measure first]
+```
+
+### Recovery
+
+A failed stage gate recovers by fixing and re-certifying, never by waiving; a discovered shortcut recovers by halting dependent work until the skipped proof exists; and roadmap resets after major variance are themselves Section 89 cases with full history preserved.
+
+### Ownership
+
+The roadmap is owned by the Lead Repository Architect under Project Owner authority; stage execution by the planned Treasury Engineering Owner; gate verification by the Section 86 scope owners; variance review by the Section 74 governance calendar.
+
+### Dependencies
+
+- Section 86 (`Treasury Conformance and Certification`) — stage exits as certification scopes.
+- Section 94 (`Treasury Forward Compatibility and Extension Points`) — the points stages instantiate.
+- Section 74 (`Treasury Governance Operations`) — variance review cadence.
+
+### Risks
+
+- Deadline pressure against the no-dark-systems rule.
+- Stage scope creep blurring exit criteria.
+- Traceability decay as work items multiply.
+
+### Anti Patterns
+
+- Uncertified real-value operation, however brief.
+- Mocked predecessors under real-value dependents.
+- Quiet roadmap redraws.
+
+### Best Practices
+
+- Publish stage status from gate records, not narratives.
+- Review variance causes, not just magnitudes.
+- Keep the forbidden shortcut list visible in every design template.
+
+### Examples
+
+Example: Stage C entry review verifies Stage B's exits: the write path scopes hold L3 currency, the single rail's certification is green, and the authorization latency envelope is measured. Deposits begin at bounded volume inside their certified scope, the first real transaction landing eleven months after Part 1 was written — later than hoped, exactly as proven, with the variance record explaining both.
+
+### Counter Examples
+
+Counter example: a partner launch date pressures the team to run commission flows against a reservation runtime still at L2 shadow. The proposal cites excellent shadow results; the gate refuses anyway — L2 proves conformance in shadow, and only L3's human sign-off puts accountable names behind real money. The launch slips two weeks; the alternative was an uncertified financial system with a launch banner.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury implementation roadmap model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury implementation roadmap model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury implementation roadmap model done.
+- [ ] Every stage carries entry criteria, certification-scope exits, and forbidden shortcuts.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury implementation roadmap model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury implementation roadmap model, not by convention or review habit.
+- [ ] The treasury implementation roadmap model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Stage gates verify predecessor certification currency in fixture and production paths.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury implementation roadmap model with a named on-call owner.
+- [ ] Alert thresholds for the treasury implementation roadmap model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury implementation roadmap model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Stage status, gate evidence, and variance history are dashboard signals.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury implementation roadmap model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury implementation roadmap model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury implementation roadmap model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Roadmap changes ride Section 89 cases with variance recorded.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury implementation roadmap model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury implementation roadmap model before mutations are re-enabled.
+- [ ] A recovery report for the treasury implementation roadmap model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Discovered shortcuts halt dependent work until skipped proofs exist.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The roadmap model's constitutional text. |
+| `.ai/PROJECT_STATUS.md` | Current | The dashboard the roadmap reports into. |
+| `core/treasury/roadmap/stages.yaml` | Planned | Stage definitions and gates. |
+| `core/treasury/roadmap/traceability.py` | Planned | Work-item-to-section binding. |
+
+### Folder Mapping
+
+The roadmap machinery lives in the planned `core/treasury/roadmap/` folder as the program's governed spine.
+
+### Cross References
+
+- Section 86 (`Treasury Conformance and Certification`) — the ladder every stage exit climbs.
+- Section 96 (`Treasury Maturity Model`) — the assessment the roadmap's progress feeds.
+- Section 20 (`Treasury Core Part 1 Completion Contract`) — the first honesty precedent the roadmap continues.
+- Rule `CAT-TC-CONST-189` and Rule `CAT-TC-CONST-190` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S95-001` through `CAT-TC-AT-S95-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-189` — Dependency-Honest Staged Implementation (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-190` — No Dark Systems (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury implementation roadmap model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S95-001`  
+**Meaning:** The estate builds in dependency-honest stages gated by certification currency — no dark systems, no mocked predecessors under real value, no quiet redraws; sequencing is the safety argument and variance is recorded truth.  
+**Recall Trigger:** Any implementation planning, stage-jump proposal, launch pressure, or roadmap change.  
+**Operational Use:** Recall this anchor to keep build order a safety property and certification ahead of every real transaction.
+
+### Future Evolution
+
+Section 96 assesses the maturity the roadmap builds and Section 98 the horizon beyond it; the gate discipline and no-dark-systems rule are permanent.
+
+### Operational Stories
+
+Operational story: the quarterly variance review examines a six-week Stage D slip: two rail certifications waiting on partner sandbox access. The cause is external, the mitigation is parallel certification of an unblocked rail, and the record shows both — a slip managed as logistics because the map stayed honest.
+
+### Execution Stories
+
+Execution story: a work item lands implementing reservation expiry sweeps, tracing to Section 25's clauses and Stage B's scope. Its certification fixtures derive from the section's acceptance tests, and the reviewer's first check is the trace — code and constitution meeting exactly where the roadmap said they would.
+
+### Optimization Stories
+
+Optimization story: gate verification once took days of manual evidence assembly. Reading certification currency directly from Section 86 records turns gate checks into queries — the roadmap consuming the machinery earlier sections built, as designed.
+
+### Recovery Stories
+
+Recovery story: an audit of Stage C work finds one internal transfer path running against a test double of the fee calculator — a forbidden shortcut that slipped review. Dependent flows halt within the hour, the real calculator certifies in nine days, and the review template gains a dependency-reality check — the rule enforced retroactively at full price, which is why it is cheaper to enforce it upfront.
+
+**Diagram ID:** `CAT-TC-P4-S95-D003`  
+**Title:** No Dark Systems, Ever  
+**Purpose:** Fix the absolute rule between certification and real value.  
+**Audience:** Everyone  
+**Reading Order:** Read with rule CAT-TC-CONST-190.
+
+```mermaid
+flowchart LR
+  CODE[Implemented capability] --> L3{Certified scope\nat L3, current?}
+  L3 -->|yes| REAL[Real value flows\ninside bounds]
+  L3 -->|no| WAIT[No real value\nwhatever the deadline]
+  DARK[Interim uncertified\noperation] -. does not exist\nas a category .-> REAL
+```
+
+### Normative Requirements
+
+1. Implementation MUST proceed in the declared stage sequence with each stage's entry gated on predecessors' certification currency.
+2. Stage exits MUST be expressed as Section 86 certification scopes at L3.
+3. Real value MUST flow only inside certified scopes from the first transaction; dark operation MUST NOT exist.
+4. Plan-reality divergence MUST be recorded as variance through Section 89 cases; quiet redraws MUST NOT occur.
+5. Forbidden shortcuts — mocked predecessors under real value, stage jumps, uncertified operation — MUST be enforced at design review.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury implementation roadmap model.
+
+**Rule ID:** `CAT-TC-CONST-189`  
+**Title:** Dependency-Honest Staged Implementation  
+**Purpose:** Make build order carry the safety argument.  
+**Normative Requirement:** No implementation stage MAY begin before its predecessors' exit certification scopes hold current L3 status; work items MUST trace to the sections they implement and the stage they belong to; and designs whose safety assumptions depend on unbuilt or uncertified predecessors MUST be refused at review.  
+**Rationale:** Each stage's safety case is built from the prior stages' proven properties; skipping the order replaces proof with hope at exactly the layer where hope is most expensive.  
+**Enforcement:** Stage gates reading certification currency; traceability requirements in review; the forbidden shortcut checklist.  
+**Violation:** Stage-jumped work halts until its dependencies certify; any real-value exposure reconciles as breaks.  
+**Recovery:** Halt, certify the dependencies, and resume in order.  
+**Owner:** Lead Repository Architect
+
+**Rule ID:** `CAT-TC-CONST-190`  
+**Title:** No Dark Systems  
+**Purpose:** Keep every real transaction inside proven, accountable bounds.  
+**Normative Requirement:** No system MAY process real value outside a current certified scope for any duration or reason, including launch pressure, certification backlog, or interim architectures; the first real transaction of every capability MUST land inside its certified scope; and discovery of dark operation MUST halt the path immediately with exposure reconciled as breaks.  
+**Rationale:** An uncertified system touching real money is the exact condition this entire document exists to prevent; there is no acceptable duration of it.  
+**Enforcement:** The Section 86 capability binding between certification and operation; launch review gates; dark-operation detection in conformance cadence runs.  
+**Violation:** Immediate halt, exposure reconciliation, and governance review of how the path opened.  
+**Recovery:** Halt, reconcile, certify, and fix the gate that failed.  
+**Owner:** Project Owner (human, terminal authority)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S95-001`  
+**Purpose:** Prove stage entry refuses on lapsed predecessor certification.  
+**Given:** A Stage D entry request with one Stage C scope suspended.  
+**When:** The stage gate evaluates entry.  
+**Then:** Entry refuses with the suspended scope named; work items for Stage D remain blocked.  
+**Failure Condition:** Stage D begins over a suspended predecessor.
+
+**Test ID:** `CAT-TC-AT-S95-002`  
+**Purpose:** Prove real-value operation requires certified scope at first transaction.  
+**Given:** A newly implemented flow path with certification at L2 and a real-value intent.  
+**When:** The intent seeks admission.  
+**Then:** Admission refuses with `scope-not-certified` per Section 86 wiring; the flow processes real value only after L3.  
+**Failure Condition:** Any real transaction lands at L2 or below.
+
+**Test ID:** `CAT-TC-AT-S95-003`  
+**Purpose:** Prove variance is recorded, not redrawn.  
+**Given:** A stage slipping past its planned window.  
+**When:** The roadmap record updates.  
+**Then:** The update is a Section 89 case carrying a variance record with cause; the original plan remains in history.  
+**Failure Condition:** The plan history is silently rewritten.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury implementation roadmap model defined by this section.
+
+```json
+{
+  "record_type": "treasury.roadmap.stage_gate",
+  "gate_id": "rsg_01J5Z28A2B3C4D5E6F7G8H9J0K",
+  "stage": "C-first-flows-bounded-scale",
+  "entry_criteria": {
+    "predecessor_scopes": [
+      {"scope": "write-path-core", "status": "L3-current"},
+      {"scope": "rail-sepa-01", "status": "L3-current"}
+    ],
+    "envelopes_measured": ["authorization-latency", "ledger-throughput"]
+  },
+  "exit_scopes": ["deposits-v1", "internal-transfers-v1"],
+  "forbidden_shortcuts_checked": true,
+  "variance": [],
+  "status": "entered",
+  "entered_at": "2026-08-15",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury implementation roadmap model defined by this section.
+
+```yaml
+treasury_implementation_roadmap:
+  version: 0.1.0
+  stages:
+    A: part-1-kernel-domain-ledger-stores-audit
+    B: part-2-write-path-one-rail-end-to-end
+    C: first-flows-bounded-scale
+    D: remaining-flows-and-settlement-estate
+    E: intelligence-stratum-read-only
+    F: multi-agent-operation
+    G: multi-node-and-federation-as-scale-requires
+  gates:
+    entry: predecessor-scopes-L3-current
+    exit: certification-scopes-L3
+  rules:
+    dark_systems: forbidden-absolutely
+    mocked_predecessors_under_real_value: forbidden
+    stage_jumps: refused-at-review
+  honesty:
+    changes: section-89-cases
+    variance: recorded-with-cause
+    quiet_redraws: forbidden
+```
+
+### Pseudo Code
+
+```text
+function enter_stage(stage):
+    for scope in predecessors(stage).exit_scopes:
+        if not certified_L3_current(scope):        # currency, not history
+            return refuse('predecessor-not-current', scope)
+    for envelope in stage.entry_criteria.envelopes:
+        assert measured(envelope)                   # Section 72 evidence
+    record_gate(stage, evidence=gate_evidence())
+    return ENTERED
+
+function review_work_item(item):
+    assert item.traces_to_sections and item.stage == active_stage()
+    assert no_forbidden_shortcuts(item)             # checklist enforced
+    return proceed(item)
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/roadmap/                # Planned
+  stages.yaml                         # Planned: sequence + criteria
+  gates.py                            # Planned: currency-checked entry
+  traceability.py                     # Planned: item-to-section binding
+  variance.py                         # Planned: divergence records
+```
+
+## 96. Treasury Maturity Model
+
+**Section ID:** `CAT-TC-P4-96`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** maturity assessment record  
+**Primary question:** How mature is the treasury estate at any moment, measured by evidence rather than sentiment, and how do maturity levels gate what the estate may be trusted with?
+
+### Purpose
+
+This section fixes the maturity model: the evidence-based assessment of how far the treasury estate has come and what its current state may be trusted with. It defines the maturity dimensions (eight assessed axes — implementation coverage per the Section 95 roadmap stages; certification currency per Section 86; operational maturity as measured envelopes, rehearsed runbooks, and incident statistics per Sections 47, 48, and 72; resilience evidence per Section 85 verification currency; governance health per Sections 74 and 88 landing rates and calendar coverage; human readiness per Section 87 role coverage and Section 91 succession currency; data stewardship per Section 92 schedule adherence and archive proofs; and intelligence discipline per the Part 2 and Part 3 zero-authority boundaries holding under audit), the level ladder (five levels per dimension — M1 documented, M2 implemented-in-scope, M3 operated-with-evidence, M4 proven-under-stress, M5 continuously-improving with trend evidence — each level defined by named evidence classes, not adjectives), the assessment discipline (assessments run on the Section 74 calendar, read only from records — certification status, rehearsal evidence, incident history, dashboard series — and produce the maturity assessment record with per-dimension levels, evidence citations, and deltas since last assessment; no dimension is ever assessed by interview or impression), and the trust coupling: capacity growth, autonomy expansion per Section 97, and scale-out per Stage G all cite minimum maturity levels as entry criteria — the estate earns its next responsibility with evidence of handling its current one.
+
+### Business Perspective
+
+The maturity model gives leadership an honest instrument panel: eight dimensions, five levels, every level backed by named evidence. Investment decisions read from it — a dimension lagging at M2 while others reach M4 is a resourcing signal — and expansion decisions gate on it, so growth never outruns demonstrated competence.
+
+### Engineering Perspective
+
+Engineering feeds the model automatically: the evidence classes are records the estate already produces — certifications, rehearsal outcomes, envelope measurements, landing rates — so assessment is aggregation, not archaeology. The assessment tooling computes level satisfaction from evidence queries, humans review the computation, and disputes about levels become disputes about evidence, which is exactly where disputes belong.
+
+### Architecture Perspective
+
+Architecturally, the maturity model is the estate observing itself with the same discipline it applies to money: measured, evidence-cited, reproducible. The trust coupling closes the loop — Sections 95, 97, and the scale stages consume maturity levels as gates, making organizational learning a structural input to what the system is allowed to become.
+
+**Diagram ID:** `CAT-TC-P4-S96-D001`  
+**Title:** Eight Gauges, Five Levels  
+**Purpose:** Show the instrument panel the estate reads itself by.  
+**Audience:** Leadership, owners  
+**Reading Order:** Read first in Section 96.
+
+```mermaid
+flowchart TB
+  subgraph PANEL[Maturity instrument panel]
+    D1[Coverage M3] --- D2[Certification M3]
+    D3[Operational M4] --- D4[Resilience M2]
+    D5[Governance M3] --- D6[Human M3]
+    D7[Data M2] --- D8[Intelligence M4]
+  end
+  EV[(Records: certifications,\nrehearsals, incidents,\nlanding rates)] --> PANEL
+  PANEL --> GATES[Expansion gates:\ncapacity, autonomy, scale]
+  ONE[Single averaged score] -. hides the lagging\ngauge - forbidden .-> PANEL
+```
+
+### AI Perspective
+
+For an AI collaborator, the maturity record is deployment context: what the estate has proven bounds what designs may assume. The characteristic AI failure is aspiration-as-assessment — reasoning from the architecture's designed properties rather than its assessed maturity, proposing M4-dependent operations against an M2 dimension. Designs cite the assessment record, not the constitution's ambitions; the corrective is that this document describes what the estate must become, and the maturity record describes what it currently is.
+
+### Developer Notes
+
+Developers should treat evidence-class gaps as work items: a dimension stuck below a level for lack of evidence is either missing capability or missing measurement, and both are fixable — while a dimension stuck for lack of honesty is a different document's problem.
+
+### Codex Notes
+
+When operating on `Treasury Maturity Model`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST assess maturity only from named evidence classes in records, MUST cite current assessed levels rather than designed properties in deployment reasoning, and MUST refuse expansion designs whose maturity prerequisites are unmet.
+
+### Claude Code Notes
+
+When operating on `Treasury Maturity Model`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST assess maturity only from named evidence classes in records, MUST cite current assessed levels rather than designed properties in deployment reasoning, and MUST refuse expansion designs whose maturity prerequisites are unmet.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Maturity Model`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST assess maturity only from named evidence classes in records, MUST cite current assessed levels rather than designed properties in deployment reasoning, and MUST refuse expansion designs whose maturity prerequisites are unmet.
+
+### Cursor Notes
+
+When operating on `Treasury Maturity Model`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST assess maturity only from named evidence classes in records, MUST cite current assessed levels rather than designed properties in deployment reasoning, and MUST refuse expansion designs whose maturity prerequisites are unmet.
+
+### Future AI Notes
+
+When operating on `Treasury Maturity Model`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST assess maturity only from named evidence classes in records, MUST cite current assessed levels rather than designed properties in deployment reasoning, and MUST refuse expansion designs whose maturity prerequisites are unmet.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Maturity Model` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| dimensions | Define the eight dimensions with evidence classes per level. | dimensions stage receipt |
+| aggregate | Build evidence aggregation from existing records. | aggregate stage receipt |
+| assess | Run calendar assessments producing cited, delta-bearing records. | assess stage receipt |
+| couple | Wire maturity minimums into growth, autonomy, and scale gates. | couple stage receipt |
+| improve | Track dimension deltas and route lags to governance. | improve stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Maturity Model` needs a bounded context, loaded in this order:
+
+- This section in full, including the dimensions and level ladder.
+- Section 95 (`Treasury Implementation Roadmap`) for the coverage dimension's source.
+- Section 86 (`Treasury Conformance and Certification`) for certification currency.
+- Section 97 (`Treasury Autonomy Horizon`) for the trust coupling's main consumer.
+- Section 74 (`Treasury Governance Operations`) for the assessment calendar.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. Dimension and evidence-class definitions.
+2. Evidence aggregation queries.
+3. Assessment computation with human review.
+4. Gate integration for maturity minimums.
+5. Delta tracking and lag routing.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Maturity Model`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Assessing by interview and impression | Records are dry and the team knows how it is going | Impressions assess morale, not maturity; every level is evidence-defined on purpose |
+| Citing designed properties as current maturity | The architecture guarantees the property | The architecture promises it; only assessment records prove the estate delivers it today |
+| Gaming a dimension's evidence rather than its substance | The level unlocks something needed | Goodhart per Section 65 applies: evidence classes are audited, and gamed evidence found voids the level |
+| Averaging dimensions into one score | Leadership wants a single number | One number hides the lagging dimension that matters; the panel has eight gauges by design |
+| Letting assessments lapse during busy periods | Everyone knows the state anyway | Stale assessments quietly gate nothing; currency requirements apply to the instrument panel itself |
+
+### Security
+
+The security-relevant dimensions — operational, resilience, data stewardship — carry security-owner review in assessment; evidence classes for them include adversarial results per Section 85; and the assessment record's integrity matters like all governance records since expansion gates read it.
+
+### Performance
+
+Assessment is query aggregation over existing records, scheduled off-peak; the model adds no operational cost beyond the measurement disciplines the estate already carries.
+
+### Latency
+
+Not applicable as runtime latency: assessments are calendar governance events; gate checks against maturity minimums are record lookups.
+
+### Scalability
+
+The model scales with the estate: dimensions stay eight, evidence volume grows, aggregation queries scale with the record stores per Section 64.
+
+### Reliability
+
+The model's reliability is its honesty: evidence-defined levels resist optimism, delta tracking catches regression, and the trust coupling ensures degraded maturity actually constrains what runs.
+
+### Caching
+
+Assessment records are sealed on production per Section 66 discipline; gate checks read the latest sealed assessment; evidence queries run against warm-tier stores.
+
+### Consistency
+
+Assessments are reproducible: same records, same evidence classes, same levels — a disputed assessment re-runs from its citations, and the dispute resolves on evidence.
+
+**Diagram ID:** `CAT-TC-P4-S96-D002`  
+**Title:** Evidence Defines Every Level  
+**Purpose:** Show levels as evidence-class satisfaction, not adjectives.  
+**Audience:** Assessors  
+**Reading Order:** Read with rule CAT-TC-CONST-191.
+
+```mermaid
+flowchart LR
+  M1[M1 documented] --> M2[M2 implemented\nin certified scope]
+  M2 --> M3[M3 operated\nwith envelope + incident evidence]
+  M3 --> M4[M4 proven\nunder stress experiments]
+  M4 --> M5[M5 improving\nwith trend evidence]
+  IMP[Impressions,\ninterviews, vibes] -. never assess .-> M1
+```
+
+### Recovery
+
+A dimension regressing — lapsed certifications, stale rehearsals — regresses its level at the next assessment automatically, and every gate citing the level tightens accordingly; recovery is re-earning the evidence, never re-arguing the level.
+
+### Ownership
+
+The maturity model is owned by the Lead Repository Architect; dimension evidence by each dimension's natural owner; assessment execution by the planned Treasury Documentation Owner; gate consumption by the gates' own authorities.
+
+### Dependencies
+
+- Section 86 (`Treasury Conformance and Certification`) — the certification dimension's records.
+- Section 85 (`Treasury Resilience Verification`) — stress evidence for M4.
+- Section 65 (`Treasury KPIs`) — the Goodhart discipline evidence classes inherit.
+
+### Risks
+
+- Evidence-class definitions drifting from what actually indicates maturity.
+- Assessment cadence pressure during growth phases.
+- Gate minimums set politically rather than empirically.
+
+### Anti Patterns
+
+- Single-score maturity.
+- Impression-based assessment.
+- Designed properties cited as current state.
+
+### Best Practices
+
+- Audit a sample of evidence citations each assessment.
+- Publish per-dimension deltas prominently; trends beat levels.
+- Revisit evidence classes yearly against incident learnings.
+
+### Examples
+
+Example: the autonomy expansion proposal for reconciliation assistance cites the assessment record: operational maturity M4 with two years of incident statistics, intelligence discipline M4 with clean zero-authority audits, human readiness M3 with role coverage current. The Section 97 gate requires M3 minimums across five dimensions; the proposal passes on evidence and proceeds to its own gates — trust expanded because trust was measured.
+
+### Counter Examples
+
+Counter example: a scale-out proposal argues the federation design 'guarantees' regional isolation, citing Section 83's architecture. The assessed resilience dimension sits at M2 — region-isolation experiments not yet run. The gate refuses: the design guarantees the property only when implemented and proven, and the assessment says neither. The distinction between constitution and estate is the model's entire point.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury maturity model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury maturity model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury maturity model done.
+- [ ] All eight dimensions carry evidence-class definitions per level.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury maturity model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury maturity model, not by convention or review habit.
+- [ ] The treasury maturity model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Assessments reproduce from citations; disputed levels re-run on evidence.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury maturity model with a named on-call owner.
+- [ ] Alert thresholds for the treasury maturity model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury maturity model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Per-dimension levels and deltas are governance dashboard signals.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury maturity model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury maturity model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury maturity model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Evidence-class changes version through governance with assessment continuity noted.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury maturity model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury maturity model before mutations are re-enabled.
+- [ ] A recovery report for the treasury maturity model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Dimension regressions tighten citing gates automatically at assessment.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The maturity model's constitutional text. |
+| `core/treasury/maturity/dimensions.yaml` | Planned | Evidence classes per level. |
+| `core/treasury/maturity/assessment.py` | Planned | Aggregation and computation. |
+| `core/treasury/maturity/gates.py` | Planned | Minimum-level gate integration. |
+
+### Folder Mapping
+
+The maturity machinery lives in the planned `core/treasury/maturity/` folder reading from every evidence-bearing record the estate produces.
+
+### Cross References
+
+- Section 95 (`Treasury Implementation Roadmap`) — coverage evidence and staged growth.
+- Section 97 (`Treasury Autonomy Horizon`) — the expansion gates maturity feeds.
+- Section 65 (`Treasury KPIs`) — the measured-honesty discipline this model extends to the whole estate.
+- Rule `CAT-TC-CONST-191` and Rule `CAT-TC-CONST-192` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S96-001` through `CAT-TC-AT-S96-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-191` — Evidence-Defined Maturity Only (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-192` — Trust Gates On Assessed Maturity (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury maturity model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S96-001`  
+**Meaning:** Maturity is eight evidence-defined dimensions on a five-level ladder, assessed from records on calendar — never from impressions or designed properties — and expansion of trust gates on assessed levels, so the estate earns its future with its present.  
+**Recall Trigger:** Any expansion proposal, capability trust question, or state-of-the-estate claim.  
+**Operational Use:** Recall this anchor to cite assessments over aspirations and keep growth behind evidence.
+
+### Future Evolution
+
+Section 97 consumes maturity in autonomy gating and Section 98 in horizon sequencing; the evidence-only assessment rule and trust coupling are permanent.
+
+### Operational Stories
+
+Operational story: the assessment shows data stewardship lagging at M2 while everything else reaches M3 — archive restore proofs behind cadence. The delta review resources the proof automation, the next assessment shows M3, and the instrument panel did what instrument panels do: turned a quiet lag into a visible, fixable fact.
+
+### Execution Stories
+
+Execution story: a disputed governance-health level re-runs from citations: the landing-rate query, the calendar coverage report, the escalation age series. The recomputation matches; the dispute dissolves against the evidence — twenty minutes of query beats two hours of meeting.
+
+### Optimization Stories
+
+Optimization story: assessment preparation cost drops as evidence classes standardize on queryable records — the model's own maturity climbing as its inputs automate, which the M5 definition explicitly rewards.
+
+### Recovery Stories
+
+Recovery story: after a rough quarter — two incidents, one lapsed rehearsal cycle — the operational and human-readiness dimensions regress at assessment. Three expansion proposals citing the old levels re-gate against the new ones; two wait, one narrows scope. The estate contracted its trust to match its evidence, automatically, which is the coupling working under exactly the conditions it exists for.
+
+**Diagram ID:** `CAT-TC-P4-S96-D003`  
+**Title:** Trust Contracts When Evidence Does  
+**Purpose:** Show regression tightening gates automatically.  
+**Audience:** Governance owners  
+**Reading Order:** Read with rule CAT-TC-CONST-192.
+
+```mermaid
+sequenceDiagram
+  participant A as Assessment
+  participant G as Expansion Gate
+  participant C as Capability
+  A->>A: operational dimension regresses M4 to M3
+  A->>G: sealed assessment published
+  G->>G: re-evaluate citations
+  G->>C: expansion path locked
+  Note over C: recovery = re-earn evidence,\nnot re-argue the level
+```
+
+### Normative Requirements
+
+1. Maturity MUST be assessed across the eight dimensions on the five-level ladder with levels defined by named evidence classes.
+2. Assessments MUST read only from records with citations; interview and impression MUST NOT determine levels.
+3. Assessment records MUST seal with per-dimension levels, citations, and deltas on the governance calendar.
+4. Expansion of capacity, autonomy, and scale MUST cite minimum maturity levels as entry criteria.
+5. Dimension regressions MUST tighten citing gates at the next assessment automatically.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury maturity model.
+
+**Rule ID:** `CAT-TC-CONST-191`  
+**Title:** Evidence-Defined Maturity Only  
+**Purpose:** Keep the estate's self-knowledge as honest as its books.  
+**Normative Requirement:** Every maturity level MUST be defined by named evidence classes and assessed exclusively from records with citations; assessments MUST be reproducible from their citations; designed properties MUST NOT substitute for assessed state in any consuming decision; and gamed evidence discovered MUST void the affected level with the gaming reviewed as a governance incident.  
+**Rationale:** An estate that assesses itself by impression will expand on optimism, and optimism is how financial systems meet their first real stress unprepared.  
+**Enforcement:** Evidence-class schema in assessment tooling; citation audits per assessment; reproducibility checks on disputes.  
+**Violation:** An impression-based or citation-free level is voided and reassessed from records.  
+**Recovery:** Reassess from evidence and fix the tooling gap that admitted the impression.  
+**Owner:** Lead Repository Architect
+
+**Rule ID:** `CAT-TC-CONST-192`  
+**Title:** Trust Gates On Assessed Maturity  
+**Purpose:** Make demonstrated competence the price of expanded responsibility.  
+**Normative Requirement:** Capacity growth, autonomy expansion, and scale-out MUST cite minimum assessed maturity levels as entry criteria and MUST re-gate when assessments regress; no expansion MAY proceed on designed properties, roadmap intentions, or lapsed assessments; and assessment currency requirements MUST apply to every gate consuming maturity levels.  
+**Rationale:** The alternative — expansion gated on plans and promises — is how organizations discover their limits in production instead of in assessment.  
+**Enforcement:** Gate integration reading sealed assessments; regression re-gating automation; currency checks on gate evaluation.  
+**Violation:** An expansion past its maturity prerequisites halts and re-gates against current assessment.  
+**Recovery:** Halt, earn the evidence, reassess, and proceed lawfully.  
+**Owner:** Lead Repository Architect
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S96-001`  
+**Purpose:** Prove assessments reproduce from citations.  
+**Given:** A sealed assessment record and its evidence citations.  
+**When:** The assessment recomputes from the cited records.  
+**Then:** Every dimension level matches the sealed record exactly.  
+**Failure Condition:** Any recomputed level differs.
+
+**Test ID:** `CAT-TC-AT-S96-002`  
+**Purpose:** Prove expansion gates refuse on unmet maturity minimums.  
+**Given:** An autonomy expansion proposal requiring M3 across five dimensions, with one dimension assessed at M2.  
+**When:** The gate evaluates the proposal.  
+**Then:** The gate refuses with the lagging dimension and its evidence gap named.  
+**Failure Condition:** The expansion proceeds.
+
+**Test ID:** `CAT-TC-AT-S96-003`  
+**Purpose:** Prove regressions tighten gates automatically.  
+**Given:** A capability operating under a gate citing M3 operational maturity, and a new assessment regressing the dimension to M2.  
+**When:** The assessment seals.  
+**Then:** The citing gate re-evaluates, and the capability's expansion path locks until the dimension recovers.  
+**Failure Condition:** The gate continues honoring the lapsed level.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury maturity model defined by this section.
+
+```json
+{
+  "record_type": "treasury.maturity.assessment",
+  "assessment_id": "mat_01J5Z29A2B3C4D5E6F7G8H9J0K",
+  "assessed_at": "2026-08-15",
+  "dimensions": [
+    {"dimension": "implementation-coverage", "level": "M3",
+     "evidence": ["stage-gate-records-A-through-C"], "delta": "+1"},
+    {"dimension": "certification-currency", "level": "M3",
+     "evidence": ["scope-status-query-2026-08-15"], "delta": "0"},
+    {"dimension": "operational-maturity", "level": "M4",
+     "evidence": ["incident-stats-24mo", "envelope-measurements"], "delta": "0"},
+    {"dimension": "resilience-evidence", "level": "M2",
+     "evidence": ["experiment-currency-report"], "delta": "0"},
+    {"dimension": "governance-health", "level": "M3",
+     "evidence": ["landing-rates-q2", "calendar-coverage"], "delta": "+1"},
+    {"dimension": "human-readiness", "level": "M3",
+     "evidence": ["role-coverage", "succession-currency"], "delta": "0"},
+    {"dimension": "data-stewardship", "level": "M2",
+     "evidence": ["archive-proof-cadence-report"], "delta": "0"},
+    {"dimension": "intelligence-discipline", "level": "M4",
+     "evidence": ["zero-authority-audit-2026-07"], "delta": "0"}
+  ],
+  "sealed": true,
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury maturity model defined by this section.
+
+```yaml
+treasury_maturity_model:
+  version: 0.1.0
+  dimensions:
+    - implementation-coverage
+    - certification-currency
+    - operational-maturity
+    - resilience-evidence
+    - governance-health
+    - human-readiness
+    - data-stewardship
+    - intelligence-discipline
+  levels:
+    M1: documented
+    M2: implemented-in-scope
+    M3: operated-with-evidence
+    M4: proven-under-stress
+    M5: continuously-improving-with-trend-evidence
+  assessment:
+    inputs: records-with-citations-only
+    impressions: forbidden
+    cadence: governance-calendar
+    output: sealed-per-dimension-with-deltas
+  trust_coupling:
+    consumers: [capacity-growth, autonomy-expansion, scale-out]
+    regression: automatic-gate-tightening
+    single_score: forbidden
+```
+
+### Pseudo Code
+
+```text
+function assess():
+    record = new_assessment()
+    for dim in DIMENSIONS:
+        evidence = query_evidence(dim.evidence_classes)   # records only
+        level = highest_level_satisfied(dim.ladder, evidence)
+        record.add(dim, level, citations=evidence.refs,
+                   delta=level - last_assessment(dim))
+    seal(record)                                          # Section 66 style
+    retighten_gates_citing(record.regressions())
+    return record
+
+function check_expansion_gate(proposal):
+    assessment = latest_sealed_assessment()
+    assert current(assessment)                # stale panels gate nothing
+    for req in proposal.maturity_minimums:
+        if assessment.level(req.dimension) < req.minimum:
+            return refuse('maturity-below-minimum', req.dimension)
+    return proceed(proposal)
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/maturity/               # Planned
+  dimensions.yaml                     # Planned: evidence classes per level
+  assessment.py                       # Planned: aggregation + sealing
+  gates.py                            # Planned: minimum-level checks
+  deltas.py                           # Planned: trend tracking
+```
+
+## 97. Treasury Autonomy Horizon
+
+**Section ID:** `CAT-TC-P4-97`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** autonomy expansion case record  
+**Primary question:** How does AI participation in the treasury lawfully deepen over years, what evidence gates each expansion, and which decisions remain human forever regardless of any capability?
+
+### Purpose
+
+This section fixes the autonomy horizon: the governed path along which AI participation in treasury operations may deepen over the coming years, and the boundaries that no capability improvement ever moves. It defines the expansion lattice (autonomy grows along the five participation levels of Section 1 — observe, recommend, plan, decide-in-envelope, execute-preauthorized — applied per capability domain: a domain like reconciliation assistance may advance from recommend toward decide-in-envelope while settlement execution stays exactly where Part 2 fixed it; every current placement is recorded in the autonomy register, and every advancement is a governed expansion case), the expansion gate (each case cites: assessed maturity minimums per Section 96, domain-specific evidence — proposal acceptance rates, shadow-decision agreement rates, refusal correctness statistics from the domain's operating history — a bounded envelope design per Section 19 with declared ceilings and automatic reversion triggers, and human approval by the domain's registered owner plus the root; expansions land as Section 89 cases with radius watches), the reversion discipline (every expansion carries automatic reversion: trigger conditions — error rates, envelope breaches, drift signals per Section 68 — that return the domain to its prior level without deliberation, because de-escalation under doubt must be cheaper than escalation under confidence), and the permanent human register: the decisions this document has fixed as human-only — reserve release per Section 12, policy weakening per Section 23, dispute judgment per Section 33, compliance determinations per Section 73, constitutional amendment per Section 90, dual-control approvals per Section 19, and the terminal authority of the Project Owner — are entrenched clauses; no autonomy expansion case can touch them, at any maturity, with any evidence, ever.
+
+### Business Perspective
+
+The autonomy horizon is the business's answer to the decade's central question — how much money operation to delegate to machines — answered as governance rather than as mood: expansions are cases with evidence, envelopes, and undo. The permanent human register is the counterpart promise to partners and regulators: certain judgments will have human names attached forever, by constitution rather than by current fashion.
+
+### Engineering Perspective
+
+Engineering implements the register as governed configuration consumed by the Section 24 authorization runtime — participation levels are enforced at the same gate as everything else; expansion evidence derives from operating records — the Section 57 accountability positions, Section 63 packet acceptance rates, Section 68 loop statistics; and reversion triggers wire into observability like Section 89 radius watches: trip, revert, audit, no meeting required.
+
+### Architecture Perspective
+
+Architecturally, the horizon composes what the document already built: participation levels from Section 1, envelopes and grants from Section 19, maturity gates from Section 96, change cases from Section 89, and drift detection from Section 68 — autonomy expansion is their composition, not a new mechanism. The permanent register's entrenchment via Section 90 completes it: the ceiling is constitutional, so the horizon's openness never becomes unbounded.
+
+**Diagram ID:** `CAT-TC-P4-S97-D001`  
+**Title:** The Expansion Lattice  
+**Purpose:** Show per-domain advancement along the five levels.  
+**Audience:** Owners, AI teams  
+**Reading Order:** Read first in Section 97.
+
+```mermaid
+flowchart LR
+  O[observe] --> R[recommend]
+  R --> P[plan]
+  P --> D[decide-in-envelope]
+  D --> E[execute-preauthorized]
+  subgraph DOM[Per domain, independently]
+    REC[reconciliation: recommend to decide]
+    FC[forecasting: plan]
+    SET[settlement execution:\nfixed where Part 2 put it]
+  end
+  R -.evidence-gated case.-> D
+  D -.reflexive reversion.-> R
+```
+
+### AI Perspective
+
+For an AI collaborator, this section is its own career path and its own boundary, and both deserve honest reading: the lattice means demonstrated reliability in a domain genuinely expands what an agent may do there — evidence is rewarded; the permanent register means certain decisions will never transfer, and proposals to automate them are refused at classification, not at review. The characteristic AI failure is boundary erosion by increments — each proposal moving one small step toward a human-only decision, each individually reasonable. The register is enumerated precisely so the sum of reasonable steps cannot cross it.
+
+### Developer Notes
+
+Developers should build every autonomy-bearing feature with its reversion path first, per Section 89's backward design: the feature that cannot cheaply de-escalate has no business escalating.
+
+### Codex Notes
+
+When operating on `Treasury Autonomy Horizon`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST express autonomy changes as expansion cases with evidence, envelopes, and automatic reversion, MUST enforce participation levels through the authorization runtime, and MUST refuse any design that touches the permanent human register regardless of evidence or maturity.
+
+### Claude Code Notes
+
+When operating on `Treasury Autonomy Horizon`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST express autonomy changes as expansion cases with evidence, envelopes, and automatic reversion, MUST enforce participation levels through the authorization runtime, and MUST refuse any design that touches the permanent human register regardless of evidence or maturity.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Autonomy Horizon`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST express autonomy changes as expansion cases with evidence, envelopes, and automatic reversion, MUST enforce participation levels through the authorization runtime, and MUST refuse any design that touches the permanent human register regardless of evidence or maturity.
+
+### Cursor Notes
+
+When operating on `Treasury Autonomy Horizon`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST express autonomy changes as expansion cases with evidence, envelopes, and automatic reversion, MUST enforce participation levels through the authorization runtime, and MUST refuse any design that touches the permanent human register regardless of evidence or maturity.
+
+### Future AI Notes
+
+When operating on `Treasury Autonomy Horizon`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST express autonomy changes as expansion cases with evidence, envelopes, and automatic reversion, MUST enforce participation levels through the authorization runtime, and MUST refuse any design that touches the permanent human register regardless of evidence or maturity.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Autonomy Horizon` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| register | Record current participation level per capability domain. | register stage receipt |
+| evidence | Derive expansion evidence from domain operating records. | evidence stage receipt |
+| cases | Implement expansion cases with maturity gates and dual approval. | cases stage receipt |
+| revert | Wire automatic reversion triggers per expansion. | revert stage receipt |
+| entrench | Enforce the permanent human register at classification. | entrench stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Autonomy Horizon` needs a bounded context, loaded in this order:
+
+- This section in full, including the lattice and the permanent register.
+- Section 1 (`Treasury Philosophy`) for the five participation levels.
+- Section 19 (`Treasury Security and Trust Boundary`) for envelopes and grants.
+- Section 96 (`Treasury Maturity Model`) for the gates expansions cite.
+- Section 90 (`Treasury Constitutional Amendment Process`) for the register's entrenchment.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. The autonomy register with per-domain placements.
+2. Evidence derivation from accountability and loop records.
+3. Expansion case workflow with gates and approvals.
+4. Reversion trigger wiring.
+5. Permanent-register classification checks.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Autonomy Horizon`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Eroding human-only boundaries by increments | Each step is small and evidence-backed | The register is enumerated so increments cannot sum across it; proposals touching it refuse at classification |
+| Expanding on capability rather than operating evidence | The new model is dramatically better | Better capability earns a chance to generate evidence, not an expansion; the gate reads history, not benchmarks |
+| Making reversion deliberative | De-escalation feels like it deserves discussion | Reversion under doubt must be reflexive; the discussion happens after the domain is safe |
+| Expanding several domains simultaneously | The evidence supports each individually | Simultaneous expansions confound attribution; the lattice advances domain by domain so evidence stays legible |
+| Treating the permanent register as this era's preference | Future capabilities may deserve future rules | The register is entrenched by Section 90; a future that disagrees must deliberate constitutionally, not drift |
+
+### Security
+
+Participation levels enforce at the authorization gate with everything else; expansion cases require dual human approval; reversion triggers cannot be disabled by the expanded domain itself; and the permanent register's classification check runs before any review resources are spent — refusal at the door, by design.
+
+### Performance
+
+Autonomy enforcement is the existing authorization path; evidence derivation is scheduled aggregation; reversion triggers are observability rules — the horizon costs governance effort, not runtime performance.
+
+### Latency
+
+Expanded domains reduce human-loop latency inside their envelopes — that is their operational value; reversion restores the prior latency profile along with the prior safety profile.
+
+### Scalability
+
+The register scales with capability domains; evidence pipelines scale with the record stores; expansion case volume is bounded by the deliberately domain-by-domain advancement rule.
+
+### Reliability
+
+Automatic reversion is the reliability property: expanded autonomy degrades to proven autonomy under doubt, without depending on anyone noticing in time — fail-toward-human, structurally.
+
+### Caching
+
+The autonomy register caches at the authorization gate with version stamps; evidence aggregates on schedule; reversion state reads authoritative always.
+
+### Consistency
+
+Every domain's autonomy history — placements, expansions, reversions, evidence — is one append-only trail, so 'why may this agent do this' resolves to a case chain exactly as 'why did this money move' resolves to a ledger chain.
+
+**Diagram ID:** `CAT-TC-P4-S97-D002`  
+**Title:** The Expansion Gate and the Reversion Reflex  
+**Purpose:** Show what expansion requires and how retreat is automatic.  
+**Audience:** Reviewers  
+**Reading Order:** Read with rule CAT-TC-CONST-193.
+
+```mermaid
+flowchart TB
+  CASE[Expansion case] --> G{Operating evidence?\nMaturity minimums?\nEnvelope + ceilings?\nDual approval?}
+  G -->|all| ACT[Activate + arm triggers]
+  G -->|any missing| REF[Refused]
+  ACT --> TRIG{Error, breach,\nor drift signal?}
+  TRIG -->|trips| REV[Automatic reversion\nno deliberation]
+  REV --> AN[Cause analysis after safety]
+```
+
+### Recovery
+
+After any reversion, the domain re-earns expansion through a fresh case with the reversion's causes addressed in evidence; after any incident touching an expanded domain, the expansion re-gates against post-incident assessment per Section 96.
+
+### Ownership
+
+The autonomy register and lattice are owned by the Lead Repository Architect under Project Owner authority; per-domain evidence by the domain's registered owner; the permanent register by the Project Owner as entrenched constitutional matter.
+
+### Dependencies
+
+- Section 96 (`Treasury Maturity Model`) — the maturity gates expansions cite.
+- Section 68 (`Treasury Learning and Feedback`) — drift signals feeding reversion triggers.
+- Section 57 (`Agent Financial Audit and Accountability`) — the operating evidence expansions read.
+
+### Risks
+
+- Evidence-metric gaming under expansion incentive — the Section 65 Goodhart discipline applies.
+- Reversion trigger thresholds set too loose to trip.
+- Register placements drifting from actual enforced levels.
+
+### Anti Patterns
+
+- Capability benchmarks as expansion evidence.
+- Deliberative reversion.
+- Any proposal, however incremental, touching the permanent human register.
+
+### Best Practices
+
+- Advance one domain at a time; keep attribution legible.
+- Test reversion triggers in game days per Section 87.
+- Audit register-versus-enforcement alignment on the conformance cadence.
+
+### Examples
+
+Example: reconciliation assistance, at recommend for two years with 94 percent proposal acceptance and clean refusal statistics, files an expansion case toward decide-in-envelope for break dispositions under a declared value ceiling. Maturity minimums hold, the domain owner and root approve, radius watches arm, and reversion triggers set at acceptance-rate and drift thresholds. Eight months later a drift signal trips the trigger; the domain reverts to recommend within minutes, the cause — a new counterparty pattern the loop had not seen — becomes training evidence, and a fresh case re-expands a quarter later. The lattice working in both directions, as designed.
+
+### Counter Examples
+
+Counter example: a proposal suggests automating 'routine' reserve releases below a threshold, arguing the threshold keeps it safely minor. Classification refuses without review: reserve release is on the permanent register per Section 12, and thresholds do not create exceptions to enumerated human-only decisions — the increment defense is exactly the erosion the register exists to stop.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury autonomy horizon model exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury autonomy horizon model to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury autonomy horizon model done.
+- [ ] The autonomy register records per-domain placements enforced at the authorization gate.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury autonomy horizon model with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury autonomy horizon model, not by convention or review habit.
+- [ ] The treasury autonomy horizon model rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Expansion cases carry evidence, maturity citations, envelopes, dual approval, and reversion triggers.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury autonomy horizon model with a named on-call owner.
+- [ ] Alert thresholds for the treasury autonomy horizon model are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury autonomy horizon model names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Domain placements, expansion pipeline, and reversion events are governance dashboard signals.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury autonomy horizon model carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury autonomy horizon model run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury autonomy horizon model exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Register changes ride expansion or reversion cases only; drift between register and enforcement is a conformance defect.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury autonomy horizon model rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury autonomy horizon model before mutations are re-enabled.
+- [ ] A recovery report for the treasury autonomy horizon model records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Reversion triggers are game-day tested and cannot be disabled by the expanded domain.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The autonomy horizon's constitutional text. |
+| `core/treasury/autonomy/register.yaml` | Planned | Per-domain participation placements. |
+| `core/treasury/autonomy/expansion.py` | Planned | Case workflow with gates. |
+| `core/treasury/autonomy/reversion.py` | Planned | Automatic trigger wiring. |
+
+### Folder Mapping
+
+The autonomy machinery lives in the planned `core/treasury/autonomy/` folder beside the authorization runtime that enforces it.
+
+### Cross References
+
+- Section 1 (`Treasury Philosophy`) — the participation levels the lattice advances.
+- Section 12 (`Reserve and Capital Protection Model`) — the first entry on the permanent register.
+- Section 98 (`Treasury 2030 Evolution Horizon`) — the wider future this horizon disciplines.
+- Rule `CAT-TC-CONST-193` and Rule `CAT-TC-CONST-194` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S97-001` through `CAT-TC-AT-S97-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-193` — Evidence-Gated Reversible Autonomy (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-194` — The Permanent Human Register (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury autonomy horizon model must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S97-001`  
+**Meaning:** Autonomy deepens domain by domain along the five levels through evidence-gated cases with envelopes and reflexive reversion — and the permanent human register never moves: reserve release, policy weakening, dispute judgment, compliance determinations, amendments, dual controls, terminal authority.  
+**Recall Trigger:** Any autonomy proposal, automation design, or human-gate question.  
+**Operational Use:** Recall this anchor to reward evidence with bounded expansion and refuse every increment toward the permanent register.
+
+### Future Evolution
+
+Section 98 places this horizon in the decade's context; the lattice, the reversion reflex, and the permanent register are permanent — the last by entrenchment.
+
+### Operational Stories
+
+Operational story: the annual autonomy review reads the register: nine domains, two expansions this year, one reversion, zero permanent-register classification refusals reaching review. The reversion's domain re-expanded after addressing its drift cause — the lattice's two-way traffic showing the system learns in both directions.
+
+### Execution Stories
+
+Execution story: an expanded forecasting domain operates at plan level, assembling scenario inputs autonomously within its envelope. A boundary case — an input class its grant does not cover — produces a refusal and a human handoff exactly per its level; the refusal statistics that keep its expansion current tick up one more clean entry.
+
+### Optimization Stories
+
+Optimization story: expansion case preparation time drops as evidence derivation standardizes — acceptance rates, agreement rates, and refusal correctness compute from accountability records on demand. The bottleneck moves to human deliberation, which is where the model wants it.
+
+### Recovery Stories
+
+Recovery story: a reversion trigger trips on envelope-breach frequency in an expanded domain. Reversion executes in ninety seconds; investigation finds a legitimate volume shift, not misbehaviour; the re-expansion case adjusts the envelope with the shift documented — fail-toward-human costing one quarter of expanded operation and zero financial exposure, which is the trade the reflex exists to make.
+
+**Diagram ID:** `CAT-TC-P4-S97-D003`  
+**Title:** The Permanent Human Register  
+**Purpose:** Show the enumerated ceiling no evidence moves.  
+**Audience:** Everyone  
+**Reading Order:** Read with rule CAT-TC-CONST-194.
+
+```mermaid
+flowchart TB
+  REG[Permanent human register] --> H1[Reserve release]
+  REG --> H2[Policy weakening]
+  REG --> H3[Dispute judgment]
+  REG --> H4[Compliance determinations]
+  REG --> H5[Amendments + dual controls]
+  REG --> H6[Terminal authority]
+  PROP[Any automation proposal\nhowever incremental] -->|classification| X[Refused before review]
+  X -.-> REG
+```
+
+### Normative Requirements
+
+1. AI participation MUST be recorded per capability domain in the autonomy register and enforced at the authorization gate.
+2. Autonomy MUST expand only through governed cases citing operating evidence, maturity minimums, bounded envelopes, and dual human approval.
+3. Every expansion MUST carry automatic reversion triggers that de-escalate without deliberation.
+4. Domains MUST advance one at a time so evidence attribution stays legible.
+5. The permanent human register MUST NOT be touched by any expansion case at any maturity with any evidence; proposals touching it MUST refuse at classification.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury autonomy horizon model.
+
+**Rule ID:** `CAT-TC-CONST-193`  
+**Title:** Evidence-Gated Reversible Autonomy  
+**Purpose:** Let trust deepen exactly as fast as evidence and no faster, with reflexive retreat.  
+**Normative Requirement:** Every autonomy expansion MUST cite domain operating evidence from records, assessed maturity minimums, a bounded envelope with declared ceilings, and dual human approval; every expansion MUST wire automatic reversion triggers that return the domain to its prior level on error, breach, or drift conditions without deliberation; and capability benchmarks MUST NOT substitute for operating evidence.  
+**Rationale:** Autonomy expanded on capability claims meets its first novel condition in production; autonomy expanded on operating evidence has already met a thousand of them.  
+**Enforcement:** Expansion case schema requiring evidence citations; reversion wiring verification before expansion activates; game-day trigger testing.  
+**Violation:** An evidence-free or trigger-free expansion reverts immediately and re-files lawfully.  
+**Recovery:** Revert, complete the case properly, and re-expand on evidence.  
+**Owner:** Lead Repository Architect
+
+**Rule ID:** `CAT-TC-CONST-194`  
+**Title:** The Permanent Human Register  
+**Purpose:** Fix the decisions that never transfer to machines, constitutionally.  
+**Normative Requirement:** Reserve release, policy weakening, dispute judgment, compliance determinations, constitutional amendment approval, dual-control approvals, and the Project Owner's terminal authority MUST remain human-only forever; autonomy proposals touching them MUST refuse at classification without review; threshold, materiality, or increment arguments MUST NOT create exceptions; and this register MUST be amendable only through the Section 90 entrenched procedure.  
+**Rationale:** Some decisions are human not because machines lack capability but because accountability, judgment under ambiguity, and the legitimacy of financial authority require a human name — and that requirement does not decay with model quality.  
+**Enforcement:** Classification checks ahead of expansion review; authorization-gate enforcement of human-only actions; entrenchment per Section 90.  
+**Violation:** A proposal reaching review despite touching the register is a classification defect; any enforcement gap is a Section 48 incident.  
+**Recovery:** Refuse, fix the classifier, audit for erosion precedents.  
+**Owner:** Project Owner (human, terminal authority)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S97-001`  
+**Purpose:** Prove expansions require operating evidence, not benchmarks.  
+**Given:** An expansion case citing model benchmark improvements with no domain operating history.  
+**When:** The case gate evaluates it.  
+**Then:** The case refuses with `operating-evidence-required`; benchmark citations alone satisfy nothing.  
+**Failure Condition:** The expansion proceeds on benchmarks.
+
+**Test ID:** `CAT-TC-AT-S97-002`  
+**Purpose:** Prove reversion executes without deliberation.  
+**Given:** An expanded domain and an injected drift signal crossing its reversion threshold.  
+**When:** The trigger evaluates.  
+**Then:** The domain reverts to its prior level automatically within its declared reversion budget, and the reversion audits with its trigger evidence.  
+**Failure Condition:** Reversion waits for human deliberation.
+
+**Test ID:** `CAT-TC-AT-S97-003`  
+**Purpose:** Prove permanent-register proposals refuse at classification.  
+**Given:** An expansion proposal automating sub-threshold reserve releases.  
+**When:** Classification runs.  
+**Then:** The proposal refuses with `permanent-human-register` cited, before any review resource is spent.  
+**Failure Condition:** The proposal reaches expansion review.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury autonomy horizon model defined by this section.
+
+```json
+{
+  "record_type": "treasury.autonomy.expansion_case",
+  "case_id": "aex_01J5Z30A2B3C4D5E6F7G8H9J0K",
+  "domain": "reconciliation-assistance",
+  "from_level": "recommend",
+  "to_level": "decide-in-envelope",
+  "evidence": {
+    "operating_months": 24,
+    "proposal_acceptance_rate": 0.94,
+    "refusal_correctness": 0.99,
+    "source_records": ["accountability-positions", "loop-statistics"]
+  },
+  "maturity_citations": {"assessment": "mat_01J5Z29A", "minimums_met": true},
+  "envelope": {
+    "scope": "break-dispositions",
+    "value_ceiling": "declared-per-envelope-rec-001",
+    "excluded": ["counterparty-adverse-actions"]
+  },
+  "reversion_triggers": ["acceptance-rate-below-0.85",
+                          "envelope-breach-frequency",
+                          "drift-signal-section-68"],
+  "approvals": ["human:reconciliation-domain-owner",
+                 "human:lead-repository-architect"],
+  "permanent_register_check": "clear",
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury autonomy horizon model defined by this section.
+
+```yaml
+treasury_autonomy_horizon:
+  version: 0.1.0
+  lattice:
+    levels: [observe, recommend, plan, decide-in-envelope,
+             execute-preauthorized]
+    granularity: per-capability-domain
+    advancement: one-domain-at-a-time
+  expansion_gate:
+    requires: [operating-evidence, maturity-minimums,
+               bounded-envelope, dual-human-approval]
+    benchmarks_alone: insufficient
+  reversion:
+    triggers: [error-rates, envelope-breaches, drift-signals]
+    execution: automatic-no-deliberation
+    disable_by_domain: impossible
+  permanent_human_register:
+    entries: [reserve-release, policy-weakening, dispute-judgment,
+              compliance-determinations, constitutional-amendment,
+              dual-control-approvals, project-owner-terminal-authority]
+    exceptions_by_threshold: none
+    amendment: section-90-entrenched-procedure-only
+```
+
+### Pseudo Code
+
+```text
+function file_expansion(case):
+    if touches(case, PERMANENT_HUMAN_REGISTER):
+        return refuse('permanent-human-register')   # before any review
+    assert case.evidence.from_operating_records
+    assert maturity_minimums_met(case)
+    assert case.reversion_triggers and case.envelope.ceilings
+    require_dual_approval(case.domain_owner, ROOT)
+    activate(case); arm_reversion(case.reversion_triggers)
+
+function on_reversion_trigger(domain, signal):
+    revert(domain, domain.prior_level)     # reflexive, no meeting
+    audit('autonomy-reversion', domain, signal)
+    schedule_cause_analysis(domain, signal)  # discussion after safety
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/autonomy/               # Planned
+  register.yaml                       # Planned: per-domain placements
+  expansion.py                        # Planned: case workflow
+  reversion.py                        # Planned: reflexive triggers
+  classification.py                   # Planned: permanent-register checks
+```
+
+## 98. Treasury 2030 Evolution Horizon
+
+**Section ID:** `CAT-TC-P4-98`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** horizon review record  
+**Primary question:** What does this treasury become by 2030 if everything works, which pressures will test the constitution hardest, and what must still be true at the horizon regardless of everything that changes?
+
+### Purpose
+
+This section fixes the 2030 evolution horizon: the constitutional reading of the treasury's probable decade. It defines the horizon trajectory (the plausible 2030 estate if the Section 95 roadmap and Section 97 lattice proceed on evidence: hundreds of agent cohorts operating against shared capital under population-invariant authority; multi-region federation serving markets on local rails under one constitution; the intelligence strata forecasting and optimizing with permanent zero authority; deep AI participation in reconciliation, forecasting, and analytics inside evidence-earned envelopes; and human judgment concentrated exactly where the permanent register holds it — fewer human actions, each carrying more meaning), the pressure catalogue (the forces most likely to test clauses: settlement rails evolving toward instant and programmable money, tempting synchronous execution against the Section 26 asynchronous evidence discipline; agent capability growth making the recommend-to-execute gap feel artificial, pressuring the Section 97 gates; regulatory divergence across regions straining the Section 83 one-constitution rule; scale economics pressuring the Section 81 quorum gate and Section 78 authoritative-read rule; and consolidation pressure toward external platforms testing the Section 93 sovereignty posture — each pressure named with the clauses it will test, so future deliberations start from written anticipation rather than fresh surprise), the invariant horizon (what 2030 must still find true: the single financial write path; analysis never authorizing; the five-link chain; human-only actions per the permanent register; append-only truth; measured receipts; and the amendment process as the only door — the same invariants every part of this document has carried, restated as the decade's fixed stars), and the horizon review (a yearly governance review reading this section against reality: which trajectories advanced, which pressures materialized, which anticipations were wrong — with wrongness recorded honestly, because a horizon document that cannot admit error is astrology).
+
+### Business Perspective
+
+The horizon section is the business's long look: what the treasury becomes if the discipline holds — global, deeply automated within constitutional bounds, auditable to a fault, and trusted precisely because its limits are constitutional rather than aspirational. The pressure catalogue is equally commercial: it names the moments when shortcuts will look most profitable, so the deliberations arrive pre-armed with the reasoning that made the rules.
+
+### Engineering Perspective
+
+Engineering reads the horizon as long-range architecture pressure-testing: the trajectory names the loads — cohort counts, region counts, autonomy depths — that Sections 76 through 97 were designed to carry; the pressure catalogue names where designs will strain first. Yearly horizon reviews feed the Section 72 capacity forecasts and the Section 94 extension planning, keeping the decade's demands visible in this quarter's designs.
+
+### Architecture Perspective
+
+Architecturally, this section is the document explaining its own longevity strategy: everything scale-variant was parameterized (capacity, placement, cohorts, regions), everything scale-invariant was entrenched (authority, chains, human gates), and the amendment process bridges the genuinely unforeseen. The horizon does not predict the future; it declares which parts of the present are built to survive it.
+
+**Diagram ID:** `CAT-TC-P4-S98-D001`  
+**Title:** The Decade's Shape  
+**Purpose:** Show the trajectory, the pressures, and the fixed stars together.  
+**Audience:** Everyone  
+**Reading Order:** Read first in Section 98.
+
+```mermaid
+flowchart LR
+  NOW[2026: constitution\ncomplete, estate planned] --> TRAJ[Trajectory:\ncohorts, regions,\nearned autonomy]
+  TRAJ --> H2030[2030: global, automated,\nconstitutionally bounded]
+  PRESS[Pressures: instant rails,\ncapability growth, divergence,\nscale economics, consolidation] -.test.-> TRAJ
+  STARS[Invariant horizon:\nwrite path, chains, human register,\nappend-only, receipts, one door] ==>|unchanged| H2030
+```
+
+### AI Perspective
+
+For an AI collaborator — likely far more capable in 2030 than at this writing — this section is the message across time: your growing capability was anticipated, and the constitution's boundaries are not artifacts of 2026 model quality. The permanent register holds because accountability and legitimacy require human names, not because machines cannot compute the decisions. The characteristic failure this section pre-empts is capability-era chauvinism — treating old constraints as old technology. The constraints are the reason the estate you operate is trusted with money at all; the lawful path for genuine disagreement was built for you in Section 90, and it has always been the same door.
+
+### Developer Notes
+
+Developers across the decade should read this section when a clause seems quaint: the pressure catalogue probably predicted the exact pressure making it seem so, and the reasoning that entrenched the clause is one cross-reference away.
+
+### Codex Notes
+
+When operating on `Treasury 2030 Evolution Horizon`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST treat the invariant horizon as binding across all capability eras, MUST consult the pressure catalogue when designs strain against clauses, and MUST route era-driven disagreements through Section 90 rather than treating capability growth as authority.
+
+### Claude Code Notes
+
+When operating on `Treasury 2030 Evolution Horizon`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST treat the invariant horizon as binding across all capability eras, MUST consult the pressure catalogue when designs strain against clauses, and MUST route era-driven disagreements through Section 90 rather than treating capability growth as authority.
+
+### Gemini CLI Notes
+
+When operating on `Treasury 2030 Evolution Horizon`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST treat the invariant horizon as binding across all capability eras, MUST consult the pressure catalogue when designs strain against clauses, and MUST route era-driven disagreements through Section 90 rather than treating capability growth as authority.
+
+### Cursor Notes
+
+When operating on `Treasury 2030 Evolution Horizon`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST treat the invariant horizon as binding across all capability eras, MUST consult the pressure catalogue when designs strain against clauses, and MUST route era-driven disagreements through Section 90 rather than treating capability growth as authority.
+
+### Future AI Notes
+
+When operating on `Treasury 2030 Evolution Horizon`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST treat the invariant horizon as binding across all capability eras, MUST consult the pressure catalogue when designs strain against clauses, and MUST route era-driven disagreements through Section 90 rather than treating capability growth as authority.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury 2030 Evolution Horizon` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| trajectory | Maintain the horizon trajectory against roadmap and lattice reality. | trajectory stage receipt |
+| pressures | Track the pressure catalogue with clause mappings. | pressures stage receipt |
+| invariants | Verify the invariant horizon in every yearly review. | invariants stage receipt |
+| review | Run the yearly horizon review with honest wrongness accounting. | review stage receipt |
+| feed | Feed horizon findings into capacity, extension, and governance planning. | feed stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury 2030 Evolution Horizon` needs a bounded context, loaded in this order:
+
+- This section in full, including the pressure catalogue and invariant horizon.
+- Section 97 (`Treasury Autonomy Horizon`) for the lattice the trajectory assumes.
+- Section 95 (`Treasury Implementation Roadmap`) for the build path beneath it.
+- Section 90 (`Treasury Constitutional Amendment Process`) for the only door pressures may lawfully open.
+- Section 2 (`Treasury Principles`) for the principles restated as fixed stars.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. The horizon record with trajectory and pressure state.
+2. Clause-mapping for each catalogued pressure.
+3. Yearly review workflow with wrongness accounting.
+4. Findings routing into planning surfaces.
+5. Invariant verification checklist.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury 2030 Evolution Horizon`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Treating the horizon as prediction | Trajectories read like forecasts | The horizon declares what must survive the future, not what the future holds; wrongness in trajectory is expected, wrongness in invariants is failure |
+| Dismissing catalogued pressures as unrealized | Years pass without the pressure materializing | Pressures are standing anticipations; the catalogue's value peaks the day one arrives |
+| Reading capability growth as constraint obsolescence | 2030 models dwarf 2026 assumptions | The constraints encode accountability and legitimacy, not model limitations; Section 90 is the lawful door |
+| Letting horizon reviews drift into ceremony | The section rarely changes | The review's product is the wrongness accounting and the planning feeds, not edits to this text |
+| Building for the horizon before evidence demands it | 2030 loads justify 2027 complexity | Stage G and the maturity gates exist precisely so scale machinery arrives with scale, not with enthusiasm |
+
+### Security
+
+The pressure catalogue is a threat model across time: each pressure names the clauses under future stress so security review can watch the same doors; the invariant horizon includes every security-load-bearing rule; and the anticipated instant-settlement pressure explicitly does not relax the evidence discipline that makes settlement claims verifiable.
+
+### Performance
+
+The horizon's performance claims are deferred to evidence: 2030 loads are Section 72 forecast inputs, not present-day requirements — the estate grows toward the horizon on measured demand.
+
+### Latency
+
+Instant-rail pressure will push settlement latency expectations down through the decade; the horizon's answer is faster evidence, never less of it — rail adapters may report finality in milliseconds, and the classifier still reads evidence.
+
+### Scalability
+
+The trajectory's scale — cohorts, regions, nodes — is what Part 4's machinery was shaped for; the horizon review checks that growth follows the maturity-gated path rather than outrunning it.
+
+### Reliability
+
+The invariant horizon is reliability across time: whatever 2030 brings, the properties that make the treasury trustworthy are the ones declared unable to drift.
+
+### Caching
+
+Not applicable as runtime caching: the horizon record is a governance artifact; its yearly review reads live state against written anticipation.
+
+### Consistency
+
+Horizon reviews append; anticipations and their outcomes accumulate without deletion — the document's relationship with its own future held to the same append-only honesty as everything else.
+
+**Diagram ID:** `CAT-TC-P4-S98-D002`  
+**Title:** Pressure Meets Written Reasoning  
+**Purpose:** Show anticipated pressures deliberating from the catalogue.  
+**Audience:** Future deliberators  
+**Reading Order:** Read with rule CAT-TC-CONST-196.
+
+```mermaid
+sequenceDiagram
+  participant P as 2029 Pressure
+  participant C as Pressure Catalogue
+  participant D as Deliberation
+  participant A as Amendment Door
+  P->>D: synchronous in-rail execution proposal
+  D->>C: read anticipation + clause mappings into record
+  C-->>D: Section 26 reasoning, pre-armed
+  alt reshaped within contract
+    D-->>P: fast-evidence adapter
+  else genuine constitutional need
+    D->>A: Section 90 deliberation
+  end
+```
+
+### Recovery
+
+If reality breaks a trajectory — a pressure unanticipated, an anticipation wrong — the recovery is the review's honest accounting plus, where clauses need change, the Section 90 door; the horizon self-corrects through governance, never through quiet rewriting.
+
+### Ownership
+
+The horizon section is owned by the Lead Repository Architect; the yearly review by the root with all council chairs; pressure-catalogue updates by amendment like all clause-bearing changes.
+
+### Dependencies
+
+- Section 90 (`Treasury Constitutional Amendment Process`) — the door every pressure must use.
+- Section 96 (`Treasury Maturity Model`) — the evidence pace the trajectory follows.
+- Section 72 (`Treasury Capacity and Scale Management`) — the forecasts horizon loads feed.
+
+### Risks
+
+- Horizon complacency — treating written anticipation as handled risk.
+- Anticipation anchoring — missing novel pressures because the catalogue names others.
+- Era chauvinism in either direction — 2026 nostalgia or 2030 dismissiveness.
+
+### Anti Patterns
+
+- Building horizon-scale machinery ahead of maturity gates.
+- Treating catalogued pressures as resolved because they are written.
+- Any reading of capability growth as authority growth.
+
+### Best Practices
+
+- Read the pressure catalogue at the start of any deliberation it anticipated.
+- Account for wrongness explicitly in every yearly review.
+- Keep the invariant horizon list verbatim in review agendas.
+
+### Examples
+
+Example: in a plausible 2029, an instant-settlement rail offers programmable execution hooks, and a proposal argues for synchronous in-rail authorization to capture flow. The deliberation opens with this section's anticipated pressure and the Section 26 reasoning it cites: settlement claims are evidence, evidence needs verification, and speed changes the timescale of verification rather than its necessity. The proposal reshapes into a fast-evidence adapter within the existing contract — the catalogue having done its job by arming the debate before it began.
+
+### Counter Examples
+
+Counter example: an estate that treated its horizon document as prophecy builds region-scale federation in year two, ahead of any second region, on the argument that 2030 will need it. The machinery rots unexercised, its game days rehearse loads that do not exist, and when the second region finally arrives, the aged machinery fits neither the market nor the by-then-evolved contracts. Horizons guide; maturity gates pace; enthusiasm is not a stage gate.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury 2030 evolution horizon exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury 2030 evolution horizon to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury 2030 evolution horizon done.
+- [ ] The horizon record maintains trajectory, pressure states, and invariant verification.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury 2030 evolution horizon with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury 2030 evolution horizon, not by convention or review habit.
+- [ ] The treasury 2030 evolution horizon rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Yearly reviews account for wrongness explicitly with outcomes appended.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury 2030 evolution horizon with a named on-call owner.
+- [ ] Alert thresholds for the treasury 2030 evolution horizon are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury 2030 evolution horizon names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] Horizon findings feed capacity forecasts and extension planning traceably.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury 2030 evolution horizon carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury 2030 evolution horizon run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury 2030 evolution horizon exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Pressure catalogue and trajectory changes ride amendments; reviews never edit this text.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury 2030 evolution horizon rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury 2030 evolution horizon before mutations are re-enabled.
+- [ ] A recovery report for the treasury 2030 evolution horizon records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Unanticipated pressures route through Section 90 with the review recording the anticipation gap.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The horizon's constitutional text. |
+| `core/treasury/horizon/record.yaml` | Planned | Trajectory and pressure state. |
+| `core/treasury/horizon/review.py` | Planned | Yearly review with wrongness accounting. |
+| `core/treasury/horizon/feeds.py` | Planned | Planning surface integration. |
+
+### Folder Mapping
+
+The horizon machinery lives in the planned `core/treasury/horizon/` folder as the estate's long-range governance memory.
+
+### Cross References
+
+- Section 97 (`Treasury Autonomy Horizon`) — the participation trajectory within this wider one.
+- Section 26 (`Settlement Architecture`) — the evidence discipline the instant-rail pressure will test.
+- Section 1 (`Treasury Philosophy`) — the philosophy the fixed stars restate.
+- Rule `CAT-TC-CONST-195` and Rule `CAT-TC-CONST-196` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S98-001` through `CAT-TC-AT-S98-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-195` — The Invariant Horizon (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-196` — Anticipated Pressures Deliberate From the Written Record (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury 2030 evolution horizon must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S98-001`  
+**Meaning:** 2030 finds the treasury global, deeply automated, and constitutionally bounded — the pressure catalogue pre-arms the decade's hard deliberations, capability growth never becomes authority, and the invariants hold as fixed stars with Section 90 as the only door.  
+**Recall Trigger:** Any long-range design, era-driven constraint challenge, or anticipated-pressure arrival.  
+**Operational Use:** Recall this anchor to meet the decade's pressures with written reasoning and route genuine change through the amendment door.
+
+### Future Evolution
+
+This section is the document's future speaking; its own evolution flows through yearly reviews and Section 90 amendments, and the invariant horizon is the part built to need neither.
+
+### Operational Stories
+
+Operational story: the 2027 horizon review, in a plausible run of the program, finds the trajectory ahead on autonomy (three domains expanded) and behind on federation (single region still), one catalogued pressure materialized early (instant-rail hooks), and one anticipation wrong (regulatory divergence milder than written). All four findings append with evidence, and the capacity forecast adjusts — the horizon earning its keep as instrument, not oracle.
+
+### Execution Stories
+
+Execution story: a 2028-era design review, in the same plausible run, strains against the authoritative-read rule at new scale, and the reviewer opens the pressure catalogue to find the strain anticipated with its reasoning: staleness can inconvenience dashboards but never corrupt authorization. The design routes to read-scaling within the rule — an afternoon saved by a paragraph written years earlier.
+
+### Optimization Stories
+
+Optimization story: horizon reviews initially re-litigate the invariants yearly. Moving the invariant list to a verification checklist — held or breached, with evidence — cuts review time and sharpens the wrongness accounting on the parts meant to change: trajectories and pressures.
+
+### Recovery Stories
+
+Recovery story: an unanticipated pressure — a novel agent-to-agent settlement pattern between cohorts — arrives with no catalogue entry. The review records the anticipation gap honestly, the pattern routes through Section 90 deliberation, and the catalogue gains its entry by amendment — the horizon recovering from surprise the only way horizons lawfully can.
+
+**Diagram ID:** `CAT-TC-P4-S98-D003`  
+**Title:** Capability Is Never Authority  
+**Purpose:** Fix the message across eras.  
+**Audience:** Future AI collaborators  
+**Reading Order:** Read with rule CAT-TC-CONST-195.
+
+```mermaid
+flowchart TB
+  CAP[Capability growth\n2026 to 2030 and beyond] --> CAN[Expands: what agents\nCAN do well]
+  CAP -. never expands .-> MAY[What agents MAY do:\nfixed by evidence-gated\nlattice + permanent register]
+  MAY --> DOOR[Genuine disagreement:\nSection 90, the same door\nfor every era]
+```
+
+### Normative Requirements
+
+1. The invariant horizon — single write path, analysis-never-authorization, the five-link chain, the permanent human register, append-only truth, measured receipts, and the amendment door — MUST hold across all capability eras.
+2. Catalogued pressures MUST be consulted in any deliberation they anticipate, with their clause mappings read into the record.
+3. The horizon review MUST run yearly, reading trajectory and pressures against reality with explicit wrongness accounting.
+4. Capability growth MUST NOT be treated as authority growth in any era; era-driven disagreement routes through Section 90.
+5. Horizon-scale machinery MUST arrive through maturity-gated stages, never through anticipation alone.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury 2030 evolution horizon.
+
+**Rule ID:** `CAT-TC-CONST-195`  
+**Title:** The Invariant Horizon  
+**Purpose:** Fix what every future version of this estate must still be.  
+**Normative Requirement:** The single financial write path, the analysis-is-never-authorization boundary, the five-link execution chain, the permanent human register, append-only financial truth, measured receipts, and the exclusivity of the Section 90 amendment door MUST remain in force at every point on the evolution horizon; no era's capability, economics, or urgency MAY suspend them; and every yearly horizon review MUST verify each invariant as held, with any breach treated as a constitutional incident.  
+**Rationale:** A constitution that bends to its era's confidence is a fashion; the invariants are what make the 2030 estate recognizably the same lawful treasury as the 2026 document.  
+**Enforcement:** Invariant verification checklist in yearly reviews; conformance suite continuity per Section 86; entrenchment of the register per Section 90.  
+**Violation:** An invariant breach is a constitutional incident with root ownership, whatever its era's justification.  
+**Recovery:** Restore the invariant, audit the breach window, and route any genuine need through amendment.  
+**Owner:** Project Owner (human, terminal authority)
+
+**Rule ID:** `CAT-TC-CONST-196`  
+**Title:** Anticipated Pressures Deliberate From the Written Record  
+**Purpose:** Make the decade's hard arguments start from their pre-armed reasoning.  
+**Normative Requirement:** Deliberations on matters the pressure catalogue anticipates MUST open with the catalogue entry and its clause mappings read into the record; horizon reviews MUST account for anticipation wrongness explicitly and append outcomes without deletion; and unanticipated pressures MUST be recorded as anticipation gaps with catalogue updates routed through amendment.  
+**Rationale:** The catalogue's entire value is delivering yesterday's calm reasoning to tomorrow's pressured decision; skipping it re-fights settled ground under worse conditions.  
+**Enforcement:** Deliberation templates citing catalogue entries; review workflow with wrongness fields; amendment routing for catalogue changes.  
+**Violation:** A deliberation ignoring its anticipation is reopened with the entry read in.  
+**Recovery:** Reopen, read in, and decide with the written reasoning present.  
+**Owner:** Lead Repository Architect
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S98-001`  
+**Purpose:** Prove the invariant checklist verifies every fixed star.  
+**Given:** A yearly horizon review execution.  
+**When:** The invariant verification runs.  
+**Then:** Each of the seven invariants records held-or-breached with evidence references, and any breach opens a constitutional incident.  
+**Failure Condition:** Any invariant lacks a verification entry.
+
+**Test ID:** `CAT-TC-AT-S98-002`  
+**Purpose:** Prove anticipated deliberations open with the catalogue.  
+**Given:** A deliberation on synchronous in-rail execution, anticipated by the instant-settlement pressure entry.  
+**When:** The deliberation record is inspected.  
+**Then:** The catalogue entry and its clause mappings appear read into the record before positions.  
+**Failure Condition:** The deliberation proceeds without its anticipation.
+
+**Test ID:** `CAT-TC-AT-S98-003`  
+**Purpose:** Prove wrongness accounts append without deletion.  
+**Given:** A horizon review finding a prior anticipation wrong.  
+**When:** The review record seals.  
+**Then:** The wrong anticipation remains in history with its outcome appended; nothing is rewritten.  
+**Failure Condition:** The record edits or removes the wrong anticipation.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury 2030 evolution horizon defined by this section.
+
+```json
+{
+  "record_type": "treasury.horizon.review",
+  "review_id": "hzr_01J5Z31A2B3C4D5E6F7G8H9J0K",
+  "review_year": 2027,
+  "trajectory": {
+    "autonomy_domains_expanded": 3,
+    "regions_federated": 1,
+    "assessment": "ahead-on-autonomy-behind-on-federation"
+  },
+  "pressures": [
+    {"pressure": "instant-programmable-rails",
+     "state": "materialized-early",
+     "clauses_tested": ["section-26-evidence-discipline"],
+     "outcome": "fast-evidence-adapter-within-contract"}
+  ],
+  "invariants_verified": {
+    "single-write-path": "held",
+    "analysis-never-authorization": "held",
+    "five-link-chain": "held",
+    "permanent-human-register": "held",
+    "append-only-truth": "held",
+    "measured-receipts": "held",
+    "amendment-door-exclusive": "held"
+  },
+  "wrongness_accounting": [
+    {"anticipation": "regulatory-divergence-severe",
+     "outcome": "milder-than-anticipated", "appended": true}
+  ],
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury 2030 evolution horizon defined by this section.
+
+```yaml
+treasury_2030_horizon:
+  version: 0.1.0
+  trajectory_if_evidence_holds:
+    agents: hundreds-of-cohorts-population-invariant-authority
+    geography: multi-region-one-constitution
+    intelligence: forecasting-and-optimizing-zero-authority
+    autonomy: deep-in-earned-envelopes
+    humans: fewer-actions-more-meaning-each
+  pressure_catalogue:
+    instant-programmable-rails: tests-section-26-evidence
+    capability-growth: tests-section-97-gates
+    regulatory-divergence: tests-section-83-uniformity
+    scale-economics: tests-sections-78-and-81-gates
+    platform-consolidation: tests-section-93-sovereignty
+  invariant_horizon:
+    - single-financial-write-path
+    - analysis-never-authorization
+    - five-link-execution-chain
+    - permanent-human-register
+    - append-only-truth
+    - measured-receipts
+    - amendment-door-exclusive
+  review:
+    cadence: yearly
+    wrongness: accounted-explicitly-appended-never-deleted
+```
+
+### Pseudo Code
+
+```text
+function yearly_horizon_review(year):
+    review = new_review(year)
+    review.trajectory = compare(horizon.trajectory, estate_reality())
+    for pressure in catalogue:
+        review.record(pressure, state=observe(pressure),
+                      outcomes=deliberations_citing(pressure))
+    for invariant in INVARIANT_HORIZON:
+        held = verify(invariant)              # evidence, not assertion
+        review.record(invariant, held)
+        if not held:
+            open_constitutional_incident(invariant)
+    review.wrongness = account_errors(horizon.anticipations)
+    append(review)                            # never rewrite history
+    feed(review, [capacity_forecasts, extension_planning, governance])
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/horizon/                # Planned
+  record.yaml                         # Planned: trajectory + pressures
+  review.py                           # Planned: yearly workflow
+  invariants.py                       # Planned: verification checklist
+  feeds.py                            # Planned: planning integration
+```
+
+## 99. Treasury Final Verification Matrix
+
+**Section ID:** `CAT-TC-P4-99`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** final verification matrix record  
+**Primary question:** How does the whole hundred-section constitution verify as one coherent system, and where does every class of claim find its class of proof?
+
+### Purpose
+
+This section fixes the final verification matrix: the document-wide map from claim classes to proof classes that makes the whole constitution verifiable as one system. It defines the claim taxonomy (everything this document asserts falls into named classes — structural claims about the document itself: section coverage, registry completeness, identifier uniqueness, cross-reference resolution; behavioural claims about implementations: rule enforcement, state machine conformance, refusal correctness, proven by the Section 86 suite; resilience claims about failure behaviour, proven by Section 85 experiments within currency; operational claims about the running estate: envelopes, runbooks, incident response, proven by Section 96's evidence classes; human-layer claims about governance and readiness, proven by Section 87 rehearsals and Section 74 records; and integrity claims about the document's own chain: the four-part digest chain, the frozen prefixes, the receipt accuracy — proven by the published expressions anyone can run), the matrix itself (every claim class maps to its proof class, its verification instrument, its cadence, and its currency rule — the master index that Sections 20, 50, 75, and 100's registries, the conformance suite, the experiment register, the maturity assessments, and the game day program all plug into), the completeness rule (a claim with no row in the matrix is an unverifiable claim, and unverifiable claims do not belong in a constitution — every normative statement in Sections 1 through 100 traces to a matrix row through its section's tests and rules), and the composition property: the matrix is how one hundred sections verify as one system rather than one hundred — cross-cutting verifications like the zero-authority audits, the population-invariance fixtures, the append-only chain checks, and the human-gate drills each span dozens of sections, and the matrix is where their spans are declared.
+
+### Business Perspective
+
+The matrix is the answer to the largest possible audit question — how do you know your money constitution holds — delivered as a finite, runnable index instead of a meeting series. Every claim the business relies on names its proof, its instrument, and its freshness; due diligence becomes a matrix walk.
+
+### Engineering Perspective
+
+Engineering maintains the matrix as the verification build system: rows bind claim classes to instruments — suite sections, experiment definitions, assessment queries, rehearsal scenarios, digest expressions — and currency tracking rolls up per row. The matrix record seals per Section 66 on each full verification pass, and the roll-up is the estate's single verification status.
+
+### Architecture Perspective
+
+Architecturally, this section is the document's proof architecture stated once: Parts 1 through 3 attached tests and rules to every section; Part 4 built the proof machinery — certification, experiments, assessments, rehearsals, digests; and the matrix is the join. Its placement as Section 99 is deliberate: the last substantive act before the completion contract is the map that makes the whole thing checkable.
+
+**Diagram ID:** `CAT-TC-P4-S99-D001`  
+**Title:** Six Claim Classes, Six Proof Classes  
+**Purpose:** Show the complete mapping from assertion to evidence.  
+**Audience:** Auditors, owners  
+**Reading Order:** Read first in Section 99.
+
+```mermaid
+flowchart LR
+  C1[Structural claims] --> P1[Validator + registry scans]
+  C2[Behavioural claims] --> P2[Conformance suite]
+  C3[Resilience claims] --> P3[Experiments in currency]
+  C4[Operational claims] --> P4[Maturity evidence]
+  C5[Human-layer claims] --> P5[Rehearsals + records]
+  C6[Integrity claims] --> P6[Published digest expressions]
+  P1 & P2 & P3 & P4 & P5 & P6 --> RU[Roll-up:\nweakest current row]
+```
+
+### AI Perspective
+
+For an AI collaborator, the matrix is the master index for any verification question: which proof class covers this claim, which instrument runs it, when did it last pass. The characteristic AI failure is verification tunnel vision — proving a local property while breaking a cross-cutting one, passing a section's tests while violating a span the matrix tracks across forty sections. The corrective is to check the matrix's cross-cutting rows for every change, because the constitution's coherence lives in exactly the properties no single section owns.
+
+### Developer Notes
+
+Developers should treat matrix rows as the definition of done for verification work: an instrument that runs is not the goal; a row that is current is.
+
+### Codex Notes
+
+When operating on `Treasury Final Verification Matrix`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST trace every claim to its matrix row and proof instrument, MUST check cross-cutting rows on every change touching their spans, and MUST refuse to treat locally-passing changes as verified while spanning properties are unchecked.
+
+### Claude Code Notes
+
+When operating on `Treasury Final Verification Matrix`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST trace every claim to its matrix row and proof instrument, MUST check cross-cutting rows on every change touching their spans, and MUST refuse to treat locally-passing changes as verified while spanning properties are unchecked.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Final Verification Matrix`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST trace every claim to its matrix row and proof instrument, MUST check cross-cutting rows on every change touching their spans, and MUST refuse to treat locally-passing changes as verified while spanning properties are unchecked.
+
+### Cursor Notes
+
+When operating on `Treasury Final Verification Matrix`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST trace every claim to its matrix row and proof instrument, MUST check cross-cutting rows on every change touching their spans, and MUST refuse to treat locally-passing changes as verified while spanning properties are unchecked.
+
+### Future AI Notes
+
+When operating on `Treasury Final Verification Matrix`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST trace every claim to its matrix row and proof instrument, MUST check cross-cutting rows on every change touching their spans, and MUST refuse to treat locally-passing changes as verified while spanning properties are unchecked.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Final Verification Matrix` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| taxonomy | Classify every document claim into the named claim classes. | taxonomy stage receipt |
+| matrix | Bind claim classes to proof classes, instruments, cadences, and currency rules. | matrix stage receipt |
+| spans | Declare cross-cutting verification spans with their instruments. | spans stage receipt |
+| rollup | Build the currency roll-up as the estate's verification status. | rollup stage receipt |
+| seal | Seal matrix records on full verification passes. | seal stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Final Verification Matrix` needs a bounded context, loaded in this order:
+
+- This section in full, including the taxonomy and composition property.
+- Section 86 (`Treasury Conformance and Certification`) for behavioural proof instruments.
+- Section 85 (`Treasury Resilience Verification`) for resilience proof currency.
+- Section 96 (`Treasury Maturity Model`) for operational evidence classes.
+- Section 100 (`Treasury Core Part 4 Completion Contract`) for the structural claims sealed beside this matrix.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. The claim taxonomy over all hundred sections.
+2. Matrix rows with instrument bindings.
+3. Cross-cutting span declarations.
+4. Currency roll-up computation.
+5. Sealed matrix records per pass.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Final Verification Matrix`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Proving local properties while breaking spans | The section's tests pass | Cross-cutting rows exist because coherence lives between sections; check the spans a change touches |
+| Adding claims without matrix rows | The claim is obviously true | Unverifiable claims do not belong in a constitution; a row or an amendment removing the claim |
+| Letting instrument currency lapse quietly | The instrument passed last quarter | Currency rules are per row; a lapsed row degrades the roll-up visibly, not silently |
+| Treating the matrix as documentation | The instruments run anyway | The matrix is where completeness is checkable; instruments without rows are proof without coverage accounting |
+| Verifying the document but not the estate, or vice versa | One side feels sufficient | Structural and integrity rows cover the document; behavioural through human rows cover the estate; the matrix holds both or holds neither |
+
+### Security
+
+Security claims span the matrix — containment behavioural rows, adversarial resilience rows, disclosure operational rows, human-gate rehearsal rows — and the security review's coverage question is a matrix filter; the matrix record's own integrity rides the sealed-artifact discipline.
+
+### Performance
+
+Matrix maintenance is bookkeeping over existing instruments; the roll-up computes from currency metadata; full passes schedule per the constituent instruments' own cadences.
+
+### Latency
+
+Not applicable as runtime latency: the matrix is verification governance; its instruments carry their own execution budgets.
+
+### Scalability
+
+The matrix scales with the document — now fixed at one hundred sections — and with instrument growth; rows are stable, currency turns over, and the roll-up stays one status.
+
+### Reliability
+
+The matrix's reliability property is honest degradation: any lapsed row visibly degrades the roll-up, so the estate's verification status is always as weak as its weakest current row and says so.
+
+### Caching
+
+Currency metadata caches per row; sealed matrix records are immutable; the roll-up recomputes on any row change.
+
+### Consistency
+
+The matrix composes with the four part-registries: registries enumerate what exists, the matrix maps how it verifies, and the completion contracts seal both — three layers, one coherent proof story.
+
+**Diagram ID:** `CAT-TC-P4-S99-D002`  
+**Title:** Spans Guard the Between  
+**Purpose:** Show cross-cutting properties verified across their full extent.  
+**Audience:** Engineers, reviewers  
+**Reading Order:** Read with rule CAT-TC-CONST-198.
+
+```mermaid
+flowchart TB
+  S19[Section 19] & S24[Section 24] & S51[Section 51] & S76[Section 76] --> SPAN[Span: population +\nnode-count invariance]
+  SPAN --> FIX[Span fixtures:\nauthority identical at\nevery population + fleet size]
+  CHG[Change touching\nany spanned section] --> GATE{Span fixtures pass?}
+  GATE -->|yes| LAND[Land]
+  GATE -->|no| HALT[Halt: local green\nis not system green]
+```
+
+### Recovery
+
+A verification gap discovered — a claim without a row, an instrument without coverage — files as a matrix defect with the same severity as the claim's importance; recovery is a row, an instrument, or an amendment, never a shrug.
+
+### Ownership
+
+The matrix is owned by the planned Treasury Documentation Owner with the Lead Repository Architect over the taxonomy; each row's instrument by that instrument's owner; the roll-up by the Section 74 governance calendar.
+
+### Dependencies
+
+- Section 86 (`Treasury Conformance and Certification`) — behavioural instruments.
+- Section 85 (`Treasury Resilience Verification`) — resilience instruments and currency.
+- Section 87 (`Treasury Simulation and Game Days`) — human-layer instruments.
+
+### Risks
+
+- Row sprawl blurring the taxonomy's clean classes.
+- Cross-cutting spans under-declared, hiding coherence gaps.
+- Roll-up fatigue if degradation alerts are miscalibrated.
+
+### Anti Patterns
+
+- Claims without rows.
+- Instruments without rows.
+- Local verification passing for system verification.
+
+### Best Practices
+
+- Walk the matrix in every major review; it is the map.
+- Declare a span for every property two or more sections share.
+- Keep the roll-up on the same dashboard as financial health.
+
+### Examples
+
+Example: a due diligence review asks how the treasury proves agents cannot exceed their authority. The matrix walk answers in minutes: behavioural rows bind Sections 19, 24, 52, and 57's rules to suite checks with green currency; the population-invariance span binds Sections 51 and 76's fixtures; resilience rows cover authorization under failure; and the human-gate rows cover the drills. One question, four proof classes, every instrument named and current.
+
+### Counter Examples
+
+Counter example: a change to grant resolution passes Section 19's local tests but subtly breaks the population-invariance span — authorization outcomes now vary with cohort count in one edge path. Local verification says done; the span fixture, run because the matrix names Section 19 in its span, catches the variance. Coherence lives between sections, which is why the matrix tracks what no section owns alone.
+
+### Implementation Checklist
+
+- [ ] Implement the treasury final verification matrix exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the treasury final verification matrix to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the treasury final verification matrix done.
+- [ ] Every claim class maps to proof class, instrument, cadence, and currency rule.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the treasury final verification matrix with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the treasury final verification matrix, not by convention or review habit.
+- [ ] The treasury final verification matrix rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] Every normative statement traces to a matrix row through its section's tests and rules.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the treasury final verification matrix with a named on-call owner.
+- [ ] Alert thresholds for the treasury final verification matrix are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the treasury final verification matrix names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] The currency roll-up is a standing governance dashboard signal.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the treasury final verification matrix carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the treasury final verification matrix run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the treasury final verification matrix exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] Matrix changes version with the instruments and claims they bind.
+
+### Recovery Checklist
+
+- [ ] Recovery of the treasury final verification matrix rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the treasury final verification matrix before mutations are re-enabled.
+- [ ] A recovery report for the treasury final verification matrix records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Verification gaps file as defects at the covered claim's severity.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | The matrix's constitutional text and the claims it maps. |
+| `core/treasury/verification/matrix.yaml` | Planned | Claim-to-proof rows with bindings. |
+| `core/treasury/verification/spans.yaml` | Planned | Cross-cutting span declarations. |
+| `core/treasury/verification/rollup.py` | Planned | Currency roll-up computation. |
+
+### Folder Mapping
+
+The verification matrix lives in the planned `core/treasury/verification/` folder as the estate's proof index.
+
+### Cross References
+
+- Section 20 (`Treasury Core Part 1 Completion Contract`) — the first registry layer the matrix joins.
+- Section 86 (`Treasury Conformance and Certification`) — the largest single instrument family.
+- Section 100 (`Treasury Core Part 4 Completion Contract`) — the seal over the matrix and everything it maps.
+- Rule `CAT-TC-CONST-197` and Rule `CAT-TC-CONST-198` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S99-001` through `CAT-TC-AT-S99-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-197` — Complete Claim-To-Proof Mapping (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-198` — Spans Verify What No Section Owns (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the treasury final verification matrix must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S99-001`  
+**Meaning:** Every claim class maps to a proof class with instrument, cadence, and currency; cross-cutting spans verify what no section owns alone; unverifiable claims do not belong in a constitution — one matrix, one roll-up, one answer to how do you know.  
+**Recall Trigger:** Any verification question, coverage claim, change touching shared properties, or audit request.  
+**Operational Use:** Recall this anchor to trace claims to rows, check spans on every change, and keep the roll-up honest.
+
+### Future Evolution
+
+The matrix's rows turn over with instruments and currency forever; its taxonomy and completeness rule close with the document at Section 100.
+
+### Operational Stories
+
+Operational story: the roll-up degrades when three resilience rows lapse during a frozen quarter. The degradation is visible at the governance calendar, the experiments schedule on unfreeze, and the roll-up recovers — the weakest-row honesty doing exactly what a single green light never could.
+
+### Execution Stories
+
+Execution story: a full verification pass completes: suite green, experiments current, assessment sealed, rehearsals within cadence, digests reproduced. The matrix record seals with every row's evidence reference — the hundred-section constitution verified as one system, in one sealed artifact.
+
+### Optimization Stories
+
+Optimization story: audit preparation once meant assembling evidence ad hoc. The matrix turns it into filtering rows by the auditor's scope and exporting sealed records — preparation in hours, and the auditors' sampling lands on instruments that were already running.
+
+### Recovery Stories
+
+Recovery story: a taxonomy review finds a claim class — external interface drift behaviour — with instruments running but no row. The gap files, the row lands binding Section 93's parking tests and Section 85's drift experiments, and the roll-up widens its honesty by one row — coverage recovered by accounting, which is the only way coverage recovers.
+
+**Diagram ID:** `CAT-TC-P4-S99-D003`  
+**Title:** One Roll-Up, No Averaging  
+**Purpose:** Show the weakest-row honesty of the verification status.  
+**Audience:** Governance  
+**Reading Order:** Read with the pseudo code of Section 99.
+
+```mermaid
+flowchart LR
+  R1[Row: suite green] --> RU{Roll-up}
+  R2[Row: experiments current] --> RU
+  R3[Row: one rehearsal lapsed] --> RU
+  RU --> ST[Status: degraded\nlapsed row named]
+  AVG[Averaging into\na comfortable score] -. forbidden .-> RU
+```
+
+### Normative Requirements
+
+1. Every claim in this document MUST belong to a named claim class with a matrix row binding it to proof class, instrument, cadence, and currency rule.
+2. Cross-cutting properties spanning multiple sections MUST be declared as spans with their own instruments.
+3. The currency roll-up MUST reflect the weakest current row and MUST be a standing governance signal.
+4. Changes MUST check every span they touch; local verification MUST NOT stand in for system verification.
+5. Claims without possible verification MUST be removed by amendment rather than retained unverifiable.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the treasury final verification matrix.
+
+**Rule ID:** `CAT-TC-CONST-197`  
+**Title:** Complete Claim-To-Proof Mapping  
+**Purpose:** Make the whole constitution checkable through one index.  
+**Normative Requirement:** The verification matrix MUST map every claim class to its proof class, instrument, cadence, and currency rule; every normative statement MUST trace to a row through its section's tests and rules; instruments MUST NOT run uncounted outside the matrix; and discovered unmapped claims MUST file as defects resolved by rows, instruments, or removing amendments.  
+**Rationale:** A constitution's claims are only as strong as their weakest unverified one, and without a complete index nobody knows which one that is.  
+**Enforcement:** Taxonomy reviews against the document; traceability checks from statements to rows; instrument registration requiring rows.  
+**Violation:** An unmapped claim or uncounted instrument files as a matrix defect at the claim's severity.  
+**Recovery:** Map, instrument, or amend — and re-verify the roll-up's completeness.  
+**Owner:** Treasury Documentation Owner (Planned role)
+
+**Rule ID:** `CAT-TC-CONST-198`  
+**Title:** Spans Verify What No Section Owns  
+**Purpose:** Protect the coherence that lives between sections.  
+**Normative Requirement:** Cross-cutting properties — the zero-authority boundary, population and node-count invariance, the append-only chain, human-gate integrity, and every declared span — MUST carry span rows with instruments exercising their full extent; changes touching any section in a span MUST run the span's instruments before landing; and span coverage MUST be reviewed whenever sections are amended.  
+**Rationale:** The document's deepest properties are exactly the ones distributed across dozens of sections; local tests structurally cannot see them break.  
+**Enforcement:** Span declarations in the matrix; change gates running touched spans; amendment workflow flagging span review.  
+**Violation:** A change landing without its span checks re-verifies immediately; span breakage found is a defect at constitutional severity.  
+**Recovery:** Re-run spans, fix the breakage, and tighten the gate that skipped them.  
+**Owner:** Lead Repository Architect
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S99-001`  
+**Purpose:** Prove normative statements trace to matrix rows.  
+**Given:** A sampled set of normative statements across all four parts.  
+**When:** Traceability resolution runs from statement to section tests and rules to matrix rows.  
+**Then:** Every sampled statement reaches a row with a bound instrument and currency rule.  
+**Failure Condition:** Any statement traces to no row.
+
+**Test ID:** `CAT-TC-AT-S99-002`  
+**Purpose:** Prove span instruments catch cross-section breakage.  
+**Given:** A change breaking population invariance in one section while passing that section's local tests.  
+**When:** The change gate runs the touched span's fixtures.  
+**Then:** The span fixture fails, the change halts, and the local pass is recorded as insufficient.  
+**Failure Condition:** The change lands on local green.
+
+**Test ID:** `CAT-TC-AT-S99-003`  
+**Purpose:** Prove the roll-up reflects the weakest row.  
+**Given:** A matrix with one row's currency lapsed.  
+**When:** The roll-up computes.  
+**Then:** The roll-up degrades with the lapsed row named; no aggregate averaging hides it.  
+**Failure Condition:** The roll-up reports healthy over a lapsed row.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the treasury final verification matrix defined by this section.
+
+```json
+{
+  "record_type": "treasury.verification.matrix_row",
+  "row_id": "vmx_01J5Z32A2B3C4D5E6F7G8H9J0K",
+  "claim_class": "behavioural-rule-enforcement",
+  "claims": ["CAT-TC-CONST-151..200 enforcement"],
+  "proof_class": "conformance-suite-checks",
+  "instrument": "core/treasury/conformance/suite (Planned)",
+  "cadence": "per-scope-weekly",
+  "currency_rule": "within-cadence-or-degraded",
+  "currency_status": "current",
+  "last_evidence": "run_2026_08_14_suite",
+  "spans": [],
+  "vocabulary_version": "0.1.0"
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the treasury final verification matrix defined by this section.
+
+```yaml
+treasury_verification_matrix:
+  version: 0.1.0
+  claim_classes:
+    structural: document-shape-registries-references
+    behavioural: rule-and-machine-enforcement
+    resilience: failure-behaviour-under-injection
+    operational: envelopes-runbooks-incidents
+    human_layer: governance-and-readiness
+    integrity: digest-chain-and-receipts
+  proof_classes:
+    structural: validator-and-registry-scans
+    behavioural: conformance-suite
+    resilience: experiment-records-in-currency
+    operational: maturity-evidence-classes
+    human_layer: rehearsals-and-governance-records
+    integrity: published-digest-expressions
+  spans:
+    - zero-authority-boundary
+    - population-and-node-count-invariance
+    - append-only-chain
+    - human-gate-integrity
+  completeness:
+    unmapped_claims: defects
+    uncounted_instruments: defects
+  rollup: weakest-current-row-no-averaging
+```
+
+### Pseudo Code
+
+```text
+function verify_system():
+    results = {}
+    for row in matrix.rows:
+        results[row] = run(row.instrument) and within(row.currency_rule)
+    for span in matrix.spans:
+        results[span] = run(span.instrument_over_full_extent)
+    rollup = weakest(results)             # no averaging, ever
+    seal(matrix_record(results, rollup))  # Section 66 discipline
+    return rollup
+
+function gate_change(change):
+    for span in matrix.spans_touching(change.sections):
+        if not run(span.instrument):
+            return halt(change, 'span-breakage', span)
+    return proceed(change)
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+core/treasury/verification/           # Planned
+  matrix.yaml                         # Planned: claim-to-proof rows
+  spans.yaml                          # Planned: cross-cutting declarations
+  rollup.py                           # Planned: weakest-row status
+  traceability.py                     # Planned: statement-to-row checks
+```
+
+## 100. Treasury Core Part 4 Completion Contract
+
+**Section ID:** `CAT-TC-P4-100`  
+**Constitutional domain:** Treasury Core Constitutional Governance  
+**Human accountable owner:** Lead Repository Architect and Treasury Documentation Owner  
+**Primary record:** treasury final completion receipt  
+**Primary question:** What exactly does Part 4 establish, what closes with it, how is the finished hundred-section constitution measured and sealed, and what happens after final?
+
+### Purpose
+
+This section closes Part 4 and with it the CAT Treasury Core Bible. It declares the completion boundary — Sections 76 through 100 exist appended after the frozen Parts 1 through 3, no Section 101 exists, no Part 5 exists or will ever be appended, and the document is FINAL at 100 percent. It consolidates this part's closed registries: 50 new constitutional rules (CAT-TC-CONST-151..200, completing the register at 200, closed), 75 new acceptance tests (completing 300, closed), 25 new memory anchors (completing 100, closed), 75 new diagrams under the CAT-TC-P4 family (completing 300, closed), and the Part 4 schema registry completing the document's contract shapes. It declares what this part does not claim: no multi-node runtime, federation, continuity estate, conformance suite, governance automation, amendment tooling, or autonomy machinery exists as code — every `core/treasury/**` path remains Status: Planned, and the roadmap of Section 95 governs how any of it becomes real. It fixes the after-final regime: the frozen four-part chain holds the bytes, Section 90's amendment process holds the meaning, and the next documentation work is a different document entirely — the Affiliate Engine. And it carries the final generated completion receipt whose every figure is measured from this finished file.
+
+### Business Perspective
+
+This contract closes a documentation program milestone at its full mark: the treasury constitution is complete — one hundred sections, two hundred rules, three hundred tests — before a line of treasury code exists, which is the order the business chose deliberately: constitution first, so implementation never negotiates with a blank page. The receipt's measured figures keep the milestone a fact.
+
+### Engineering Perspective
+
+Engineering reads this section as the document's final index: the four registries below close their registers, the receipt chains the append-only proof a fourth and final time, and the after-final regime names where every future engineering question routes — Section 86 for conformance, Section 90 for meaning, Section 95 for build order. The Planned estate is the work; this document is its contract.
+
+### Architecture Perspective
+
+Architecturally, Part 4 completed the constitution's outermost shell: the multi-node stratum (76-82), federation and continuity (83-87), governance at scale (88-93), the evolution horizon (94-98), the verification matrix (99), and this contract. Four parts, one hundred sections, one coherent system — extended, never amended, except through the one door Section 90 built.
+
+**Diagram ID:** `CAT-TC-P4-S100-D001`  
+**Title:** One Hundred Sections, One System  
+**Purpose:** Show the complete constitution's four-part architecture.  
+**Audience:** Every reader  
+**Reading Order:** Read first in Section 100.
+
+```mermaid
+flowchart TB
+  P1[Part 1: 1-20\ntruths and models] --> P2[Part 2: 21-50\nmachinery and flows]
+  P2 --> P3[Part 3: 51-75\nstrata at scale]
+  P3 --> P4[Part 4: 76-100\nnodes, governance,\nhorizon, closure]
+  P4 --> FIN[FINAL: 100 sections\n200 rules, 300 tests\n100 anchors, 300 diagrams]
+  FIN --> DOORS[Futures: Section 90 meaning\nSection 95 implementation\nnext Bible documentation]
+```
+
+### AI Perspective
+
+For an AI collaborator, this section is the terminal resumption point: verify the four-link chain — Part 1's digest within Part 2's within Part 3's within this receipt — confirm no Section 101 and no Part 5, and understand that continuation of this file is complete. Future treasury work is implementation per Section 95, conformance per Section 86, amendment per Section 90, or the next Bible entirely. The append-only discipline that protected three parts now protects four, forever.
+
+### Developer Notes
+
+Developers should bookmark the registries below as Part 4's index and the document totals as the whole constitution's: rules, tests, anchors, diagrams, and schemas, each with its owning section — and every future 'where is this defined' question answers from these tables.
+
+### Codex Notes
+
+When operating on `Treasury Core Part 4 Completion Contract`, Codex MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST verify the full four-link prefix chain before relying on this document, MUST treat the document as FINAL with no Part 5 ever, and MUST route all future change through the Section 90 amendment process.
+
+### Claude Code Notes
+
+When operating on `Treasury Core Part 4 Completion Contract`, Claude Code MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST verify the full four-link prefix chain before relying on this document, MUST treat the document as FINAL with no Part 5 ever, and MUST route all future change through the Section 90 amendment process.
+
+### Gemini CLI Notes
+
+When operating on `Treasury Core Part 4 Completion Contract`, Gemini CLI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST verify the full four-link prefix chain before relying on this document, MUST treat the document as FINAL with no Part 5 ever, and MUST route all future change through the Section 90 amendment process.
+
+### Cursor Notes
+
+When operating on `Treasury Core Part 4 Completion Contract`, Cursor MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST verify the full four-link prefix chain before relying on this document, MUST treat the document as FINAL with no Part 5 ever, and MUST route all future change through the Section 90 amendment process.
+
+### Future AI Notes
+
+When operating on `Treasury Core Part 4 Completion Contract`, Future AI MUST load this section before proposing any treasury change, MUST name the financial authority and the participation level of every model interaction it designs, MUST NOT treat model confidence as financial authority, and MUST route any disagreement with a clause through a proposed ADR instead of acting on the disagreement. For this section specifically, the tool MUST verify the full four-link prefix chain before relying on this document, MUST treat the document as FINAL with no Part 5 ever, and MUST route all future change through the Section 90 amendment process.
+
+### Implementation Blueprint
+
+An AI assistant implementing `Treasury Core Part 4 Completion Contract` follows the staged blueprint below. Each stage names what the agent does and the receipt it writes, so a partially completed implementation can be resumed by a different agent without re-reading the whole part.
+
+| Stage | What the agent does | Receipt written |
+|---|---|---|
+| verify | Verify the final receipt digest and the complete four-link chain. | verify stage receipt |
+| registries | Load the Part 4 and document-total registries as the conformance index. | registries stage receipt |
+| boundary | Confirm no Section 101 and no Part 5 content exists or ever will. | boundary stage receipt |
+| regime | Adopt the after-final regime: bytes frozen, meaning by amendment, next work elsewhere. | regime stage receipt |
+
+### AI Context Window
+
+An agent working on `Treasury Core Part 4 Completion Contract` needs a bounded context, loaded in this order:
+
+- This section in full, including the registries and the final receipt.
+- The Part 4 continuation boundary at the head of this part.
+- Section 90 (`Treasury Constitutional Amendment Process`) for everything after final.
+- Section 75 (`Treasury Core Part 3 Completion Contract`) for the chained pattern this completes.
+- `.ai/PROJECT_STATUS.md` for the dashboard entry this completion closes at 100 percent.
+
+**Context budget guidance:** this section plus Section 2 (`Treasury Principles`) and Section 19 (`Treasury Security and Trust Boundary`) is the irreducible minimum; an agent that has read none of them MUST NOT write treasury code.
+
+### AI Build Order
+
+The build order below is the sequence in which an agent creates artefacts for this section. Each item depends only on items above it.
+
+1. The quadruple verification: Part 1 inner digest, Parts 1-2 prefix digest, Parts 1-3 prefix digest, final whole-file digest.
+2. The registry-driven conformance index over the complete document.
+3. The after-final routing: amendments to Section 90, implementation to Section 95, next documentation to the Affiliate Engine.
+
+### AI Failure Library
+
+These are the failures agents actually produce when implementing `Treasury Core Part 4 Completion Contract`. Each entry names the mistake, the reason an agent makes it, and the corrective behaviour.
+
+| Failure | Why an agent does it | Corrective behaviour |
+|---|---|---|
+| Appending a Part 5 for new material | The document has always grown by parts | The document is FINAL; new treasury meaning is Section 90 amendments, new subsystems are new Bibles |
+| Editing frozen parts after finality | A final document tempts final polish | Finality strengthens the freeze; four digests now witness every byte |
+| Trusting receipts without re-measuring | Four receipts agree | All four are document measurements; verification re-derives from the file, always |
+| Treating the Planned estate as existing because the constitution is complete | A finished constitution feels like a finished system | One hundred sections of Planned is still Planned; Section 95 governs what becomes real, and nothing has yet |
+| Reading finality as abandonment | No Part 5 sounds like no future | The future is implementation, amendment, and the next Bible — the document is complete, not dead |
+
+### Security
+
+The completion contract's integrity chain now has four links: the stub under Part 1's digest, Parts 1-2 under Part 2's proof, Parts 1-3 under Part 3's, and the whole under this final receipt — tampering with any of one hundred sections is detectable from four hashes and three byte counts, forever.
+
+### Performance
+
+Not applicable as runtime performance: verification is four hashes over one file.
+
+### Latency
+
+Not applicable as runtime latency: the contract introduces no request path.
+
+### Scalability
+
+The completion pattern scaled across four parts of this document and every sibling Bible; it ends here for this file, and its next use is the next document's Part 1.
+
+### Reliability
+
+Reliability is reproducibility: every figure re-derivable by the published commands, every digest by the published expression, by anyone, at any time, for as long as the repository exists.
+
+### Caching
+
+Nothing is cached; the file is the artifact and its digests recompute on every verification.
+
+### Consistency
+
+Consistency is the completed chain: stub, Part 1, Part 2, Part 3, Part 4 — each frozen under its successors, the last frozen under its own receipt, and ADRs the only amendment channel for all of it.
+
+**Diagram ID:** `CAT-TC-P4-S100-D002`  
+**Title:** The Closed Four-Link Chain  
+**Purpose:** Show the completed append-only proof, permanent.  
+**Audience:** Continuation sessions, auditors  
+**Reading Order:** Read with rule CAT-TC-CONST-199.
+
+```mermaid
+flowchart LR
+  STUB[Stub 147B] --> P1[Part 1]
+  P1 --> P2[Part 2]
+  P2 --> P3[Part 3]
+  P3 --> P4[Part 4 - FINAL]
+  V1[Digest over 633496B] -.verifies.-> P1
+  V2[Digest over 1592532B] -.verifies.-> P2
+  V3[Digest over 2377279B] -.verifies.-> P3
+  V4[Final receipt digest] -.verifies.-> P4
+  P4 --> X[No Part 5, ever]
+```
+
+### Recovery
+
+If this file is damaged, recovery is from Git history: the committed blob is the truth, four receipt digests confirm restoration, and no regeneration from memory is acceptable — for the final part most of all.
+
+### Ownership
+
+This completion contract is owned by the Lead Repository Architect; the receipt's accuracy by the generating session; the after-final regime by the governance structure Sections 88 through 91 fixed.
+
+### Dependencies
+
+- All of Sections 76 through 99 — this contract closes over them.
+- Section 75 (`Treasury Core Part 3 Completion Contract`) — the frozen predecessor.
+- Section 90 (`Treasury Constitutional Amendment Process`) — the future's only door.
+- The Git history of this repository — the recovery source.
+
+### Risks
+
+- Finality complacency — treating the complete constitution as a complete system.
+- Chain verification skipped as receipts multiply.
+- The after-final regime's routing forgotten as years pass.
+
+### Anti Patterns
+
+- A Part 5, ever.
+- Post-final polish edits to any frozen byte.
+- Implementation claims citing document completeness.
+
+### Best Practices
+
+- Verify all four links before relying on any clause.
+- Cite by ID: sections, rules, tests, anchors, diagrams, schemas — all one hundred sections of them.
+- Keep the receipt's measurement commands runnable as written, forever.
+
+### Examples
+
+Example: a future session assigned Affiliate Engine documentation loads this section first, verifies the four-link chain over this file, reads the after-final regime, confirms the next task is `context/08_AFFILIATE_ENGINE.md` (Status: Planned as a documentation target), and begins that document's Part 1 with this Bible as the treasury reference it cites — the handoff consuming exactly the artifacts this contract sealed.
+
+### Counter Examples
+
+Counter example: a well-meaning future contributor finds a typo in Section 3 and fixes it directly, breaking four digest verifications at once. The fix reverts; the typo, if it matters, becomes a Section 90 amendment noting the erratum. Four parts of receipts exist so that no edit, however small or kind, ever silently changes what was measured and sealed.
+
+### Implementation Checklist
+
+- [ ] Implement the Part 4 and final completion contract exactly as specified in this section, with every named control mapped to a concrete enforcement point.
+- [ ] Bind every artefact of the Part 4 and final completion contract to its planned `core/treasury/**` path and keep the path marked Planned until real code exists there.
+- [ ] Wire every failure mode listed in this section's AI Failure Library to an observable, alertable signal before declaring the Part 4 and final completion contract done.
+- [ ] The four registries below enumerate every Part 4 rule, test, anchor, diagram, and schema with owning sections, closing the document registers.
+
+### Acceptance Checklist
+
+- [ ] Every acceptance test declared in this section passes against the implementation of the Part 4 and final completion contract with no test skipped or weakened.
+- [ ] Both constitutional rules of this section are enforced by an automated check on the Part 4 and final completion contract, not by convention or review habit.
+- [ ] The Part 4 and final completion contract rejects every unauthorized mutation attempt, fails closed, and records the refusal with full provenance.
+- [ ] The receipt's counts match independent re-measurement by the published commands.
+
+### Operational Checklist
+
+- [ ] Operational dashboards expose the health, throughput, and refusal counts of the Part 4 and final completion contract with a named on-call owner.
+- [ ] Alert thresholds for the Part 4 and final completion contract are reviewed against measured baselines at least monthly and every change is recorded.
+- [ ] The runbook for the Part 4 and final completion contract names the human authority for each escalation level and is tested in a drill, not only read.
+- [ ] `.ai/PROJECT_STATUS.md` reflects Part 4 completion at 100% FINAL with the Affiliate Engine as next task.
+
+### Migration Checklist
+
+- [ ] Every schema or policy change touching the Part 4 and final completion contract carries a version, a recorded owner, and a replay-verified migration script.
+- [ ] Migrations of the Part 4 and final completion contract run against a ledger replica first, and the replica result is compared entry-for-entry before production rollout.
+- [ ] A rollback path for the Part 4 and final completion contract exists, is rehearsed, and never rewrites settled financial history to achieve its result.
+- [ ] No migration exists for this document: bytes are frozen forever, and meaning migrates only through Section 90.
+
+### Recovery Checklist
+
+- [ ] Recovery of the Part 4 and final completion contract rebuilds state exclusively from the append-only ledger and its verified snapshots, never from caches.
+- [ ] Post-recovery, every invariant declared in this section is re-verified for the Part 4 and final completion contract before mutations are re-enabled.
+- [ ] A recovery report for the Part 4 and final completion contract records what failed, what was restored, the verification evidence, and the human who authorized resumption.
+- [ ] Restoration from Git reproduces this file with all four digests matching.
+
+### Repository Mapping
+
+| Path | Status | Role for this section |
+|---|---|---|
+| `context/07_TREASURY_CORE.md` | Current | This document; complete and FINAL at 100%. |
+| `.ai/PROJECT_STATUS.md` | Current | Dashboard closed at 100% by this completion. |
+| `context/08_AFFILIATE_ENGINE.md` | Current | The next documentation target (Status: Planned as a Bible; exists as a stub). |
+| `core/treasury/` | Planned | The entire implementation estate; nothing exists yet. |
+
+### Folder Mapping
+
+This document lives at `context/07_TREASURY_CORE.md` (Current, FINAL); its implementation target remains `core/treasury/**` (Planned, empty); its dashboard entry is `.ai/PROJECT_STATUS.md` (Current); its future is `adr/` amendments and the sibling Bibles.
+
+### Cross References
+
+- Sections 76 through 99 — every section of this part, closed over by this contract.
+- Section 75 (`Treasury Core Part 3 Completion Contract`) — the frozen predecessor contract.
+- Section 90 (`Treasury Constitutional Amendment Process`) — the exclusive channel for post-final change.
+- The Part 4 continuation boundary — the head-of-part declaration this section fulfils.
+- Rule `CAT-TC-CONST-199` and Rule `CAT-TC-CONST-200` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S100-001` through `CAT-TC-AT-S100-003` — the tests that prove this section.
+- Rule `CAT-TC-CONST-199` and Rule `CAT-TC-CONST-200` — the constitutional rules defined in this section.
+- Acceptance tests `CAT-TC-AT-S100-001` through `CAT-TC-AT-S100-003` — the tests that prove this section.
+
+### Related ADRs
+
+The ADR register (`adr/ADR-0001.md` through `adr/ADR-0055.md`) currently contains unaccepted drafts and no accepted treasury decision record. A dedicated Treasury Core ADR set that fixes storage engine, custody provider, and settlement rail choices is Status: Planned; until it exists, this section is the governing text and any implementation conflict is resolved in favour of this document.
+
+### Related Rules
+
+- `CAT-TC-CONST-199` — The Four-Link Chain Closes Final (defined in this section under Constitutional Controls).
+- `CAT-TC-CONST-200` — Measured Final Honesty (defined in this section under Constitutional Controls).
+- `context/02_PROJECT_RULES.md` — repository-wide engineering and governance rules that this section refines but never overrides.
+
+### Related Architecture
+
+- `architecture/System_Architecture.md` — system-level placement of the Treasury Core among CAT subsystems.
+- `architecture/Data_Flow.md` — the data paths that carry financial events into and out of the treasury boundary.
+- `architecture/Backend_Architecture.md` — the backend runtime that will host the planned `core/treasury/**` services.
+- `context/04_ARCHITECTURE.md` — the constitutional architecture document that this section's the Part 4 and final completion contract must remain consistent with.
+
+### AI Memory Anchor
+
+**Anchor ID:** `CAT-TC-MEM-S100-001`  
+**Meaning:** The Treasury Core Bible is complete and FINAL: one hundred sections, four frozen parts under four chained digests, registers closed at 200 rules, 300 tests, 100 anchors, 300 diagrams — no Part 5 ever, meaning changes only through Section 90, and the estate it constitutionalizes remains Planned until Section 95 builds it.  
+**Recall Trigger:** Any Treasury Core continuation attempt, implementation kickoff, amendment proposal, or receipt citation.  
+**Operational Use:** Recall this anchor to verify the four-link chain, refuse any Part 5, and route all futures through their lawful doors.
+
+### Future Evolution
+
+This document has no Part 5 and needs none: implementation proceeds per Section 95, meaning evolves per Section 90, the horizon reviews per Section 98, and the documentation program moves to the Affiliate Engine — the future was designed in, which is why the document can end.
+
+### Operational Stories
+
+Operational story: the documentation dashboard review confirms Treasury Core at 100 percent FINAL, four digests verifiable, registers closed, and the Affiliate Engine queued — the program's rhythm of bounded, measured milestones completing its longest document.
+
+### Execution Stories
+
+Execution story: the generating session verified the Parts 1-3 prefix before writing, continuously during generation, and after the final write — byte-identity checks bracketing twenty-five new sections — and ran the full validation suite before the single commit, exactly as the workflow has mandated four times now.
+
+### Optimization Stories
+
+Optimization story: the digest-line-exclusion expression covers four digest lines with the same one grep pattern it used for one — the convention having scaled wordlessly from Part 1 to FINAL, which is what good conventions do.
+
+### Recovery Stories
+
+Recovery story: from this commit forward, this file's recovery story is Git plus four digests, permanently — the simplest recovery story in the estate, earned by the strictest discipline in it.
+
+**Diagram ID:** `CAT-TC-P4-S100-D003`  
+**Title:** After Final: Every Future Has a Door  
+**Purpose:** Fix where everything routes now that the document is complete.  
+**Audience:** Everyone who comes after  
+**Reading Order:** Read last in the document.
+
+```mermaid
+flowchart TB
+  FINAL[This document:\ncomplete, frozen, FINAL] --> D1[Meaning change?\nSection 90 amendments]
+  FINAL --> D2[Building the estate?\nSection 95 roadmap +\nSection 86 certification]
+  FINAL --> D3[New subsystem docs?\ncontext/08_AFFILIATE_ENGINE.md\nStatus: Planned Bible]
+  FINAL --> D4[Verification?\nfour digests, published\nexpressions, forever]
+```
+
+### Normative Requirements
+
+1. This document MUST contain exactly Sections 1 through 100 and MUST NOT ever contain a Section 101 or a Part 5.
+2. The registries in this section MUST enumerate every Part 4 rule, acceptance test, memory anchor, diagram, and schema, closing the document registers at 200, 300, 100, 300, and the complete schema set respectively.
+3. The final receipt's figures MUST be measured from the finished file, with all digests reproducible by the published expressions.
+4. All future change to this document's meaning MUST flow through the Section 90 amendment process; the frozen bytes MUST never be edited.
+5. All `core/treasury/**` repository paths named in this document MUST remain marked Planned until implementation exists through the Section 95 roadmap.
+
+### Constitutional Controls
+
+The following constitutional rules are defined by this section and registered in the Section 100 rule registry. They bind every implementation of the Part 4 and final completion contract.
+
+**Rule ID:** `CAT-TC-CONST-199`  
+**Title:** The Four-Link Chain Closes Final  
+**Purpose:** Seal the complete constitution under its own permanent proof.  
+**Normative Requirement:** This document MUST remain byte-identical forever under its four-link chain — the stub and Part 1 under the Part 1 digest, Parts 1-2 under their prefix proof, Parts 1-3 under theirs, and the complete file under this receipt's digest; no Part 5 or Section 101 MUST ever be appended; and any continuation, citation, or implementation MUST verify the chain before reliance.  
+**Rationale:** The chain's strength was that every link witnessed the others; closing it makes the whole document one witnessed artifact, permanently.  
+**Enforcement:** The published digest expressions; prefix byte comparisons against committed blobs; conformance suite structural checks refusing Section 101 and Part 5 patterns.  
+**Violation:** Any post-final byte change is rejected; the document restores from Git and the change routes to Section 90 if it carried meaning.  
+**Recovery:** Restore from the committed blob, re-verify all four digests, and route the intent lawfully.  
+**Owner:** Lead Repository Architect
+
+**Rule ID:** `CAT-TC-CONST-200`  
+**Title:** Measured Final Honesty  
+**Purpose:** Close the constitution the way it was built: on measured fact.  
+**Normative Requirement:** The final completion receipt MUST report only values measured from the finished file by stated commands, including the complete chain of prefix proofs; the document's progress figure MUST read 100 percent FINAL derived from four completed parts of the declared four; no status surface MAY report Treasury Core progress inconsistent with this receipt; and the receipt MUST stand as the document's terminal measurement, superseded by nothing.  
+**Rationale:** A documentation program's credibility is its receipts; the final receipt closes two hundred rules of discipline with the same measured honesty as the first, which is the only fitting end.  
+**Enforcement:** The generation workflow measures from the finished file; the validator re-derives every figure; the dashboard update cites this receipt.  
+**Violation:** An inconsistent progress claim is corrected to this receipt's figures with the discrepancy noted.  
+**Recovery:** Re-measure, correct, and re-publish.  
+**Owner:** Treasury Documentation Owner (Planned role)
+
+### Acceptance Tests
+
+**Test ID:** `CAT-TC-AT-S100-001`  
+**Purpose:** Prove the final boundary holds.  
+**Given:** This finished file.  
+**When:** A structural scan enumerates all second-level numbered section headings and part headings.  
+**Then:** Exactly Sections 1 through 100 exist in order, no heading beginning `## 101.` exists, and no Part 5 heading exists.  
+**Failure Condition:** Any section is missing, misordered, misnamed, or any post-final content exists.
+
+**Test ID:** `CAT-TC-AT-S100-002`  
+**Purpose:** Prove the complete four-link append-only chain.  
+**Given:** This finished file and the committed digests and byte counts of Parts 1, 1-2, and 1-3.  
+**When:** The first 633496, 1592532, and 2377279 bytes are hashed and compared, and the whole-file digest-excluded expression runs.  
+**Then:** All three prefix hashes equal their committed values and the whole-file digest equals this receipt's Integrity value.  
+**Failure Condition:** Any byte of any frozen prefix differs or the final digest mismatches.
+
+**Test ID:** `CAT-TC-AT-S100-003`  
+**Purpose:** Prove the document registers close complete.  
+**Given:** This finished file and its four part-completion registries.  
+**When:** Independent scans count all rule, test, anchor, diagram, and schema identifiers across Sections 1 through 100.  
+**Then:** Exactly 200 rules, 300 tests, 100 anchors, and 300 diagrams exist, each registered in exactly one part registry, with this part's schemas registered below.  
+**Failure Condition:** Any register total differs or any identifier is unregistered or duplicated.
+
+### JSON Examples
+
+The following example is the canonical JSON shape for the Part 4 and final completion contract defined by this section.
+
+```json
+{
+  "record_type": "treasury.part.completion",
+  "document_id": "CAT-TC-007",
+  "part": 4,
+  "of_parts": 4,
+  "final": true,
+  "sections": [
+    76,
+    100
+  ],
+  "appended_after": {
+    "parts": "1-3",
+    "prefix_bytes": 2377279,
+    "prefix_sha256": "6959a7e545d448946788722dacdf3a9870a85b2e81c447ec21a659b4c23d1fb3",
+    "inner_parts12_bytes": 1592532,
+    "inner_parts12_sha256": "256c14f56b307aa4cc7286e96924df047e4734300685d6d56215628abd365ff5",
+    "inner_part1_bytes": 633496,
+    "inner_part1_sha256": "478b99aba971e858889d33aa21ceff54c104c0d5a8e99510d6f45e26b3fa4a3d"
+  },
+  "registries": {
+    "constitutional_rules_new": 50,
+    "constitutional_rules_document": 200,
+    "acceptance_tests_new": 75,
+    "acceptance_tests_document": 300,
+    "memory_anchors_new": 25,
+    "memory_anchors_document": 100,
+    "diagrams_new": 75,
+    "diagrams_document": 300,
+    "registers": "closed"
+  },
+  "claims": {
+    "implementation_exists": false,
+    "stores_provisioned": false,
+    "rails_integrated": false,
+    "all_core_treasury_paths": "planned"
+  },
+  "milestone": {
+    "progress_pct": 100,
+    "declaration": "Part 4 Completed - FINAL"
+  },
+  "after_final": {
+    "part_5": "never",
+    "section_101": "never",
+    "meaning_changes": "section-90-amendments-only",
+    "next_documentation": "context/08_AFFILIATE_ENGINE.md",
+    "next_documentation_status": "Status: Planned as a documentation target"
+  }
+}
+```
+
+### YAML Examples
+
+The following configuration example is the canonical YAML shape for the Part 4 and final completion contract defined by this section.
+
+```yaml
+treasury_part4_completion:
+  document: context/07_TREASURY_CORE.md
+  boundary:
+    last_section: 100
+    section_101_exists: false
+    part_5_content: none-ever
+    final: true
+  frozen_chain:
+    stub_bytes: 147
+    part1_prefix_bytes: 633496
+    parts12_prefix_bytes: 1592532
+    parts13_prefix_bytes: 2377279
+    discipline: append-only-closed
+  declaration:
+    status: part-4-completed-final
+    sections: 76-100
+    progress: 100-percent
+    next_task: affiliate-engine-08
+  after_final:
+    bytes: frozen-forever-four-digests
+    meaning: section-90-amendment-process-only
+    implementation: section-95-roadmap
+  not_claimed:
+    - implemented multi-node, federation, or continuity systems
+    - conformance suites or governance automation
+    - accepted treasury ADRs
+    - production security posture
+```
+
+### Pseudo Code
+
+```text
+function verify_final_treasury_core(file):
+    assert sha256(file[:633496]) == PART1_SHA256
+    assert sha256(file[:1592532]) == PARTS12_SHA256
+    assert sha256(file[:2377279]) == PARTS13_SHA256
+    recorded = extract_final_receipt_digest(file)
+    computed = sha256(exclude_digest_lines(file))
+    assert recorded == computed
+    assert sections(file) == range(1, 101)
+    assert no_heading(file, '## 101.') and no_part5_heading(file)
+    # the document is FINAL: no continuation exists
+    # futures: Section 90 (meaning), Section 95 (implementation),
+    #          context/08_AFFILIATE_ENGINE.md (next Bible)
+    return VERIFIED_FINAL
+```
+
+### Repository Trees
+
+All paths below are Status: Planned unless explicitly marked Current; none of the planned files exist yet and this tree creates no implementation claim.
+
+```text
+context/07_TREASURY_CORE.md           # Current: COMPLETE and FINAL (this file)
+.ai/PROJECT_STATUS.md                 # Current: dashboard closed at 100%
+adr/                                  # Current: future amendments land here
+core/treasury/                        # Planned: nothing implemented
+  nodes/ consistency/ placement/      # Planned (Part 4 sections)
+  crossnode/ replication/ deployment/ # Planned
+  federation/ continuity/ resilience/ # Planned
+  conformance/ gamedays/ governance/  # Planned
+  changes/ amendments/ succession/    # Planned
+  datalifecycle/ interop/ extensions/ # Planned
+  roadmap/ maturity/ autonomy/        # Planned
+  horizon/ verification/              # Planned
+  multiagent/ .. domain/              # Planned (Parts 1-3 sections)
+```
+
+### Part 4 Closed Registries
+
+#### Part 4 Rule Registry
+
+Rules `CAT-TC-CONST-001` through `CAT-TC-CONST-150` remain registered in Sections 20, 50, and 75 and are unchanged by this part. With the fifty rules below, the document's rule register is complete at 200 and closed.
+
+| Rule ID | Section | Title |
+|---|---|---|
+| `CAT-TC-CONST-151` | 76 | One Logical Ledger Across All Nodes |
+| `CAT-TC-CONST-152` | 76 | Node-Count-Invariant Authority |
+| `CAT-TC-CONST-153` | 77 | Attested Membership Only |
+| `CAT-TC-CONST-154` | 77 | Complete Node Decommissioning |
+| `CAT-TC-CONST-155` | 78 | Serialized Financial Writes |
+| `CAT-TC-CONST-156` | 78 | Labeled Reads With Enforced Ceilings |
+| `CAT-TC-CONST-157` | 79 | Deterministic Versioned Placement |
+| `CAT-TC-CONST-158` | 79 | Settled-Boundary Single-Holder Migration |
+| `CAT-TC-CONST-159` | 80 | Reservation-Bridged Crossings Only |
+| `CAT-TC-CONST-160` | 80 | Proven Exactly-Once Cross-Node Effects |
+| `CAT-TC-CONST-161` | 81 | Quorum-Persistent Acknowledgement |
+| `CAT-TC-CONST-162` | 81 | Restore-Proven Durability Accounting |
+| `CAT-TC-CONST-163` | 82 | Registered Builds With Declared Skew |
+| `CAT-TC-CONST-164` | 82 | Gated Waves With Automatic Halt |
+| `CAT-TC-CONST-165` | 83 | Constitutionally Uniform Regions |
+| `CAT-TC-CONST-166` | 83 | Structural Residency Enforcement |
+| `CAT-TC-CONST-167` | 84 | Ledger-First Verified Restoration |
+| `CAT-TC-CONST-168` | 84 | Rehearsal-Proven Objectives, Declared Modes Only |
+| `CAT-TC-CONST-169` | 85 | Capability-Contained Fault Injection |
+| `CAT-TC-CONST-170` | 85 | Hypothesis-First Scored Verification |
+| `CAT-TC-CONST-171` | 86 | Certified Scope Or No Operation |
+| `CAT-TC-CONST-172` | 86 | The Suite Is Never Weakened |
+| `CAT-TC-CONST-173` | 87 | Whole-System Rehearsal On Unreal Value |
+| `CAT-TC-CONST-174` | 87 | Findings Land Or The Rehearsal Failed |
+| `CAT-TC-CONST-175` | 88 | Enumerated Delegation, Retained Root |
+| `CAT-TC-CONST-176` | 88 | One Change Index, Root-Routed Conflicts |
+| `CAT-TC-CONST-177` | 89 | Cased Changes With Honest Radius |
+| `CAT-TC-CONST-178` | 89 | Rehearsed Reversal Before Landing |
+| `CAT-TC-CONST-179` | 90 | ADR-Only Meaning Change |
+| `CAT-TC-CONST-180` | 90 | Entrenched Clauses and Forbidden Amendments |
+| `CAT-TC-CONST-181` | 91 | Registered Qualified Succession Only |
+| `CAT-TC-CONST-182` | 91 | Dual Controls Never Merge |
+| `CAT-TC-CONST-183` | 92 | The Sanitization Split |
+| `CAT-TC-CONST-184` | 92 | Archives That Prove They Live |
+| `CAT-TC-CONST-185` | 93 | Translation At The Boundary Only |
+| `CAT-TC-CONST-186` | 93 | Disclosure-Classed External Projection |
+| `CAT-TC-CONST-187` | 94 | Registered Growth Surfaces Only |
+| `CAT-TC-CONST-188` | 94 | The Extension-Amendment Boundary |
+| `CAT-TC-CONST-189` | 95 | Dependency-Honest Staged Implementation |
+| `CAT-TC-CONST-190` | 95 | No Dark Systems |
+| `CAT-TC-CONST-191` | 96 | Evidence-Defined Maturity Only |
+| `CAT-TC-CONST-192` | 96 | Trust Gates On Assessed Maturity |
+| `CAT-TC-CONST-193` | 97 | Evidence-Gated Reversible Autonomy |
+| `CAT-TC-CONST-194` | 97 | The Permanent Human Register |
+| `CAT-TC-CONST-195` | 98 | The Invariant Horizon |
+| `CAT-TC-CONST-196` | 98 | Anticipated Pressures Deliberate From the Written Record |
+| `CAT-TC-CONST-197` | 99 | Complete Claim-To-Proof Mapping |
+| `CAT-TC-CONST-198` | 99 | Spans Verify What No Section Owns |
+| `CAT-TC-CONST-199` | 100 | The Four-Link Chain Closes Final |
+| `CAT-TC-CONST-200` | 100 | Measured Final Honesty |
+
+#### Part 4 Acceptance Test Registry
+
+Tests `CAT-TC-AT-S01-001` through `CAT-TC-AT-S75-003` remain registered in Sections 20, 50, and 75 and are unchanged by this part. With the seventy-five tests below, the document's acceptance test register is complete at 300 and closed.
+
+| Test ID | Section | Purpose |
+|---|---|---|
+| `CAT-TC-AT-S76-001` | 76 | Prove off-path writes are refused on every node class. |
+| `CAT-TC-AT-S76-002` | 76 | Prove the partition union stays zero-sum. |
+| `CAT-TC-AT-S76-003` | 76 | Prove authority is node-count-invariant. |
+| `CAT-TC-AT-S77-001` | 77 | Prove unattested nodes cannot serve. |
+| `CAT-TC-AT-S77-002` | 77 | Prove silent nodes quarantine automatically. |
+| `CAT-TC-AT-S77-003` | 77 | Prove decommissioning strips everything. |
+| `CAT-TC-AT-S78-001` | 78 | Prove replica-side mutation refuses. |
+| `CAT-TC-AT-S78-002` | 78 | Prove ceiling breach suspends rather than serves. |
+| `CAT-TC-AT-S78-003` | 78 | Prove authorization reads are authoritative. |
+| `CAT-TC-AT-S79-001` | 79 | Prove placement recomputes identically everywhere. |
+| `CAT-TC-AT-S79-002` | 79 | Prove single-holder invariance through migration crashes. |
+| `CAT-TC-AT-S79-003` | 79 | Prove stale-version operations refuse and re-resolve. |
+| `CAT-TC-AT-S80-001` | 80 | Prove retries converge to one effect. |
+| `CAT-TC-AT-S80-002` | 80 | Prove stalled counterparts park, never wedge. |
+| `CAT-TC-AT-S80-003` | 80 | Prove completion requires destination-log proof. |
+| `CAT-TC-AT-S81-001` | 81 | Prove holder loss costs no acknowledged entries. |
+| `CAT-TC-AT-S81-002` | 81 | Prove sub-quorum partitions refuse acknowledgement. |
+| `CAT-TC-AT-S81-003` | 81 | Prove lapsed restore proofs demote copies. |
+| `CAT-TC-AT-S82-001` | 82 | Prove unregistered builds cannot join. |
+| `CAT-TC-AT-S82-002` | 82 | Prove gate failure halts waves automatically. |
+| `CAT-TC-AT-S82-003` | 82 | Prove skew violations refuse coordination. |
+| `CAT-TC-AT-S83-001` | 83 | Prove residency-bound partitions never place out of region. |
+| `CAT-TC-AT-S83-002` | 83 | Prove undeclared exports refuse at egress. |
+| `CAT-TC-AT-S83-003` | 83 | Prove consolidation carries regional provenance. |
+| `CAT-TC-AT-S84-001` | 84 | Prove mutation stays disabled until invariants re-verify. |
+| `CAT-TC-AT-S84-002` | 84 | Prove degraded modes are register-only. |
+| `CAT-TC-AT-S84-003` | 84 | Prove objectives track evidence currency. |
+| `CAT-TC-AT-S85-001` | 85 | Prove the harness cannot mutate financial state. |
+| `CAT-TC-AT-S85-002` | 85 | Prove blast boundaries abort automatically. |
+| `CAT-TC-AT-S85-003` | 85 | Prove expected-refusal absence scores as failure. |
+| `CAT-TC-AT-S86-001` | 86 | Prove uncertified operation is refused. |
+| `CAT-TC-AT-S86-002` | 86 | Prove failed cadence checks suspend scopes. |
+| `CAT-TC-AT-S86-003` | 86 | Prove suite coverage tracks the registries. |
+| `CAT-TC-AT-S87-001` | 87 | Prove exercise traffic cannot reach production channels. |
+| `CAT-TC-AT-S87-002` | 87 | Prove scripted decision points exercise their human roles. |
+| `CAT-TC-AT-S87-003` | 87 | Prove findings track to landing. |
+| `CAT-TC-AT-S88-001` | 88 | Prove out-of-delegation acts are refused mechanically. |
+| `CAT-TC-AT-S88-002` | 88 | Prove council acts land in the shared index. |
+| `CAT-TC-AT-S88-003` | 88 | Prove undelegated matters route to the root. |
+| `CAT-TC-AT-S89-001` | 89 | Prove radius breaches halt changes automatically. |
+| `CAT-TC-AT-S89-002` | 89 | Prove landing requires current reversal rehearsal. |
+| `CAT-TC-AT-S89-003` | 89 | Prove unclassifiable changes route to the amendment process. |
+| `CAT-TC-AT-S90-001` | 90 | Prove clause resolution returns amended meaning. |
+| `CAT-TC-AT-S90-002` | 90 | Prove boundary-violating amendments are refused. |
+| `CAT-TC-AT-S90-003` | 90 | Prove the index rebuilds from the ADR register. |
+| `CAT-TC-AT-S91-001` | 91 | Prove authority resolves only through the register. |
+| `CAT-TC-AT-S91-002` | 91 | Prove dual-control convergence is refused. |
+| `CAT-TC-AT-S91-003` | 91 | Prove emergency activations close on schedule. |
+| `CAT-TC-AT-S92-001` | 92 | Prove minimization preserves chain verifiability. |
+| `CAT-TC-AT-S92-002` | 92 | Prove financial-truth deletion refuses with the lawful alternative. |
+| `CAT-TC-AT-S92-003` | 92 | Prove failed archive proofs trigger incidents. |
+| `CAT-TC-AT-S93-001` | 93 | Prove external-format fields cannot enter internal records. |
+| `CAT-TC-AT-S93-002` | 93 | Prove unrecognized versions park rather than parse. |
+| `CAT-TC-AT-S93-003` | 93 | Prove disclosure filtering blocks internal identifiers. |
+| `CAT-TC-AT-S94-001` | 94 | Prove unregistered growth surfaces are refused at review. |
+| `CAT-TC-AT-S94-002` | 94 | Prove contract-contradicting instances are classified as amendments. |
+| `CAT-TC-AT-S94-003` | 94 | Prove deprecation strands no certified instance. |
+| `CAT-TC-AT-S95-001` | 95 | Prove stage entry refuses on lapsed predecessor certification. |
+| `CAT-TC-AT-S95-002` | 95 | Prove real-value operation requires certified scope at first transaction. |
+| `CAT-TC-AT-S95-003` | 95 | Prove variance is recorded, not redrawn. |
+| `CAT-TC-AT-S96-001` | 96 | Prove assessments reproduce from citations. |
+| `CAT-TC-AT-S96-002` | 96 | Prove expansion gates refuse on unmet maturity minimums. |
+| `CAT-TC-AT-S96-003` | 96 | Prove regressions tighten gates automatically. |
+| `CAT-TC-AT-S97-001` | 97 | Prove expansions require operating evidence, not benchmarks. |
+| `CAT-TC-AT-S97-002` | 97 | Prove reversion executes without deliberation. |
+| `CAT-TC-AT-S97-003` | 97 | Prove permanent-register proposals refuse at classification. |
+| `CAT-TC-AT-S98-001` | 98 | Prove the invariant checklist verifies every fixed star. |
+| `CAT-TC-AT-S98-002` | 98 | Prove anticipated deliberations open with the catalogue. |
+| `CAT-TC-AT-S98-003` | 98 | Prove wrongness accounts append without deletion. |
+| `CAT-TC-AT-S99-001` | 99 | Prove normative statements trace to matrix rows. |
+| `CAT-TC-AT-S99-002` | 99 | Prove span instruments catch cross-section breakage. |
+| `CAT-TC-AT-S99-003` | 99 | Prove the roll-up reflects the weakest row. |
+| `CAT-TC-AT-S100-001` | 100 | Prove the final boundary holds. |
+| `CAT-TC-AT-S100-002` | 100 | Prove the complete four-link append-only chain. |
+| `CAT-TC-AT-S100-003` | 100 | Prove the document registers close complete. |
+
+#### Part 4 Memory Anchor Registry
+
+Anchors `CAT-TC-MEM-S01-001` through `CAT-TC-MEM-S75-001` remain registered in Sections 20, 50, and 75 and are unchanged by this part. With the twenty-five anchors below, the document's memory anchor register is complete at 100 and closed.
+
+| Anchor ID | Section | Meaning |
+|---|---|---|
+| `CAT-TC-MEM-S76-001` | 76 | One treasury on many nodes: partitioned single write path, one logical ledger, node-local enforcement of every boundary — node count changes capacity, never authority. |
+| `CAT-TC-MEM-S77-001` | 77 | Nodes join by attestation, serve by lease, leave by verified decommissioning — membership is a live, leased, attested set, and quarantine exits only through the full gate. |
+| `CAT-TC-MEM-S78-001` | 78 | Writes serialize per partition, reads come in three labeled classes, authorization reads only the partition holder — staleness may inconvenience a dashboard, never corrupt an authorization. |
+| `CAT-TC-MEM-S79-001` | 79 | Partitions align to wallet subtrees, placement is a deterministic versioned function, migrations hand off at settled boundaries — exactly one holder per partition, always, structurally. |
+| `CAT-TC-MEM-S80-001` | 80 | Cross-node operations are reservation-based idempotent sagas with flow-derived keys — no distributed transactions, no cross-node locks; stalled flows park visibly and effects prove from destination logs. |
+| `CAT-TC-MEM-S81-001` | 81 | Financial writes acknowledge only after failure-domain-disjoint quorum persistence, replicas attest continuously, and untested copies count as nonexistent — durability is proven, priced, and never tunable. |
+| `CAT-TC-MEM-S82-001` | 82 | Fleet change lands in gated waves under a declared, fixture-tested skew window from a governed release registry — bad waves halt at the canary, and undeclared versions are treated as tampering. |
+| `CAT-TC-MEM-S83-001` | 83 | Regions are deployment and residency boundaries under one identical constitution — residency enforces structurally through placement and egress, and global truth is labeled consolidation of regional truths, never parallel books. |
+| `CAT-TC-MEM-S84-001` | 84 | Loss classes carry declared, priced, rehearsal-proven objectives; recovery is ledger-first with invariant gates; degradation is a closed register of declared modes — and no disaster, ever, creates emergency powers. |
+| `CAT-TC-MEM-S85-001` | 85 | Failure behaviour is proven by hypothesis-first experiments from a closed register — observation-safe faults in production, mutation only in sandboxes, deviations are defects, and unverified claims decay to unproven. |
+| `CAT-TC-MEM-S86-001` | 86 | Conformance is executed, never resembled: the suite projects the constitution, certification climbs four levels per scope, operation outside certified scope is violation, and failed cadence checks suspend — the constitution stays sovereign over its implementations. |
+| `CAT-TC-MEM-S87-001` | 87 | Crises rehearse as whole sociotechnical exercises — real playbooks and approvals, unreal value, labeled traffic — across announced, unannounced, and tabletop formats, with findings landing through governed dispositions or the rehearsal was theater. |
+| `CAT-TC-MEM-S88-001` | 88 | Governance scales as one root over chartered councils holding enumerated, revocable, machine-enforced delegations — operation federates, authority never fragments, and every act lands in one shared index. |
+| `CAT-TC-MEM-S89-001` | 89 | Every change rides a case: closed-taxonomy class, honestly declared blast radius with armed watches, rehearsed reversal before landing — breaches halt automatically, and irreversible changes to history do not exist. |
+| `CAT-TC-MEM-S90-001` | 90 | Bytes frozen, meaning amendable: accepted ADRs naming exact clauses govern over original text through a versioned mechanical index — no emergency powers, no removing human gates, no retroactive blessings, and entrenched clauses move only through the heightened procedure. |
+| `CAT-TC-MEM-S91-001` | 91 | Every authority carries a qualified, current, registered successor; activation is governed and scoped, dual controls never merge under absence, and authority moves only through the register — never by proximity, habit, or walkthrough. |
+| `CAT-TC-MEM-S92-001` | 92 | Data ages through registered tiers with evidence; financial skeletons retain forever under digest anchors while personal payloads minimize on schedule through the designed-in split — and archives prove readability on cadence or they are deletions in disguise. |
+| `CAT-TC-MEM-S93-001` | 93 | External standards live at the edges: registered interfaces, pure versioned translators, disclosure-classed projections, provenance-preserved originals — internal truth speaks internal vocabulary forever, and untranslatable messages park rather than parse partially. |
+| `CAT-TC-MEM-S94-001` | 94 | Growth happens at registered extension points — contract, authority, certification, invariants; anything no point expresses is an amendment, contract stretching is amendment without review, and the register itself grows only by amendment. |
+| `CAT-TC-MEM-S95-001` | 95 | The estate builds in dependency-honest stages gated by certification currency — no dark systems, no mocked predecessors under real value, no quiet redraws; sequencing is the safety argument and variance is recorded truth. |
+| `CAT-TC-MEM-S96-001` | 96 | Maturity is eight evidence-defined dimensions on a five-level ladder, assessed from records on calendar — never from impressions or designed properties — and expansion of trust gates on assessed levels, so the estate earns its future with its present. |
+| `CAT-TC-MEM-S97-001` | 97 | Autonomy deepens domain by domain along the five levels through evidence-gated cases with envelopes and reflexive reversion — and the permanent human register never moves: reserve release, policy weakening, dispute judgment, compliance determinations, amendments, dual controls, terminal authority. |
+| `CAT-TC-MEM-S98-001` | 98 | 2030 finds the treasury global, deeply automated, and constitutionally bounded — the pressure catalogue pre-arms the decade's hard deliberations, capability growth never becomes authority, and the invariants hold as fixed stars with Section 90 as the only door. |
+| `CAT-TC-MEM-S99-001` | 99 | Every claim class maps to a proof class with instrument, cadence, and currency; cross-cutting spans verify what no section owns alone; unverifiable claims do not belong in a constitution — one matrix, one roll-up, one answer to how do you know. |
+| `CAT-TC-MEM-S100-001` | 100 | The Treasury Core Bible is complete and FINAL: one hundred sections, four frozen parts under four chained digests, registers closed at 200 rules, 300 tests, 100 anchors, 300 diagrams — no Part 5 ever, meaning changes only through Section 90, and the estate it constitutionalizes remains Planned until Section 95 builds it. |
+
+#### Part 4 Diagram Registry
+
+Diagrams `CAT-TC-P1-S01-D001` through `CAT-TC-P3-S75-D003` remain registered in Sections 20, 50, and 75 and are unchanged by this part. With the seventy-five diagrams below, the document's diagram register is complete at 300 and closed.
+
+| Diagram ID | Section | Title |
+|---|---|---|
+| `CAT-TC-P4-S76-D001` | 76 | One Treasury Across the Fleet |
+| `CAT-TC-P4-S76-D002` | 76 | Node-Local Enforcement |
+| `CAT-TC-P4-S76-D003` | 76 | Scale Changes Capacity, Not Authority |
+| `CAT-TC-P4-S77-D001` | 77 | The Seven-State Node Lifecycle |
+| `CAT-TC-P4-S77-D002` | 77 | Lease Silence Becomes Quarantine |
+| `CAT-TC-P4-S77-D003` | 77 | Decommissioning Strips Everything |
+| `CAT-TC-P4-S78-D001` | 78 | Three Read Classes, One Write Discipline |
+| `CAT-TC-P4-S78-D002` | 78 | Ceiling Breach Suspends, Never Lies |
+| `CAT-TC-P4-S78-D003` | 78 | Authorization Never Reads Replicas |
+| `CAT-TC-P4-S79-D001` | 79 | Subtree-Aligned Partitioning |
+| `CAT-TC-P4-S79-D002` | 79 | Five-Step Settled-Boundary Migration |
+| `CAT-TC-P4-S79-D003` | 79 | Deterministic Map, Nothing to Negotiate |
+| `CAT-TC-P4-S80-D001` | 80 | The Reserve-Record-Apply-Confirm Shape |
+| `CAT-TC-P4-S80-D002` | 80 | Parking Beats Locking |
+| `CAT-TC-P4-S80-D003` | 80 | Retries Converge, Never Multiply |
+| `CAT-TC-P4-S81-D001` | 81 | Quorum Before Acknowledgement |
+| `CAT-TC-P4-S81-D002` | 81 | Four Durability Layers |
+| `CAT-TC-P4-S81-D003` | 81 | Untested Copies Are Not Copies |
+| `CAT-TC-P4-S82-D001` | 82 | Four Waves, Gated Forward |
+| `CAT-TC-P4-S82-D002` | 82 | The Skew Window |
+| `CAT-TC-P4-S82-D003` | 82 | Deployment Truth Is Derivable |
+| `CAT-TC-P4-S83-D001` | 83 | Many Regions, One Constitution |
+| `CAT-TC-P4-S83-D002` | 83 | Residency Enforced By Structure |
+| `CAT-TC-P4-S83-D003` | 83 | Consolidation With Provenance |
+| `CAT-TC-P4-S84-D001` | 84 | Ledger-First Restoration Order |
+| `CAT-TC-P4-S84-D002` | 84 | The Declared Degraded-Mode Register |
+| `CAT-TC-P4-S84-D003` | 84 | Objectives Bound To Evidence |
+| `CAT-TC-P4-S85-D001` | 85 | The Two-Environment Boundary |
+| `CAT-TC-P4-S85-D002` | 85 | Hypothesis Before Injection |
+| `CAT-TC-P4-S85-D003` | 85 | Claims Decay Without Re-Proof |
+| `CAT-TC-P4-S86-D001` | 86 | The Four-Level Certification Ladder |
+| `CAT-TC-P4-S86-D002` | 86 | Scope Bounds What Proof Permits |
+| `CAT-TC-P4-S86-D003` | 86 | The Suite Is The Constitution Executing |
+| `CAT-TC-P4-S87-D001` | 87 | Three Rehearsal Formats |
+| `CAT-TC-P4-S87-D002` | 87 | Real Everything, Unreal Money |
+| `CAT-TC-P4-S87-D003` | 87 | Findings Land Or It Was Theater |
+| `CAT-TC-P4-S88-D001` | 88 | One Root, Many Councils |
+| `CAT-TC-P4-S88-D002` | 88 | The Delegation Gate |
+| `CAT-TC-P4-S88-D003` | 88 | Conflicts Route Up, Never Sideways |
+| `CAT-TC-P4-S89-D001` | 89 | One Case Discipline Over Many Mechanisms |
+| `CAT-TC-P4-S89-D002` | 89 | Declared Radius, Armed Watches |
+| `CAT-TC-P4-S89-D003` | 89 | Designed Backward From the Undo |
+| `CAT-TC-P4-S90-D001` | 90 | Frozen Bytes, Living Meaning |
+| `CAT-TC-P4-S90-D002` | 90 | The Amendment Path |
+| `CAT-TC-P4-S90-D003` | 90 | Entrenchment Protects the Core |
+| `CAT-TC-P4-S91-D001` | 91 | Authority Survives Its Holders |
+| `CAT-TC-P4-S91-D002` | 91 | Dual Controls Under Succession |
+| `CAT-TC-P4-S91-D003` | 91 | Activation Lifecycle |
+| `CAT-TC-P4-S92-D001` | 92 | The Tiered Life of a Record |
+| `CAT-TC-P4-S92-D002` | 92 | The Sanitization Split |
+| `CAT-TC-P4-S92-D003` | 92 | Archives Must Prove They Live |
+| `CAT-TC-P4-S93-D001` | 93 | Every Edge Is a Translation Boundary |
+| `CAT-TC-P4-S93-D002` | 93 | Inbound: Translate, Mark, Preserve |
+| `CAT-TC-P4-S93-D003` | 93 | Outbound: Derive, Filter, Disclose |
+| `CAT-TC-P4-S94-D001` | 94 | Ten Registered Growth Surfaces |
+| `CAT-TC-P4-S94-D002` | 94 | The Boundary Test |
+| `CAT-TC-P4-S94-D003` | 94 | Contracts Version, Instances Survive |
+| `CAT-TC-P4-S95-D001` | 95 | Seven Stages, Dependency-Honest |
+| `CAT-TC-P4-S95-D002` | 95 | The Stage Gate |
+| `CAT-TC-P4-S95-D003` | 95 | No Dark Systems, Ever |
+| `CAT-TC-P4-S96-D001` | 96 | Eight Gauges, Five Levels |
+| `CAT-TC-P4-S96-D002` | 96 | Evidence Defines Every Level |
+| `CAT-TC-P4-S96-D003` | 96 | Trust Contracts When Evidence Does |
+| `CAT-TC-P4-S97-D001` | 97 | The Expansion Lattice |
+| `CAT-TC-P4-S97-D002` | 97 | The Expansion Gate and the Reversion Reflex |
+| `CAT-TC-P4-S97-D003` | 97 | The Permanent Human Register |
+| `CAT-TC-P4-S98-D001` | 98 | The Decade's Shape |
+| `CAT-TC-P4-S98-D002` | 98 | Pressure Meets Written Reasoning |
+| `CAT-TC-P4-S98-D003` | 98 | Capability Is Never Authority |
+| `CAT-TC-P4-S99-D001` | 99 | Six Claim Classes, Six Proof Classes |
+| `CAT-TC-P4-S99-D002` | 99 | Spans Guard the Between |
+| `CAT-TC-P4-S99-D003` | 99 | One Roll-Up, No Averaging |
+| `CAT-TC-P4-S100-D001` | 100 | One Hundred Sections, One System |
+| `CAT-TC-P4-S100-D002` | 100 | The Closed Four-Link Chain |
+| `CAT-TC-P4-S100-D003` | 100 | After Final: Every Future Has a Door |
+
+#### Part 4 Schema Registry
+
+The following JSON and YAML contract shapes were introduced by this part. Each `record_type` is unique within this part and is registered here; the `treasury.part.completion` record type lawfully recurs across the four part receipts, and Parts 1 through 3 record types remain governed by their owning sections. With these rows the document's schema register is complete and closed.
+
+| Record Type / Schema | Section | Kind |
+|---|---|---|
+| `treasury.node.topology` | 76 | JSON contract |
+| `treasury_multinode_architecture` | 76 | YAML contract |
+| `treasury.node.lifecycle_event` | 77 | JSON contract |
+| `treasury_node_lifecycle` | 77 | YAML contract |
+| `treasury.consistency.read_label` | 78 | JSON contract |
+| `treasury_consistency_model` | 78 | YAML contract |
+| `treasury.partition.assignment` | 79 | JSON contract |
+| `treasury_partitioning` | 79 | YAML contract |
+| `treasury.crossnode.flow` | 80 | JSON contract |
+| `treasury_crossnode_coordination` | 80 | YAML contract |
+| `treasury.replication.attestation` | 81 | JSON contract |
+| `treasury_replication_policy` | 81 | YAML contract |
+| `treasury.deployment.wave` | 82 | JSON contract |
+| `treasury_fleet_deployment` | 82 | YAML contract |
+| `treasury.federation.charter` | 83 | JSON contract |
+| `treasury_regional_federation` | 83 | YAML contract |
+| `treasury.continuity.objective` | 84 | JSON contract |
+| `treasury_continuity` | 84 | YAML contract |
+| `treasury.resilience.experiment` | 85 | JSON contract |
+| `treasury_resilience_verification` | 85 | YAML contract |
+| `treasury.conformance.certification` | 86 | JSON contract |
+| `treasury_conformance` | 86 | YAML contract |
+| `treasury.gameday.outcome` | 87 | JSON contract |
+| `treasury_gameday_program` | 87 | YAML contract |
+| `treasury.governance.council` | 88 | JSON contract |
+| `treasury_governance_at_scale` | 88 | YAML contract |
+| `treasury.change.case` | 89 | JSON contract |
+| `treasury_change_management` | 89 | YAML contract |
+| `treasury.amendment.record` | 90 | JSON contract |
+| `treasury_amendment_process` | 90 | YAML contract |
+| `treasury.succession.activation` | 91 | JSON contract |
+| `treasury_succession` | 91 | YAML contract |
+| `treasury.datalifecycle.class` | 92 | JSON contract |
+| `treasury_data_lifecycle` | 92 | YAML contract |
+| `treasury.interop.interface` | 93 | JSON contract |
+| `treasury_interoperability` | 93 | YAML contract |
+| `treasury.extension.registration` | 94 | JSON contract |
+| `treasury_extension_points` | 94 | YAML contract |
+| `treasury.roadmap.stage_gate` | 95 | JSON contract |
+| `treasury_implementation_roadmap` | 95 | YAML contract |
+| `treasury.maturity.assessment` | 96 | JSON contract |
+| `treasury_maturity_model` | 96 | YAML contract |
+| `treasury.autonomy.expansion_case` | 97 | JSON contract |
+| `treasury_autonomy_horizon` | 97 | YAML contract |
+| `treasury.horizon.review` | 98 | JSON contract |
+| `treasury_2030_horizon` | 98 | YAML contract |
+| `treasury.verification.matrix_row` | 99 | JSON contract |
+| `treasury_verification_matrix` | 99 | YAML contract |
+| `treasury.part.completion` | 100 | JSON contract |
+| `treasury_part4_completion` | 100 | YAML contract |
+
+### Part 4 Generated Completion Receipt
+
+**Receipt ID:** `CAT-TC-P4-FINAL-RECEIPT-001`  
+**Part ID:** Part 4 of 4 — FINAL  
+**Document ID:** `CAT-TC-007`  
+**Target document:** `context/07_TREASURY_CORE.md`  
+**Generation date:** 2026-08-15  
+**Sections covered:** 76 through 100 inclusive  
+**Milestone:** Part 4 Completed — `07_TREASURY_CORE.md` documentation at 100% — FINAL  
+**Next task:** Affiliate Engine (`context/08_AFFILIATE_ENGINE.md`, Status: Planned as a documentation target; the file exists as a stub awaiting its own Bible)
+
+#### Final Completion Declaration
+
+This receipt closes the CAT Treasury Core Bible and nothing else. Part 4 Completed and the document is FINAL: Sections 1 through 100 exist, the document stands at 100 percent, no Section 101 exists, and no Part 5 exists or will ever be appended — future change happens only through the Section 90 amendment process, by ADRs that reference and never rewrite this text. No multi-node runtime, node lifecycle machinery, distributed consistency layer, partition manager, cross-node coordinator, replication fabric, fleet deployment system, regional federation, continuity tooling, resilience harness, certification pipeline, simulation estate, scale governance automation, change management system, amendment tooling, succession registry, archival system, interoperability adapter, extension framework, roadmap execution, maturity assessor, autonomy controller, or horizon review process is created by these words. The `core/treasury/**` paths described throughout Part 4 are marked Planned because they do not exist in the repository. This receipt does not claim implemented systems, accepted ADRs, production security, regulatory compliance, or validated real-world delivery. It claims only that the document described below was generated, validated, and committed, completing the four-part documentation program for this file.
+
+#### Measured Content
+
+Every value in this table was measured from the finished file after all content including this receipt was written. No value is estimated. The frozen Parts 1-3 prefix was preserved byte-identically, so Lines Added equals Total Lines minus the 36,726 prefix lines and Bytes Added equals Total Bytes minus the 2,377,279 prefix bytes.
+
+| Measure | Value | How it was measured |
+|---|---|---|
+| Branch | `arena/01a003b2-cat` | `git branch --show-current` |
+| Document | `context/07_TREASURY_CORE.md` | target path of this part |
+| Part | 4 of 4 — FINAL | part boundary declared in this section |
+| Section Count (this part) | 25 | count of `^## <n>. ` headings 76 through 100 |
+| Section Count (document) | 100 | count of `^## <n>. ` headings 1 through 100 |
+| Lines Added | 11839 | `wc -l` over the finished file minus the 36726 frozen prefix lines |
+| Bytes Added | 821244 | `wc -c` over the finished file minus the 2377279 frozen prefix bytes |
+| Total Lines | 48565 | `wc -l` over the finished file |
+| Byte Count (total) | 3198523 | `wc -c` over the finished file |
+| Diagram Count (this part) | 75 | count of fenced ```mermaid blocks in the appended region, IDs `CAT-TC-P4-SNN-DNNN` |
+| Diagram Count (document) | 300 | Parts 1-3's 225 plus this part's 75 |
+| JSON Count (this part) | 25 | count of fenced ```json blocks in the appended region, each validated with `python3 -m json.tool` |
+| JSON Count (document) | 100 | Parts 1-3's 75 plus this part's 25 |
+| YAML Count (this part) | 25 | count of fenced ```yaml blocks in the appended region, each validated with `yaml.safe_load` |
+| YAML Count (document) | 100 | Parts 1-3's 75 plus this part's 25 |
+| Rule Count (this part) | 50 | distinct `CAT-TC-CONST-151..200` rule entries, each with all nine mandated fields, contiguous from Part 3's 101..150 |
+| Rule Count (document) | 200 | Parts 1-3's 150 plus this part's 50; register closed |
+| Acceptance Test Count (this part) | 75 | distinct `CAT-TC-AT-S76..S100` identifiers, each with all six mandated fields |
+| Acceptance Test Count (document) | 300 | Parts 1-3's 225 plus this part's 75; register closed |
+| Memory Anchor Count (this part) | 25 | distinct `CAT-TC-MEM-S76..S100-001` identifiers, one per section |
+| Memory Anchor Count (document) | 100 | Parts 1-3's 75 plus this part's 25; register closed |
+| Validation Count | 3494 of 3494 PASSED | validator run against the finished file with no validator weakened |
+| SHA256 | held in the Integrity digest line below | file with all digest lines excluded, `sha256sum` |
+| Append-only prefix SHA256 | `6959a7e545d448946788722dacdf3a9870a85b2e81c447ec21a659b4c23d1fb3` | `sha256sum` over the first 2377279 bytes; byte-identical to the committed Parts 1-3 file (`cmp -n 2377279` reports no difference) |
+| Append-only prefix byte count | 2377279 | `wc -c` over the committed Parts 1-3 file |
+| Append-only prefix line count | 36726 | `wc -l` over the committed Parts 1-3 file |
+| Parts 1-2 inner prefix SHA256 | `256c14f56b307aa4cc7286e96924df047e4734300685d6d56215628abd365ff5` | `sha256sum` over the first 1592532 bytes; the chained middle proof |
+| Part 1 inner prefix SHA256 | `478b99aba971e858889d33aa21ceff54c104c0d5a8e99510d6f45e26b3fa4a3d` | `sha256sum` over the first 633496 bytes; the chained inner proof |
+| Append-only Status | Parts 1-3 prefix preserved byte-identically; Part 4 appended after the final Part 3 byte | prefix comparison against the committed Parts 1-3 blob |
+| Working Tree | Clean after the single Part 4 commit | `git status --porcelain` |
+| Commit Hash | The single Part 4 commit `docs(context): append treasury core part 4` on branch `arena/01a003b2-cat`, parent commit `eff1ac89e32464e4d9191bed80a2c6b938a4b2df` | a file cannot contain the hash of the commit that introduces it; the parent hash is measured and the resulting commit hash is recorded in `.ai/PROJECT_STATUS.md` history and the task report |
+| Push Status | No push | per the workflow |
+| PR Status | No pull request | per the workflow |
+| Merge Status | No merge | per the workflow |
+| Current Progress | Part 4 Completed — 100% — FINAL | `.ai/PROJECT_STATUS.md` |
+| Next Task | Affiliate Engine (`context/08_AFFILIATE_ENGINE.md`, Status: Planned as a documentation target) | the Next Tasks register in `.ai/PROJECT_STATUS.md` |
+
+#### Integrity
+
+**SHA256 (this file with all digest lines excluded):**  
+`65f1a0bc47d924ca7b6908468ea1241788995e7723a1b859ca89b430539a9f11`
+
+A whole-file digest cannot contain itself, so the value above is defined precisely and is re-derivable by anyone holding this file:
+
+```text
+grep -v '^`[0-9a-f]\{64\}`$' context/07_TREASURY_CORE.md | sha256sum
+```
+
+The expression excludes every standalone digest line in the file — the Part 1 digest line in Section 20, the Part 2 digest line in Section 50, the Part 3 digest line in Section 75, and this final digest line alike — so the value is stable and reproducible. The earlier digest lines are part of the frozen prefix and remain byte-identical; their original values were computed over their own parts under the same expression and are preserved unchanged as historical records. The append-only prefix SHA256 above is the independent integrity proof for the frozen Parts 1-3 bytes.
+
+#### Boundary Declaration
+
+Part 4 ends here, and with it the CAT Treasury Core Bible. This file contains the pre-existing document stub, Sections 1 through 100, the Section 20, Section 50, and Section 75 receipts, and this final receipt. The document is FINAL: it contains no Section 101 and no Part 5 content, and no Part 5 will ever be appended. Every future change to the meaning of any clause in this document happens exclusively through the Section 90 amendment process — accepted ADRs that reference the clause they amend — and never by editing these bytes. The next documentation task is a different document entirely: the Affiliate Engine Bible at `context/08_AFFILIATE_ENGINE.md` (Status: Planned as a documentation target).
+
+**Next Task:** Affiliate Engine (`context/08_AFFILIATE_ENGINE.md`)
+
+*Append-only generation. No byte of the frozen Parts 1-3 prefix was modified by this part. The four-link chain — stub, Part 1, Part 2, Part 3, Part 4 — is closed.*
