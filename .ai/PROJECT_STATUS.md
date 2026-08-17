@@ -54,7 +54,7 @@ AI Documentation · Repository Structure · Architecture · Knowledge Base · CA
 | 11_DESIGN_LANGUAGE.md | Not Started | 0% |
 | 12_DECISIONS.md | Not Started | 0% |
 | 13_TERMINOLOGY.md | Part 1 Completed | 25% |
-| 14_CODING_STANDARD.md | Part 2 Completed | 50% |
+| 14_CODING_STANDARD.md | Part 2 Completed + Part 3 Continuation Pack | 75% |
 | 15_DIRECTORY_STRUCTURE.md | Not Started | 0% |
 | 16_DEPLOYMENT.md | Not Started | 0% |
 | 17_SECURITY.md | Not Started | 0% |
@@ -65,17 +65,19 @@ AI Documentation · Repository Structure · Architecture · Knowledge Base · CA
 
 # Active Task
 
-**Current Task:** Coding Standard Part 2 Completed — 50%
+**Current Task:** Coding Standard Part 3 prepared — 75%
 
 **Document:** `context/14_CODING_STANDARD.md`
 
-**Part:** 2 of 4
+**Continuation Pack:** `context/14_CODING_STANDARD_PART3.md`
 
-**Status:** Part 2 extends the coding constitution into architecture-aware implementation, dependency management, domain typing, state ownership, configuration, API/event/schema implementation, idempotency, transactions, migrations, testing architecture, CI quality gates, reproducible builds, static architectural enforcement, performance, resilience, security, observability, AI-agent engineering, repository automation, and the Part 2 completion contract. Parts 1–2 are now frozen and Parts 3–4 remain append-only.
+**Part:** 3 of 4
+
+**Status:** Part 3 content is prepared as an append-only continuation pack covering advanced Rust/Go/Python/TypeScript patterns, distributed systems, queue/backpressure engineering, caching, performance, supply-chain security, AI-agent capability boundaries, independent patch verification, architecture fitness functions, decision traceability, documentation-as-code, and governance. The canonical Part 1–2 prefix remains unchanged.
 
 # Next Task
 
-Coding Standard Part 3 (`context/14_CODING_STANDARD.md`, Sections 51 onward)
+Integrate `context/14_CODING_STANDARD_PART3.md` into `context/14_CODING_STANDARD.md` as the canonical append-only Part 3, then validate the frozen-prefix digest and close the Part 3 receipt.
 
 ---
 
@@ -86,7 +88,7 @@ Coding Standard Part 3 (`context/14_CODING_STANDARD.md`, Sections 51 onward)
 3. Affiliate Engine — Completed FINAL
 4. Content Engine — Completed FINAL
 5. Terminology — Part 1 Completed — 25%
-6. Coding Standard — Part 2 Completed — 50%
+6. Coding Standard — Part 3 Prepared — 75%
 7. Directory Structure — Not Started
 8. Deployment — Not Started
 9. Security — Not Started
@@ -131,4 +133,4 @@ Implementation
 
 # Last Update
 
-2026-08-17 — Completed `context/14_CODING_STANDARD.md` Part 2 at 50%. Sections 21–50 now define architecture-aware coding, dependency governance, semantic domain types, state ownership, configuration, dependency injection, API/event/schema implementation, idempotency, transactions, query discipline, migrations, testing architecture, property/fuzz/concurrency/contract testing, CI gates, reproducible builds, architectural static analysis, performance, resilience, security, observability, AI-agent controls, repository automation, and the Part 2 completion contract. The document remains append-only for Parts 3–4. Commit: `bbaee4d7c9616be8b9ec52d5881e81990fb95669`.
+2026-08-17 — Prepared Coding Standard Part 3 continuation pack `context/14_CODING_STANDARD_PART3.md`. The pack contains Sections 51–75 and extends the coding constitution into advanced language patterns, distributed consistency, queue/backpressure, caching, resource admission, performance regression engineering, memory discipline, supply-chain controls, untrusted model output handling, least-privilege agent tooling, independent AI patch verification, repository-scale refactoring, architecture fitness functions, decision traceability, documentation-as-code, and engineering-standard governance. Canonical `context/14_CODING_STANDARD.md` Parts 1–2 were not modified in this step. Commit: `f0bf822fe001b95408f73c462e7162fd0bf88459`.
