@@ -1,0 +1,52 @@
+name: Integrate Coding Standard Part 3
+
+on:
+  push:
+    paths:
+      - '.integration/CODING_STANDARD_PART3_REQUEST'
+      - '.github/workflows/integrate-coding-standard-part3.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    if: ${{ !contains(github.event.head_commit.message, 'integrate coding standard part 3') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: arena/01a0051c-cat
+
+      - name: Append frozen Part 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          canonical='context/14_CODING_STANDARD.md'
+          source_commit='771e5d301076c073f89119d18502b0e57636f572'
+          source='context/14_CODING_STANDARD_PART3.md'
+          tmp_before=$(mktemp)
+          tmp_source=$(mktemp)
+          git show "${source_commit}:${source}" > "$tmp_source"
+          cp "$canonical" "$tmp_before"
+          grep -q '^# PART 3 — ADVANCED ENGINEERING SYSTEM' "$tmp_source"
+          if grep -q '^# PART 3 — ADVANCED ENGINEERING SYSTEM' "$canonical"; then
+            echo 'Part 3 already integrated; refusing duplicate append.'
+            exit 1
+          fi
+          cat "$tmp_source" >> "$canonical"
+          cmp -n "$(wc -c < "$tmp_before")" "$tmp_before" "$canonical"
+          rm -f "$tmp_before" "$tmp_source"
+
+      - name: Commit integration and remove one-shot automation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'CAT Documentation Bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f .integration/CODING_STANDARD_PART3_REQUEST .github/workflows/integrate-coding-standard-part3.yml
+          git add context/14_CODING_STANDARD.md .integration/CODING_STANDARD_PART3_REQUEST .github/workflows/integrate-coding-standard-part3.yml
+          git commit -m 'docs(context): integrate coding standard part 3'
+          git push origin HEAD:arena/01a0051c-cat
