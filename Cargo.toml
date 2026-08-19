@@ -1,0 +1,9 @@
+[workspace]
+resolver = "2"
+members = [
+    "core/kernel/rust",
+]
+
+[workspace.package]
+edition = "2024"
+license = "MIT"
