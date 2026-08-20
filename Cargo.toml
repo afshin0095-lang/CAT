@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "core/kernel/rust",
     "core/eventbus/rust",
+    "core/runtime/rust",
 ]
 
 [workspace.package]

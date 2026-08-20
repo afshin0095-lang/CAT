@@ -1,0 +1,15 @@
+[package]
+name = "cat-runtime"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "CAT OMNISYSTEM application runtime lifecycle and event orchestration boundary"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+cat-eventbus = { path = "../../eventbus/rust" }
+cat-kernel = { path = "../../kernel/rust" }
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
