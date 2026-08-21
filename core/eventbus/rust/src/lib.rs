@@ -8,6 +8,7 @@ mod durable;
 mod envelope;
 mod error;
 mod in_memory;
+mod nats;
 mod ports;
 mod registry;
 mod reliability;
@@ -22,6 +23,7 @@ pub use durable::{DeadLetter, DeadLetterStore, EventCodec, InMemoryDeadLetterSto
 pub use envelope::{EventEnvelope, EventKind};
 pub use error::{EventBusError, EventBusResult};
 pub use in_memory::{InMemoryIdempotency, InMemoryInbox, InMemoryOutbox};
+pub use nats::{subject_for_prefix, AsyncEventTransport, NatsJetStreamTransport};
 pub use ports::{EventTransport, IdempotencyStore, InboxStore, OutboxStore};
 pub use registry::{Compatibility, EventContract, EventRegistry};
 pub use reliability::{DeliveryRecord, DeliveryState, RetryPolicy};

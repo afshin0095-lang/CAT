@@ -34,6 +34,9 @@ pub enum EventBusError {
     #[error("transport '{0}' is unavailable")]
     TransportUnavailable(String),
 
+    #[error("transport '{0}' rejected the event")]
+    TransportRejected(String),
+
     #[error("no transport route exists for event type '{0}'")]
     NoTransportRoute(String),
 
