@@ -1,0 +1,1 @@
+-- Initial PostgreSQL durable adapter receipt: stream, event, idempotency and tenant invariants are represented in schema.

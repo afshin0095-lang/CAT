@@ -1,0 +1,1 @@
+-- Durable event streams are tenant-scoped; tenant identity is established by the first event.

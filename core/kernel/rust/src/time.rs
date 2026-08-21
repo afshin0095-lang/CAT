@@ -18,6 +18,10 @@ impl TimestampMs {
         self.0
     }
 
+    pub const fn as_i64(self) -> i64 {
+        self.0 as i64
+    }
+
     pub fn checked_after(self, previous: Self) -> KernelResult<Self> {
         if self.0 <= previous.0 {
             return Err(KernelError::InvalidTimestamp(

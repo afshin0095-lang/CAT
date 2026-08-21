@@ -1,0 +1,1 @@
+-- Final schema marker: tenant identity is immutable within a stream.

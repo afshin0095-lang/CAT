@@ -1,0 +1,1 @@
+-- Initial PostgreSQL event-store adapter complete.

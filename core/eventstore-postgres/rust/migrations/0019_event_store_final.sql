@@ -1,0 +1,1 @@
+-- Migration chain terminator for the initial PostgreSQL event-store adapter.

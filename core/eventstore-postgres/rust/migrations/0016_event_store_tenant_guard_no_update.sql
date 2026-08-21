@@ -1,0 +1,2 @@
+-- The tenant guard is intentionally insert-only; event rows are immutable.
+-- This migration is a no-op marker documenting that invariant.
