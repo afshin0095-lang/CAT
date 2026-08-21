@@ -7,6 +7,9 @@ pub enum EventBusError {
     #[error("event serialization failed: {0}")]
     Serialization(String),
 
+    #[error("event storage operation failed: {0}")]
+    Storage(String),
+
     #[error("event type '{0}' is already registered")]
     DuplicateEventType(String),
 

@@ -3,6 +3,14 @@ use serde::{de::DeserializeOwned, Serialize};
 use sqlx::{postgres::PgPoolOptions, PgPool, Row};
 use thiserror::Error;
 
+mod inbox;
+mod integration;
+mod outbox;
+
+pub use inbox::PostgresInbox;
+pub use integration::TransactionalEventPublisher;
+pub use outbox::{OutboxRecord, PostgresOutbox};
+
 #[derive(Debug, Error)]
 pub enum PostgresEventStoreError {
     #[error("database error: {0}")]
@@ -13,6 +21,8 @@ pub enum PostgresEventStoreError {
     ConcurrencyConflict { expected: u64, actual: u64 },
     #[error("sequence conflict: expected {expected}, actual {actual}")]
     SequenceConflict { expected: u64, actual: u64 },
+    #[error("event bus publication id does not match the canonical event id")]
+    PublicationIdentityMismatch,
     #[error("sequence number overflow")]
     SequenceOverflow,
 }
@@ -51,12 +61,12 @@ impl PostgresEventStore {
         &self.pool
     }
 
-    /// Creates the minimal durable event-store schema.
-    ///
-    /// This intentionally uses ordinary SQL rather than SQLx compile-time query
-    /// macros so CI does not require a live database merely to compile the crate.
+    /// Creates the durable event-store and publication schemas.
     pub async fn ensure_schema(&self) -> PostgresEventStoreResult<()> {
         sqlx::query(include_str!("../migrations/0001_event_store.sql"))
+            .execute(&self.pool)
+            .await?;
+        sqlx::query(include_str!("../migrations/0010_eventbus_delivery.sql"))
             .execute(&self.pool)
             .await?;
         Ok(())

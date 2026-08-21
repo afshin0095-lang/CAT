@@ -9,6 +9,7 @@ description = "CAT PostgreSQL durable event-store adapter"
 path = "src/lib.rs"
 
 [dependencies]
+cat-eventbus = { path = "../../eventbus/rust" }
 cat-kernel = { path = "../../kernel/rust" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

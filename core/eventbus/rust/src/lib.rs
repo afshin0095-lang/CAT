@@ -2,6 +2,7 @@
 #![deny(clippy::all)]
 
 mod bus;
+mod delivery;
 mod durable;
 mod envelope;
 mod error;
@@ -11,6 +12,7 @@ mod registry;
 mod reliability;
 
 pub use bus::{EventBus, EventHandler, PublishOutcome, SubscriptionId};
+pub use delivery::{DeliveryOutcome, OutboxDispatcher, RecordingTransport};
 pub use durable::{DeadLetter, DeadLetterStore, EventCodec, InMemoryDeadLetterStore, JsonEventCodec};
 pub use envelope::{EventEnvelope, EventKind};
 pub use error::{EventBusError, EventBusResult};
