@@ -27,4 +27,19 @@ pub enum EventBusError {
 
     #[error("handler failed for event '{event_type}': {message}")]
     HandlerFailure { event_type: String, message: String },
+
+    #[error("transport '{0}' is not registered")]
+    TransportNotRegistered(String),
+
+    #[error("transport '{0}' is unavailable")]
+    TransportUnavailable(String),
+
+    #[error("no transport route exists for event type '{0}'")]
+    NoTransportRoute(String),
+
+    #[error("duplicate acknowledgement for event {0}")]
+    DuplicateAcknowledgement(uuid::Uuid),
+
+    #[error("invalid configuration: {0}")]
+    InvalidConfiguration(String),
 }
