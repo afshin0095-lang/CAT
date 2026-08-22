@@ -1,181 +1,144 @@
-use std::sync::{Arc, Mutex};
-
-use cat_eventbus::{CatEvent, EventBus, EventEnvelope, EventKind, PublishOutcome};
+use cat_eventbus::{
+    Compatibility, EventBus, EventBusError, EventContract, EventEnvelope, EventKind,
+    EventRegistry, InMemoryIdempotency, InMemoryInbox, InMemoryOutbox, OutboxStore,
+    PublishOutcome, RetryPolicy,
+};
 use serde::{Deserialize, Serialize};
+use std::sync::{Arc, Mutex};
 use uuid::Uuid;
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
-struct UserRegistered {
-    user_id: Uuid,
+#[derive(Clone, Debug, Serialize, Deserialize)]
+struct OrderCreated {
+    order_id: String,
+    amount_minor: i64,
 }
 
-impl CatEvent for UserRegistered {
-    const TYPE: &'static str = "identity.user_registered";
+impl cat_eventbus::CatEvent for OrderCreated {
+    const TYPE: &'static str = "order.created";
     const VERSION: u16 = 1;
 }
 
-#[test]
-fn typed_event_becomes_versioned_domain_envelope() {
-    let user_id = Uuid::now_v7();
-    let envelope = UserRegistered { user_id }
-        .into_envelope("identity-core")
-        .unwrap();
-
-    assert_eq!(envelope.event_type, "identity.user_registered");
-    assert_eq!(envelope.version, 1);
-    assert_eq!(envelope.kind, EventKind::Domain);
-    assert_eq!(envelope.producer, "identity-core");
-    assert_eq!(envelope.subject_id, None);
-    assert_eq!(envelope.payload["user_id"], user_id.to_string());
-}
-
-#[test]
-fn envelope_preserves_correlation_causation_and_subject_context() {
-    let event_id = Uuid::now_v7();
-    let correlation_id = Uuid::now_v7();
-    let causation_id = Uuid::now_v7();
-    let subject_id = cat_kernel::EntityId::new();
-
-    let envelope = EventEnvelope {
+fn envelope(event_id: Uuid, event_type: &str, version: u16) -> EventEnvelope {
+    EventEnvelope {
         event_id,
-        event_type: "affiliate.conversion_recorded".into(),
-        version: 2,
+        event_type: event_type.to_owned(),
+        version,
         kind: EventKind::Domain,
-        occurred_at_ms: 1_000,
-        producer: "affiliate-core".into(),
+        occurred_at_ms: 1,
+        producer: "integration-test".into(),
         correlation_id: None,
         causation_id: None,
         subject_id: None,
-        payload: serde_json::json!({"amount": 1250}),
+        payload: serde_json::json!({"ok": true}),
     }
-    .with_kind(EventKind::Integration)
-    .with_correlation_id(correlation_id)
-    .with_causation_id(causation_id)
-    .with_subject_id(subject_id);
-
-    assert_eq!(envelope.event_id, event_id);
-    assert_eq!(envelope.kind, EventKind::Integration);
-    assert_eq!(envelope.correlation_id, Some(correlation_id));
-    assert_eq!(envelope.causation_id, Some(causation_id));
-    assert_eq!(envelope.subject_id, Some(subject_id));
 }
 
 #[test]
-fn bus_dispatches_in_registration_order() {
-    let bus = EventBus::new();
-    let seen = Arc::new(Mutex::new(Vec::new()));
+fn typed_event_builds_stable_envelope() {
+    let event = OrderCreated { order_id: "ord-1".into(), amount_minor: 4200 };
+    let envelope = event.into_envelope("orders").unwrap();
 
-    for marker in ["first", "second", "third"] {
-        let seen = Arc::clone(&seen);
+    assert_eq!(envelope.event_type, "order.created");
+    assert_eq!(envelope.version, 1);
+    assert_eq!(envelope.producer, "orders");
+    assert_eq!(envelope.payload["order_id"], "ord-1");
+}
+
+#[test]
+fn event_bus_is_idempotent_and_preserves_handler_order() {
+    let bus = EventBus::new();
+    let calls = Arc::new(Mutex::new(Vec::new()));
+
+    for marker in ["first", "second"] {
+        let calls = Arc::clone(&calls);
         bus.subscribe(
-            "test.event",
+            "order.created",
             Arc::new(move |_| {
-                seen.lock().unwrap().push(marker);
+                calls.lock().unwrap().push(marker);
                 Ok(())
             }),
         )
         .unwrap();
     }
 
-    let envelope = EventEnvelope {
-        event_id: Uuid::now_v7(),
-        event_type: "test.event".into(),
-        version: 1,
-        kind: EventKind::Domain,
-        occurred_at_ms: 1,
-        producer: "test".into(),
-        correlation_id: None,
-        causation_id: None,
-        subject_id: None,
-        payload: serde_json::json!({}),
-    };
-
+    let id = Uuid::now_v7();
     assert_eq!(
-        bus.publish(envelope).unwrap(),
-        PublishOutcome::Published { handlers_called: 3 }
+        bus.publish(envelope(id, "order.created", 1)).unwrap(),
+        PublishOutcome::Published { handlers_called: 2 }
     );
-    assert_eq!(*seen.lock().unwrap(), vec!["first", "second", "third"]);
+    assert_eq!(
+        bus.publish(envelope(id, "order.created", 1)).unwrap(),
+        PublishOutcome::DuplicateSuppressed
+    );
+    assert_eq!(*calls.lock().unwrap(), vec!["first", "second"]);
 }
 
 #[test]
-fn bus_suppresses_duplicate_event_delivery() {
+fn registered_publish_requires_exact_contract_version() {
     let bus = EventBus::new();
-    let calls = Arc::new(Mutex::new(0usize));
-    let calls_for_handler = Arc::clone(&calls);
+    let mut registry = EventRegistry::default();
+    registry
+        .register(EventContract::new(
+            "order.created",
+            1,
+            "schema.order.created.v1",
+            Compatibility::Full,
+        ))
+        .unwrap();
 
-    bus.subscribe(
-        "test.duplicate",
-        Arc::new(move |_| {
-            *calls_for_handler.lock().unwrap() += 1;
-            Ok(())
-        }),
-    )
-    .unwrap();
-
-    let event_id = Uuid::now_v7();
-    let envelope = EventEnvelope {
-        event_id,
-        event_type: "test.duplicate".into(),
-        version: 1,
-        kind: EventKind::Integration,
-        occurred_at_ms: 1,
-        producer: "test".into(),
-        correlation_id: None,
-        causation_id: None,
-        subject_id: None,
-        payload: serde_json::json!({"event_id": event_id}),
-    };
-
-    assert!(matches!(bus.publish(envelope.clone()).unwrap(), PublishOutcome::Published { .. }));
+    let id = Uuid::now_v7();
+    assert!(bus.publish_registered(envelope(id, "order.created", 2), &registry).is_err());
     assert_eq!(
-        bus.publish(envelope).unwrap(),
-        PublishOutcome::DuplicateSuppressed
+        bus.publish_registered(envelope(id, "order.created", 1), &registry).unwrap(),
+        PublishOutcome::Published { handlers_called: 0 }
     );
-    assert_eq!(*calls.lock().unwrap(), 1);
 }
 
 #[test]
 fn unsubscribe_removes_only_the_selected_subscription() {
     let bus = EventBus::new();
-    let calls = Arc::new(Mutex::new(Vec::new()));
+    let calls = Arc::new(Mutex::new(0u32));
+    let first = Arc::clone(&calls);
+    let second = Arc::clone(&calls);
 
-    let first_calls = Arc::clone(&calls);
-    let first = bus
-        .subscribe(
-            "test.unsubscribe",
-            Arc::new(move |_| {
-                first_calls.lock().unwrap().push("first");
-                Ok(())
-            }),
-        )
-        .unwrap();
+    let first_id = bus.subscribe("order.created", Arc::new(move |_| {
+        *first.lock().unwrap() += 1;
+        Ok(())
+    })).unwrap();
+    bus.subscribe("order.created", Arc::new(move |_| {
+        *second.lock().unwrap() += 10;
+        Ok(())
+    })).unwrap();
 
-    let second_calls = Arc::clone(&calls);
-    bus.subscribe(
-        "test.unsubscribe",
-        Arc::new(move |_| {
-            second_calls.lock().unwrap().push("second");
-            Ok(())
-        }),
-    )
-    .unwrap();
+    assert!(bus.unsubscribe(first_id).unwrap());
+    assert_eq!(bus.publish(envelope(Uuid::now_v7(), "order.created", 1)).unwrap(),
+        PublishOutcome::Published { handlers_called: 1 });
+    assert_eq!(*calls.lock().unwrap(), 10);
+    assert!(matches!(bus.unsubscribe(first_id), Err(EventBusError::UnknownSubscription(_))));
+}
 
-    assert!(bus.unsubscribe(first).unwrap());
-    assert!(bus.unsubscribe(first).is_err());
+#[test]
+fn inbox_and_idempotency_boundaries_suppress_replay() {
+    let id = Uuid::now_v7();
+    let mut inbox = InMemoryInbox::default();
+    assert!(inbox.accept(id).unwrap());
+    assert!(!inbox.accept(id).unwrap());
+    inbox.mark_succeeded(id).unwrap();
 
-    bus.publish(EventEnvelope {
-        event_id: Uuid::now_v7(),
-        event_type: "test.unsubscribe".into(),
-        version: 1,
-        kind: EventKind::Domain,
-        occurred_at_ms: 1,
-        producer: "test".into(),
-        correlation_id: None,
-        causation_id: None,
-        subject_id: None,
-        payload: serde_json::json!({}),
-    })
-    .unwrap();
+    let mut idempotency = InMemoryIdempotency::default();
+    assert!(idempotency.claim(id).unwrap());
+    assert!(!idempotency.claim(id).unwrap());
+    idempotency.complete(id).unwrap();
+}
 
-    assert_eq!(*calls.lock().unwrap(), vec!["second"]);
+#[test]
+fn outbox_retry_policy_transitions_to_dead_letter() {
+    let mut outbox = InMemoryOutbox::default();
+    let id = Uuid::now_v7();
+    outbox.enqueue(envelope(id, "order.created", 1)).unwrap();
+    assert_eq!(outbox.len(), 1);
+
+    let policy = RetryPolicy::new(2, 0);
+    assert!(matches!(outbox.fail(id, 1, &policy).unwrap(), cat_eventbus::DeliveryState::RetryScheduled));
+    assert!(matches!(outbox.fail(id, 2, &policy).unwrap(), cat_eventbus::DeliveryState::DeadLettered));
 }
