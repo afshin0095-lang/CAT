@@ -4,6 +4,7 @@ members = [
     "core/kernel/rust",
     "core/eventbus/rust",
     "core/eventstore-postgres/rust",
+    "core/knowledge/rust",
 ]
 
 [workspace.package]
