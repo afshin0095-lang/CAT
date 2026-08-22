@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct KnowledgeNodeId(Uuid);
 
 impl KnowledgeNodeId {
@@ -15,7 +15,7 @@ impl Default for KnowledgeNodeId {
     fn default() -> Self { Self::new() }
 }
 
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct KnowledgeEdgeId(Uuid);
 
 impl KnowledgeEdgeId {
