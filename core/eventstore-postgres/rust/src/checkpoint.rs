@@ -57,10 +57,16 @@ impl PostgresProjectionCheckpointStore {
                 phase,
             )
             .map_err(|error| CheckpointError::InvalidState(error.to_string()))
-        }).transpose()
+        })
+        .transpose()
     }
 
     /// Saves a checkpoint only when it advances the stored sequence.
+    ///
+    /// Equal-sequence writes are intentionally ignored. A projection sequence
+    /// identifies one canonical event, so a different event ID must never be
+    /// allowed to overwrite an already committed checkpoint at the same
+    /// sequence. Replaying the exact same checkpoint remains safely idempotent.
     pub async fn save(&self, checkpoint: &ProjectionCheckpoint) -> CheckpointResult<()> {
         let phase = match checkpoint.phase {
             ProjectionPhase::Catchup => "catchup",
@@ -68,7 +74,7 @@ impl PostgresProjectionCheckpointStore {
         };
 
         sqlx::query(
-            "INSERT INTO cat_projection_checkpoints (projection_id, stream_id, sequence, event_id, phase) VALUES ($1,$2,$3,$4,$5) ON CONFLICT (projection_id, stream_id) DO UPDATE SET sequence = EXCLUDED.sequence, event_id = EXCLUDED.event_id, phase = EXCLUDED.phase, updated_at = NOW() WHERE cat_projection_checkpoints.sequence <= EXCLUDED.sequence",
+            "INSERT INTO cat_projection_checkpoints (projection_id, stream_id, sequence, event_id, phase) VALUES ($1,$2,$3,$4,$5) ON CONFLICT (projection_id, stream_id) DO UPDATE SET sequence = EXCLUDED.sequence, event_id = EXCLUDED.event_id, phase = EXCLUDED.phase, updated_at = NOW() WHERE cat_projection_checkpoints.sequence < EXCLUDED.sequence",
         )
         .bind(&checkpoint.projection_id)
         .bind(checkpoint.stream_id.as_uuid())
