@@ -15,7 +15,7 @@
 | Company | Omni System |
 | Status | Active Development |
 | Version | 0.1.0 |
-| Phase | Documentation Phase (Phase A) — Completed |
+| Phase | Implementation Phase — Active |
 | Repository | GitHub |
 | Main Branch | main |
 
@@ -23,11 +23,11 @@
 
 # Current Phase
 
-## Phase A
+## Phase B
 
-AI Documentation · Repository Structure · Architecture · Knowledge Base · CAT Bible · AI Context · Engineering Rules
+Core implementation · Rust foundations · Event Bus · Event Store · Knowledge Graph · Integration contracts
 
-**Status:** Completed — 2026-08-04
+**Status:** Active Development
 
 ---
 
@@ -54,7 +54,7 @@ AI Documentation · Repository Structure · Architecture · Knowledge Base · CA
 | 11_DESIGN_LANGUAGE.md | Not Started | 0% |
 | 12_DECISIONS.md | Not Started | 0% |
 | 13_TERMINOLOGY.md | Part 1 Completed | 25% |
-| 14_CODING_STANDARD.md | Part 2 Completed + Part 3 Continuation Pack | 75% |
+| 14_CODING_STANDARD.md | Part 3 Prepared | 75% |
 | 15_DIRECTORY_STRUCTURE.md | Not Started | 0% |
 | 16_DEPLOYMENT.md | Not Started | 0% |
 | 17_SECURITY.md | Not Started | 0% |
@@ -65,47 +65,41 @@ AI Documentation · Repository Structure · Architecture · Knowledge Base · CA
 
 # Active Task
 
-**Current Task:** Coding Standard Part 3 prepared — 75%
+**Current Task:** Knowledge Core implementation — graph traversal, evidence-aware validation, and invariant tests
 
-**Document:** `context/14_CODING_STANDARD.md`
+**Document:** `core/knowledge/rust/`
 
-**Continuation Pack:** `context/14_CODING_STANDARD_PART3.md`
-
-**Part:** 3 of 4
-
-**Status:** Part 3 content is prepared as an append-only continuation pack covering advanced Rust/Go/Python/TypeScript patterns, distributed systems, queue/backpressure engineering, caching, performance, supply-chain security, AI-agent capability boundaries, independent patch verification, architecture fitness functions, decision traceability, documentation-as-code, and governance. The canonical Part 1–2 prefix remains unchanged.
+**Status:** Stage completed — 4 implementation/test files added or updated
 
 # Next Task
 
-Integrate `context/14_CODING_STANDARD_PART3.md` into `context/14_CODING_STANDARD.md` as the canonical append-only Part 3, then validate the frozen-prefix digest and close the Part 3 receipt.
+Continue the Core Implementation sequence with the next missing knowledge/runtime integration layer, preserving canonical-truth vs derived-intelligence boundaries and existing Rust workspace contracts.
 
 ---
 
 # Next Tasks
 
-1. Decision Engine — Completed FINAL
-2. Treasury Core — Completed FINAL
-3. Affiliate Engine — Completed FINAL
-4. Content Engine — Completed FINAL
-5. Terminology — Part 1 Completed — 25%
-6. Coding Standard — Part 3 Prepared — 75%
-7. Directory Structure — Not Started
-8. Deployment — Not Started
-9. Security — Not Started
-10. Prompting — Not Started
-11. Development Guide — Not Started
+1. Core Event Bus — implementation underway
+2. PostgreSQL Event Store — implementation underway
+3. Knowledge Core — traversal + validation stage completed
+4. LLM / AI Core
+5. Memory Core
+6. Reasoning Core
+7. Decision Core
+8. Planning Core
+9. Orchestrator / Workflow Core
+10. Integration and platform layers
 
 ---
 
 # Development Rules
 
-After every completed task:
+After every completed implementation task:
 
 - Update this file
-- Update progress percentages
-- Update active task
+- Update progress percentages where measurable
 - Commit
-- Push
+- Push only when explicitly requested
 
 Never leave this file outdated.
 
@@ -113,24 +107,20 @@ Never leave this file outdated.
 
 # Completion Progress
 
-Phase A Milestone
+Phase A Documentation
 
 ██████████████████████████ 100% ✅
 
-Overall Repository
-
-████████████████░░░░░░░ 70%
-
-Documentation
-
-██████████████████████░ 95%
-
 Implementation
 
-░░░░░░░░░░░░░░░░░░░░░ 0%
+████░░░░░░░░░░░░░░░░░ 20% — Core foundation underway
+
+Overall Repository
+
+█████████████████░░░░ 75% — architecture/documentation complete; implementation active
 
 ---
 
 # Last Update
 
-2026-08-17 — Prepared Coding Standard Part 3 continuation pack `context/14_CODING_STANDARD_PART3.md`. The pack contains Sections 51–75 and extends the coding constitution into advanced language patterns, distributed consistency, queue/backpressure, caching, resource admission, performance regression engineering, memory discipline, supply-chain controls, untrusted model output handling, least-privilege agent tooling, independent AI patch verification, repository-scale refactoring, architecture fitness functions, decision traceability, documentation-as-code, and engineering-standard governance. Canonical `context/14_CODING_STANDARD.md` Parts 1–2 were not modified in this step. Commit: `f0bf822fe001b95408f73c462e7162fd0bf88459`.
+2026-08-23 — Knowledge Core implementation stage completed. Added derived breadth-first graph traversal and relation-scoped traversal, bidirectional neighbor discovery, evidence-aware node/edge validation, and integration tests covering canonical identity deduplication, endpoint integrity, traversal behavior, evidence requirements, and self-relation rejection. Existing knowledge model/store contracts were preserved. Next step is the next core runtime/integration layer.
