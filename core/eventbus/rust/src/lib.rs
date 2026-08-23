@@ -2,6 +2,9 @@
 #![deny(clippy::all)]
 
 mod ack;
+mod async_inbox;
+mod async_in_memory;
+mod async_nats_consumer;
 mod bus;
 mod delivery;
 mod durable;
@@ -22,6 +25,9 @@ mod worker;
 mod eventbus_contract_tests;
 
 pub use ack::{AckDecision, RecordingAcker, TransportAcker};
+pub use async_inbox::AsyncInboxStore;
+pub use async_in_memory::AsyncInMemoryInbox;
+pub use async_nats_consumer::AsyncNatsJetStreamConsumer;
 pub use bus::{EventBus, EventHandler, PublishOutcome, SubscriptionId};
 pub use delivery::{DeliveryOutcome, OutboxDispatcher, RecordingTransport};
 pub use durable::{DeadLetter, DeadLetterStore, EventCodec, InMemoryDeadLetterStore, JsonEventCodec};
