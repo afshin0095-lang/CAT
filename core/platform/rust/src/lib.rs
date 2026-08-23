@@ -1,10 +1,12 @@
 #![forbid(unsafe_code)]
 #![deny(clippy::all)]
 
+mod adapters;
 mod context;
 mod error;
 mod runtime;
 
+pub use adapters::{AdapterRequest, AdapterRegistry, AdapterResponse, PassthroughAdapter, PlatformAdapter};
 pub use context::{IntegrationCommand, IntegrationContext, IntegrationTarget};
 pub use error::{PlatformError, PlatformResult};
 pub use runtime::{PlatformRuntime, ReadyWork};

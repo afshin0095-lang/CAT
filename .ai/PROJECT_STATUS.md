@@ -25,7 +25,7 @@
 
 ## Phase B
 
-Core implementation · Rust foundations · Event Bus · Event Store · Knowledge Graph · Memory Core · LLM / AI Core · Reasoning Core · Decision Core · Planning Core · Orchestrator · Retrieval Core · Platform Integration contracts
+Core implementation · Rust foundations · Event Bus · Event Store · Knowledge Graph · Memory Core · LLM / AI Core · Reasoning Core · Decision Core · Planning Core · Orchestrator · Retrieval Core · Platform Integration · Platform Adapter Layer
 
 **Status:** Active Development
 
@@ -65,15 +65,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Platform Integration Core — cross-core correlation context, integration command contracts, deterministic decision/planning/orchestration composition, and platform boundary validation
+**Current Task:** Platform Adapter Layer — provider-neutral adapter registry and target-safe execution boundary
 
-**Document:** `core/platform/rust/`
+**Document:** `core/platform/rust/src/adapters.rs`
 
-**Status:** Foundation implementation completed; contract tests added; workspace registered
+**Status:** Adapter registry foundation implemented; target validation and passthrough contract tests added
 
 # Next Task
 
-Platform adapter layer — connect the platform boundary to Event Bus, Knowledge, Memory, LLM, Reasoning, Decision, Planning, Orchestrator, and Retrieval without transferring domain ownership
+Concrete platform adapters — wire Event Bus, Knowledge, Memory, LLM, Reasoning, Decision, Planning, Orchestrator, and Retrieval behind the adapter boundary without transferring domain ownership
 
 # Next Tasks
 
@@ -88,7 +88,7 @@ Platform adapter layer — connect the platform boundary to Event Bus, Knowledge
 9. Orchestrator / Workflow Core — durable workflow state, leases, scheduling, retries, compensation, and public workflow API completed
 10. Retrieval Core — provider-neutral chunk/index/retrieval/ranking foundation completed
 11. Platform Integration Core — composition boundary and cross-core context foundation completed
-12. Platform Adapter Layer
+12. Platform Adapter Layer — registry foundation completed
 
 ---
 
@@ -113,8 +113,8 @@ Phase A Documentation
 
 Implementation
 
-████████████░░░░░░░░ 44% — platform integration foundation progressing
+█████████████░░░░░░░ 46% — platform adapter boundary progressing
 
 Overall Repository
 
-███████████████████░░ 79% — architecture/documentation complete; implementation active
+███████████████████░░ 80% — architecture/documentation complete; implementation active
