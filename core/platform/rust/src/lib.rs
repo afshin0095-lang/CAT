@@ -6,6 +6,7 @@ mod concrete_core;
 mod context;
 mod core_adapters;
 mod error;
+mod health;
 mod runtime;
 
 pub use adapters::{AdapterRequest, AdapterRegistry, AdapterResponse, PassthroughAdapter, PlatformAdapter};
@@ -17,6 +18,7 @@ pub use core_adapters::{
     MEMORY_ADAPTER, ORCHESTRATOR_ADAPTER, PLANNING_ADAPTER, REASONING_ADAPTER, RETRIEVAL_ADAPTER,
 };
 pub use error::{PlatformError, PlatformResult};
+pub use health::{ComponentHealth, HealthState, PlatformHealthSnapshot};
 pub use runtime::{PlatformRuntime, ReadyWork};
 
 #[cfg(test)]
@@ -89,5 +91,21 @@ mod tests {
         ));
         let response = runtime.execute(command);
         assert!(response.is_ok() || response.is_err());
+    }
+
+    #[test]
+    fn runtime_health_tracks_scheduler_pressure() {
+        let mut runtime = PlatformRuntime::default();
+        assert_eq!(runtime.health_snapshot().state, HealthState::Healthy);
+
+        runtime.schedule(ScheduleRequest {
+            workflow_id: Uuid::now_v7(),
+            not_before_ms: 100,
+            priority: 1,
+        });
+        let snapshot = runtime.health_snapshot();
+        assert_eq!(snapshot.state, HealthState::Degraded);
+        assert_eq!(snapshot.queue_depth, 1);
+        assert!(snapshot.is_ready());
     }
 }

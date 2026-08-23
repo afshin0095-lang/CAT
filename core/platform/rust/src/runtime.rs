@@ -2,7 +2,7 @@ use cat_decision::{DecisionError, DecisionOutcome, DecisionRequest, Deterministi
 use cat_orchestrator::{ScheduleRequest, Scheduler};
 use cat_planning::{Plan, PlanValidationReport, validate_plan};
 
-use crate::{IntegrationCommand, PlatformError, PlatformResult};
+use crate::{IntegrationCommand, PlatformError, PlatformResult, PlatformHealthSnapshot};
 
 #[derive(Debug)]
 pub struct ReadyWork {
@@ -49,5 +49,9 @@ impl PlatformRuntime {
 
     pub fn queue_depth(&self) -> usize {
         self.scheduler.len()
+    }
+
+    pub fn health_snapshot(&self) -> PlatformHealthSnapshot {
+        PlatformHealthSnapshot::from_queue_depth(self.queue_depth())
     }
 }
