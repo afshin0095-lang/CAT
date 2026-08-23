@@ -11,10 +11,6 @@ pub enum ProcessingDecision {
 }
 
 /// Deterministic application-level delivery coordinator.
-///
-/// The coordinator deliberately sits below transport adapters and above the
-/// Inbox/DLQ persistence boundaries. It prevents broker-specific ACK semantics
-/// from becoming the source of truth for CAT processing state.
 pub struct DeliveryProcessor<I, D> {
     inbox: I,
     dead_letters: D,
@@ -44,13 +40,11 @@ where
         }
     }
 
-    /// Records success before a broker ACK is emitted.
     pub fn succeed(&mut self, event_id: Uuid) -> EventBusResult<DeliveryState> {
         self.inbox.mark_succeeded(event_id)?;
         Ok(DeliveryState::Succeeded)
     }
 
-    /// Chooses retry or DLQ deterministically from the attempt number.
     pub fn fail(
         &mut self,
         event: EventEnvelope,
@@ -70,7 +64,9 @@ where
     pub fn require_retryable(state: DeliveryState) -> EventBusResult<()> {
         match state {
             DeliveryState::RetryScheduled | DeliveryState::InFlight | DeliveryState::Pending => Ok(()),
-            DeliveryState::Succeeded | DeliveryState::DeadLettered => Err(EventBusError::InvalidStateTransition),
+            DeliveryState::Succeeded | DeliveryState::DeadLettered => Err(EventBusError::InvalidConfiguration(
+                "terminal delivery state cannot be retried".to_owned(),
+            )),
         }
     }
 }
