@@ -18,6 +18,9 @@ mod router;
 mod transport;
 mod worker;
 
+#[cfg(test)]
+mod eventbus_contract_tests;
+
 pub use ack::{AckDecision, RecordingAcker, TransportAcker};
 pub use bus::{EventBus, EventHandler, PublishOutcome, SubscriptionId};
 pub use delivery::{DeliveryOutcome, OutboxDispatcher, RecordingTransport};
