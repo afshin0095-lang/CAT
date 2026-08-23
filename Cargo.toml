@@ -12,6 +12,7 @@ members = [
     "core/planning/rust",
     "core/orchestrator/rust",
     "core/platform/rust",
+    "core/affiliate/rust",
 ]
 
 [workspace.package]
