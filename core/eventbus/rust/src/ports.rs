@@ -20,6 +20,12 @@ pub trait InboxStore: Send + Sync {
     fn accept(&mut self, event_id: uuid::Uuid) -> EventBusResult<bool>;
     fn mark_succeeded(&mut self, event_id: uuid::Uuid) -> EventBusResult<()>;
     fn mark_failed(&mut self, event_id: uuid::Uuid) -> EventBusResult<()>;
+
+    /// Returns the current consumer-side delivery state when the implementation exposes it.
+    /// The default keeps existing external implementations source-compatible.
+    fn state(&self, _event_id: uuid::Uuid) -> Option<DeliveryState> {
+        None
+    }
 }
 
 /// Broker/transport boundary. The EventBus remains independent of NATS/Kafka/Redis/etc.
