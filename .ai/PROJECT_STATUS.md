@@ -61,15 +61,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Platform Adapter Layer — concrete provider-neutral core adapters and default registry
+**Current Task:** Platform Integration Core — typed cross-core execution boundary
 
 **Document:** `core/platform/rust/src/core_adapters.rs`
 
-**Status:** 9 core-target adapters implemented at the platform boundary; operation allowlists, context propagation, target ownership preservation, and composition-root registry wiring added
+**Status:** Typed core-command variants, target-safe routing, shared integration context propagation, typed responses, and composition-root exports implemented without transferring domain ownership into the platform layer.
 
 # Next Task
 
-Platform Integration Core — replace boundary-dispatch responses with typed cross-core execution paths and integration tests while preserving domain ownership
+Wire typed execution into the concrete core APIs and add cross-core integration tests while preserving target ownership, correlation/causation propagation, and platform boundary invariants.
 
 # Next Tasks
 
@@ -83,7 +83,7 @@ Platform Integration Core — replace boundary-dispatch responses with typed cro
 8. Planning Core — foundation implementation completed
 9. Orchestrator / Workflow Core — durable workflow state, leases, scheduling, retries, compensation, and public workflow API completed
 10. Retrieval Core — provider-neutral chunk/index/retrieval/ranking foundation completed
-11. Platform Integration Core — composition boundary and cross-core context foundation completed
+11. Platform Integration Core — typed cross-core execution boundary implemented; concrete core wiring next
 12. Platform Adapter Layer — concrete adapters implemented; typed execution wiring next
 
 # Development Rules
@@ -105,7 +105,7 @@ Phase A Documentation
 
 Implementation
 
-█████████████░░░░░░░ 47% — concrete platform adapter layer implemented
+██████████████░░░░░░ 48% — typed platform integration boundary implemented
 
 Overall Repository
 
