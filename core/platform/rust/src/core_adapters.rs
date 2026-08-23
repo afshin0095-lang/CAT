@@ -1,5 +1,10 @@
-use crate::{AdapterRequest, AdapterResponse, AdapterRegistry, IntegrationTarget, PlatformAdapter, PlatformError, PlatformResult};
-use serde_json::json;
+use crate::{
+    AdapterRequest, AdapterResponse, AdapterRegistry, IntegrationContext, IntegrationTarget,
+    PlatformAdapter, PlatformError, PlatformResult,
+};
+use serde::{Deserialize, Serialize};
+use serde_json::{json, Value};
+use uuid::Uuid;
 
 /// A concrete adapter at the platform boundary.
 ///
@@ -60,6 +65,143 @@ impl PlatformAdapter for CoreAdapter {
                 "input": request.payload,
             }),
         })
+    }
+}
+
+/// Typed platform invocation contract.
+///
+/// These variants intentionally carry the shared integration context and a JSON payload rather
+/// than recreating domain objects inside the platform crate. The platform owns routing and
+/// cross-core context; each target core remains the owner of its domain request schema.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum TypedCoreCommand {
+    EventBus(CoreCommand),
+    Knowledge(CoreCommand),
+    Memory(CoreCommand),
+    Llm(CoreCommand),
+    Reasoning(CoreCommand),
+    Decision(CoreCommand),
+    Planning(CoreCommand),
+    Orchestrator(CoreCommand),
+    Retrieval(CoreCommand),
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct CoreCommand {
+    pub command_id: Uuid,
+    pub operation: String,
+    pub context: IntegrationContext,
+    pub payload: Value,
+}
+
+impl CoreCommand {
+    pub fn new(
+        command_id: Uuid,
+        operation: impl Into<String>,
+        context: IntegrationContext,
+        payload: Value,
+    ) -> Self {
+        Self { command_id, operation: operation.into(), context, payload }
+    }
+
+    pub fn target(&self) -> IntegrationTarget {
+        unreachable!("target is supplied by the TypedCoreCommand variant")
+    }
+}
+
+impl TypedCoreCommand {
+    pub fn target(&self) -> IntegrationTarget {
+        match self {
+            Self::EventBus(_) => IntegrationTarget::EventBus,
+            Self::Knowledge(_) => IntegrationTarget::Knowledge,
+            Self::Memory(_) => IntegrationTarget::Memory,
+            Self::Llm(_) => IntegrationTarget::Llm,
+            Self::Reasoning(_) => IntegrationTarget::Reasoning,
+            Self::Decision(_) => IntegrationTarget::Decision,
+            Self::Planning(_) => IntegrationTarget::Planning,
+            Self::Orchestrator(_) => IntegrationTarget::Orchestrator,
+            Self::Retrieval(_) => IntegrationTarget::Retrieval,
+        }
+    }
+
+    fn command(&self) -> &CoreCommand {
+        match self {
+            Self::EventBus(command)
+            | Self::Knowledge(command)
+            | Self::Memory(command)
+            | Self::Llm(command)
+            | Self::Reasoning(command)
+            | Self::Decision(command)
+            | Self::Planning(command)
+            | Self::Orchestrator(command)
+            | Self::Retrieval(command) => command,
+        }
+    }
+
+    pub fn into_request(self) -> AdapterRequest {
+        let target = self.target();
+        let command = self.command().clone();
+        AdapterRequest {
+            command_id: command.command_id,
+            target,
+            operation: command.operation,
+            context: command.context,
+            payload: command.payload,
+        }
+    }
+}
+
+/// Typed result returned by the platform composition boundary.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct TypedCoreResponse {
+    pub request_id: Uuid,
+    pub target: IntegrationTarget,
+    pub operation: String,
+    pub accepted: bool,
+    pub payload: Value,
+}
+
+impl From<AdapterResponse> for TypedCoreResponse {
+    fn from(response: AdapterResponse) -> Self {
+        Self {
+            request_id: response.request_id,
+            target: response.target,
+            operation: response.operation,
+            accepted: response.accepted,
+            payload: response.payload,
+        }
+    }
+}
+
+/// Execute a typed cross-core command through the provider-neutral adapter registry.
+///
+/// This is the transition layer between the platform composition root and concrete core APIs.
+/// It preserves target ownership and correlation/causation context while avoiding domain logic
+/// duplication in the platform crate.
+pub fn execute_typed(
+    registry: &AdapterRegistry,
+    command: TypedCoreCommand,
+) -> PlatformResult<TypedCoreResponse> {
+    let target = command.target();
+    let request = command.into_request();
+    let adapter_name = adapter_name(target);
+
+    registry
+        .execute(adapter_name, &request)
+        .map(TypedCoreResponse::from)
+}
+
+fn adapter_name(target: IntegrationTarget) -> &'static str {
+    match target {
+        IntegrationTarget::EventBus => "eventbus",
+        IntegrationTarget::Knowledge => "knowledge",
+        IntegrationTarget::Memory => "memory",
+        IntegrationTarget::Llm => "llm",
+        IntegrationTarget::Reasoning => "reasoning",
+        IntegrationTarget::Decision => "decision",
+        IntegrationTarget::Planning => "planning",
+        IntegrationTarget::Orchestrator => "orchestrator",
+        IntegrationTarget::Retrieval => "retrieval",
     }
 }
 
@@ -160,16 +302,48 @@ mod tests {
     }
 
     #[test]
-    fn unsupported_operation_is_rejected_at_boundary() {
+    fn typed_command_selects_target_from_variant() {
+        let command = TypedCoreCommand::Decision(CoreCommand::new(
+            Uuid::now_v7(),
+            "decide",
+            IntegrationContext::new("platform-test"),
+            json!({"objective":"test"}),
+        ));
+        assert_eq!(command.target(), IntegrationTarget::Decision);
+        assert_eq!(command.command().operation, "decide");
+    }
+
+    #[test]
+    fn typed_execution_preserves_correlation_and_target() {
         let registry = default_core_adapter_registry().unwrap();
-        let command = IntegrationCommand::new(
-            IntegrationTarget::Memory,
+        let context = IntegrationContext::new("platform-test");
+        let correlation_id = context.correlation_id;
+        let command = TypedCoreCommand::Planning(CoreCommand::new(
+            Uuid::now_v7(),
+            "validate_plan",
+            context,
+            json!({"plan_id":"p-1"}),
+        ));
+
+        let response = execute_typed(&registry, command).unwrap();
+        assert!(response.accepted);
+        assert_eq!(response.target, IntegrationTarget::Planning);
+        assert_eq!(response.payload["correlation_id"], json!(correlation_id));
+        assert_eq!(response.payload["domain_owner"], json!("planning"));
+    }
+
+    #[test]
+    fn typed_execution_rejects_disallowed_operation() {
+        let registry = default_core_adapter_registry().unwrap();
+        let command = TypedCoreCommand::Memory(CoreCommand::new(
+            Uuid::now_v7(),
             "publish_money",
             IntegrationContext::new("platform-test"),
-        );
-        let request = AdapterRequest::from_command(command, json!({}));
+            json!({}),
+        ));
+
         assert!(matches!(
-            registry.execute("memory", &request),
+            execute_typed(&registry, command),
             Err(PlatformError::InvalidCommand(_))
         ));
     }
