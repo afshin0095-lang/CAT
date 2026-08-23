@@ -65,11 +65,11 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** LLM / AI Core P0 foundation — provider-neutral generation contracts, model routing, safety classification, usage accounting, and deterministic local execution
+**Current Task:** LLM / AI Core P1 provider adapter layer — HTTP transport boundary, OpenAI-compatible adapter, Anthropic adapter, provider authentication, response normalization, and adapter contract tests
 
 **Document:** `core/llm/rust/`
 
-**Status:** Stage completed — 9 implementation/test/workspace files added or updated
+**Status:** Stage completed — provider adapters and transport boundary implemented and contract-tested
 
 # Next Task
 
@@ -82,7 +82,7 @@ Reasoning Core implementation, followed by Decision Core, Planning Core, and Orc
 1. Core Event Bus — foundation implementation complete; hardening history preserved
 2. PostgreSQL Event Store — durable implementation + projection checkpoint foundation complete; integration history preserved
 3. Knowledge Core — traversal + evidence validation stage completed
-4. LLM / AI Core — P0 foundation completed
+4. LLM / AI Core — P0 foundation + P1 provider adapter layer completed
 5. Memory Core — P0 foundation completed
 6. Reasoning Core
 7. Decision Core
@@ -113,14 +113,8 @@ Phase A Documentation
 
 Implementation
 
-██████░░░░░░░░░░░░░░ 30% — core foundation progressing
+███████░░░░░░░░░░░░░ 31% — core foundation progressing
 
 Overall Repository
 
 ███████████████████░░ 77% — architecture/documentation complete; implementation active
-
----
-
-# Last Update
-
-2026-08-23 — LLM / AI Core P0 implementation stage completed. Added provider-neutral model and generation contracts, safety classification, routing policy, usage accounting, stable error boundaries, deterministic local provider execution, crate documentation, invariant tests, and workspace registration. Model output remains derived/untrusted intelligence and never becomes canonical domain truth. Next step: Reasoning Core foundation.
