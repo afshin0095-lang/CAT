@@ -1,4 +1,4 @@
-use crate::{Affiliate, AffiliateId, CommissionObligation, CommissionObligationId, Conversion, ConversionId, Merchant, MerchantId, Offer, OfferId, Product, ProductId, Program, ProgramId, Referral, ReferralId, AffiliateDomainError, AffiliateDomainResult};
+use crate::{Affiliate, AffiliateId, CommissionObligation, CommissionObligationId, Conversion, ConversionId, Merchant, MerchantId, Offer, OfferId, Product, ProductId, Program, ProgramId, Referral, ReferralId, AffiliateDomainResult};
 
 pub trait AffiliateRepository {
     fn save_merchant(&mut self, merchant: Merchant) -> AffiliateDomainResult<()>;
@@ -17,8 +17,4 @@ pub trait AffiliateRepository {
     fn conversion(&self, id: ConversionId) -> AffiliateDomainResult<Conversion>;
     fn save_commission_obligation(&mut self, obligation: CommissionObligation) -> AffiliateDomainResult<()>;
     fn commission_obligation(&self, id: CommissionObligationId) -> AffiliateDomainResult<CommissionObligation>;
-}
-
-pub(crate) fn not_found(entity: &'static str) -> AffiliateDomainError {
-    AffiliateDomainError::RepositoryNotFound(entity)
 }

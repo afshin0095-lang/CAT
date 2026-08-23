@@ -23,8 +23,10 @@ fn duplicate_and_missing_records_are_rejected() {
     repo.save_merchant(merchant.clone()).unwrap();
     assert_eq!(repo.save_merchant(merchant), Err(cat_affiliate::AffiliateDomainError::RepositoryConflict));
 
-    let missing = cat_affiliate::MerchantId(uuid::Uuid::now_v7());
-    assert_eq!(repo.merchant(missing), Err(cat_affiliate::AffiliateDomainError::RepositoryNotFound("merchant")));
+    assert_eq!(
+        repo.merchant(cat_affiliate::MerchantId::nil()),
+        Err(cat_affiliate::AffiliateDomainError::RepositoryNotFound("merchant"))
+    );
 }
 
 #[test]

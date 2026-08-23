@@ -7,6 +7,10 @@ pub struct AffiliateId(pub Uuid);
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct MerchantId(pub Uuid);
 
+impl MerchantId {
+    pub const fn nil() -> Self { Self(Uuid::nil()) }
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct ProgramId(pub Uuid);
 
