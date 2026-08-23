@@ -1,0 +1,19 @@
+[package]
+name = "cat-platform"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "CAT platform integration boundary and cross-core runtime composition"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+cat-decision = { path = "../../decision/rust" }
+cat-eventbus = { path = "../../eventbus/rust" }
+cat-orchestrator = { path = "../../orchestrator/rust" }
+cat-planning = { path = "../../planning/rust" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+uuid = { version = "1", features = ["v7", "serde"] }
