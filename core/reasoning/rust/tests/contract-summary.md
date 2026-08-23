@@ -1,0 +1,1 @@
+Reasoning core contracts cover validation, authority weighting, stable ordering, advisory-only results, and step-budget enforcement.
