@@ -25,7 +25,7 @@
 
 ## Phase B
 
-Core implementation · Rust foundations · Event Bus · Event Store · Knowledge Graph · Memory Core · LLM / AI Core · Reasoning Core · Integration contracts
+Core implementation · Rust foundations · Event Bus · Event Store · Knowledge Graph · Memory Core · LLM / AI Core · Reasoning Core · Decision Core · Integration contracts
 
 **Status:** Active Development
 
@@ -65,17 +65,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Reasoning Core P1 deterministic evidence-reasoning layer — request/evidence/hypothesis model, safety policy, deterministic aggregation engine, immutable reasoning trace, workspace integration, and contract tests
+**Current Task:** Planning Core foundation — typed plans, ordered steps, dependency graph, deterministic validation, execution readiness, and immutable planning trace
 
-**Document:** `core/reasoning/rust/`
+**Document:** `core/planning/rust/`
 
-**Status:** Stage completed — deterministic reasoning foundation implemented and contract-tested
+**Status:** Decision Core foundation completed and contract-tested
 
 # Next Task
 
-Decision Core implementation, followed by Planning Core and Orchestrator / Workflow Core.
-
----
+Planning Core implementation, followed by Orchestrator / Workflow Core.
 
 # Next Tasks
 
@@ -85,7 +83,7 @@ Decision Core implementation, followed by Planning Core and Orchestrator / Workf
 4. LLM / AI Core — P0 foundation + P1 provider adapter layer completed
 5. Memory Core — P0 foundation completed
 6. Reasoning Core — P1 deterministic evidence reasoning foundation completed
-7. Decision Core
+7. Decision Core — deterministic policy-gated decision foundation completed
 8. Planning Core
 9. Orchestrator / Workflow Core
 10. Integration and platform layers
@@ -113,7 +111,7 @@ Phase A Documentation
 
 Implementation
 
-████████░░░░░░░░░░░░ 34% — core foundation progressing
+█████████░░░░░░░░░░░ 36% — core foundation progressing
 
 Overall Repository
 
