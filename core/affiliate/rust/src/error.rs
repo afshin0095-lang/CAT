@@ -24,6 +24,10 @@ pub enum AffiliateDomainError {
     CommissionableExceedsNet,
     #[error("commission obligation is invalid")]
     InvalidCommissionObligation,
+    #[error("repository already contains this canonical entity")]
+    RepositoryConflict,
+    #[error("repository record not found: {0}")]
+    RepositoryNotFound(&'static str),
 }
 
 pub type AffiliateDomainResult<T> = Result<T, AffiliateDomainError>;
