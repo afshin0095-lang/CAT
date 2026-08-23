@@ -13,13 +13,13 @@ pub(crate) struct HttpLlmClient {
 impl HttpLlmClient {
     pub(crate) fn new(base_url: impl Into<String>, api_key: impl Into<String>) -> Result<Self, LlmError> {
         let base_url = base_url.into().trim_end_matches('/').to_owned();
-        if base_url.is_empty() {
-            return Err(LlmError::Configuration("LLM base URL cannot be empty".to_owned()));
-        }
-        if api_key.into().is_empty() {
-            return Err(LlmError::Configuration("LLM API key cannot be empty".to_owned()));
-        }
         let api_key = api_key.into();
+        if base_url.is_empty() {
+            return Err(LlmError::InvalidRequest("LLM base URL cannot be empty".to_owned()));
+        }
+        if api_key.is_empty() {
+            return Err(LlmError::InvalidRequest("LLM API key cannot be empty".to_owned()));
+        }
         Ok(Self { client: Client::new(), base_url, api_key })
     }
 
@@ -34,16 +34,16 @@ impl HttpLlmClient {
             .json(&body)
             .send()
             .await
-            .map_err(|error| LlmError::Transport(error.to_string()))?;
+            .map_err(|error| LlmError::ProviderFailure(error.to_string()))?;
 
         let status = response.status();
         let body = response
             .json::<Value>()
             .await
-            .map_err(|error| LlmError::Transport(error.to_string()))?;
+            .map_err(|error| LlmError::ProviderFailure(error.to_string()))?;
 
         if status != StatusCode::OK {
-            return Err(LlmError::Provider { status: status.as_u16(), message: body.to_string() });
+            return Err(LlmError::ProviderRejected(format!("HTTP {}: {}", status, body)));
         }
         Ok(body)
     }
