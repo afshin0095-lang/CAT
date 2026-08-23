@@ -1,5 +1,5 @@
 use crate::{Hypothesis, ReasoningError, ReasoningPolicy, ReasoningRequest, ReasoningResult, ReasoningStep};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use uuid::Uuid;
 
 #[derive(Clone, Debug, Default)]
@@ -17,7 +17,7 @@ impl DeterministicReasoningEngine {
 
         let mut steps = Vec::new();
         let mut hypotheses = Vec::new();
-        let mut support_by_statement: HashMap<String, (f32, f32, Vec<Uuid>)> = HashMap::new();
+        let mut support_by_statement: BTreeMap<String, (f32, f32, Vec<Uuid>)> = BTreeMap::new();
 
         for evidence in &request.evidence {
             let key = evidence.statement.trim().to_lowercase();
@@ -59,7 +59,7 @@ impl DeterministicReasoningEngine {
         hypotheses.sort_by(|a, b| {
             let ca = a.support / (a.support + a.contradiction).max(f32::EPSILON);
             let cb = b.support / (b.support + b.contradiction).max(f32::EPSILON);
-            cb.total_cmp(&ca)
+            cb.total_cmp(&ca).then_with(|| a.statement.cmp(&b.statement))
         });
 
         let top = hypotheses.first().ok_or(ReasoningError::EmptyEvidence)?;
