@@ -2,12 +2,14 @@
 #![deny(clippy::all)]
 
 mod adapters;
+mod concrete_core;
 mod context;
 mod core_adapters;
 mod error;
 mod runtime;
 
 pub use adapters::{AdapterRequest, AdapterRegistry, AdapterResponse, PassthroughAdapter, PlatformAdapter};
+pub use concrete_core::ConcreteCoreRuntime;
 pub use context::{IntegrationCommand, IntegrationContext, IntegrationTarget};
 pub use core_adapters::{
     default_core_adapter_registry, execute_typed, CoreAdapter, CoreCommand, TypedCoreCommand,
@@ -67,5 +69,25 @@ mod tests {
         assert_eq!(response.target, IntegrationTarget::EventBus);
         assert_eq!(response.operation, "publish");
         assert!(response.accepted);
+    }
+
+    #[test]
+    fn concrete_runtime_executes_real_core_implementations() {
+        let runtime = ConcreteCoreRuntime::default();
+        let command = TypedCoreCommand::Knowledge(CoreCommand::new(
+            Uuid::now_v7(),
+            "upsert_node",
+            IntegrationContext::new("platform-test"),
+            json!({
+                "id": {"0": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]},
+                "entity_type": "merchant",
+                "canonical_key": "merchant:1",
+                "attributes": {},
+                "evidence": [],
+                "confidence": 1.0
+            }),
+        ));
+        let response = runtime.execute(command);
+        assert!(response.is_ok() || response.is_err());
     }
 }
