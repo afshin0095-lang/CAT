@@ -25,7 +25,7 @@
 
 ## Phase B
 
-Core implementation · Rust foundations · Event Bus · Event Store · Knowledge Graph · Memory Core · LLM / AI Core · Reasoning Core · Decision Core · Integration contracts
+Core implementation · Rust foundations · Event Bus · Event Store · Knowledge Graph · Memory Core · LLM / AI Core · Reasoning Core · Decision Core · Planning Core · Integration contracts
 
 **Status:** Active Development
 
@@ -69,11 +69,11 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 **Document:** `core/planning/rust/`
 
-**Status:** Decision Core foundation completed and contract-tested
+**Status:** Foundation implementation completed; contract tests added
 
 # Next Task
 
-Planning Core implementation, followed by Orchestrator / Workflow Core.
+Orchestrator / Workflow Core — durable execution, scheduling, retries, leases, compensation, and workflow state
 
 # Next Tasks
 
@@ -84,7 +84,7 @@ Planning Core implementation, followed by Orchestrator / Workflow Core.
 5. Memory Core — P0 foundation completed
 6. Reasoning Core — P1 deterministic evidence reasoning foundation completed
 7. Decision Core — deterministic policy-gated decision foundation completed
-8. Planning Core
+8. Planning Core — foundation implementation completed
 9. Orchestrator / Workflow Core
 10. Integration and platform layers
 
@@ -111,7 +111,7 @@ Phase A Documentation
 
 Implementation
 
-█████████░░░░░░░░░░░ 36% — core foundation progressing
+██████████░░░░░░░░░░ 38% — planning foundation progressing
 
 Overall Repository
 
