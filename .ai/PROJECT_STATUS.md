@@ -25,7 +25,7 @@
 
 ## Phase B
 
-Core implementation · Rust foundations · Event Bus · Event Store · Knowledge Graph · Memory Core · LLM / AI Core · Integration contracts
+Core implementation · Rust foundations · Event Bus · Event Store · Knowledge Graph · Memory Core · LLM / AI Core · Reasoning Core · Integration contracts
 
 **Status:** Active Development
 
@@ -65,15 +65,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** LLM / AI Core P1 provider adapter layer — HTTP transport boundary, OpenAI-compatible adapter, Anthropic adapter, provider authentication, response normalization, and adapter contract tests
+**Current Task:** Reasoning Core P1 deterministic evidence-reasoning layer — request/evidence/hypothesis model, safety policy, deterministic aggregation engine, immutable reasoning trace, workspace integration, and contract tests
 
-**Document:** `core/llm/rust/`
+**Document:** `core/reasoning/rust/`
 
-**Status:** Stage completed — provider adapters and transport boundary implemented and contract-tested
+**Status:** Stage completed — deterministic reasoning foundation implemented and contract-tested
 
 # Next Task
 
-Reasoning Core implementation, followed by Decision Core, Planning Core, and Orchestrator / Workflow Core.
+Decision Core implementation, followed by Planning Core and Orchestrator / Workflow Core.
 
 ---
 
@@ -84,7 +84,7 @@ Reasoning Core implementation, followed by Decision Core, Planning Core, and Orc
 3. Knowledge Core — traversal + evidence validation stage completed
 4. LLM / AI Core — P0 foundation + P1 provider adapter layer completed
 5. Memory Core — P0 foundation completed
-6. Reasoning Core
+6. Reasoning Core — P1 deterministic evidence reasoning foundation completed
 7. Decision Core
 8. Planning Core
 9. Orchestrator / Workflow Core
@@ -113,7 +113,7 @@ Phase A Documentation
 
 Implementation
 
-███████░░░░░░░░░░░░░ 31% — core foundation progressing
+████████░░░░░░░░░░░░ 34% — core foundation progressing
 
 Overall Repository
 
