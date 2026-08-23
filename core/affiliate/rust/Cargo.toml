@@ -1,0 +1,15 @@
+[package]
+name = "cat-affiliate"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "CAT OMNISYSTEM canonical affiliate-domain model"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+cat-kernel = { path = "../../kernel/rust" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v7", "serde"] }
