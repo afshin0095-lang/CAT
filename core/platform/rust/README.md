@@ -31,7 +31,7 @@ The platform layer must never silently become the owner of monetary truth, affil
 
 ## Design reference
 
-The transport boundary remains compatible with the existing Event Bus design. NATS/JetStream is appropriate for the durable messaging layer because it provides persistence, replay, acknowledgement, deduplication, and clustered high availability, while the platform crate remains broker-neutral at the composition level. urlNATS architecture referencehttps://nats.io/about/
+The transport boundary remains compatible with the existing Event Bus design. NATS/JetStream is appropriate for the durable messaging layer because it provides persistence, replay, acknowledgement, deduplication, and clustered high availability, while the platform crate remains broker-neutral at the composition level. See the official NATS architecture documentation for the transport-level model.
 
 ## Verification
 
