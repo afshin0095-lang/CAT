@@ -8,6 +8,7 @@ members = [
     "core/memory/rust",
     "core/llm/rust",
     "core/reasoning/rust",
+    "core/decision/rust",
 ]
 
 [workspace.package]
