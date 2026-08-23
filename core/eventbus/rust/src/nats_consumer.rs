@@ -1,11 +1,11 @@
 use crate::{
-    consumer::DeliveryState,
-    AsyncEventHandler,
     DeadLetterStore,
+    DeliveryState,
     EventBusError,
     EventBusResult,
     EventEnvelope,
     InboxStore,
+    InMemoryDeadLetterStore,
 };
 use async_nats::jetstream::{consumer, AckKind, Context};
 use async_trait::async_trait;
@@ -97,8 +97,8 @@ pub struct NatsConsumerStats {
 ///
 /// JetStream remains at-least-once: pull consumers require explicit acknowledgements,
 /// and unacknowledged messages are redelivered. CAT therefore records application
-/// success in the inbox before acknowledging the broker delivery. citeturn1search3turn1search4
-pub struct NatsJetStreamConsumer<I, D = crate::InMemoryDeadLetterStore> {
+/// success in the inbox before acknowledging the broker delivery.
+pub struct NatsJetStreamConsumer<I, D = InMemoryDeadLetterStore> {
     context: Context,
     stream_name: String,
     config: NatsConsumerConfig,
@@ -107,14 +107,23 @@ pub struct NatsJetStreamConsumer<I, D = crate::InMemoryDeadLetterStore> {
     stats: NatsConsumerStats,
 }
 
-impl<I> NatsJetStreamConsumer<I> {
+impl<I> NatsJetStreamConsumer<I, InMemoryDeadLetterStore>
+where
+    I: InboxStore,
+{
     pub fn new(
         context: Context,
         stream_name: impl Into<String>,
         config: NatsConsumerConfig,
         inbox: I,
     ) -> Self {
-        Self::with_dead_letters(context, stream_name, config, inbox, D::default())
+        Self::with_dead_letters(
+            context,
+            stream_name,
+            config,
+            inbox,
+            InMemoryDeadLetterStore::default(),
+        )
     }
 }
 
@@ -182,12 +191,11 @@ where
             .map_err(|error| EventBusError::TransportUnavailable(error.to_string()))
     }
 
-    /// Process up to `batch_size` messages and return the number consumed.
+    /// Process up to `batch_size` messages.
     ///
-    /// Handler failure follows a strict path:
-    /// `Inbox::RetryScheduled -> NAK(delay) -> redelivery`, and after exhaustion:
-    /// `DLQ park -> TERM`. A DLQ write failure never TERM-acks the message, so the
-    /// broker can redeliver it instead of silently losing it.
+    /// Handler failure follows:
+    /// `RetryScheduled -> NAK(delay) -> redelivery`, then after exhaustion:
+    /// `DLQ park -> TERM`. A DLQ write failure never TERM-acks the message.
     pub async fn process_batch<H>(&mut self, handler: &H) -> EventBusResult<usize>
     where
         H: AsyncEventHandler,
@@ -207,10 +215,7 @@ where
                 .map_err(|error| EventBusError::TransportUnavailable(error.to_string()))?;
             self.stats.received += 1;
 
-            let delivered = message
-                .info()
-                .map(|info| info.delivered)
-                .unwrap_or(1);
+            let delivered = message.info().map(|info| info.delivered).unwrap_or(1);
 
             let event: EventEnvelope = match serde_json::from_slice(&message.payload) {
                 Ok(event) => event,
@@ -224,8 +229,6 @@ where
                 }
             };
 
-            // A successful duplicate is safe to ACK. An in-flight duplicate must not
-            // be ACKed, because doing so could suppress the retry of the original worker.
             if !self.inbox.accept(event.event_id)? {
                 match self.inbox.state(event.event_id) {
                     Some(DeliveryState::Succeeded) | Some(DeliveryState::DeadLettered) | None => {
@@ -251,8 +254,7 @@ where
                 Ok(()) => {
                     self.inbox.mark_succeeded(event.event_id)?;
                     // The broker ACK is deliberately last: application success is recorded
-                    // before JetStream advances its acknowledgement floor. JetStream's
-                    // double_ack waits for broker confirmation. citeturn1search4turn3view0
+                    // before JetStream advances its acknowledgement floor.
                     message
                         .double_ack()
                         .await
@@ -268,11 +270,12 @@ where
                         if self.config.retry.dead_letter_on_exhaustion {
                             self.dead_letters.park(
                                 event.clone(),
-                                format!("handler failure after {delivered} delivery attempts: {error}"),
+                                format!(
+                                    "handler failure after {delivered} delivery attempts: {error}"
+                                ),
                             )?;
                         }
 
-                        self.inbox.mark_failed(event.event_id)?;
                         message
                             .ack_with(AckKind::Term)
                             .await
