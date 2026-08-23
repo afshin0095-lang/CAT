@@ -103,10 +103,6 @@ impl CoreCommand {
     ) -> Self {
         Self { command_id, operation: operation.into(), context, payload }
     }
-
-    pub fn target(&self) -> IntegrationTarget {
-        unreachable!("target is supplied by the TypedCoreCommand variant")
-    }
 }
 
 impl TypedCoreCommand {
