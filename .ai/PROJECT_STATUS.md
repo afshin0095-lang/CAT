@@ -25,7 +25,7 @@
 
 ## Phase B
 
-Core implementation · Rust foundations · Event Bus · Event Store · Knowledge Graph · Integration contracts
+Core implementation · Rust foundations · Event Bus · Event Store · Knowledge Graph · Memory Core · Integration contracts
 
 **Status:** Active Development
 
@@ -65,25 +65,25 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Knowledge Core implementation — graph traversal, evidence-aware validation, and invariant tests
+**Current Task:** Memory Core P0 foundation — governed memory objects, identity, provenance, consent, retention, lifecycle validation, and deterministic local store
 
-**Document:** `core/knowledge/rust/`
+**Document:** `core/memory/rust/`
 
-**Status:** Stage completed — 4 implementation/test files added or updated
+**Status:** Stage completed — 8 implementation/test/workspace files added or updated
 
 # Next Task
 
-Continue the Core Implementation sequence with the next missing knowledge/runtime integration layer, preserving canonical-truth vs derived-intelligence boundaries and existing Rust workspace contracts.
+LLM / AI Core implementation, followed by Reasoning Core, Decision Core, Planning Core, and Orchestrator / Workflow Core.
 
 ---
 
 # Next Tasks
 
-1. Core Event Bus — implementation underway
-2. PostgreSQL Event Store — implementation underway
-3. Knowledge Core — traversal + validation stage completed
+1. Core Event Bus — foundation implementation complete; hardening history preserved
+2. PostgreSQL Event Store — durable implementation + projection checkpoint foundation complete; integration history preserved
+3. Knowledge Core — traversal + evidence validation stage completed
 4. LLM / AI Core
-5. Memory Core
+5. Memory Core — P0 foundation completed
 6. Reasoning Core
 7. Decision Core
 8. Planning Core
@@ -113,14 +113,14 @@ Phase A Documentation
 
 Implementation
 
-████░░░░░░░░░░░░░░░░░ 20% — Core foundation underway
+█████░░░░░░░░░░░░░░░░ 25% — core foundation progressing
 
 Overall Repository
 
-█████████████████░░░░ 75% — architecture/documentation complete; implementation active
+██████████████████░░░ 76% — architecture/documentation complete; implementation active
 
 ---
 
 # Last Update
 
-2026-08-23 — Knowledge Core implementation stage completed. Added derived breadth-first graph traversal and relation-scoped traversal, bidirectional neighbor discovery, evidence-aware node/edge validation, and integration tests covering canonical identity deduplication, endpoint integrity, traversal behavior, evidence requirements, and self-relation rejection. Existing knowledge model/store contracts were preserved. Next step is the next core runtime/integration layer.
+2026-08-23 — Memory Core P0 implementation stage completed. Added the governed memory object model, typed classification and lifecycle state, provenance/consent/retention contracts, policy authorization, deterministic in-memory storage, validation helpers, and invariant tests. Registered `core/memory/rust/` in the workspace. The implementation preserves the Memory System boundary that memory is governed state and never a substitute for canonical domain truth. Next step: LLM / AI Core foundation.

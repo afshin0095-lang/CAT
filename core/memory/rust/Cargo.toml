@@ -1,0 +1,18 @@
+[package]
+name = "cat-memory"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Governed CAT memory object model, policy boundaries, deterministic in-memory store, and validation contracts"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+uuid = { version = "1", features = ["v7", "serde"] }
+
+[dev-dependencies]
+serde_json = "1"
