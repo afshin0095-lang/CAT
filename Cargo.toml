@@ -10,6 +10,7 @@ members = [
     "core/reasoning/rust",
     "core/decision/rust",
     "core/planning/rust",
+    "core/orchestrator/rust",
 ]
 
 [workspace.package]
