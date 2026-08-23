@@ -292,3 +292,51 @@ fn outbox_retry_policy_transitions_to_dead_letter() {
     assert!(matches!(cat_eventbus::OutboxStore::fail(&mut outbox, id, 1, &policy).unwrap(), cat_eventbus::DeliveryState::RetryScheduled));
     assert!(matches!(cat_eventbus::OutboxStore::fail(&mut outbox, id, 2, &policy).unwrap(), cat_eventbus::DeliveryState::DeadLettered));
 }
+
+#[test]
+fn envelope_json_round_trip_preserves_wire_contract() {
+    let correlation_id = Uuid::now_v7();
+    let causation_id = Uuid::now_v7();
+    let subject_id = cat_kernel::EntityId::new();
+    let original = envelope(Uuid::now_v7(), "affiliate.conversion_recorded", 3)
+        .with_kind(EventKind::Integration)
+        .with_correlation_id(correlation_id)
+        .with_causation_id(causation_id)
+        .with_subject_id(subject_id);
+
+    let encoded = serde_json::to_vec(&original).unwrap();
+    let decoded: EventEnvelope = serde_json::from_slice(&encoded).unwrap();
+
+    assert_eq!(decoded.event_id, original.event_id);
+    assert_eq!(decoded.event_type, original.event_type);
+    assert_eq!(decoded.version, original.version);
+    assert_eq!(decoded.kind, original.kind);
+    assert_eq!(decoded.occurred_at_ms, original.occurred_at_ms);
+    assert_eq!(decoded.producer, original.producer);
+    assert_eq!(decoded.correlation_id, Some(correlation_id));
+    assert_eq!(decoded.causation_id, Some(causation_id));
+    assert_eq!(decoded.subject_id, Some(subject_id));
+    assert_eq!(decoded.payload, original.payload);
+}
+
+#[test]
+fn envelope_json_uses_stable_snake_case_event_kind() {
+    let encoded = serde_json::to_value(EventEnvelope {
+        event_id: Uuid::now_v7(),
+        event_type: "test.kind".into(),
+        version: 1,
+        kind: EventKind::Integration,
+        occurred_at_ms: 7,
+        producer: "test".into(),
+        correlation_id: None,
+        causation_id: None,
+        subject_id: None,
+        payload: serde_json::json!({"value": true}),
+    })
+    .unwrap();
+
+    assert_eq!(encoded["kind"], "integration");
+    assert_eq!(encoded["event_type"], "test.kind");
+    assert_eq!(encoded["version"], 1);
+    assert_eq!(encoded["payload"]["value"], true);
+}
