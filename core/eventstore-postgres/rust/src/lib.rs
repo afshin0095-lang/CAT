@@ -1,6 +1,6 @@
 use cat_kernel::{EventEnvelope, ExpectedVersion, IdempotencyKey, SequenceNumber};
 use serde::{de::DeserializeOwned, Serialize};
-use sqlx::{postgres::PgPoolOptions, PgPool, Row};
+use sqlx::{migrate::Migrator, postgres::PgPoolOptions, PgPool, Row};
 use thiserror::Error;
 
 mod checkpoint;
@@ -12,6 +12,8 @@ pub use checkpoint::{CheckpointError, CheckpointResult, PostgresProjectionCheckp
 pub use inbox::PostgresInbox;
 pub use integration::TransactionalEventPublisher;
 pub use outbox::{OutboxRecord, PostgresOutbox};
+
+static MIGRATOR: Migrator = sqlx::migrate!("./migrations");
 
 #[derive(Debug, Error)]
 pub enum PostgresEventStoreError {
@@ -53,10 +55,14 @@ impl PostgresEventStore {
 
     pub fn pool(&self) -> &PgPool { &self.pool }
 
+    /// Applies every checked-in migration in order.
+    ///
+    /// The previous implementation executed a small hand-maintained subset of migration
+    /// files, which made later schema additions easy to omit. The embedded migrator is now
+    /// the single source of truth: adding a migration under `migrations/` automatically
+    /// extends the schema bootstrap path without another code edit.
     pub async fn ensure_schema(&self) -> PostgresEventStoreResult<()> {
-        sqlx::query(include_str!("../migrations/0001_event_store.sql")).execute(&self.pool).await?;
-        sqlx::query(include_str!("../migrations/0010_eventbus_delivery.sql")).execute(&self.pool).await?;
-        sqlx::query(include_str!("../migrations/0020_projection_checkpoints.sql")).execute(&self.pool).await?;
+        MIGRATOR.run(&self.pool).await?;
         Ok(())
     }
 
@@ -129,5 +135,10 @@ mod tests {
     #[test]
     fn durable_adapter_has_a_stable_contract_name() {
         assert_eq!(env!("CARGO_PKG_NAME"), "cat-eventstore-postgres");
+    }
+
+    #[test]
+    fn embedded_migration_catalog_is_not_empty() {
+        assert!(!super::MIGRATOR.migrations.is_empty());
     }
 }
