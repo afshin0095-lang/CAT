@@ -25,7 +25,7 @@
 
 ## Phase B
 
-Core implementation · Rust foundations · Event Bus · Event Store · Knowledge Graph · Memory Core · LLM / AI Core · Reasoning Core · Decision Core · Planning Core · Orchestrator · Retrieval Core · Integration contracts
+Core implementation · Rust foundations · Event Bus · Event Store · Knowledge Graph · Memory Core · LLM / AI Core · Reasoning Core · Decision Core · Planning Core · Orchestrator · Retrieval Core · Platform Integration contracts
 
 **Status:** Active Development
 
@@ -65,15 +65,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Retrieval Core foundation — deterministic document chunking, provenance-preserving retrieval, provider-neutral indexing boundary, deterministic ranking, and in-memory contract implementation
+**Current Task:** Platform Integration Core — cross-core correlation context, integration command contracts, deterministic decision/planning/orchestration composition, and platform boundary validation
 
-**Document:** `core/rag/rust/`
+**Document:** `core/platform/rust/`
 
 **Status:** Foundation implementation completed; contract tests added; workspace registered
 
 # Next Task
 
-Integration and platform layers — connect Event Bus, Knowledge, Memory, LLM, Reasoning, Decision, Planning, Orchestrator, and Retrieval through stable runtime boundaries
+Platform adapter layer — connect the platform boundary to Event Bus, Knowledge, Memory, LLM, Reasoning, Decision, Planning, Orchestrator, and Retrieval without transferring domain ownership
 
 # Next Tasks
 
@@ -87,7 +87,8 @@ Integration and platform layers — connect Event Bus, Knowledge, Memory, LLM, R
 8. Planning Core — foundation implementation completed
 9. Orchestrator / Workflow Core — durable workflow state, leases, scheduling, retries, compensation, and public workflow API completed
 10. Retrieval Core — provider-neutral chunk/index/retrieval/ranking foundation completed
-11. Integration and platform layers
+11. Platform Integration Core — composition boundary and cross-core context foundation completed
+12. Platform Adapter Layer
 
 ---
 
@@ -112,8 +113,8 @@ Phase A Documentation
 
 Implementation
 
-████████████░░░░░░░░ 42% — retrieval foundation progressing
+████████████░░░░░░░░ 44% — platform integration foundation progressing
 
 Overall Repository
 
-███████████████████░░ 78% — architecture/documentation complete; implementation active
+███████████████████░░ 79% — architecture/documentation complete; implementation active
