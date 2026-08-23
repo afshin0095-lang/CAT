@@ -11,6 +11,8 @@ path = "src/lib.rs"
 [dependencies]
 cat-decision = { path = "../../decision/rust" }
 cat-eventbus = { path = "../../eventbus/rust" }
+cat-knowledge = { path = "../../knowledge/rust" }
+cat-memory = { path = "../../memory/rust" }
 cat-orchestrator = { path = "../../orchestrator/rust" }
 cat-planning = { path = "../../planning/rust" }
 serde = { version = "1", features = ["derive"] }
