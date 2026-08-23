@@ -29,8 +29,6 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 **Status:** Active Development
 
----
-
 # Documentation Progress
 
 | File | Status | Progress |
@@ -61,19 +59,17 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 | 18_PROMPTING.md | Not Started | 0% |
 | 19_DEVELOPMENT_GUIDE.md | Not Started | 0% |
 
----
-
 # Active Task
 
-**Current Task:** Platform Adapter Layer — provider-neutral adapter registry and target-safe execution boundary
+**Current Task:** Platform Adapter Layer — concrete provider-neutral core adapters and default registry
 
-**Document:** `core/platform/rust/src/adapters.rs`
+**Document:** `core/platform/rust/src/core_adapters.rs`
 
-**Status:** Adapter registry foundation implemented; target validation and passthrough contract tests added
+**Status:** 9 core-target adapters implemented at the platform boundary; operation allowlists, context propagation, target ownership preservation, and composition-root registry wiring added
 
 # Next Task
 
-Concrete platform adapters — wire Event Bus, Knowledge, Memory, LLM, Reasoning, Decision, Planning, Orchestrator, and Retrieval behind the adapter boundary without transferring domain ownership
+Platform Integration Core — replace boundary-dispatch responses with typed cross-core execution paths and integration tests while preserving domain ownership
 
 # Next Tasks
 
@@ -88,9 +84,7 @@ Concrete platform adapters — wire Event Bus, Knowledge, Memory, LLM, Reasoning
 9. Orchestrator / Workflow Core — durable workflow state, leases, scheduling, retries, compensation, and public workflow API completed
 10. Retrieval Core — provider-neutral chunk/index/retrieval/ranking foundation completed
 11. Platform Integration Core — composition boundary and cross-core context foundation completed
-12. Platform Adapter Layer — registry foundation completed
-
----
+12. Platform Adapter Layer — concrete adapters implemented; typed execution wiring next
 
 # Development Rules
 
@@ -103,8 +97,6 @@ After every completed implementation task:
 
 Never leave this file outdated.
 
----
-
 # Completion Progress
 
 Phase A Documentation
@@ -113,7 +105,7 @@ Phase A Documentation
 
 Implementation
 
-█████████████░░░░░░░ 46% — platform adapter boundary progressing
+█████████████░░░░░░░ 47% — concrete platform adapter layer implemented
 
 Overall Repository
 
