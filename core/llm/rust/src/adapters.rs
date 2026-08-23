@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use serde_json::{json, Value};
 
-use crate::{GenerationRequest, GenerationResponse, LlmError, LlmProvider, Message, ModelId, ProviderId, Role, Usage};
+use crate::{GenerationRequest, GenerationResponse, LlmError, LlmProvider, Message, ProviderId, Role, Usage};
 use crate::http::HttpLlmClient;
 
 #[derive(Clone)]
@@ -27,13 +27,12 @@ impl OpenAiCompatibleProvider {
         let content = body["choices"][0]["message"]["content"]
             .as_str()
             .ok_or_else(|| LlmError::ProviderRejected("OpenAI-compatible response has no choices[0].message.content".to_owned()))?;
-        let usage = usage_from_openai(&body);
         Ok(GenerationResponse {
             request_id: request.request_id,
             provider: self.id(),
             model: request.model.clone(),
             content: content.to_owned(),
-            usage,
+            usage: usage_from_openai(&body),
             finish_reason: body["choices"][0]["finish_reason"].as_str().unwrap_or("stop").to_owned(),
         })
     }
@@ -103,7 +102,7 @@ impl LlmProvider for AnthropicProvider {
     fn id(&self) -> ProviderId { ProviderId::new("anthropic") }
 
     async fn generate(&self, request: GenerationRequest) -> Result<GenerationResponse, LlmError> {
-        let body = self.client.post_json("/v1/messages", Self::request_body(&request)).await?;
+        let body = self.client.post_anthropic("/v1/messages", Self::request_body(&request)).await?;
         self.response_body(&request, body)
     }
 }
@@ -125,6 +124,3 @@ fn usage_from_openai(body: &Value) -> Usage {
     let output_tokens = body["usage"]["completion_tokens"].as_u64().unwrap_or(0);
     Usage { input_tokens, output_tokens, total_tokens: input_tokens + output_tokens }
 }
-
-#[allow(dead_code)]
-fn _keep_model_id_used(model: ModelId) -> ModelId { model }
