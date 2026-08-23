@@ -25,7 +25,7 @@
 
 ## Phase B
 
-Core implementation · Rust foundations · Event Bus · Event Store · Knowledge Graph · Memory Core · LLM / AI Core · Reasoning Core · Decision Core · Planning Core · Integration contracts
+Core implementation · Rust foundations · Event Bus · Event Store · Knowledge Graph · Memory Core · LLM / AI Core · Reasoning Core · Decision Core · Planning Core · Orchestrator · Retrieval Core · Integration contracts
 
 **Status:** Active Development
 
@@ -65,15 +65,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Planning Core foundation — typed plans, ordered steps, dependency graph, deterministic validation, execution readiness, and immutable planning trace
+**Current Task:** Retrieval Core foundation — deterministic document chunking, provenance-preserving retrieval, provider-neutral indexing boundary, deterministic ranking, and in-memory contract implementation
 
-**Document:** `core/planning/rust/`
+**Document:** `core/rag/rust/`
 
-**Status:** Foundation implementation completed; contract tests added
+**Status:** Foundation implementation completed; contract tests added; workspace registered
 
 # Next Task
 
-Orchestrator / Workflow Core — durable execution, scheduling, retries, leases, compensation, and workflow state
+Integration and platform layers — connect Event Bus, Knowledge, Memory, LLM, Reasoning, Decision, Planning, Orchestrator, and Retrieval through stable runtime boundaries
 
 # Next Tasks
 
@@ -85,8 +85,9 @@ Orchestrator / Workflow Core — durable execution, scheduling, retries, leases,
 6. Reasoning Core — P1 deterministic evidence reasoning foundation completed
 7. Decision Core — deterministic policy-gated decision foundation completed
 8. Planning Core — foundation implementation completed
-9. Orchestrator / Workflow Core
-10. Integration and platform layers
+9. Orchestrator / Workflow Core — durable workflow state, leases, scheduling, retries, compensation, and public workflow API completed
+10. Retrieval Core — provider-neutral chunk/index/retrieval/ranking foundation completed
+11. Integration and platform layers
 
 ---
 
@@ -111,8 +112,8 @@ Phase A Documentation
 
 Implementation
 
-██████████░░░░░░░░░░ 38% — planning foundation progressing
+████████████░░░░░░░░ 42% — retrieval foundation progressing
 
 Overall Repository
 
-███████████████████░░ 77% — architecture/documentation complete; implementation active
+███████████████████░░ 78% — architecture/documentation complete; implementation active
