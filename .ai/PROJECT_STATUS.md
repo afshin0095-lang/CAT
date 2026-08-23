@@ -25,7 +25,7 @@
 
 ## Phase B
 
-Core implementation · Rust foundations · Event Bus · Event Store · Knowledge Graph · Memory Core · Integration contracts
+Core implementation · Rust foundations · Event Bus · Event Store · Knowledge Graph · Memory Core · LLM / AI Core · Integration contracts
 
 **Status:** Active Development
 
@@ -65,15 +65,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Memory Core P0 foundation — governed memory objects, identity, provenance, consent, retention, lifecycle validation, and deterministic local store
+**Current Task:** LLM / AI Core P0 foundation — provider-neutral generation contracts, model routing, safety classification, usage accounting, and deterministic local execution
 
-**Document:** `core/memory/rust/`
+**Document:** `core/llm/rust/`
 
-**Status:** Stage completed — 8 implementation/test/workspace files added or updated
+**Status:** Stage completed — 9 implementation/test/workspace files added or updated
 
 # Next Task
 
-LLM / AI Core implementation, followed by Reasoning Core, Decision Core, Planning Core, and Orchestrator / Workflow Core.
+Reasoning Core implementation, followed by Decision Core, Planning Core, and Orchestrator / Workflow Core.
 
 ---
 
@@ -82,7 +82,7 @@ LLM / AI Core implementation, followed by Reasoning Core, Decision Core, Plannin
 1. Core Event Bus — foundation implementation complete; hardening history preserved
 2. PostgreSQL Event Store — durable implementation + projection checkpoint foundation complete; integration history preserved
 3. Knowledge Core — traversal + evidence validation stage completed
-4. LLM / AI Core
+4. LLM / AI Core — P0 foundation completed
 5. Memory Core — P0 foundation completed
 6. Reasoning Core
 7. Decision Core
@@ -113,14 +113,14 @@ Phase A Documentation
 
 Implementation
 
-█████░░░░░░░░░░░░░░░░ 25% — core foundation progressing
+██████░░░░░░░░░░░░░░ 30% — core foundation progressing
 
 Overall Repository
 
-██████████████████░░░ 76% — architecture/documentation complete; implementation active
+███████████████████░░ 77% — architecture/documentation complete; implementation active
 
 ---
 
 # Last Update
 
-2026-08-23 — Memory Core P0 implementation stage completed. Added the governed memory object model, typed classification and lifecycle state, provenance/consent/retention contracts, policy authorization, deterministic in-memory storage, validation helpers, and invariant tests. Registered `core/memory/rust/` in the workspace. The implementation preserves the Memory System boundary that memory is governed state and never a substitute for canonical domain truth. Next step: LLM / AI Core foundation.
+2026-08-23 — LLM / AI Core P0 implementation stage completed. Added provider-neutral model and generation contracts, safety classification, routing policy, usage accounting, stable error boundaries, deterministic local provider execution, crate documentation, invariant tests, and workspace registration. Model output remains derived/untrusted intelligence and never becomes canonical domain truth. Next step: Reasoning Core foundation.
