@@ -16,7 +16,7 @@ impl OpenAiCompatibleProvider {
 
     fn request_body(request: &GenerationRequest) -> Value {
         json!({
-            "model": request.model.0,
+            "model": request.model.0.clone(),
             "messages": request.messages.iter().map(message_json).collect::<Vec<_>>(),
             "temperature": request.temperature,
             "max_tokens": request.max_output_tokens,
@@ -72,7 +72,7 @@ impl AnthropicProvider {
             }))
             .collect::<Vec<_>>();
         json!({
-            "model": request.model.0,
+            "model": request.model.0.clone(),
             "system": system,
             "messages": messages,
             "temperature": request.temperature,
