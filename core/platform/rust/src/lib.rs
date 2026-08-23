@@ -3,11 +3,17 @@
 
 mod adapters;
 mod context;
+mod core_adapters;
 mod error;
 mod runtime;
 
 pub use adapters::{AdapterRequest, AdapterRegistry, AdapterResponse, PassthroughAdapter, PlatformAdapter};
 pub use context::{IntegrationCommand, IntegrationContext, IntegrationTarget};
+pub use core_adapters::{
+    default_core_adapter_registry, CoreAdapter, DECISION_ADAPTER, EVENT_BUS_ADAPTER,
+    KNOWLEDGE_ADAPTER, LLM_ADAPTER, MEMORY_ADAPTER, ORCHESTRATOR_ADAPTER, PLANNING_ADAPTER,
+    REASONING_ADAPTER, RETRIEVAL_ADAPTER,
+};
 pub use error::{PlatformError, PlatformResult};
 pub use runtime::{PlatformRuntime, ReadyWork};
 
@@ -15,7 +21,7 @@ pub use runtime::{PlatformRuntime, ReadyWork};
 mod tests {
     use super::*;
     use cat_orchestrator::ScheduleRequest;
-    use cat_planning::{PlanBuilder, StepKind, validate_plan};
+    use cat_planning::{validate_plan, PlanBuilder, StepKind};
     use uuid::Uuid;
 
     #[test]
@@ -38,5 +44,11 @@ mod tests {
         runtime.schedule(ScheduleRequest { workflow_id, not_before_ms: 10, priority: 10 });
         assert_eq!(runtime.ready_work(9), None);
         assert_eq!(runtime.ready_work(10).unwrap().workflow_id, workflow_id);
+    }
+
+    #[test]
+    fn default_core_adapters_are_available_from_the_composition_root() {
+        let registry = default_core_adapter_registry().unwrap();
+        assert_eq!(registry.len(), 9);
     }
 }
