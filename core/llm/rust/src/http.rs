@@ -28,9 +28,22 @@ impl HttpLlmClient {
     }
 
     pub(crate) async fn post_json(&self, path: &str, body: Value) -> Result<Value, LlmError> {
-        let response = self.client
-            .post(self.url(path))
-            .bearer_auth(&self.api_key)
+        self.post_json_with(|request| request.bearer_auth(&self.api_key), path, body).await
+    }
+
+    pub(crate) async fn post_anthropic(&self, path: &str, body: Value) -> Result<Value, LlmError> {
+        self.post_json_with(
+            |request| request.header("x-api-key", &self.api_key).header("anthropic-version", "2023-06-01"),
+            path,
+            body,
+        ).await
+    }
+
+    async fn post_json_with<F>(&self, apply_auth: F, path: &str, body: Value) -> Result<Value, LlmError>
+    where
+        F: FnOnce(reqwest::RequestBuilder) -> reqwest::RequestBuilder,
+    {
+        let response = apply_auth(self.client.post(self.url(path)))
             .json(&body)
             .send()
             .await
@@ -42,7 +55,7 @@ impl HttpLlmClient {
             .await
             .map_err(|error| LlmError::ProviderFailure(error.to_string()))?;
 
-        if status != StatusCode::OK {
+        if !status.is_success() {
             return Err(LlmError::ProviderRejected(format!("HTTP {}: {}", status, body)));
         }
         Ok(body)
