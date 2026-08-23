@@ -39,11 +39,17 @@ pub struct InMemoryInbox {
 
 impl InboxStore for InMemoryInbox {
     fn accept(&mut self, event_id: uuid::Uuid) -> EventBusResult<bool> {
-        if self.accepted.contains_key(&event_id) {
-            return Ok(false);
+        match self.accepted.get(&event_id).copied() {
+            Some(DeliveryState::Succeeded) | Some(DeliveryState::InFlight) => Ok(false),
+            Some(DeliveryState::RetryScheduled) | Some(DeliveryState::DeadLettered) => {
+                self.accepted.insert(event_id, DeliveryState::InFlight);
+                Ok(true)
+            }
+            None => {
+                self.accepted.insert(event_id, DeliveryState::InFlight);
+                Ok(true)
+            }
         }
-        self.accepted.insert(event_id, DeliveryState::InFlight);
-        Ok(true)
     }
 
     fn mark_succeeded(&mut self, event_id: uuid::Uuid) -> EventBusResult<()> {
@@ -60,6 +66,10 @@ impl InboxStore for InMemoryInbox {
         }
         self.accepted.insert(event_id, DeliveryState::RetryScheduled);
         Ok(())
+    }
+
+    fn state(&self, event_id: uuid::Uuid) -> Option<DeliveryState> {
+        self.accepted.get(&event_id).copied()
     }
 }
 
@@ -101,5 +111,31 @@ impl OutboxStore for InMemoryOutbox {
         }
         self.attempts.insert(event_id, attempt);
         Ok(DeliveryState::RetryScheduled)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn retry_scheduled_event_can_be_claimed_again() {
+        let mut inbox = InMemoryInbox::default();
+        let id = uuid::Uuid::now_v7();
+
+        assert!(inbox.accept(id).unwrap());
+        inbox.mark_failed(id).unwrap();
+        assert_eq!(inbox.state(id), Some(DeliveryState::RetryScheduled));
+        assert!(inbox.accept(id).unwrap());
+    }
+
+    #[test]
+    fn succeeded_event_is_not_reprocessed() {
+        let mut inbox = InMemoryInbox::default();
+        let id = uuid::Uuid::now_v7();
+
+        assert!(inbox.accept(id).unwrap());
+        inbox.mark_succeeded(id).unwrap();
+        assert!(!inbox.accept(id).unwrap());
     }
 }
