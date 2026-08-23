@@ -1,4 +1,4 @@
-use cat_decision::{DecisionRequest, DecisionResult, DeterministicDecisionEngine};
+use cat_decision::{DecisionError, DecisionOutcome, DecisionRequest, DeterministicDecisionEngine};
 use cat_orchestrator::{ScheduleRequest, Scheduler};
 use cat_planning::{Plan, PlanValidationReport, validate_plan};
 
@@ -25,7 +25,7 @@ impl PlatformRuntime {
         validate_plan(plan)
     }
 
-    pub fn decide(&self, request: &DecisionRequest) -> cat_decision::DecisionResult {
+    pub fn decide(&self, request: &DecisionRequest) -> Result<DecisionOutcome, DecisionError> {
         self.decision.decide(request)
     }
 
@@ -51,6 +51,3 @@ impl PlatformRuntime {
         self.scheduler.len()
     }
 }
-
-#[allow(dead_code)]
-fn _decision_result_type_is_used(_: Option<DecisionResult>) {}
