@@ -35,9 +35,7 @@ impl Default for RemainingCoreRuntime {
 }
 
 impl RemainingCoreRuntime {
-    pub fn new() -> Self {
-        Self::default()
-    }
+    pub fn new() -> Self { Self::default() }
 
     pub fn execute(&self, command: TypedCoreCommand) -> PlatformResult<TypedCoreResponse> {
         match command {
@@ -46,8 +44,7 @@ impl RemainingCoreRuntime {
             TypedCoreCommand::Decision(command) => self.execute_decision(command),
             TypedCoreCommand::Retrieval(command) => self.execute_retrieval(command),
             other => Err(PlatformError::AdapterNotFound(format!(
-                "remaining-core runtime does not own {:?}",
-                other.target()
+                "remaining-core runtime does not own {:?}", other.target()
             ))),
         }
     }
@@ -57,7 +54,8 @@ impl RemainingCoreRuntime {
             "generate" => {
                 let request: GenerationRequest = serde_json::from_value(command.payload)
                     .map_err(|error| invalid(format!("invalid generation request: {error}")))?;
-                let response = run_async(self.llm.generate(request))
+                let provider = self.llm.clone();
+                let response = run_llm(provider, request)
                     .map_err(|error| invalid(format!("LLM provider failed: {error}")))?;
                 Ok(response(
                     command.context.request_id,
@@ -181,45 +179,42 @@ impl RemainingCoreRuntime {
     }
 }
 
-fn run_async<F, T>(future: F) -> Result<T, cat_llm::LlmError>
-where
-    F: std::future::Future<Output = Result<T, cat_llm::LlmError>>,
-{
-    if let Ok(handle) = tokio::runtime::Handle::try_current() {
-        tokio::task::block_in_place(|| handle.block_on(future))
-    } else {
-        Builder::new_current_thread().enable_all().build()
+fn run_llm(
+    provider: DeterministicProvider,
+    request: GenerationRequest,
+) -> Result<cat_llm::GenerationResponse, cat_llm::LlmError> {
+    std::thread::spawn(move || {
+        Builder::new_current_thread()
+            .enable_all()
+            .build()
             .map_err(|error| cat_llm::LlmError::ProviderFailure(error.to_string()))?
-            .block_on(future)
-    }
+            .block_on(provider.generate(request))
+    })
+    .join()
+    .map_err(|_| cat_llm::LlmError::ProviderFailure("LLM execution thread panicked".into()))?
 }
 
 fn invalid(message: impl Into<String>) -> PlatformError {
     PlatformError::InvalidCommand(message.into())
 }
 
-fn response(
-    request_id: Uuid,
-    target: IntegrationTarget,
-    operation: &str,
-    payload: Value,
-) -> PlatformResult<TypedCoreResponse> {
-    Ok(TypedCoreResponse {
+fn response(request_id: Uuid, target: IntegrationTarget, operation: &str, payload: Value) -> TypedCoreResponse {
+    TypedCoreResponse {
         request_id,
         target,
         operation: operation.to_owned(),
         accepted: true,
         payload,
-    })
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use cat_decision::Alternative;
     use cat_llm::{GenerationRequest, Message, ModelId};
     use cat_rag::{DocumentChunk, Embedding, RetrievalQuery};
     use cat_reasoning::{Evidence, ReasoningMode};
-    use cat_decision::Alternative;
     use serde_json::json;
 
     #[test]
