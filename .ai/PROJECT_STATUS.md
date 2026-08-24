@@ -61,15 +61,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Platform Integration Core — typed cross-core execution boundary
+**Current Task:** Platform Integration Core — concrete planning and orchestration wiring
 
-**Document:** `core/platform/rust/src/core_adapters.rs`
+**Document:** `core/platform/rust/src/workflow_runtime.rs`
 
-**Status:** Typed core-command variants, target-safe routing, shared integration context propagation, typed responses, and composition-root exports implemented without transferring domain ownership into the platform layer.
+**Status:** Planning validation and orchestration scheduling are now wired through a dedicated platform composition boundary. Workflow identity must match the shared integration context, plan validation remains owned by `cat-planning`, scheduling remains owned by `cat-orchestrator`, and the platform layer returns only a transient execution receipt.
 
 # Next Task
 
-Wire typed execution into the concrete core APIs and add cross-core integration tests while preserving target ownership, correlation/causation propagation, and platform boundary invariants.
+Wire the remaining concrete core APIs (LLM, reasoning, decision, and retrieval) into the platform composition boundary and add cross-core integration tests while preserving target ownership, correlation/causation propagation, and platform boundary invariants.
 
 # Next Tasks
 
@@ -80,10 +80,10 @@ Wire typed execution into the concrete core APIs and add cross-core integration 
 5. Memory Core — P0 foundation completed
 6. Reasoning Core — P1 deterministic evidence reasoning foundation completed
 7. Decision Core — deterministic policy-gated decision foundation completed
-8. Planning Core — foundation implementation completed
-9. Orchestrator / Workflow Core — durable workflow state, leases, scheduling, retries, compensation, and public workflow API completed
+8. Planning Core — foundation implementation completed; platform execution wiring completed
+9. Orchestrator / Workflow Core — durable workflow state, leases, scheduling, retries, compensation, and public workflow API completed; platform scheduling wiring completed
 10. Retrieval Core — provider-neutral chunk/index/retrieval/ranking foundation completed
-11. Platform Integration Core — typed cross-core execution boundary implemented; concrete core wiring next
+11. Platform Integration Core — typed boundary implemented; planning/orchestration concrete wiring completed; remaining core wiring next
 12. Platform Adapter Layer — concrete adapters implemented; typed execution wiring next
 
 # Development Rules
@@ -105,7 +105,7 @@ Phase A Documentation
 
 Implementation
 
-██████████████░░░░░░ 48% — typed platform integration boundary implemented
+███████████████░░░░░ 50% — planning/orchestration concrete platform wiring implemented
 
 Overall Repository
 
