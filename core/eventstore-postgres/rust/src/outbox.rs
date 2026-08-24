@@ -73,9 +73,29 @@ impl PostgresOutbox {
         }))
     }
 
+    /// Returns abandoned in-flight claims to the retry queue after a worker crash.
+    pub async fn requeue_stale(&self, stale_after: Duration) -> EventBusResult<u64> {
+        let changed = sqlx::query(
+            "UPDATE cat_event_outbox
+             SET state = 'retry_scheduled',
+                 available_at = NOW(),
+                 claimed_at = NULL,
+                 last_error = COALESCE(last_error, 'stale in-flight claim recovered'),
+                 updated_at = NOW()
+             WHERE state = 'in_flight'
+               AND claimed_at IS NOT NULL
+               AND claimed_at < NOW() - ($1 * INTERVAL '1 millisecond')",
+        )
+        .bind(stale_after.as_millis() as i64)
+        .execute(&self.pool)
+        .await
+        .map_err(|e| EventBusError::Storage(e.to_string()))?;
+        Ok(changed.rows_affected())
+    }
+
     pub async fn acknowledge(&self, event_id: uuid::Uuid) -> EventBusResult<()> {
         sqlx::query(
-            "UPDATE cat_event_outbox SET state = 'succeeded', updated_at = NOW() WHERE event_id = $1",
+            "UPDATE cat_event_outbox SET state = 'succeeded', claimed_at = NULL, updated_at = NOW() WHERE event_id = $1",
         )
         .bind(event_id)
         .execute(&self.pool)
@@ -93,7 +113,7 @@ impl PostgresOutbox {
     ) -> EventBusResult<cat_eventbus::DeliveryState> {
         if policy.exhausted(attempt) {
             sqlx::query(
-                "UPDATE cat_event_outbox SET state = 'dead_lettered', last_error = $2, updated_at = NOW() WHERE event_id = $1",
+                "UPDATE cat_event_outbox SET state = 'dead_lettered', claimed_at = NULL, last_error = $2, updated_at = NOW() WHERE event_id = $1",
             )
             .bind(event_id)
             .bind(error)
@@ -106,7 +126,11 @@ impl PostgresOutbox {
         let delay: Duration = policy.delay_for(attempt);
         sqlx::query(
             "UPDATE cat_event_outbox
-             SET state = 'retry_scheduled', available_at = NOW() + ($2 * INTERVAL '1 millisecond'), last_error = $3, updated_at = NOW()
+             SET state = 'retry_scheduled',
+                 available_at = NOW() + ($2 * INTERVAL '1 millisecond'),
+                 claimed_at = NULL,
+                 last_error = $3,
+                 updated_at = NOW()
              WHERE event_id = $1",
         )
         .bind(event_id)
