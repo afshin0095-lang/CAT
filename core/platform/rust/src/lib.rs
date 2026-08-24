@@ -7,6 +7,7 @@ mod context;
 mod core_adapters;
 mod error;
 mod health;
+mod remaining_core;
 mod runtime;
 mod workflow_runtime;
 
@@ -20,5 +21,6 @@ pub use core_adapters::{
 };
 pub use error::{PlatformError, PlatformResult};
 pub use health::{ComponentHealth, HealthState, PlatformHealthSnapshot};
+pub use remaining_core::RemainingCoreRuntime;
 pub use runtime::{PlatformRuntime, ReadyWork};
 pub use workflow_runtime::{WorkflowExecutionReceipt, WorkflowRuntime};
