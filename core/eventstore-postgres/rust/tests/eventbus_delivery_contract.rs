@@ -1,6 +1,7 @@
 use cat_eventbus::{DeliveryState, RetryPolicy};
 use cat_eventstore_postgres::{PostgresInbox, PostgresOutbox};
 use sqlx::PgPool;
+use std::time::Duration;
 use uuid::Uuid;
 
 async fn pool() -> Option<PgPool> {
@@ -32,12 +33,9 @@ async fn inbox_isolated_by_consumer_and_idempotent_per_consumer() {
 async fn outbox_retry_policy_reaches_dead_letter_state() {
     let Some(pool) = pool().await else { return; };
     let outbox = PostgresOutbox::new(pool);
-    let policy = RetryPolicy::new(1, 1, 100);
+    let policy = RetryPolicy::new(1, Duration::from_millis(10), Duration::from_millis(100));
     let event_id = Uuid::now_v7();
 
-    // This test intentionally exercises the terminal transition API contract.
-    // The event row itself is inserted by the event-store transaction path in
-    // production; if no row exists, the update is a harmless no-op.
     assert_eq!(
         outbox.fail(event_id, 1, &policy, "permanent").await.unwrap(),
         DeliveryState::DeadLettered
