@@ -61,15 +61,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Platform Integration Core — remaining concrete core wiring
+**Current Task:** Platform Adapter Layer — concrete adapter composition and typed execution wiring
 
-**Document:** `core/platform/rust/src/remaining_core.rs`
+**Document:** `core/platform/rust/src/adapter_layer.rs`
 
-**Status:** Concrete platform composition wiring now covers the remaining LLM, reasoning, decision, and retrieval targets through their public core APIs. LLM execution remains provider-owned, reasoning remains advisory, decision remains policy-gated and advisory, retrieval remains tenant-scoped, and correlation/causation context is preserved at the platform boundary.
+**Status:** Concrete adapter composition is now wired through a single platform adapter layer. Stateful Event Bus, Knowledge, and Memory targets route through `ConcreteCoreRuntime`; LLM, Reasoning, Decision, and Retrieval route through `RemainingCoreRuntime`; Planning and Orchestrator route through `WorkflowRuntime`. Adapter execution preserves target ownership, workflow identity, correlation/causation context, and rejects unsupported operations at the boundary.
 
 # Next Task
 
-Platform Adapter Layer — wire the concrete provider/infrastructure adapters into the platform composition root and add adapter-level contract tests without transferring domain ownership into adapters.
+Adapter-level integration hardening — add external provider adapters and contract tests for infrastructure boundaries while keeping domain ownership inside the core crates.
 
 # Next Tasks
 
@@ -84,7 +84,7 @@ Platform Adapter Layer — wire the concrete provider/infrastructure adapters in
 9. Orchestrator / Workflow Core — durable workflow state, leases, scheduling, retries, compensation, and public workflow API completed; platform scheduling wiring completed
 10. Retrieval Core — provider-neutral chunk/index/retrieval/ranking foundation completed
 11. Platform Integration Core — typed boundary implemented; planning/orchestration and remaining LLM/reasoning/decision/retrieval concrete wiring completed
-12. Platform Adapter Layer — concrete adapters implemented; typed execution wiring next
+12. Platform Adapter Layer — concrete adapter composition and typed execution wiring completed; external provider/infrastructure adapter hardening next
 
 # Development Rules
 
@@ -105,8 +105,8 @@ Phase A Documentation
 
 Implementation
 
-███████████████░░░░░ 50% — platform planning/orchestration and remaining AI/retrieval concrete wiring implemented
+████████████████░░░░ 55% — platform adapter composition and typed execution wiring completed
 
 Overall Repository
 
-███████████████████░░ 80% — architecture/documentation complete; implementation active
+███████████████████░ 82% — architecture/documentation complete; implementation active
