@@ -8,12 +8,14 @@ mod checkpoint;
 mod inbox;
 mod integration;
 mod outbox;
+mod publisher;
 
 pub use async_inbox::{inbox_storage_ready, PostgresAsyncInbox};
 pub use checkpoint::{CheckpointError, CheckpointResult, PostgresProjectionCheckpointStore};
 pub use inbox::PostgresInbox;
 pub use integration::TransactionalEventPublisher;
 pub use outbox::{OutboxRecord, PostgresOutbox};
+pub use publisher::{OutboxPublisherConfig, PostgresOutboxPublisher, PublicationOutcome};
 
 static MIGRATOR: Migrator = sqlx::migrate!("./migrations");
 
@@ -57,10 +59,6 @@ impl PostgresEventStore {
 
     pub fn pool(&self) -> &PgPool { &self.pool }
 
-    /// Applies every checked-in migration in order.
-    ///
-    /// The embedded migrator is the single source of truth: adding a migration under
-    /// `migrations/` automatically extends the schema bootstrap path without another code edit.
     pub async fn ensure_schema(&self) -> PostgresEventStoreResult<()> {
         MIGRATOR.run(&self.pool).await?;
         Ok(())
