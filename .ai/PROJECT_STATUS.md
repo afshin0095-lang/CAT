@@ -61,15 +61,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Platform Integration Core — concrete planning and orchestration wiring
+**Current Task:** Platform Integration Core — remaining concrete core wiring
 
-**Document:** `core/platform/rust/src/workflow_runtime.rs`
+**Document:** `core/platform/rust/src/remaining_core.rs`
 
-**Status:** Planning validation and orchestration scheduling are now wired through a dedicated platform composition boundary. Workflow identity must match the shared integration context, plan validation remains owned by `cat-planning`, scheduling remains owned by `cat-orchestrator`, and the platform layer returns only a transient execution receipt.
+**Status:** Concrete platform composition wiring now covers the remaining LLM, reasoning, decision, and retrieval targets through their public core APIs. LLM execution remains provider-owned, reasoning remains advisory, decision remains policy-gated and advisory, retrieval remains tenant-scoped, and correlation/causation context is preserved at the platform boundary.
 
 # Next Task
 
-Wire the remaining concrete core APIs (LLM, reasoning, decision, and retrieval) into the platform composition boundary and add cross-core integration tests while preserving target ownership, correlation/causation propagation, and platform boundary invariants.
+Platform Adapter Layer — wire the concrete provider/infrastructure adapters into the platform composition root and add adapter-level contract tests without transferring domain ownership into adapters.
 
 # Next Tasks
 
@@ -83,7 +83,7 @@ Wire the remaining concrete core APIs (LLM, reasoning, decision, and retrieval) 
 8. Planning Core — foundation implementation completed; platform execution wiring completed
 9. Orchestrator / Workflow Core — durable workflow state, leases, scheduling, retries, compensation, and public workflow API completed; platform scheduling wiring completed
 10. Retrieval Core — provider-neutral chunk/index/retrieval/ranking foundation completed
-11. Platform Integration Core — typed boundary implemented; planning/orchestration concrete wiring completed; remaining core wiring next
+11. Platform Integration Core — typed boundary implemented; planning/orchestration and remaining LLM/reasoning/decision/retrieval concrete wiring completed
 12. Platform Adapter Layer — concrete adapters implemented; typed execution wiring next
 
 # Development Rules
@@ -105,7 +105,7 @@ Phase A Documentation
 
 Implementation
 
-███████████████░░░░░ 50% — planning/orchestration concrete platform wiring implemented
+███████████████░░░░░ 50% — platform planning/orchestration and remaining AI/retrieval concrete wiring implemented
 
 Overall Repository
 
