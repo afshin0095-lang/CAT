@@ -82,7 +82,7 @@ where
                         attempts,
                         delay: self.config.retry_policy.delay_for(attempts),
                     }),
-                    other => Err(EventBusError::InvalidState(format!(
+                    other => Err(EventBusError::InvalidConfiguration(format!(
                         "unexpected outbox state after failed publication: {other:?}"
                     ))),
                 }
