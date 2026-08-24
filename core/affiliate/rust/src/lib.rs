@@ -1,10 +1,15 @@
 pub mod error;
+pub mod events;
 pub mod memory_repository;
 pub mod model;
 pub mod repository;
 pub mod service;
 
 pub use error::{AffiliateDomainError, AffiliateDomainResult};
+pub use events::{
+    AffiliateRegistered, CommissionObligationCreated, ConversionStateChanged, MerchantCreated,
+    OfferCreated, ProgramCreated, ProgramStatusChanged, ReferralStateChanged,
+};
 pub use memory_repository::InMemoryAffiliateRepository;
 pub use model::{
     Affiliate, AffiliateId, AffiliateKind, CommissionObligation, CommissionObligationId,
