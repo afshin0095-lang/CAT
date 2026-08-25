@@ -61,15 +61,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Platform Adapter Layer — concrete JSON-over-HTTP provider transport and capability-specific health probes
+**Current Task:** Platform Adapter Layer — disposable local-provider integration fixtures and resilience verification
 
-**Document:** `core/platform/rust/src/http_provider.rs`
+**Document:** `core/platform/rust/tests/http_provider_integration.rs`
 
-**Status:** Added a provider-neutral synchronous HTTP/JSON adapter with strict endpoint/operation configuration validation, configurable headers, bounded request timeouts, explicit target/operation enforcement, JSON response decoding, and an active health endpoint probe. The adapter is exported through `cat-platform` and uses `reqwest` with Rustls TLS; CAT domain truth and monetary semantics remain outside the transport boundary.
+**Status:** Added a disposable localhost HTTP provider fixture covering successful JSON execution, non-2xx failure classification, bounded timeout behavior, degraded health probes, and resilient retry/circuit recovery. The fixture uses no external credentials or network dependencies and keeps provider transport concerns outside CAT domain and monetary truth.
 
 # Next Task
 
-Platform adapter hardening — add disposable local-provider integration fixtures and verify HTTP success, non-2xx classification, timeout handling, health degradation, and resilient retry/circuit recovery without external credentials.
+Platform Adapter Layer — strengthen provider transport semantics with structured error classification, request/response contract tests, and deterministic failure telemetry before moving to the next core implementation surface.
 
 # Next Tasks
 
