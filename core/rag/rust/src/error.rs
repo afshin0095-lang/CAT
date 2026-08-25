@@ -10,6 +10,10 @@ pub enum RagError {
     TenantIsolation,
     #[error("invalid retrieval limit")]
     InvalidLimit,
+    #[error("retrieval query must not be empty")]
+    EmptyQuery,
+    #[error("retrieval score must be finite")]
+    InvalidScore,
 }
 
 pub type RagResult<T> = Result<T, RagError>;
