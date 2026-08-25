@@ -61,15 +61,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Platform Adapter Layer — bounded exponential provider retries and resilient circuit integration
+**Current Task:** Platform Adapter Layer — concrete JSON-over-HTTP provider transport and capability-specific health probes
 
-**Document:** `core/platform/rust/src/resilient_adapter.rs`
+**Document:** `core/platform/rust/src/http_provider.rs`
 
-**Status:** Provider retries now have a validated bounded exponential delay policy. The retry budget remains attempt-bounded, delay growth is capped, zero-delay execution remains deterministic for tests, and open-circuit / probe-in-progress states still short-circuit nested retries. Invalid retry bounds are rejected before adapter construction.
+**Status:** Added a provider-neutral synchronous HTTP/JSON adapter with strict endpoint/operation configuration validation, configurable headers, bounded request timeouts, explicit target/operation enforcement, JSON response decoding, and an active health endpoint probe. The adapter is exported through `cat-platform` and uses `reqwest` with Rustls TLS; CAT domain truth and monetary semantics remain outside the transport boundary.
 
 # Next Task
 
-Platform adapter contract hardening — add concrete provider transport adapters and capability-specific health probes, then verify failure classification and recovery semantics against disposable external-provider fixtures.
+Platform adapter hardening — add disposable local-provider integration fixtures and verify HTTP success, non-2xx classification, timeout handling, health degradation, and resilient retry/circuit recovery without external credentials.
 
 # Next Tasks
 
