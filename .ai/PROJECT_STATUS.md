@@ -62,20 +62,20 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Knowledge Core — provenance-aware retrieval + consistency hardening
+**Current Task:** Knowledge Core — final consistency hardening
 
 **Document:** `core/knowledge/rust/src/` + `core/knowledge/rust/tests/`
 
-**Status:** Evidence-aware retrieval filters, evidence identity validation, read-only graph consistency validation, provenance-aware query contracts, and integration tests are implemented. Traversal remains bounded and read-only.
+**Status:** Evidence-aware retrieval filters, evidence identity validation, read-only graph consistency validation, provenance-aware query contracts, temporal provenance/persistence, deterministic snapshot restore, and integration tests are implemented. Final graph identity collision hardening is now implemented: node and edge identifiers cannot silently overwrite existing canonical state.
 
 # Next Task
 
-Knowledge Core — final consistency hardening, then LLM / AI Core foundation.
+LLM / AI Core — P0 foundation + P1 provider adapter layer completed
 
 # Next Tasks
 
-1. Knowledge Core — final consistency hardening
-2. LLM / AI Core — P0 foundation + P1 provider adapter layer completed
-3. Memory Core — P0 foundation completed
-4. Reasoning Core — P0 foundation completed
-5. Decision Core — P0 foundation
+1. LLM / AI Core — P0 foundation + P1 provider adapter layer completed
+2. Memory Core — P0 foundation completed
+3. Reasoning Core — P0 foundation completed
+4. Decision Core — P0 foundation
+5. Planning Core — P0 foundation
