@@ -3,9 +3,6 @@ use std::collections::BTreeSet;
 use crate::EvidenceRef;
 
 /// Deterministic provenance chain assembled from evidence references.
-///
-/// Evidence is sorted by source, reference, then observation time so identical
-/// knowledge snapshots produce identical provenance order independent of insertion order.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ProvenanceChain {
     entries: Vec<EvidenceRef>,
@@ -36,9 +33,14 @@ impl ProvenanceChain {
     }
 
     pub fn observed_at_bounds(&self) -> Option<(u64, u64)> {
-        let first = self.entries.first()?.observed_at_ms;
-        let last = self.entries.last()?.observed_at_ms;
-        Some((first, last))
+        let mut timestamps = self.entries.iter().map(|entry| entry.observed_at_ms);
+        let first = timestamps.next()?;
+        let (mut min, mut max) = (first, first);
+        for timestamp in timestamps {
+            min = min.min(timestamp);
+            max = max.max(timestamp);
+        }
+        Some((min, max))
     }
 
     pub fn is_empty(&self) -> bool { self.entries.is_empty() }
@@ -58,12 +60,12 @@ mod tests {
     }
 
     #[test]
-    fn source_and_time_bounds_are_derived() {
+    fn time_bounds_are_numeric_min_max_not_source_order() {
         let chain = ProvenanceChain::from_evidence([
             EvidenceRef { source: "catalog".into(), reference: "x".into(), observed_at_ms: 30 },
             EvidenceRef { source: "feed".into(), reference: "y".into(), observed_at_ms: 10 },
         ]);
         assert_eq!(chain.sources().len(), 2);
-        assert_eq!(chain.observed_at_bounds(), Some((30, 10)));
+        assert_eq!(chain.observed_at_bounds(), Some((10, 30)));
     }
 }
