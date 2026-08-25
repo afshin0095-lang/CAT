@@ -61,15 +61,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Platform Adapter Layer — external provider adapter contracts, registry, capability validation, and provider-aware execution boundary
+**Current Task:** Platform Adapter Layer — bounded provider retry adapter and circuit-aware provider execution hardening
 
-**Document:** `core/platform/rust/src/provider_adapters.rs`
+**Document:** `core/platform/rust/src/resilient_adapter.rs`
 
-**Status:** External provider adapters are now represented by a provider-neutral contract with explicit provider identity, target ownership, declared operations, health state, deterministic capability enumeration, and boundary validation. `PlatformAdapterLayer` now owns the provider registry and exposes provider execution without moving business semantics out of the owning core.
+**Status:** Provider execution now has an explicit bounded retry policy composed with the provider circuit breaker. Retry configuration is validated, open-circuit failures short-circuit nested retry loops, transient failures can recover within a bounded attempt budget, and provider/domain boundaries remain separated.
 
 # Next Task
 
-Provider adapter hardening — add concrete infrastructure adapters and contract tests for external transport/provider failures, health transitions, and retry/circuit behavior while preserving provider-neutral domain boundaries.
+Platform adapter contract hardening — add concrete provider health probes and deterministic health-transition tests, then wire resilient adapters into the provider registry without moving provider semantics into domain cores.
 
 # Next Tasks
 
@@ -84,7 +84,7 @@ Provider adapter hardening — add concrete infrastructure adapters and contract
 9. Orchestrator / Workflow Core — durable workflow state, leases, scheduling, retries, compensation, and public workflow API completed; platform scheduling wiring completed
 10. Retrieval Core — provider-neutral chunk/index/retrieval/ranking foundation completed
 11. Platform Integration Core — typed boundary implemented; planning/orchestration and remaining LLM/reasoning/decision/retrieval concrete wiring completed
-12. Platform Adapter Layer — concrete adapter composition completed; provider contract/registry hardening now active
+12. Platform Adapter Layer — provider contract/registry hardening active; bounded retry + circuit resilience implemented
 
 # Development Rules
 
@@ -105,8 +105,8 @@ Phase A Documentation
 
 Implementation
 
-████████████████░░░░ 56% — external provider adapter contracts and registry wired into the platform adapter layer
+█████████████████░░░ 58% — provider retry + circuit resilience boundary implemented
 
 Overall Repository
 
-███████████████████░ 82% — architecture/documentation complete; implementation active
+███████████████████░ 83% — architecture/documentation complete; implementation active
