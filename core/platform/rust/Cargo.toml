@@ -18,6 +18,7 @@ cat-orchestrator = { path = "../../orchestrator/rust" }
 cat-planning = { path = "../../planning/rust" }
 cat-rag = { path = "../../rag/rust" }
 cat-reasoning = { path = "../../reasoning/rust" }
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
