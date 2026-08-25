@@ -61,20 +61,20 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** PostgreSQL Event Store — durable implementation and projection checkpoint hardening
+**Current Task:** Knowledge Core — traversal + evidence validation stage
 
-**Document:** `core/eventstore-postgres/rust/src/` + `core/eventstore-postgres/rust/tests/`
+**Document:** `core/knowledge/rust/src/` + `core/knowledge/rust/tests/`
 
-**Status:** Core Event Bus contract hardening completed. Deterministic delivery tests now cover duplicate suppression, retry re-entry, bounded retry/dead-letter decisions, outbox acknowledgement, JetStream subject/consumer alignment, and bounded retry configuration. Verification remains transport-neutral and preserves the at-least-once EventEnvelope identity boundary.
+**Status:** PostgreSQL Event Store durable hardening advanced: inbox claims are now explicitly recoverable after worker crashes, failed claims can be re-claimed while succeeded claims remain suppressed, and stale outbox claims are returned to the retry queue without changing canonical event identity. Projection checkpoints and transactional publication remain the durable truth boundaries.
 
 # Next Task
 
-PostgreSQL Event Store — harden durable event persistence, projection checkpoints, inbox/outbox recovery, and transactional publication boundaries before moving to the next core implementation surface.
+Knowledge Core — implement and harden traversal, evidence validation, provenance-aware retrieval, and graph consistency contracts before moving to the next core implementation surface.
 
 # Next Tasks
 
-1. PostgreSQL Event Store — durable implementation + projection checkpoint hardening
-2. Knowledge Core — traversal + evidence validation stage completed
-3. LLM / AI Core — P0 foundation + P1 provider adapter layer completed
-4. Memory Core — P0 foundation completed
-5. Reasoning Core — P0 foundation completed
+1. Knowledge Core — traversal + evidence validation stage
+2. LLM / AI Core — P0 foundation + P1 provider adapter layer completed
+3. Memory Core — P0 foundation completed
+4. Reasoning Core — P0 foundation completed
+5. Decision Core — P0 foundation
