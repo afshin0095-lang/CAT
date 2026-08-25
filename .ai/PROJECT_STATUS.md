@@ -65,15 +65,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 **Document:** `core/knowledge/rust/src/` + `core/knowledge/rust/tests/`
 
-**Status:** Evidence-aware retrieval filters, evidence identity validation, and read-only graph consistency validation are implemented and committed. Traversal remains bounded and read-only.
+**Status:** Evidence-aware retrieval filters, evidence identity validation, and read-only graph consistency validation are implemented. Provenance-aware query contracts and integration tests are now included; traversal remains bounded and read-only.
 
 # Next Task
 
-Knowledge Core — provenance-aware retrieval + consistency hardening
+Knowledge Core — final consistency hardening, then LLM / AI Core foundation.
 
 # Next Tasks
 
-1. Knowledge Core — provenance-aware retrieval + consistency hardening
+1. Knowledge Core — final consistency hardening
 2. LLM / AI Core — P0 foundation + P1 provider adapter layer completed
 3. Memory Core — P0 foundation completed
 4. Reasoning Core — P0 foundation completed
