@@ -65,15 +65,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 **Document:** `core/knowledge/rust/src/` + `core/knowledge/rust/tests/`
 
-**Status:** PostgreSQL Event Store durable hardening advanced: inbox claims are now explicitly recoverable after worker crashes, failed claims can be re-claimed while succeeded claims remain suppressed, and stale outbox claims are returned to the retry queue without changing canonical event identity. Projection checkpoints and transactional publication remain the durable truth boundaries.
+**Status:** Evidence-aware retrieval filters and graph consistency validation are now implemented; traversal remains bounded and read-only, evidence identity is validated before knowledge is trusted, and the new integration contracts are covered by Rust tests.
 
 # Next Task
 
-Knowledge Core — implement and harden traversal, evidence validation, provenance-aware retrieval, and graph consistency contracts before moving to the next core implementation surface.
+Knowledge Core — harden provenance-aware retrieval and graph consistency contracts, then move to the next core implementation surface.
 
 # Next Tasks
 
-1. Knowledge Core — traversal + evidence validation stage
+1. Knowledge Core — provenance-aware retrieval + consistency hardening
 2. LLM / AI Core — P0 foundation + P1 provider adapter layer completed
 3. Memory Core — P0 foundation completed
 4. Reasoning Core — P0 foundation completed
