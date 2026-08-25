@@ -61,15 +61,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Platform Adapter Layer — concrete adapter composition and typed execution wiring
+**Current Task:** Platform Adapter Layer — external provider adapter contracts, registry, capability validation, and provider-aware execution boundary
 
-**Document:** `core/platform/rust/src/adapter_layer.rs`
+**Document:** `core/platform/rust/src/provider_adapters.rs`
 
-**Status:** Concrete adapter composition is now wired through a single platform adapter layer. Stateful Event Bus, Knowledge, and Memory targets route through `ConcreteCoreRuntime`; LLM, Reasoning, Decision, and Retrieval route through `RemainingCoreRuntime`; Planning and Orchestrator route through `WorkflowRuntime`. Adapter execution preserves target ownership, workflow identity, correlation/causation context, and rejects unsupported operations at the boundary.
+**Status:** External provider adapters are now represented by a provider-neutral contract with explicit provider identity, target ownership, declared operations, health state, deterministic capability enumeration, and boundary validation. `PlatformAdapterLayer` now owns the provider registry and exposes provider execution without moving business semantics out of the owning core.
 
 # Next Task
 
-Adapter-level integration hardening — add external provider adapters and contract tests for infrastructure boundaries while keeping domain ownership inside the core crates.
+Provider adapter hardening — add concrete infrastructure adapters and contract tests for external transport/provider failures, health transitions, and retry/circuit behavior while preserving provider-neutral domain boundaries.
 
 # Next Tasks
 
@@ -84,7 +84,7 @@ Adapter-level integration hardening — add external provider adapters and contr
 9. Orchestrator / Workflow Core — durable workflow state, leases, scheduling, retries, compensation, and public workflow API completed; platform scheduling wiring completed
 10. Retrieval Core — provider-neutral chunk/index/retrieval/ranking foundation completed
 11. Platform Integration Core — typed boundary implemented; planning/orchestration and remaining LLM/reasoning/decision/retrieval concrete wiring completed
-12. Platform Adapter Layer — concrete adapter composition and typed execution wiring completed; external provider/infrastructure adapter hardening next
+12. Platform Adapter Layer — concrete adapter composition completed; provider contract/registry hardening now active
 
 # Development Rules
 
@@ -105,7 +105,7 @@ Phase A Documentation
 
 Implementation
 
-████████████████░░░░ 55% — platform adapter composition and typed execution wiring completed
+████████████████░░░░ 56% — external provider adapter contracts and registry wired into the platform adapter layer
 
 Overall Repository
 
