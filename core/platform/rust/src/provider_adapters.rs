@@ -42,9 +42,8 @@ pub struct ProviderCapabilities {
 
 /// Provider-neutral health probe boundary.
 ///
-/// Probes observe infrastructure state only; they never mutate domain truth or decide whether
-/// a business operation is semantically valid. Concrete adapters may implement this with a cheap
-/// local state check or an external provider health endpoint.
+/// The default probe is capability-backed so existing provider adapters remain source-compatible.
+/// Infrastructure adapters can override it with an active endpoint or transport probe.
 pub trait ProviderHealthProbe: Send + Sync {
     fn probe_health(&self) -> PlatformResult<ProviderHealth>;
 }
@@ -52,6 +51,9 @@ pub trait ProviderHealthProbe: Send + Sync {
 pub trait ExternalProviderAdapter: Send + Sync {
     fn capabilities(&self) -> ProviderCapabilities;
     fn execute(&self, request: &AdapterRequest) -> PlatformResult<AdapterResponse>;
+    fn probe_health(&self) -> PlatformResult<ProviderHealth> {
+        Ok(self.capabilities().health)
+    }
 }
 
 #[derive(Default)]
@@ -105,23 +107,18 @@ impl ProviderAdapterRegistry {
         adapter.execute(request)
     }
 
-    /// Probe one registered provider without executing a business operation.
     pub fn probe_health(&self, provider: &ProviderId) -> PlatformResult<ProviderHealth> {
-        let adapter = self
-            .adapters
+        self.adapters
             .get(provider)
-            .ok_or_else(|| PlatformError::AdapterNotFound(provider.as_str().to_owned()))?;
-        if let Some(probe) = adapter.as_ref().as_any_health_probe() {
-            return probe.probe_health();
-        }
-        Ok(adapter.capabilities().health)
+            .ok_or_else(|| PlatformError::AdapterNotFound(provider.as_str().to_owned()))?
+            .probe_health()
     }
 
     /// Return provider health in deterministic provider-id order.
     pub fn probe_all_health(&self) -> PlatformResult<Vec<(ProviderId, ProviderHealth)>> {
         self.adapters
-            .keys()
-            .map(|provider| self.probe_health(provider).map(|health| (provider.clone(), health)))
+            .iter()
+            .map(|(provider, adapter)| adapter.probe_health().map(|health| (provider.clone(), health)))
             .collect()
     }
 
@@ -179,24 +176,9 @@ impl ExternalProviderAdapter for DeterministicProviderAdapter {
             })),
         })
     }
-}
 
-trait HealthProbeDowncast {
-    fn as_any_health_probe(&self) -> Option<&dyn ProviderHealthProbe>;
-}
-
-impl<T> HealthProbeDowncast for T
-where
-    T: ExternalProviderAdapter + ?Sized,
-{
-    fn as_any_health_probe(&self) -> Option<&dyn ProviderHealthProbe> {
-        None
-    }
-}
-
-impl dyn ExternalProviderAdapter {
-    fn as_any_health_probe(&self) -> Option<&dyn ProviderHealthProbe> {
-        None
+    fn probe_health(&self) -> PlatformResult<ProviderHealth> {
+        ProviderHealthProbe::probe_health(self)
     }
 }
 
@@ -287,5 +269,17 @@ mod tests {
     fn deterministic_provider_health_probe_is_ready() {
         let adapter = DeterministicProviderAdapter::new("local", IntegrationTarget::Llm, ["generate"]).unwrap();
         assert_eq!(adapter.probe_health().unwrap(), ProviderHealth::Ready);
+    }
+
+    #[test]
+    fn registry_returns_deterministic_health_order() {
+        let mut registry = ProviderAdapterRegistry::default();
+        registry.register(Arc::new(DeterministicProviderAdapter::new("b", IntegrationTarget::Llm, ["generate"]).unwrap())).unwrap();
+        registry.register(Arc::new(DeterministicProviderAdapter::new("a", IntegrationTarget::Llm, ["generate"]).unwrap())).unwrap();
+        let health = registry.probe_all_health().unwrap();
+        assert_eq!(health, vec![
+            (ProviderId::new("a").unwrap(), ProviderHealth::Ready),
+            (ProviderId::new("b").unwrap(), ProviderHealth::Ready),
+        ]);
     }
 }
