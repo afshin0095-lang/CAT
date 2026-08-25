@@ -7,10 +7,17 @@ use std::time::Duration;
 pub struct ProviderRetryConfig {
     pub max_attempts: u32,
     pub retry_delay: Duration,
+    pub max_retry_delay: Duration,
 }
 
 impl Default for ProviderRetryConfig {
-    fn default() -> Self { Self { max_attempts: 3, retry_delay: Duration::from_millis(50) } }
+    fn default() -> Self {
+        Self {
+            max_attempts: 3,
+            retry_delay: Duration::from_millis(50),
+            max_retry_delay: Duration::from_millis(500),
+        }
+    }
 }
 
 impl ProviderRetryConfig {
@@ -18,11 +25,25 @@ impl ProviderRetryConfig {
         if self.max_attempts == 0 {
             return Err(PlatformError::InvalidCommand("provider retry max_attempts must be greater than zero".into()));
         }
+        if self.max_retry_delay < self.retry_delay {
+            return Err(PlatformError::InvalidCommand("provider retry max_retry_delay must be >= retry_delay".into()));
+        }
         Ok(self)
+    }
+
+    pub fn delay_for(self, attempt: u32) -> Duration {
+        if attempt == 0 || self.retry_delay.is_zero() {
+            return Duration::ZERO;
+        }
+        let multiplier = 2_u32.saturating_pow(attempt.saturating_sub(1));
+        self.retry_delay
+            .checked_mul(multiplier)
+            .unwrap_or(self.max_retry_delay)
+            .min(self.max_retry_delay)
     }
 }
 
-/// Provider-bound adapter wrapper combining bounded retries with the platform circuit breaker.
+/// Provider-bound adapter wrapper combining bounded exponential retries with the platform circuit breaker.
 pub struct ResilientProviderAdapter {
     circuit: ProviderCircuitBreaker,
     retry: ProviderRetryConfig,
@@ -57,8 +78,11 @@ impl ResilientProviderAdapter {
                 }
                 Err(error) => {
                     last_error = Some(error);
-                    if attempt < self.retry.max_attempts && !self.retry.retry_delay.is_zero() {
-                        thread::sleep(self.retry.retry_delay);
+                    if attempt < self.retry.max_attempts {
+                        let delay = self.retry.delay_for(attempt);
+                        if !delay.is_zero() {
+                            thread::sleep(delay);
+                        }
                     }
                 }
             }
@@ -120,7 +144,7 @@ mod tests {
     fn retry_recovers_from_transient_provider_failure() {
         let resilient = ResilientProviderAdapter::new(
             Arc::new(FlakyAdapter::new(2)),
-            ProviderRetryConfig { max_attempts: 3, retry_delay: Duration::ZERO },
+            ProviderRetryConfig { max_attempts: 3, retry_delay: Duration::ZERO, max_retry_delay: Duration::ZERO },
             ProviderCircuitConfig { failure_threshold: 5, recovery_after: Duration::ZERO },
         ).unwrap();
         assert!(resilient.execute(&request()).unwrap().accepted);
@@ -132,7 +156,7 @@ mod tests {
     fn retry_budget_is_bounded() {
         let resilient = ResilientProviderAdapter::new(
             Arc::new(FlakyAdapter::new(10)),
-            ProviderRetryConfig { max_attempts: 3, retry_delay: Duration::ZERO },
+            ProviderRetryConfig { max_attempts: 3, retry_delay: Duration::ZERO, max_retry_delay: Duration::ZERO },
             ProviderCircuitConfig { failure_threshold: 10, recovery_after: Duration::ZERO },
         ).unwrap();
         assert!(matches!(resilient.execute(&request()), Err(PlatformError::TransportUnavailable(_))));
@@ -142,7 +166,7 @@ mod tests {
     fn open_circuit_short_circuits_nested_retry_loop() {
         let resilient = ResilientProviderAdapter::new(
             Arc::new(FlakyAdapter::new(10)),
-            ProviderRetryConfig { max_attempts: 5, retry_delay: Duration::ZERO },
+            ProviderRetryConfig { max_attempts: 5, retry_delay: Duration::ZERO, max_retry_delay: Duration::ZERO },
             ProviderCircuitConfig { failure_threshold: 1, recovery_after: Duration::from_secs(60) },
         ).unwrap();
         assert!(resilient.execute(&request()).is_err());
@@ -155,6 +179,27 @@ mod tests {
     #[test]
     fn invalid_retry_configuration_is_rejected() {
         let adapter = Arc::new(DeterministicProviderAdapter::new("local", IntegrationTarget::Llm, ["generate"]).unwrap());
-        assert!(ResilientProviderAdapter::new(adapter, ProviderRetryConfig { max_attempts: 0, retry_delay: Duration::ZERO }, ProviderCircuitConfig::default()).is_err());
+        assert!(ResilientProviderAdapter::new(adapter, ProviderRetryConfig { max_attempts: 0, retry_delay: Duration::ZERO, max_retry_delay: Duration::ZERO }, ProviderCircuitConfig::default()).is_err());
+    }
+
+    #[test]
+    fn retry_delay_grows_exponentially_and_is_capped() {
+        let config = ProviderRetryConfig { max_attempts: 8, retry_delay: Duration::from_millis(50), max_retry_delay: Duration::from_millis(200) };
+        assert_eq!(config.delay_for(1), Duration::from_millis(50));
+        assert_eq!(config.delay_for(2), Duration::from_millis(100));
+        assert_eq!(config.delay_for(3), Duration::from_millis(200));
+        assert_eq!(config.delay_for(7), Duration::from_millis(200));
+        assert_eq!(config.delay_for(0), Duration::ZERO);
+    }
+
+    #[test]
+    fn invalid_retry_delay_bounds_are_rejected() {
+        let adapter = Arc::new(DeterministicProviderAdapter::new("local", IntegrationTarget::Llm, ["generate"]).unwrap());
+        let result = ResilientProviderAdapter::new(
+            adapter,
+            ProviderRetryConfig { max_attempts: 3, retry_delay: Duration::from_millis(200), max_retry_delay: Duration::from_millis(100) },
+            ProviderCircuitConfig::default(),
+        );
+        assert!(matches!(result, Err(PlatformError::InvalidCommand(_))));
     }
 }
