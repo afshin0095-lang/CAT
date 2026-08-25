@@ -15,6 +15,12 @@ impl Embedding {
     }
 
     pub fn validate(&self) -> Result<(), String> {
+        if self.model.trim().is_empty() {
+            return Err("embedding model must not be empty".into());
+        }
+        if self.dimensions == 0 {
+            return Err("embedding dimensions must be greater than zero".into());
+        }
         if self.values.len() as u32 != self.dimensions {
             return Err("embedding dimensions do not match vector length".into());
         }
@@ -58,6 +64,11 @@ impl RetrievalQuery {
 
     pub fn with_limit(mut self, limit: usize) -> Self {
         self.limit = limit.max(1);
+        self
+    }
+
+    pub fn with_min_score(mut self, min_score: f32) -> Self {
+        self.min_score = Some(min_score);
         self
     }
 }
