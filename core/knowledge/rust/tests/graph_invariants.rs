@@ -1,4 +1,4 @@
-use cat_knowledge::{validate_edge, validate_node, EvidenceRef, KnowledgeEdge, KnowledgeGraph, KnowledgeNode, KnowledgeViolation};
+use cat_knowledge::{validate_edge, validate_node, EvidenceRef, KnowledgeEdge, KnowledgeGraph, KnowledgeNode, KnowledgeStoreError, KnowledgeViolation};
 use serde_json::json;
 
 fn evidence() -> Vec<EvidenceRef> {
@@ -61,4 +61,39 @@ fn validation_rejects_self_relation() {
     let node = KnowledgeNode::new("merchant", "acme").with_evidence(evidence());
     let edge = KnowledgeEdge::new(node.id, "related_to", node.id).with_evidence(evidence());
     assert!(validate_edge(&edge).contains(&KnowledgeViolation::SelfRelation));
+}
+
+#[test]
+fn node_id_collision_is_rejected_without_overwriting_existing_state() {
+    let mut graph = KnowledgeGraph::default();
+    let original = KnowledgeNode::new("merchant", "acme").with_evidence(evidence());
+    let id = original.id;
+    graph.insert_node(original).unwrap();
+
+    let mut conflicting = KnowledgeNode::new("merchant", "other").with_evidence(evidence());
+    conflicting.id = id;
+    let error = graph.insert_node(conflicting).unwrap_err();
+
+    assert_eq!(error, KnowledgeStoreError::DuplicateNodeId(id));
+    assert_eq!(graph.node_count(), 1);
+    assert!(graph.find_node("merchant", "acme").is_some());
+    assert!(graph.find_node("merchant", "other").is_none());
+}
+
+#[test]
+fn edge_id_collision_is_rejected_without_replacing_existing_edge() {
+    let mut graph = KnowledgeGraph::default();
+    let a = graph.insert_node(KnowledgeNode::new("merchant", "acme").with_evidence(evidence())).unwrap();
+    let b = graph.insert_node(KnowledgeNode::new("product", "phone").with_evidence(evidence())).unwrap();
+    let first = KnowledgeEdge::new(a, "offers", b).with_evidence(evidence());
+    let edge_id = first.id;
+    graph.insert_edge(first).unwrap();
+
+    let mut conflicting = KnowledgeEdge::new(a, "recommends", b).with_evidence(evidence());
+    conflicting.id = edge_id;
+    let error = graph.insert_edge(conflicting).unwrap_err();
+
+    assert_eq!(error, KnowledgeStoreError::DuplicateEdgeId(edge_id));
+    assert_eq!(graph.edge_count(), 1);
+    assert_eq!(graph.edges_from(a)[0].relation, "offers");
 }
