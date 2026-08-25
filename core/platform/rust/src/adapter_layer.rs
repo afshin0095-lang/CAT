@@ -4,7 +4,8 @@ use uuid::Uuid;
 
 use crate::{
     ConcreteCoreRuntime, CoreCommand, IntegrationTarget, PlatformError,
-    PlatformResult, RemainingCoreRuntime, TypedCoreCommand, TypedCoreResponse, WorkflowRuntime,
+    PlatformResult, ProviderAdapterRegistry, ProviderId, RemainingCoreRuntime,
+    TypedCoreCommand, TypedCoreResponse, WorkflowRuntime,
 };
 
 /// Concrete platform adapter layer.
@@ -17,6 +18,7 @@ pub struct PlatformAdapterLayer {
     concrete: ConcreteCoreRuntime,
     remaining: RemainingCoreRuntime,
     workflow: WorkflowRuntime,
+    providers: ProviderAdapterRegistry,
 }
 
 impl PlatformAdapterLayer {
@@ -36,6 +38,19 @@ impl PlatformAdapterLayer {
             }
         }
     }
+
+    /// Executes an operation through a named external provider while preserving the same
+    /// integration context and target ownership rules as core execution.
+    pub fn execute_provider(
+        &self,
+        provider: &ProviderId,
+        request: &crate::AdapterRequest,
+    ) -> PlatformResult<crate::AdapterResponse> {
+        self.providers.execute(provider, request)
+    }
+
+    pub fn providers(&self) -> &ProviderAdapterRegistry { &self.providers }
+    pub fn providers_mut(&mut self) -> &mut ProviderAdapterRegistry { &mut self.providers }
 
     fn execute_workflow(&mut self, command: TypedCoreCommand) -> PlatformResult<TypedCoreResponse> {
         let target = command.target();
@@ -128,8 +143,9 @@ fn response(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::IntegrationContext;
+    use crate::{AdapterRequest, IntegrationCommand, IntegrationContext};
     use cat_planning::{PlanBuilder, StepKind};
+    use std::sync::Arc;
 
     #[test]
     fn routes_stateful_cores_to_concrete_runtime() {
@@ -207,5 +223,29 @@ mod tests {
             json!({}),
         ));
         assert!(matches!(layer.execute(command), Err(PlatformError::InvalidCommand(_))));
+    }
+
+    #[test]
+    fn external_provider_is_checked_before_execution() {
+        let mut layer = PlatformAdapterLayer::new();
+        let adapter = Arc::new(crate::DeterministicProviderAdapter::new(
+            "local-llm",
+            IntegrationTarget::Llm,
+            ["generate"],
+        ).unwrap());
+        layer.providers_mut().register(adapter).unwrap();
+
+        let command = IntegrationCommand::new(
+            IntegrationTarget::Llm,
+            "generate",
+            IntegrationContext::new("provider-contract"),
+        );
+        let request = AdapterRequest::from_command(command, json!({"prompt":"ping"}));
+        let provider = ProviderId::new("local-llm").unwrap();
+        let response = layer.execute_provider(&provider, &request).unwrap();
+
+        assert!(response.accepted);
+        assert_eq!(response.payload["provider"], "local-llm");
+        assert_eq!(response.payload["payload"]["prompt"], "ping");
     }
 }
