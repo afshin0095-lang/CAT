@@ -29,7 +29,7 @@ pub use error::{PlatformError, PlatformResult};
 pub use health::{ComponentHealth, HealthState, PlatformHealthSnapshot};
 pub use provider_adapters::{
     DeterministicProviderAdapter, ExternalProviderAdapter, ProviderAdapterRegistry,
-    ProviderCapabilities, ProviderHealth, ProviderId,
+    ProviderCapabilities, ProviderHealth, ProviderHealthProbe, ProviderId,
 };
 pub use remaining_core::RemainingCoreRuntime;
 pub use resilience::{ProviderCircuitBreaker, ProviderCircuitConfig, ProviderCircuitState};
