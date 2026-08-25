@@ -65,7 +65,7 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 **Document:** `core/knowledge/rust/src/` + `core/knowledge/rust/tests/`
 
-**Status:** Evidence-aware retrieval filters, evidence identity validation, and read-only graph consistency validation are implemented and covered by Rust integration tests. The next increment hardens provenance-aware retrieval and graph consistency before the implementation moves to the next core.
+**Status:** Evidence-aware retrieval filters, evidence identity validation, and read-only graph consistency validation are implemented and covered by Rust integration tests.
 
 # Next Task
 
