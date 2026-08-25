@@ -2,6 +2,7 @@
 #![deny(clippy::all)]
 
 mod ack;
+mod async_contract_tests;
 mod async_inbox;
 mod async_in_memory;
 mod async_nats_consumer;
