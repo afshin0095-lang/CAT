@@ -1,4 +1,7 @@
-use crate::{ContentDomainError, ContentDomainResult, ContentKind, ContentRecord, ContentRepository, ContentStatus};
+use crate::{
+    versioning::{build_revision, RevisionPlan},
+    ContentDomainError, ContentDomainResult, ContentKind, ContentRecord, ContentRepository, ContentStatus,
+};
 
 pub struct ContentDomain;
 
@@ -12,6 +15,16 @@ impl ContentDomain {
         let record = ContentRecord::new(kind, title, body, version);
         repo.create(record.clone())?;
         Ok(record)
+    }
+
+    /// Creates a new content identity rather than mutating the existing version.
+    /// The returned revision carries the source version needed to reconstruct lineage.
+    pub fn revise<R: ContentRepository>(repo: &mut R, id: crate::ContentId, title: impl Into<String>, body: impl Into<String>, next_version: u32) -> ContentDomainResult<ContentRecord> {
+        let current = repo.get(id)?;
+        let plan = RevisionPlan::from_current(&current, next_version)?;
+        let revision = build_revision(&current, title.into(), body.into(), plan)?;
+        repo.create(revision.clone())?;
+        Ok(revision)
     }
 
     pub fn submit_for_review<R: ContentRepository>(repo: &mut R, id: crate::ContentId) -> ContentDomainResult<ContentRecord> {
