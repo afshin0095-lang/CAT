@@ -10,6 +10,8 @@ mod error;
 mod health;
 mod http_provider;
 mod provider_adapters;
+mod provider_error;
+mod provider_telemetry;
 mod remaining_core;
 mod resilience;
 mod resilient_adapter;
@@ -20,19 +22,13 @@ pub use adapter_layer::PlatformAdapterLayer;
 pub use adapters::{AdapterRequest, AdapterRegistry, AdapterResponse, PassthroughAdapter, PlatformAdapter};
 pub use concrete_core::ConcreteCoreRuntime;
 pub use context::{IntegrationCommand, IntegrationContext, IntegrationTarget};
-pub use core_adapters::{
-    default_core_adapter_registry, execute_typed, CoreAdapter, CoreCommand,
-    TypedCoreCommand, TypedCoreResponse, DECISION_ADAPTER, EVENT_BUS_ADAPTER,
-    KNOWLEDGE_ADAPTER, LLM_ADAPTER, MEMORY_ADAPTER, ORCHESTRATOR_ADAPTER,
-    PLANNING_ADAPTER, REASONING_ADAPTER, RETRIEVAL_ADAPTER,
-};
+pub use core_adapters::{default_core_adapter_registry, execute_typed, CoreAdapter, CoreCommand, TypedCoreCommand, TypedCoreResponse, DECISION_ADAPTER, EVENT_BUS_ADAPTER, KNOWLEDGE_ADAPTER, LLM_ADAPTER, MEMORY_ADAPTER, ORCHESTRATOR_ADAPTER, PLANNING_ADAPTER, REASONING_ADAPTER, RETRIEVAL_ADAPTER};
 pub use error::{PlatformError, PlatformResult};
 pub use health::{ComponentHealth, HealthState, PlatformHealthSnapshot};
 pub use http_provider::HttpJsonProviderAdapter;
-pub use provider_adapters::{
-    DeterministicProviderAdapter, ExternalProviderAdapter, ProviderAdapterRegistry,
-    ProviderCapabilities, ProviderHealth, ProviderHealthProbe, ProviderId,
-};
+pub use provider_adapters::{DeterministicProviderAdapter, ExternalProviderAdapter, ProviderAdapterRegistry, ProviderCapabilities, ProviderHealth, ProviderHealthProbe, ProviderId};
+pub use provider_error::{ProviderFailure, ProviderFailureClass};
+pub use provider_telemetry::ProviderTelemetry;
 pub use remaining_core::RemainingCoreRuntime;
 pub use resilience::{ProviderCircuitBreaker, ProviderCircuitConfig, ProviderCircuitState};
 pub use resilient_adapter::{ProviderRetryConfig, ResilientProviderAdapter};
