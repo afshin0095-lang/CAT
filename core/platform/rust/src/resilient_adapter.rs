@@ -1,4 +1,4 @@
-use crate::{AdapterRequest, AdapterResponse, ExternalProviderAdapter, PlatformError, PlatformResult, ProviderCapabilities, ProviderCircuitBreaker, ProviderCircuitConfig};
+use crate::{AdapterRequest, AdapterResponse, ExternalProviderAdapter, PlatformError, PlatformResult, ProviderCapabilities, ProviderCircuitBreaker, ProviderCircuitConfig, ProviderHealth, ProviderHealthProbe};
 use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
@@ -33,12 +33,20 @@ impl ResilientProviderAdapter {
         Ok(Self { circuit: ProviderCircuitBreaker::new(adapter, circuit)?, retry: retry.validate()? })
     }
 
-    pub fn capabilities(&self) -> ProviderCapabilities { self.circuit.capabilities() }
+    pub fn capabilities(&self) -> ProviderCapabilities {
+        let mut capabilities = self.circuit.capabilities();
+        capabilities.health = match self.circuit.state() {
+            crate::ProviderCircuitState::Closed => ProviderHealth::Ready,
+            crate::ProviderCircuitState::HalfOpen => ProviderHealth::Degraded,
+            crate::ProviderCircuitState::Open => ProviderHealth::Unavailable,
+        };
+        capabilities
+    }
+
     pub fn circuit_state(&self) -> crate::ProviderCircuitState { self.circuit.state() }
     pub fn consecutive_failures(&self) -> u32 { self.circuit.consecutive_failures() }
     pub fn retry_config(&self) -> ProviderRetryConfig { self.retry }
 
-    /// Execute with a strictly bounded attempt budget. Open-circuit failures are not retried.
     pub fn execute(&self, request: &AdapterRequest) -> PlatformResult<AdapterResponse> {
         let mut last_error = None;
         for attempt in 1..=self.retry.max_attempts {
@@ -59,10 +67,20 @@ impl ResilientProviderAdapter {
     }
 }
 
+impl ProviderHealthProbe for ResilientProviderAdapter {
+    fn probe_health(&self) -> PlatformResult<ProviderHealth> { Ok(self.capabilities().health) }
+}
+
+impl ExternalProviderAdapter for ResilientProviderAdapter {
+    fn capabilities(&self) -> ProviderCapabilities { ResilientProviderAdapter::capabilities(self) }
+    fn execute(&self, request: &AdapterRequest) -> PlatformResult<AdapterResponse> { ResilientProviderAdapter::execute(self, request) }
+    fn probe_health(&self) -> PlatformResult<ProviderHealth> { ProviderHealthProbe::probe_health(self) }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{AdapterRequest, DeterministicProviderAdapter, ExternalProviderAdapter, IntegrationCommand, IntegrationContext, IntegrationTarget, PlatformError, ProviderHealth, ProviderId};
+    use crate::{AdapterRequest, DeterministicProviderAdapter, IntegrationCommand, IntegrationContext, IntegrationTarget, PlatformError, ProviderHealth, ProviderId};
     use serde_json::json;
     use std::sync::atomic::{AtomicU32, Ordering};
 
@@ -107,6 +125,7 @@ mod tests {
         ).unwrap();
         assert!(resilient.execute(&request()).unwrap().accepted);
         assert_eq!(resilient.circuit_state(), crate::ProviderCircuitState::Closed);
+        assert_eq!(resilient.probe_health().unwrap(), ProviderHealth::Ready);
     }
 
     #[test]
@@ -128,6 +147,7 @@ mod tests {
         ).unwrap();
         assert!(resilient.execute(&request()).is_err());
         assert_eq!(resilient.circuit_state(), crate::ProviderCircuitState::Open);
+        assert_eq!(resilient.probe_health().unwrap(), ProviderHealth::Unavailable);
         assert!(resilient.execute(&request()).is_err());
         assert_eq!(resilient.consecutive_failures(), 1);
     }
