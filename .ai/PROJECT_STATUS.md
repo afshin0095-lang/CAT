@@ -65,7 +65,7 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 **Document:** `core/knowledge/rust/src/` + `core/knowledge/rust/tests/`
 
-**Status:** Evidence-aware retrieval filters, evidence identity validation, and read-only graph consistency validation are implemented and covered by Rust integration tests.
+**Status:** Evidence-aware retrieval filters, evidence identity validation, and read-only graph consistency validation are implemented and committed. Traversal remains bounded and read-only.
 
 # Next Task
 
