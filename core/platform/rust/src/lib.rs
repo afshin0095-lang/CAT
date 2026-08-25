@@ -11,6 +11,7 @@ mod health;
 mod provider_adapters;
 mod remaining_core;
 mod resilience;
+mod resilient_adapter;
 mod runtime;
 mod workflow_runtime;
 
@@ -32,5 +33,6 @@ pub use provider_adapters::{
 };
 pub use remaining_core::RemainingCoreRuntime;
 pub use resilience::{ProviderCircuitBreaker, ProviderCircuitConfig, ProviderCircuitState};
+pub use resilient_adapter::{ProviderRetryConfig, ResilientProviderAdapter};
 pub use runtime::{PlatformRuntime, ReadyWork};
 pub use workflow_runtime::{WorkflowExecutionReceipt, WorkflowRuntime};
