@@ -43,9 +43,7 @@ impl KnowledgeGraph {
         Ok(id)
     }
 
-    pub fn node(&self, id: KnowledgeNodeId) -> Option<&KnowledgeNode> {
-        self.nodes.get(&id)
-    }
+    pub fn node(&self, id: KnowledgeNodeId) -> Option<&KnowledgeNode> { self.nodes.get(&id) }
 
     pub fn find_node(&self, entity_type: &str, canonical_key: &str) -> Option<&KnowledgeNode> {
         self.canonical_index
@@ -74,4 +72,7 @@ impl KnowledgeGraph {
 
     pub fn node_count(&self) -> usize { self.nodes.len() }
     pub fn edge_count(&self) -> usize { self.edges.len() }
+
+    pub(crate) fn nodes_iter(&self) -> impl Iterator<Item = &KnowledgeNode> { self.nodes.values() }
+    pub(crate) fn edges_iter(&self) -> impl Iterator<Item = &KnowledgeEdge> { self.edges.values() }
 }
