@@ -61,19 +61,19 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Platform Adapter Layer — disposable local-provider integration fixtures and resilience verification
+**Current Task:** Core Event Bus — contract hardening and deterministic transport reliability verification
 
-**Document:** `core/platform/rust/tests/http_provider_integration.rs`
+**Document:** `core/eventbus/rust/src/` + `core/eventbus/rust/tests/`
 
-**Status:** Added a disposable localhost HTTP provider fixture covering successful JSON execution, non-2xx failure classification, bounded timeout behavior, degraded health probes, and resilient retry/circuit recovery. The fixture uses no external credentials or network dependencies and keeps provider transport concerns outside CAT domain and monetary truth.
+**Status:** Platform Adapter Layer transport hardening completed. Provider failures now have a structured retry/terminal taxonomy, HTTP status classification, timeout/transport classification, deterministic telemetry snapshots, and request/transport contract tests. Provider transport remains outside CAT domain and monetary truth.
 
 # Next Task
 
-Platform Adapter Layer — strengthen provider transport semantics with structured error classification, request/response contract tests, and deterministic failure telemetry before moving to the next core implementation surface.
+Core Event Bus — harden delivery semantics with contract tests for idempotency, outbox/inbox ordering, retry/dead-letter behavior, and JetStream acknowledgment/replay boundaries before moving to the next core implementation surface.
 
 # Next Tasks
 
-1. Core Event Bus — foundation implementation complete; hardening history preserved
+1. Core Event Bus — hardening delivery/idempotency/replay contracts
 2. PostgreSQL Event Store — durable implementation + projection checkpoint foundation complete; integration history preserved
 3. Knowledge Core — traversal + evidence validation stage completed
 4. LLM / AI Core — P0 foundation + P1 provider adapter layer completed
