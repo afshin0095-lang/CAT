@@ -1,4 +1,4 @@
-use crate::{ContentDomain, ContentDomainError, ContentKind, ContentStatus, InMemoryContentRepository};
+use cat_content::{ContentDomain, ContentDomainError, ContentKind, ContentStatus, InMemoryContentRepository};
 
 #[test]
 fn revision_creates_new_identity_and_preserves_source_version() {
