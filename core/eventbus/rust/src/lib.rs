@@ -11,6 +11,7 @@ mod durable;
 mod envelope;
 mod error;
 mod in_memory;
+mod metrics;
 mod nats;
 mod nats_consumer;
 mod ports;
@@ -34,6 +35,7 @@ pub use durable::{DeadLetter, DeadLetterStore, EventCodec, InMemoryDeadLetterSto
 pub use envelope::{EventEnvelope, EventKind};
 pub use error::{EventBusError, EventBusResult};
 pub use in_memory::{InMemoryIdempotency, InMemoryInbox, InMemoryOutbox};
+pub use metrics::{EventBusMetrics, EventBusMetricsSnapshot};
 pub use nats::{subject_for_prefix, AsyncEventTransport, NatsJetStreamTransport};
 pub use nats_consumer::{AsyncEventHandler, NatsConsumerConfig, NatsJetStreamConsumer};
 pub use ports::{EventTransport, IdempotencyStore, InboxStore, OutboxStore};
