@@ -8,6 +8,10 @@ pub enum KnowledgeStoreError {
     NodeNotFound(KnowledgeNodeId),
     #[error("knowledge edge references a missing node")]
     MissingEndpoint,
+    #[error("knowledge node id already exists: {0:?}")]
+    DuplicateNodeId(KnowledgeNodeId),
+    #[error("knowledge edge id already exists: {0:?}")]
+    DuplicateEdgeId(KnowledgeEdgeId),
 }
 
 pub type KnowledgeStoreResult<T> = Result<T, KnowledgeStoreError>;
@@ -25,7 +29,12 @@ impl KnowledgeGraph {
         if let Some(existing) = self.canonical_index.get(&key) {
             return Ok(*existing);
         }
+
         let id = node.id;
+        if self.nodes.contains_key(&id) {
+            return Err(KnowledgeStoreError::DuplicateNodeId(id));
+        }
+
         self.canonical_index.insert(key, id);
         self.nodes.insert(id, node);
         Ok(id)
@@ -38,7 +47,12 @@ impl KnowledgeGraph {
         if !self.nodes.contains_key(&edge.to) {
             return Err(KnowledgeStoreError::NodeNotFound(edge.to));
         }
+
         let id = edge.id;
+        if self.edges.contains_key(&id) {
+            return Err(KnowledgeStoreError::DuplicateEdgeId(id));
+        }
+
         self.edges.insert(id, edge);
         Ok(id)
     }
