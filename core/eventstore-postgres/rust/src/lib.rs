@@ -5,12 +5,14 @@ use thiserror::Error;
 
 mod async_inbox;
 mod checkpoint;
+mod health;
 mod inbox;
 mod integration;
 mod outbox;
 
 pub use async_inbox::{inbox_storage_ready, PostgresAsyncInbox};
 pub use checkpoint::{CheckpointError, CheckpointResult, PostgresProjectionCheckpointStore};
+pub use health::EventStoreHealth;
 pub use inbox::PostgresInbox;
 pub use integration::TransactionalEventPublisher;
 pub use outbox::{OutboxRecord, PostgresOutbox};
