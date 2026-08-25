@@ -65,7 +65,7 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 **Document:** `core/knowledge/rust/src/` + `core/knowledge/rust/tests/`
 
-**Status:** Evidence-aware retrieval filters, evidence identity validation, and read-only graph consistency validation are implemented. Provenance-aware query contracts and integration tests are now included; traversal remains bounded and read-only.
+**Status:** Evidence-aware retrieval filters, evidence identity validation, read-only graph consistency validation, provenance-aware query contracts, and integration tests are implemented. Traversal remains bounded and read-only.
 
 # Next Task
 
