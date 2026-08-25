@@ -9,8 +9,8 @@ description = "CAT runtime lifecycle, task orchestration, health, and graceful s
 path = "src/lib.rs"
 
 [dependencies]
-cat-eventbus = { path = "../eventbus/rust" }
-cat-kernel = { path = "../kernel/rust" }
+cat-eventbus = { path = "../../eventbus/rust" }
+cat-kernel = { path = "../../kernel/rust" }
 serde = { version = "1", features = ["derive"] }
 thiserror = "2"
 tokio = { version = "1", features = ["rt", "sync", "time"] }
