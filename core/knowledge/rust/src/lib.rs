@@ -19,4 +19,4 @@ pub use snapshot::KnowledgeSnapshot;
 pub use store::{KnowledgeGraph, KnowledgeStoreError, KnowledgeStoreResult};
 pub use temporal::ValidityWindow;
 pub use traversal::TraversalResult;
-pub use validation::{validate_edge, validate_node, KnowledgeViolation};
+pub use validation::{validate_edge, validate_evidence, validate_node, KnowledgeViolation};
