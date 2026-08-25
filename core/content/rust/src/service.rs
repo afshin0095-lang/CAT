@@ -1,4 +1,5 @@
 use crate::{
+    policy::PublicationPolicy,
     versioning::{build_revision, RevisionPlan},
     ContentDomainError, ContentDomainResult, ContentKind, ContentRecord, ContentRepository, ContentStatus,
 };
@@ -44,8 +45,16 @@ impl ContentDomain {
     }
 
     pub fn publish<R: ContentRepository>(repo: &mut R, id: crate::ContentId) -> ContentDomainResult<ContentRecord> {
+        Self::publish_with_policy(repo, id, &PublicationPolicy::default())
+    }
+
+    pub fn publish_with_policy<R: ContentRepository>(
+        repo: &mut R,
+        id: crate::ContentId,
+        policy: &PublicationPolicy,
+    ) -> ContentDomainResult<ContentRecord> {
         let mut record = repo.get(id)?;
-        if record.status != ContentStatus::Approved { return Err(ContentDomainError::InvalidState("publication requires approval")); }
+        policy.validate(&record)?;
         record.status = ContentStatus::Published;
         repo.update(record.clone())?;
         Ok(record)
