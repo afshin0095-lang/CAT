@@ -101,3 +101,26 @@ fn validate_subject_fragment(value: &str) -> EventBusResult<()> {
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn subject_prefix_is_normalized_without_double_dots() {
+        assert_eq!(subject_for_prefix("cat.events...", "affiliate.created").unwrap(), "cat.events.affiliate.created");
+        assert_eq!(subject_for_prefix("...", "affiliate.created").unwrap(), "affiliate.created");
+    }
+
+    #[test]
+    fn subject_rejects_wildcards_and_invalid_fragments() {
+        for invalid in ["", ".affiliate.created", "affiliate.created.", "affiliate created", "affiliate.*", "affiliate.>"] {
+            assert!(matches!(subject_for_prefix("cat", invalid), Err(EventBusError::InvalidConfiguration(_))));
+        }
+    }
+
+    #[test]
+    fn subject_preserves_event_version_in_canonical_event_type() {
+        assert_eq!(subject_for_prefix("cat.domain", "affiliate.created.v1").unwrap(), "cat.domain.affiliate.created.v1");
+    }
+}
