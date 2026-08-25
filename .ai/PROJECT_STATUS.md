@@ -61,20 +61,20 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Core Event Bus — contract hardening and deterministic transport reliability verification
+**Current Task:** PostgreSQL Event Store — durable implementation and projection checkpoint hardening
 
-**Document:** `core/eventbus/rust/src/` + `core/eventbus/rust/tests/`
+**Document:** `core/eventstore-postgres/rust/src/` + `core/eventstore-postgres/rust/tests/`
 
-**Status:** Platform Adapter Layer transport hardening completed. Provider failures now have a structured retry/terminal taxonomy, HTTP status classification, timeout/transport classification, deterministic telemetry snapshots, and request/transport contract tests. Provider transport remains outside CAT domain and monetary truth.
+**Status:** Core Event Bus contract hardening completed. Deterministic delivery tests now cover duplicate suppression, retry re-entry, bounded retry/dead-letter decisions, outbox acknowledgement, JetStream subject/consumer alignment, and bounded retry configuration. Verification remains transport-neutral and preserves the at-least-once EventEnvelope identity boundary.
 
 # Next Task
 
-Core Event Bus — harden delivery semantics with contract tests for idempotency, outbox/inbox ordering, retry/dead-letter behavior, and JetStream acknowledgment/replay boundaries before moving to the next core implementation surface.
+PostgreSQL Event Store — harden durable event persistence, projection checkpoints, inbox/outbox recovery, and transactional publication boundaries before moving to the next core implementation surface.
 
 # Next Tasks
 
-1. Core Event Bus — hardening delivery/idempotency/replay contracts
-2. PostgreSQL Event Store — durable implementation + projection checkpoint foundation complete; integration history preserved
-3. Knowledge Core — traversal + evidence validation stage completed
-4. LLM / AI Core — P0 foundation + P1 provider adapter layer completed
-5. Memory Core — P0 foundation completed
+1. PostgreSQL Event Store — durable implementation + projection checkpoint hardening
+2. Knowledge Core — traversal + evidence validation stage completed
+3. LLM / AI Core — P0 foundation + P1 provider adapter layer completed
+4. Memory Core — P0 foundation completed
+5. Reasoning Core — P0 foundation completed
