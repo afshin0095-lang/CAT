@@ -114,3 +114,21 @@ fn outbox_round_trip_preserves_identity() {
     outbox.acknowledge(event_id).unwrap();
     assert!(outbox.next().unwrap().is_none());
 }
+
+#[test]
+fn correlation_and_causation_form_a_replayable_lineage() {
+    let root = Uuid::now_v7();
+    let child = envelope(Uuid::now_v7(), "affiliate.created", 1)
+        .with_correlation_id(root)
+        .with_causation_id(root);
+    assert_eq!(child.correlation_id, Some(root));
+    assert_eq!(child.causation_id, Some(root));
+    assert_ne!(child.event_id, root);
+}
+
+#[test]
+fn integration_events_remain_distinguishable_from_domain_events() {
+    let event = envelope(Uuid::now_v7(), "affiliate.created", 1)
+        .with_kind(EventKind::Integration);
+    assert_eq!(event.kind, EventKind::Integration);
+}
