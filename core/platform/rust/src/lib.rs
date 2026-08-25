@@ -8,6 +8,7 @@ mod context;
 mod core_adapters;
 mod error;
 mod health;
+mod http_provider;
 mod provider_adapters;
 mod remaining_core;
 mod resilience;
@@ -27,6 +28,7 @@ pub use core_adapters::{
 };
 pub use error::{PlatformError, PlatformResult};
 pub use health::{ComponentHealth, HealthState, PlatformHealthSnapshot};
+pub use http_provider::HttpJsonProviderAdapter;
 pub use provider_adapters::{
     DeterministicProviderAdapter, ExternalProviderAdapter, ProviderAdapterRegistry,
     ProviderCapabilities, ProviderHealth, ProviderHealthProbe, ProviderId,
