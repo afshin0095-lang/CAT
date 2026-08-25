@@ -61,15 +61,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Knowledge Core — traversal + evidence validation stage
+**Current Task:** Knowledge Core — provenance-aware retrieval + consistency hardening
 
 **Document:** `core/knowledge/rust/src/` + `core/knowledge/rust/tests/`
 
-**Status:** Evidence-aware retrieval filters and graph consistency validation are now implemented; traversal remains bounded and read-only, evidence identity is validated before knowledge is trusted, and the new integration contracts are covered by Rust tests.
+**Status:** Evidence-aware retrieval filters, evidence identity validation, and read-only graph consistency validation are implemented and covered by Rust integration tests. The next increment hardens provenance-aware retrieval and graph consistency before the implementation moves to the next core.
 
 # Next Task
 
-Knowledge Core — harden provenance-aware retrieval and graph consistency contracts, then move to the next core implementation surface.
+Knowledge Core — provenance-aware retrieval + consistency hardening
 
 # Next Tasks
 
