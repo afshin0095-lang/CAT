@@ -5,10 +5,12 @@ pub mod health;
 pub mod model;
 pub mod policy;
 pub mod provider;
+pub mod stream;
 
 pub use adapters::{AnthropicProvider, OpenAiCompatibleProvider};
 pub use error::LlmError;
 pub use health::{ProviderHealthConfig, ProviderHealthRegistry, ProviderHealthSnapshot, ProviderHealthState};
-pub use model::{GenerationRequest, GenerationResponse, Message, ModelId, ProviderId, Role, SafetyClass, Usage};
+pub use model::{GenerationChunk, GenerationRequest, GenerationResponse, Message, ModelId, ProviderId, Role, SafetyClass, Usage};
 pub use policy::{LlmRouter, ModelRoute, RoutingPolicy};
 pub use provider::{DeterministicProvider, LlmProvider};
+pub use stream::{collect_stream, LlmGenerationStream};
