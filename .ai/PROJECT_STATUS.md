@@ -62,20 +62,20 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Knowledge Core — final consistency hardening
+**Current Task:** Runtime Core — cancellable execution context hardening
 
-**Document:** `core/knowledge/rust/src/` + `core/knowledge/rust/tests/`
+**Document:** `core/runtime/rust/src/` + `core/runtime/rust/tests/`
 
-**Status:** Evidence-aware retrieval filters, evidence identity validation, read-only graph consistency validation, provenance-aware query contracts, temporal provenance/persistence, deterministic snapshot restore, and integration tests are implemented. Final graph identity collision hardening is now implemented: node and edge identifiers cannot silently overwrite existing canonical state.
+**Status:** Deterministic task registry, task leasing, ownership/attempt execution gates, cancellation propagation, execution deadlines, terminal-state enforcement, and execution-context contract tests are implemented. The latest stage adds a shared cancellation token and a deterministic execution context that converts cancellation and deadline expiry into explicit terminal states before completion.
 
 # Next Task
 
-LLM / AI Core — P0 foundation + P1 provider adapter layer completed
+Runtime Core — worker execution loop + bounded concurrency boundary
 
 # Next Tasks
 
-1. LLM / AI Core — P0 foundation + P1 provider adapter layer completed
-2. Memory Core — P0 foundation completed
-3. Reasoning Core — P0 foundation completed
-4. Decision Core — P0 foundation
-5. Planning Core — P0 foundation
+1. Runtime Core — worker execution loop + bounded concurrency boundary
+2. Event Bus — final transport/replay hardening
+3. Event Store — projection/checkpoint integration hardening
+4. LLM / AI Core — P0 foundation + P1 provider adapter layer completed
+5. Memory Core — P0 foundation completed
