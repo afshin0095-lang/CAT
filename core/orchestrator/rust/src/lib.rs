@@ -3,6 +3,7 @@
 
 mod compensation;
 mod error;
+mod events;
 mod lease;
 mod model;
 mod retry;
@@ -10,6 +11,7 @@ mod scheduler;
 
 pub use compensation::{begin_compensation, compensation_order};
 pub use error::{OrchestratorError, OrchestratorResult};
+pub use events::{WorkflowCompleted, WorkflowEventFactory, WorkflowStarted, WorkflowStepStateChanged};
 pub use lease::Lease;
 pub use model::{StepState, WorkflowDefinition, WorkflowInstance, WorkflowState, WorkflowStep};
 pub use retry::RetryPolicy;
