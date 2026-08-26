@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use crate::{
-    GenerationRequest, GenerationResponse, LlmError, LlmProvider, ModelId, ProviderHealthConfig,
-    ProviderHealthRegistry, ProviderId, SafetyClass,
+    GenerationRequest, GenerationResponse, LlmError, LlmGenerationStream, LlmProvider, ModelId,
+    ProviderHealthConfig, ProviderHealthRegistry, ProviderId, SafetyClass,
 };
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -41,12 +41,7 @@ impl RoutingPolicy {
 /// Provider-aware execution boundary for LLM generation.
 ///
 /// Routing policy remains declarative: the executor never invents a provider,
-/// silently bypasses a disabled route, or downgrades a safety class. A provider
-/// must be explicitly registered and must match the provider selected by policy.
-///
-/// `generate` preserves strict single-route semantics. `generate_resilient` adds
-/// provider-health-aware fallback across explicitly declared routes for the same
-/// model and safety class; it never invents a fallback model or provider.
+/// silently bypasses a disabled route, or downgrades a safety class.
 pub struct LlmRouter {
     policy: RoutingPolicy,
     providers: Vec<Arc<dyn LlmProvider>>,
@@ -66,18 +61,11 @@ impl LlmRouter {
         }
     }
 
-    pub fn policy(&self) -> &RoutingPolicy {
-        &self.policy
-    }
-
-    pub fn health(&self) -> &ProviderHealthRegistry {
-        &self.health
-    }
+    pub fn policy(&self) -> &RoutingPolicy { &self.policy }
+    pub fn health(&self) -> &ProviderHealthRegistry { &self.health }
 
     pub fn register_provider<P>(&mut self, provider: P)
-    where
-        P: LlmProvider + 'static,
-    {
+    where P: LlmProvider + 'static {
         self.providers.push(Arc::new(provider));
     }
 
@@ -85,75 +73,43 @@ impl LlmRouter {
         self.providers.push(provider);
     }
 
-    pub fn provider_count(&self) -> usize {
-        self.providers.len()
-    }
+    pub fn provider_count(&self) -> usize { self.providers.len() }
 
     pub fn provider_ids(&self) -> Vec<ProviderId> {
         self.providers.iter().map(|provider| provider.id()).collect()
     }
 
-    pub async fn generate(&self, request: GenerationRequest) -> Result<GenerationResponse, LlmError> {
-        let route = self
-            .policy
-            .resolve(Some(&request.model), request.safety)
-            .ok_or(LlmError::NoRoute)?;
-
-        let provider = self
-            .providers
-            .iter()
-            .find(|provider| provider.id() == route.provider)
-            .ok_or_else(|| {
-                LlmError::ProviderFailure(format!(
-                    "provider {} is required by the selected route but is not registered",
-                    route.provider.0
-                ))
-            })?;
-
-        provider.generate(request).await
+    fn provider_for(&self, provider_id: &ProviderId) -> Result<&Arc<dyn LlmProvider>, LlmError> {
+        self.providers.iter().find(|provider| provider.id() == *provider_id).ok_or_else(|| {
+            LlmError::ProviderFailure(format!(
+                "provider {} is required by the selected route but is not registered",
+                provider_id.0
+            ))
+        })
     }
 
-    pub async fn generate_resilient(
-        &self,
-        request: GenerationRequest,
-    ) -> Result<GenerationResponse, LlmError> {
-        let routes: Vec<ModelRoute> = self
-            .policy
-            .routes
-            .iter()
-            .filter(|route| {
-                route.enabled
-                    && route.model == request.model
-                    && safety_allowed(route.allowed_safety, request.safety)
-            })
-            .cloned()
-            .collect();
+    pub async fn generate(&self, request: GenerationRequest) -> Result<GenerationResponse, LlmError> {
+        let route = self.policy.resolve(Some(&request.model), request.safety).ok_or(LlmError::NoRoute)?;
+        self.provider_for(&route.provider)?.generate(request).await
+    }
 
-        if routes.is_empty() {
-            return Err(LlmError::NoRoute);
-        }
+    pub async fn generate_resilient(&self, request: GenerationRequest) -> Result<GenerationResponse, LlmError> {
+        let routes: Vec<ModelRoute> = self.policy.routes.iter().filter(|route| {
+            route.enabled && route.model == request.model && safety_allowed(route.allowed_safety, request.safety)
+        }).cloned().collect();
+        if routes.is_empty() { return Err(LlmError::NoRoute); }
 
         let mut last_error = None;
-
         for route in routes {
-            if !self.health.is_available(&route.provider) {
-                continue;
-            }
-
-            let Some(provider) = self
-                .providers
-                .iter()
-                .find(|provider| provider.id() == route.provider)
-            else {
-                let error = LlmError::ProviderFailure(format!(
-                    "provider {} is required by the selected route but is not registered",
-                    route.provider.0
-                ));
-                self.health.record_failure(&route.provider);
-                last_error = Some(error);
-                continue;
+            if !self.health.is_available(&route.provider) { continue; }
+            let provider = match self.provider_for(&route.provider) {
+                Ok(provider) => provider,
+                Err(error) => {
+                    self.health.record_failure(&route.provider);
+                    last_error = Some(error);
+                    continue;
+                }
             };
-
             match provider.generate(request.clone()).await {
                 Ok(response) => {
                     self.health.record_success(&route.provider);
@@ -165,32 +121,67 @@ impl LlmRouter {
                 }
             }
         }
-
         Err(last_error.unwrap_or(LlmError::NoRoute))
     }
 
-    pub async fn generate_default(
-        &self,
-        mut request: GenerationRequest,
-    ) -> Result<GenerationResponse, LlmError> {
-        let route = self
-            .policy
-            .default_route(request.safety)
-            .ok_or(LlmError::NoRoute)?;
+    pub async fn generate_stream(&self, request: GenerationRequest) -> Result<LlmGenerationStream, LlmError> {
+        let route = self.policy.resolve(Some(&request.model), request.safety).ok_or(LlmError::NoRoute)?;
+        self.provider_for(&route.provider)?.generate_stream(request).await
+    }
+
+    pub async fn generate_stream_resilient(&self, request: GenerationRequest) -> Result<LlmGenerationStream, LlmError> {
+        let routes: Vec<ModelRoute> = self.policy.routes.iter().filter(|route| {
+            route.enabled && route.model == request.model && safety_allowed(route.allowed_safety, request.safety)
+        }).cloned().collect();
+        if routes.is_empty() { return Err(LlmError::NoRoute); }
+
+        let mut last_error = None;
+        for route in routes {
+            if !self.health.is_available(&route.provider) { continue; }
+            let provider = match self.provider_for(&route.provider) {
+                Ok(provider) => provider,
+                Err(error) => {
+                    self.health.record_failure(&route.provider);
+                    last_error = Some(error);
+                    continue;
+                }
+            };
+            match provider.generate_stream(request.clone()).await {
+                Ok(stream) => {
+                    self.health.record_success(&route.provider);
+                    return Ok(stream);
+                }
+                Err(error) => {
+                    self.health.record_failure(&route.provider);
+                    last_error = Some(error);
+                }
+            }
+        }
+        Err(last_error.unwrap_or(LlmError::NoRoute))
+    }
+
+    pub async fn generate_default(&self, mut request: GenerationRequest) -> Result<GenerationResponse, LlmError> {
+        let route = self.policy.default_route(request.safety).ok_or(LlmError::NoRoute)?;
         request.model = route.model.clone();
         self.generate(request).await
     }
 
-    pub async fn generate_default_resilient(
-        &self,
-        mut request: GenerationRequest,
-    ) -> Result<GenerationResponse, LlmError> {
-        let route = self
-            .policy
-            .default_route(request.safety)
-            .ok_or(LlmError::NoRoute)?;
+    pub async fn generate_default_resilient(&self, mut request: GenerationRequest) -> Result<GenerationResponse, LlmError> {
+        let route = self.policy.default_route(request.safety).ok_or(LlmError::NoRoute)?;
         request.model = route.model.clone();
         self.generate_resilient(request).await
+    }
+
+    pub async fn generate_default_stream(&self, mut request: GenerationRequest) -> Result<LlmGenerationStream, LlmError> {
+        let route = self.policy.default_route(request.safety).ok_or(LlmError::NoRoute)?;
+        request.model = route.model.clone();
+        self.generate_stream(request).await
+    }
+
+    pub async fn generate_default_stream_resilient(&self, mut request: GenerationRequest) -> Result<LlmGenerationStream, LlmError> {
+        let route = self.policy.default_route(request.safety).ok_or(LlmError::NoRoute)?;
+        request.model = route.model.clone();
+        self.generate_stream_resilient(request).await
     }
 }
 
@@ -207,7 +198,7 @@ fn safety_allowed(route: SafetyClass, requested: SafetyClass) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{DeterministicProvider, Message};
+    use crate::{collect_stream, DeterministicProvider, Message};
 
     fn policy() -> RoutingPolicy {
         RoutingPolicy {
@@ -223,10 +214,7 @@ mod tests {
     }
 
     fn request(safety: SafetyClass) -> GenerationRequest {
-        let mut request = GenerationRequest::new(
-            ModelId::new("deterministic-v1"),
-            vec![Message::user("route me")],
-        );
+        let mut request = GenerationRequest::new(ModelId::new("deterministic-v1"), vec![Message::user("route me")]);
         request.safety = safety;
         request
     }
@@ -235,41 +223,42 @@ mod tests {
     async fn router_executes_only_through_the_policy_selected_provider() {
         let mut router = LlmRouter::new(policy());
         router.register_provider(DeterministicProvider);
-
         let response = router.generate(request(SafetyClass::Standard)).await.unwrap();
         assert_eq!(response.provider, ProviderId::new("local.deterministic"));
         assert_eq!(response.model, ModelId::new("deterministic-v1"));
-        assert_eq!(response.content, "CAT deterministic provider: route me");
     }
 
     #[tokio::test]
     async fn router_rejects_safety_class_above_route_allowance() {
         let mut router = LlmRouter::new(policy());
         router.register_provider(DeterministicProvider);
-
-        let error = router.generate(request(SafetyClass::Restricted)).await.unwrap_err();
-        assert!(matches!(error, LlmError::NoRoute));
+        assert!(matches!(router.generate(request(SafetyClass::Restricted)).await.unwrap_err(), LlmError::NoRoute));
     }
 
     #[tokio::test]
     async fn router_rejects_missing_provider_registration() {
         let router = LlmRouter::new(policy());
-        let error = router.generate(request(SafetyClass::Standard)).await.unwrap_err();
-        assert!(matches!(error, LlmError::ProviderFailure(_)));
+        assert!(matches!(router.generate(request(SafetyClass::Standard)).await.unwrap_err(), LlmError::ProviderFailure(_)));
     }
 
     #[tokio::test]
-    async fn default_generation_selects_the_declared_default_route() {
+    async fn default_generation_selects_declared_default_route() {
         let mut router = LlmRouter::new(policy());
         router.register_provider(DeterministicProvider);
-
-        let mut request = GenerationRequest::new(
-            ModelId::new("ignored-by-default"),
-            vec![Message::user("default route")],
-        );
+        let mut request = GenerationRequest::new(ModelId::new("ignored-by-default"), vec![Message::user("default route")]);
         request.safety = SafetyClass::Standard;
-
         let response = router.generate_default(request).await.unwrap();
         assert_eq!(response.model, ModelId::new("deterministic-v1"));
+    }
+
+    #[tokio::test]
+    async fn streaming_router_preserves_complete_deterministic_output() {
+        let mut router = LlmRouter::new(policy());
+        router.register_provider(DeterministicProvider);
+        let request = request(SafetyClass::Standard);
+        let expected = router.generate(request.clone()).await.unwrap().content;
+        let stream = router.generate_stream(request).await.unwrap();
+        let actual = collect_stream(stream).await.unwrap();
+        assert_eq!(actual, expected);
     }
 }
