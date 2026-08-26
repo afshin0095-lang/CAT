@@ -67,6 +67,45 @@ pub struct Usage {
     pub total_tokens: u64,
 }
 
+/// A provider-neutral incremental generation unit.
+///
+/// `delta` is derived model output. `finish_reason` is populated only when the
+/// provider emits terminal metadata for this chunk. Usage may be omitted on
+/// intermediate chunks and supplied on the terminal chunk.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct GenerationChunk {
+    pub request_id: Uuid,
+    pub provider: ProviderId,
+    pub model: ModelId,
+    pub delta: String,
+    pub usage: Option<Usage>,
+    pub finish_reason: Option<String>,
+}
+
+impl GenerationChunk {
+    pub fn delta(
+        request_id: Uuid,
+        provider: ProviderId,
+        model: ModelId,
+        delta: impl Into<String>,
+    ) -> Self {
+        Self {
+            request_id,
+            provider,
+            model,
+            delta: delta.into(),
+            usage: None,
+            finish_reason: None,
+        }
+    }
+
+    pub fn terminal(mut self, usage: Usage, finish_reason: impl Into<String>) -> Self {
+        self.usage = Some(usage);
+        self.finish_reason = Some(finish_reason.into());
+        self
+    }
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GenerationResponse {
     pub request_id: Uuid,
