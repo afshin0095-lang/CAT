@@ -2,6 +2,7 @@ use crate::{
     policy::PublicationPolicy,
     versioning::{build_revision, RevisionPlan},
     ContentDomainError, ContentDomainResult, ContentKind, ContentRecord, ContentRepository, ContentStatus,
+    PublicationReceipt, PublicationReceiptRepository,
 };
 
 pub struct ContentDomain;
@@ -58,5 +59,28 @@ impl ContentDomain {
         record.status = ContentStatus::Published;
         repo.update(record.clone())?;
         Ok(record)
+    }
+
+    /// Records an observed publication outcome without changing authorization or canonical content truth.
+    pub fn record_publication_receipt<R: ContentRepository, P: PublicationReceiptRepository>(
+        repo: &R,
+        receipts: &mut P,
+        receipt: PublicationReceipt,
+    ) -> ContentDomainResult<PublicationReceipt> {
+        let content = repo.get(receipt.content_id)?;
+        if receipt.revision_id != content.id {
+            return Err(ContentDomainError::InvalidState("publication receipt revision mismatch"));
+        }
+        if receipt.destination.trim().is_empty() {
+            return Err(ContentDomainError::InvalidState("publication receipt destination is empty"));
+        }
+        if receipt.policy_version.trim().is_empty() {
+            return Err(ContentDomainError::InvalidState("publication receipt policy version is empty"));
+        }
+        if receipt.content_hash.trim().is_empty() {
+            return Err(ContentDomainError::InvalidState("publication receipt content hash is empty"));
+        }
+        receipts.append(receipt.clone())?;
+        Ok(receipt)
     }
 }
