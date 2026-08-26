@@ -212,7 +212,8 @@ fn registry_negotiates_contract_versions_deterministically() {
     assert!(registry.is_compatible("affiliate.created", 2, 2).unwrap());
     assert!(registry.is_compatible("affiliate.created", 2, 3).unwrap());
     assert!(!registry.is_compatible("affiliate.created", 2, 1).unwrap());
-    assert!(!registry.is_compatible("affiliate.created", 3, 3).unwrap() == false);
+    assert!(registry.is_compatible("affiliate.created", 3, 3).unwrap());
+    assert!(!registry.is_compatible("affiliate.created", 3, 2).unwrap());
 
     let resolved = registry
         .resolve_compatible("affiliate.created", 2)
