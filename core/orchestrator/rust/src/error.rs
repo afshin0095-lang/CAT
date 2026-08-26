@@ -6,6 +6,12 @@ pub enum OrchestratorError {
     WorkflowNotFound(String),
     #[error("workflow step {step} is not ready")]
     StepNotReady { step: String },
+    #[error("workflow step {step_id} does not exist")]
+    UnknownStep { step_id: String },
+    #[error("invalid workflow transition from {from} to {to}")]
+    InvalidStateTransition { from: String, to: String },
+    #[error("invalid step {step_id} transition from {from} to {to}")]
+    InvalidStepTransition { step_id: String, from: String, to: String },
     #[error("lease {lease_id} is not owned by {owner}")]
     LeaseOwnerMismatch { lease_id: String, owner: String },
     #[error("lease {lease_id} has expired")]
