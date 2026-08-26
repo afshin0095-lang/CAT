@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use futures_util::StreamExt;
+
 use crate::{
     GenerationRequest, GenerationResponse, LlmError, LlmGenerationStream, LlmProvider, ModelId,
     ProviderHealthConfig, ProviderHealthRegistry, ProviderId, SafetyClass,
@@ -38,10 +40,6 @@ impl RoutingPolicy {
     }
 }
 
-/// Provider-aware execution boundary for LLM generation.
-///
-/// Routing policy remains declarative: the executor never invents a provider,
-/// silently bypasses a disabled route, or downgrades a safety class.
 pub struct LlmRouter {
     policy: RoutingPolicy,
     providers: Vec<Arc<dyn LlmProvider>>,
@@ -49,42 +47,25 @@ pub struct LlmRouter {
 }
 
 impl LlmRouter {
-    pub fn new(policy: RoutingPolicy) -> Self {
-        Self::with_health_config(policy, ProviderHealthConfig::default())
-    }
+    pub fn new(policy: RoutingPolicy) -> Self { Self::with_health_config(policy, ProviderHealthConfig::default()) }
 
     pub fn with_health_config(policy: RoutingPolicy, config: ProviderHealthConfig) -> Self {
-        Self {
-            policy,
-            providers: Vec::new(),
-            health: ProviderHealthRegistry::new(config),
-        }
+        Self { policy, providers: Vec::new(), health: ProviderHealthRegistry::new(config) }
     }
 
     pub fn policy(&self) -> &RoutingPolicy { &self.policy }
     pub fn health(&self) -> &ProviderHealthRegistry { &self.health }
 
     pub fn register_provider<P>(&mut self, provider: P)
-    where P: LlmProvider + 'static {
-        self.providers.push(Arc::new(provider));
-    }
+    where P: LlmProvider + 'static { self.providers.push(Arc::new(provider)); }
 
-    pub fn register_shared_provider(&mut self, provider: Arc<dyn LlmProvider>) {
-        self.providers.push(provider);
-    }
-
+    pub fn register_shared_provider(&mut self, provider: Arc<dyn LlmProvider>) { self.providers.push(provider); }
     pub fn provider_count(&self) -> usize { self.providers.len() }
-
-    pub fn provider_ids(&self) -> Vec<ProviderId> {
-        self.providers.iter().map(|provider| provider.id()).collect()
-    }
+    pub fn provider_ids(&self) -> Vec<ProviderId> { self.providers.iter().map(|provider| provider.id()).collect() }
 
     fn provider_for(&self, provider_id: &ProviderId) -> Result<&Arc<dyn LlmProvider>, LlmError> {
         self.providers.iter().find(|provider| provider.id() == *provider_id).ok_or_else(|| {
-            LlmError::ProviderFailure(format!(
-                "provider {} is required by the selected route but is not registered",
-                provider_id.0
-            ))
+            LlmError::ProviderFailure(format!("provider {} is required by the selected route but is not registered", provider_id.0))
         })
     }
 
@@ -98,27 +79,16 @@ impl LlmRouter {
             route.enabled && route.model == request.model && safety_allowed(route.allowed_safety, request.safety)
         }).cloned().collect();
         if routes.is_empty() { return Err(LlmError::NoRoute); }
-
         let mut last_error = None;
         for route in routes {
             if !self.health.is_available(&route.provider) { continue; }
             let provider = match self.provider_for(&route.provider) {
                 Ok(provider) => provider,
-                Err(error) => {
-                    self.health.record_failure(&route.provider);
-                    last_error = Some(error);
-                    continue;
-                }
+                Err(error) => { self.health.record_failure(&route.provider); last_error = Some(error); continue; }
             };
             match provider.generate(request.clone()).await {
-                Ok(response) => {
-                    self.health.record_success(&route.provider);
-                    return Ok(response);
-                }
-                Err(error) => {
-                    self.health.record_failure(&route.provider);
-                    last_error = Some(error);
-                }
+                Ok(response) => { self.health.record_success(&route.provider); return Ok(response); }
+                Err(error) => { self.health.record_failure(&route.provider); last_error = Some(error); }
             }
         }
         Err(last_error.unwrap_or(LlmError::NoRoute))
@@ -134,27 +104,30 @@ impl LlmRouter {
             route.enabled && route.model == request.model && safety_allowed(route.allowed_safety, request.safety)
         }).cloned().collect();
         if routes.is_empty() { return Err(LlmError::NoRoute); }
-
         let mut last_error = None;
         for route in routes {
             if !self.health.is_available(&route.provider) { continue; }
             let provider = match self.provider_for(&route.provider) {
                 Ok(provider) => provider,
-                Err(error) => {
-                    self.health.record_failure(&route.provider);
-                    last_error = Some(error);
-                    continue;
-                }
+                Err(error) => { self.health.record_failure(&route.provider); last_error = Some(error); continue; }
             };
             match provider.generate_stream(request.clone()).await {
                 Ok(stream) => {
-                    self.health.record_success(&route.provider);
-                    return Ok(stream);
+                    let provider_id = route.provider.clone();
+                    let health = self.health.clone();
+                    let guarded = stream.map(move |item| match item {
+                        Ok(chunk) => {
+                            if chunk.finish_reason.is_some() { health.record_success(&provider_id); }
+                            Ok(chunk)
+                        }
+                        Err(error) => {
+                            health.record_failure(&provider_id);
+                            Err(error)
+                        }
+                    });
+                    return Ok(Box::pin(guarded));
                 }
-                Err(error) => {
-                    self.health.record_failure(&route.provider);
-                    last_error = Some(error);
-                }
+                Err(error) => { self.health.record_failure(&route.provider); last_error = Some(error); }
             }
         }
         Err(last_error.unwrap_or(LlmError::NoRoute))
@@ -202,12 +175,7 @@ mod tests {
 
     fn policy() -> RoutingPolicy {
         RoutingPolicy {
-            routes: vec![ModelRoute {
-                provider: ProviderId::new("local.deterministic"),
-                model: ModelId::new("deterministic-v1"),
-                allowed_safety: SafetyClass::Sensitive,
-                enabled: true,
-            }],
+            routes: vec![ModelRoute { provider: ProviderId::new("local.deterministic"), model: ModelId::new("deterministic-v1"), allowed_safety: SafetyClass::Sensitive, enabled: true }],
             default_provider: ProviderId::new("local.deterministic"),
             default_model: ModelId::new("deterministic-v1"),
         }
@@ -260,5 +228,16 @@ mod tests {
         let stream = router.generate_stream(request).await.unwrap();
         let actual = collect_stream(stream).await.unwrap();
         assert_eq!(actual, expected);
+    }
+
+    #[tokio::test]
+    async fn resilient_streaming_marks_provider_healthy_only_at_terminal_chunk() {
+        let mut router = LlmRouter::new(policy());
+        router.register_provider(DeterministicProvider);
+        let provider = ProviderId::new("local.deterministic");
+        let stream = router.generate_stream_resilient(request(SafetyClass::Standard)).await.unwrap();
+        assert_eq!(router.health().snapshot(&provider).state, crate::ProviderHealthState::Healthy);
+        let _ = collect_stream(stream).await.unwrap();
+        assert_eq!(router.health().snapshot(&provider).state, crate::ProviderHealthState::Healthy);
     }
 }
