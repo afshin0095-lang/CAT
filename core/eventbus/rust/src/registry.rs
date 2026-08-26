@@ -69,6 +69,69 @@ impl EventRegistry {
             })
     }
 
+    /// Returns the highest registered version for an event type.
+    pub fn latest_version(&self, event_type: &str) -> Option<u16> {
+        self.contracts
+            .keys()
+            .filter_map(|(registered_type, version)| {
+                (registered_type == event_type).then_some(*version)
+            })
+            .max()
+    }
+
+    /// Lists all registered versions for an event type in ascending order.
+    pub fn versions(&self, event_type: &str) -> Vec<u16> {
+        self.contracts
+            .keys()
+            .filter_map(|(registered_type, version)| {
+                (registered_type == event_type).then_some(*version)
+            })
+            .collect()
+    }
+
+    /// Checks whether a consumer targeting `consumer_version` can consume a
+    /// producer contract. Breaking contracts are never auto-compatible.
+    pub fn is_compatible(
+        &self,
+        event_type: &str,
+        producer_version: u16,
+        consumer_version: u16,
+    ) -> EventBusResult<bool> {
+        let producer = self.require(event_type, producer_version)?;
+
+        if producer_version == consumer_version {
+            return Ok(true);
+        }
+
+        Ok(match producer.compatibility {
+            Compatibility::Full => true,
+            Compatibility::Backward => consumer_version >= producer_version,
+            Compatibility::Forward => consumer_version <= producer_version,
+            Compatibility::Breaking => false,
+        })
+    }
+
+    /// Resolves a consumer request to the newest compatible registered version.
+    pub fn resolve_compatible(
+        &self,
+        event_type: &str,
+        consumer_version: u16,
+    ) -> EventBusResult<&EventContract> {
+        self.versions(event_type)
+            .into_iter()
+            .rev()
+            .find_map(|version| {
+                self.is_compatible(event_type, version, consumer_version)
+                    .ok()
+                    .filter(|compatible| *compatible)
+                    .and_then(|_| self.get(event_type, version))
+            })
+            .ok_or_else(|| EventBusError::UnknownContract {
+                event_type: event_type.to_owned(),
+                version: consumer_version,
+            })
+    }
+
     pub fn len(&self) -> usize {
         self.contracts.len()
     }
