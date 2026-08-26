@@ -66,7 +66,7 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 **Document:** `core/llm/rust/src/model.rs` + `core/llm/rust/src/provider.rs` + `core/llm/rust/src/stream.rs` + `core/llm/rust/tests/streaming_contract.rs`
 
-**Status:** Completed. Canonical incremental `GenerationChunk` objects, provider-neutral `LlmGenerationStream`, stream collection, deterministic multi-chunk provider behavior, router streaming execution, resilient streaming routing, and external contract tests are implemented. Streaming remains derived intelligence and never becomes canonical business truth.
+**Status:** Completed. Canonical incremental `GenerationChunk` objects, provider-neutral `LlmGenerationStream`, stream collection, deterministic multi-chunk provider behavior, router streaming execution, resilient streaming routing, stream-lifecycle-aware provider health settlement, and external contract tests are implemented. Streaming remains derived intelligence and never becomes canonical business truth.
 
 # Next Task
 
