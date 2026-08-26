@@ -176,3 +176,46 @@ fn metrics_and_router_contract_remain_deterministic() {
         }
     );
 }
+
+
+#[test]
+fn registry_negotiates_contract_versions_deterministically() {
+    let mut registry = EventRegistry::default();
+    registry
+        .register(EventContract::new(
+            "affiliate.created",
+            1,
+            "affiliate.created.v1",
+            Compatibility::Full,
+        ))
+        .unwrap();
+    registry
+        .register(EventContract::new(
+            "affiliate.created",
+            2,
+            "affiliate.created.v2",
+            Compatibility::Backward,
+        ))
+        .unwrap();
+    registry
+        .register(EventContract::new(
+            "affiliate.created",
+            3,
+            "affiliate.created.v3",
+            Compatibility::Breaking,
+        ))
+        .unwrap();
+
+    assert_eq!(registry.latest_version("affiliate.created"), Some(3));
+    assert_eq!(registry.versions("affiliate.created"), vec![1, 2, 3]);
+    assert!(registry.is_compatible("affiliate.created", 1, 9).unwrap());
+    assert!(registry.is_compatible("affiliate.created", 2, 2).unwrap());
+    assert!(registry.is_compatible("affiliate.created", 2, 3).unwrap());
+    assert!(!registry.is_compatible("affiliate.created", 2, 1).unwrap());
+    assert!(!registry.is_compatible("affiliate.created", 3, 3).unwrap() == false);
+
+    let resolved = registry
+        .resolve_compatible("affiliate.created", 2)
+        .unwrap();
+    assert_eq!(resolved.version, 2);
+}
