@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
-use crate::{GenerationRequest, GenerationResponse, LlmError, LlmProvider, ModelId, ProviderId, SafetyClass};
+use crate::{
+    GenerationRequest, GenerationResponse, LlmError, LlmProvider, ModelId, ProviderHealthConfig,
+    ProviderHealthRegistry, ProviderId, SafetyClass,
+};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ModelRoute {
@@ -40,21 +43,35 @@ impl RoutingPolicy {
 /// Routing policy remains declarative: the executor never invents a provider,
 /// silently bypasses a disabled route, or downgrades a safety class. A provider
 /// must be explicitly registered and must match the provider selected by policy.
+///
+/// `generate` preserves strict single-route semantics. `generate_resilient` adds
+/// provider-health-aware fallback across explicitly declared routes for the same
+/// model and safety class; it never invents a fallback model or provider.
 pub struct LlmRouter {
     policy: RoutingPolicy,
     providers: Vec<Arc<dyn LlmProvider>>,
+    health: ProviderHealthRegistry,
 }
 
 impl LlmRouter {
     pub fn new(policy: RoutingPolicy) -> Self {
+        Self::with_health_config(policy, ProviderHealthConfig::default())
+    }
+
+    pub fn with_health_config(policy: RoutingPolicy, config: ProviderHealthConfig) -> Self {
         Self {
             policy,
             providers: Vec::new(),
+            health: ProviderHealthRegistry::new(config),
         }
     }
 
     pub fn policy(&self) -> &RoutingPolicy {
         &self.policy
+    }
+
+    pub fn health(&self) -> &ProviderHealthRegistry {
+        &self.health
     }
 
     pub fn register_provider<P>(&mut self, provider: P)
@@ -96,6 +113,62 @@ impl LlmRouter {
         provider.generate(request).await
     }
 
+    pub async fn generate_resilient(
+        &self,
+        request: GenerationRequest,
+    ) -> Result<GenerationResponse, LlmError> {
+        let routes: Vec<ModelRoute> = self
+            .policy
+            .routes
+            .iter()
+            .filter(|route| {
+                route.enabled
+                    && route.model == request.model
+                    && safety_allowed(route.allowed_safety, request.safety)
+            })
+            .cloned()
+            .collect();
+
+        if routes.is_empty() {
+            return Err(LlmError::NoRoute);
+        }
+
+        let mut last_error = None;
+
+        for route in routes {
+            if !self.health.is_available(&route.provider) {
+                continue;
+            }
+
+            let Some(provider) = self
+                .providers
+                .iter()
+                .find(|provider| provider.id() == route.provider)
+            else {
+                let error = LlmError::ProviderFailure(format!(
+                    "provider {} is required by the selected route but is not registered",
+                    route.provider.0
+                ));
+                self.health.record_failure(&route.provider);
+                last_error = Some(error);
+                continue;
+            };
+
+            match provider.generate(request.clone()).await {
+                Ok(response) => {
+                    self.health.record_success(&route.provider);
+                    return Ok(response);
+                }
+                Err(error) => {
+                    self.health.record_failure(&route.provider);
+                    last_error = Some(error);
+                }
+            }
+        }
+
+        Err(last_error.unwrap_or(LlmError::NoRoute))
+    }
+
     pub async fn generate_default(
         &self,
         mut request: GenerationRequest,
@@ -106,6 +179,18 @@ impl LlmRouter {
             .ok_or(LlmError::NoRoute)?;
         request.model = route.model.clone();
         self.generate(request).await
+    }
+
+    pub async fn generate_default_resilient(
+        &self,
+        mut request: GenerationRequest,
+    ) -> Result<GenerationResponse, LlmError> {
+        let route = self
+            .policy
+            .default_route(request.safety)
+            .ok_or(LlmError::NoRoute)?;
+        request.model = route.model.clone();
+        self.generate_resilient(request).await
     }
 }
 
