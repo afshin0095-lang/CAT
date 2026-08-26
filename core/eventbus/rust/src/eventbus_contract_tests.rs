@@ -132,3 +132,47 @@ fn integration_events_remain_distinguishable_from_domain_events() {
         .with_kind(EventKind::Integration);
     assert_eq!(event.kind, EventKind::Integration);
 }
+
+
+#[test]
+fn metrics_and_router_contract_remain_deterministic() {
+    use crate::{
+        EndpointTransport, EventBusMetrics, EventBusMetricsSnapshot, EventRouter,
+        RecordingTransport, TransportEndpoint, TransportId, TransportRegistry, TransportRoute,
+    };
+
+    let transport_id = TransportId::new("contract-router").unwrap();
+    let mut registry = TransportRegistry::new();
+    registry
+        .register(EndpointTransport::new(
+            TransportEndpoint::new(transport_id.clone(), "cat.events."),
+            RecordingTransport::default(),
+        ))
+        .unwrap();
+
+    let mut router = EventRouter::new(registry);
+    router.add_route(TransportRoute::exact_event(
+        "affiliate.created",
+        transport_id.clone(),
+    ));
+
+    let metrics = EventBusMetrics::default();
+    let event = envelope(Uuid::now_v7(), "affiliate.created", 1);
+
+    metrics.record_published();
+    assert_eq!(router.publish(&event).unwrap(), transport_id);
+    metrics.record_delivered();
+    metrics.record_acknowledged();
+
+    assert_eq!(
+        metrics.snapshot(),
+        EventBusMetricsSnapshot {
+            published: 1,
+            delivered: 1,
+            acknowledged: 1,
+            retried: 0,
+            dead_lettered: 0,
+            rejected: 0,
+        }
+    );
+}
