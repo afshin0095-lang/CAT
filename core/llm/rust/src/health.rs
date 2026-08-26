@@ -37,6 +37,7 @@ pub struct ProviderHealthSnapshot {
 struct ProviderHealthEntry {
     consecutive_failures: u32,
     opened_at: Option<Instant>,
+    probe_in_flight: bool,
 }
 
 impl ProviderHealthEntry {
@@ -44,6 +45,7 @@ impl ProviderHealthEntry {
         Self {
             consecutive_failures: 0,
             opened_at: None,
+            probe_in_flight: false,
         }
     }
 
@@ -51,7 +53,11 @@ impl ProviderHealthEntry {
         match self.opened_at {
             None => ProviderHealthState::Healthy,
             Some(opened_at) if now.duration_since(opened_at) >= cooldown => {
-                ProviderHealthState::HalfOpen
+                if self.probe_in_flight {
+                    ProviderHealthState::HalfOpen
+                } else {
+                    ProviderHealthState::HalfOpen
+                }
             }
             Some(_) => ProviderHealthState::Open,
         }
@@ -60,9 +66,9 @@ impl ProviderHealthEntry {
 
 /// Thread-safe provider circuit state used by the LLM router.
 ///
-/// This is deliberately provider-neutral. It does not decide which model should
-/// be used; it only prevents repeatedly sending traffic to a provider that is
-/// demonstrably failing and allows a controlled half-open recovery probe.
+/// The registry does not choose models or rewrite policy. It only suppresses
+/// repeated calls to a failing provider and permits one controlled recovery
+/// probe after the cooldown interval.
 #[derive(Clone, Debug)]
 pub struct ProviderHealthRegistry {
     config: ProviderHealthConfig,
@@ -88,10 +94,12 @@ impl ProviderHealthRegistry {
             ProviderHealthState::Healthy => true,
             ProviderHealthState::Open => false,
             ProviderHealthState::HalfOpen => {
-                // Reserve the half-open probe by clearing the opening timestamp.
-                // A concurrent caller may therefore become the recovery probe.
-                entry.opened_at = Some(Instant::now());
-                true
+                if entry.probe_in_flight {
+                    false
+                } else {
+                    entry.probe_in_flight = true;
+                    true
+                }
             }
         }
     }
@@ -101,12 +109,14 @@ impl ProviderHealthRegistry {
         let entry = entries.entry(provider.clone()).or_insert_with(ProviderHealthEntry::new);
         entry.consecutive_failures = 0;
         entry.opened_at = None;
+        entry.probe_in_flight = false;
     }
 
     pub fn record_failure(&self, provider: &ProviderId) {
         let mut entries = self.entries.lock().expect("provider health mutex poisoned");
         let entry = entries.entry(provider.clone()).or_insert_with(ProviderHealthEntry::new);
         entry.consecutive_failures = entry.consecutive_failures.saturating_add(1);
+        entry.probe_in_flight = false;
         if entry.consecutive_failures >= self.config.failure_threshold {
             entry.opened_at = Some(Instant::now());
         }
