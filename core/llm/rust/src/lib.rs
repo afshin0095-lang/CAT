@@ -8,6 +8,7 @@ pub mod policy;
 pub mod prompt;
 pub mod provider;
 pub mod stream;
+pub mod tool;
 
 pub use adapters::{AnthropicProvider, OpenAiCompatibleProvider};
 pub use error::LlmError;
@@ -18,3 +19,4 @@ pub use policy::{LlmRouter, ModelRoute, RoutingPolicy};
 pub use prompt::{PromptId, PromptRegistry, PromptTemplate, PromptVersion, RenderedPrompt};
 pub use provider::{DeterministicProvider, LlmProvider};
 pub use stream::{collect_stream, LlmGenerationStream};
+pub use tool::{ToolCall, ToolDefinition, ToolExecution, ToolExecutionStatus, ToolExecutor, ToolExecutorRegistry, ToolId, ToolRegistry, ToolVersion};
