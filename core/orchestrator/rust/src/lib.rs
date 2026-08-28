@@ -9,6 +9,7 @@ mod lease;
 mod model;
 mod retry;
 mod scheduler;
+mod validation;
 
 pub use compensation::{begin_compensation, compensation_order};
 pub use error::{OrchestratorError, OrchestratorResult};
@@ -18,6 +19,7 @@ pub use lease::Lease;
 pub use model::{StepState, WorkflowDefinition, WorkflowInstance, WorkflowState, WorkflowStep};
 pub use retry::RetryPolicy;
 pub use scheduler::{ScheduleRequest, Scheduler};
+pub use validation::{new_validated_instance, ready_steps, topological_order, validate_definition, workflow_id};
 
 #[cfg(test)]
 mod tests {
