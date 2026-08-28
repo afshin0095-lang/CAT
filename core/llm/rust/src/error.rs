@@ -12,4 +12,6 @@ pub enum LlmError {
     InvalidPrompt(String),
     #[error("invalid prompt evaluation: {0}")]
     InvalidEvaluation(String),
+    #[error("invalid tool contract: {0}")]
+    InvalidTool(String),
 }
