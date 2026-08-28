@@ -62,20 +62,20 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** LLM / AI Core — prompt registry + evaluation boundary
+**Current Task:** LLM / AI Core — tool execution contract
 
-**Document:** `core/llm/rust/src/prompt.rs` + `core/llm/rust/src/evaluation.rs` + `core/llm/rust/tests/prompt_evaluation_contract.rs`
+**Document:** `core/llm/rust/src/tool.rs` + `core/llm/rust/src/error.rs` + `core/llm/rust/tests/tool_execution_contract.rs`
 
-**Status:** Completed. Immutable prompt identities and versions, deterministic variable rendering, unresolved-variable rejection, append-only registry semantics, provider-neutral evaluation contracts, bounded derived scores, deterministic baseline evaluation, provenance capture, and external contract tests are implemented. Prompt definitions and evaluations remain derived intelligence and never mutate canonical business truth.
+**Status:** Completed. Immutable tool identities and versions, append-only definition and executor registries, validated JSON-object inputs, deterministic execution evidence, strict call/result identity matching, explicit success/rejection/failure semantics, provenance capture, and external contract tests are implemented. Tool execution remains provider-neutral; canonical business-state mutation stays outside the LLM core and requires the owning domain runtime.
 
 # Next Task
 
-LLM / AI Core — prompt registry + evaluation boundary
+LLM / AI Core — prompt/tool policy hardening
 
 # Next Tasks
 
-1. LLM / AI Core — tool execution contract
-2. LLM / AI Core — prompt/tool policy hardening
+1. LLM / AI Core — prompt/tool policy hardening
+2. LLM / AI Core — provider/tool authorization boundary
 3. Memory Core — P0 foundation completed
 4. Reasoning Core — P0 foundation completed
 5. Decision Core — P0 foundation
