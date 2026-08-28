@@ -8,4 +8,8 @@ pub enum LlmError {
     ProviderFailure(String),
     #[error("invalid generation request: {0}")]
     InvalidRequest(String),
+    #[error("invalid prompt contract: {0}")]
+    InvalidPrompt(String),
+    #[error("invalid prompt evaluation: {0}")]
+    InvalidEvaluation(String),
 }
