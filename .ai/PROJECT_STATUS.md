@@ -62,11 +62,11 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** LLM / AI Core — provider-neutral streaming contract
+**Current Task:** LLM / AI Core — prompt registry + evaluation boundary
 
-**Document:** `core/llm/rust/src/model.rs` + `core/llm/rust/src/provider.rs` + `core/llm/rust/src/stream.rs` + `core/llm/rust/tests/streaming_contract.rs`
+**Document:** `core/llm/rust/src/prompt.rs` + `core/llm/rust/src/evaluation.rs` + `core/llm/rust/tests/prompt_evaluation_contract.rs`
 
-**Status:** Completed. Canonical incremental `GenerationChunk` objects, provider-neutral `LlmGenerationStream`, stream collection, deterministic multi-chunk provider behavior, router streaming execution, resilient streaming routing, stream-lifecycle-aware provider health settlement, and external contract tests are implemented. Streaming remains derived intelligence and never becomes canonical business truth.
+**Status:** Completed. Immutable prompt identities and versions, deterministic variable rendering, unresolved-variable rejection, append-only registry semantics, provider-neutral evaluation contracts, bounded derived scores, deterministic baseline evaluation, provenance capture, and external contract tests are implemented. Prompt definitions and evaluations remain derived intelligence and never mutate canonical business truth.
 
 # Next Task
 
@@ -74,8 +74,8 @@ LLM / AI Core — prompt registry + evaluation boundary
 
 # Next Tasks
 
-1. LLM / AI Core — prompt registry + evaluation boundary
-2. LLM / AI Core — tool execution contract
+1. LLM / AI Core — tool execution contract
+2. LLM / AI Core — prompt/tool policy hardening
 3. Memory Core — P0 foundation completed
 4. Reasoning Core — P0 foundation completed
 5. Decision Core — P0 foundation
