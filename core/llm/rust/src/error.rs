@@ -14,4 +14,8 @@ pub enum LlmError {
     InvalidEvaluation(String),
     #[error("invalid tool contract: {0}")]
     InvalidTool(String),
+    #[error("invalid LLM policy: {0}")]
+    InvalidPolicy(String),
+    #[error("LLM policy denied the operation: {0}")]
+    PolicyDenied(String),
 }

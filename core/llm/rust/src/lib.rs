@@ -1,5 +1,6 @@
 mod http;
 pub mod adapters;
+pub mod authorization;
 pub mod error;
 pub mod evaluation;
 pub mod health;
@@ -11,6 +12,7 @@ pub mod stream;
 pub mod tool;
 
 pub use adapters::{AnthropicProvider, OpenAiCompatibleProvider};
+pub use authorization::{safety_allowed as policy_safety_allowed, PolicyDecision, PolicyId, PolicyVersion, PromptToolPolicy, ToolGrant};
 pub use error::LlmError;
 pub use evaluation::{NonEmptyOutputEvaluator, PromptEvaluation, PromptEvaluator};
 pub use health::{ProviderHealthConfig, ProviderHealthRegistry, ProviderHealthSnapshot, ProviderHealthState};

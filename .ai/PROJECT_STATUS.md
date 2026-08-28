@@ -2,7 +2,6 @@
 
 > Official Development Dashboard
 > Project: CAT (Commerce AI Trinity)
-> Project: CAT (Commerce AI Trinity)
 > Company: Omni System
 > Repository Status: Active Development
 
@@ -62,20 +61,20 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** LLM / AI Core — tool execution contract
+**Current Task:** LLM / AI Core — prompt/tool policy hardening
 
-**Document:** `core/llm/rust/src/tool.rs` + `core/llm/rust/src/error.rs` + `core/llm/rust/tests/tool_execution_contract.rs`
+**Document:** `core/llm/rust/src/authorization.rs` + `core/llm/rust/src/error.rs` + `core/llm/rust/src/lib.rs` + `core/llm/rust/tests/prompt_tool_policy_contract.rs`
 
-**Status:** Completed. Immutable tool identities and versions, append-only definition and executor registries, validated JSON-object inputs, deterministic execution evidence, strict call/result identity matching, explicit success/rejection/failure semantics, provenance capture, and external contract tests are implemented. Tool execution remains provider-neutral; canonical business-state mutation stays outside the LLM core and requires the owning domain runtime.
+**Status:** Completed. Version-specific, fail-closed prompt and tool authorization now enforces explicit grants, safety ceilings, immutable policy identity/version, enabled state, and deterministic prompt/tool input size limits. The LLM core still does not own canonical business-state mutation; authorization here governs LLM-facing contract admission only.
 
 # Next Task
 
-LLM / AI Core — prompt/tool policy hardening
+LLM / AI Core — provider/tool authorization boundary
 
 # Next Tasks
 
-1. LLM / AI Core — prompt/tool policy hardening
-2. LLM / AI Core — provider/tool authorization boundary
+1. LLM / AI Core — provider/tool authorization boundary
+2. LLM / AI Core — execution-time policy integration
 3. Memory Core — P0 foundation completed
 4. Reasoning Core — P0 foundation completed
 5. Decision Core — P0 foundation
