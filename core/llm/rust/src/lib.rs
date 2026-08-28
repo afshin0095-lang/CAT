@@ -1,16 +1,20 @@
 mod http;
 pub mod adapters;
 pub mod error;
+pub mod evaluation;
 pub mod health;
 pub mod model;
 pub mod policy;
+pub mod prompt;
 pub mod provider;
 pub mod stream;
 
 pub use adapters::{AnthropicProvider, OpenAiCompatibleProvider};
 pub use error::LlmError;
+pub use evaluation::{NonEmptyOutputEvaluator, PromptEvaluation, PromptEvaluator};
 pub use health::{ProviderHealthConfig, ProviderHealthRegistry, ProviderHealthSnapshot, ProviderHealthState};
 pub use model::{GenerationChunk, GenerationRequest, GenerationResponse, Message, ModelId, ProviderId, Role, SafetyClass, Usage};
 pub use policy::{LlmRouter, ModelRoute, RoutingPolicy};
+pub use prompt::{PromptId, PromptRegistry, PromptTemplate, PromptVersion, RenderedPrompt};
 pub use provider::{DeterministicProvider, LlmProvider};
 pub use stream::{collect_stream, LlmGenerationStream};
