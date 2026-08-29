@@ -6,8 +6,10 @@ mod error;
 mod events;
 mod execution;
 mod lease;
+mod idempotency;
 mod model;
 mod retry;
+mod replay;
 mod scheduler;
 mod validation;
 
@@ -16,8 +18,10 @@ pub use error::{OrchestratorError, OrchestratorResult};
 pub use events::{WorkflowCompleted, WorkflowEventFactory, WorkflowStarted, WorkflowStepStateChanged};
 pub use execution::ExecutionEngine;
 pub use lease::Lease;
+pub use idempotency::{workflow_key, IdempotencyRegistry};
 pub use model::{StepState, WorkflowDefinition, WorkflowInstance, WorkflowState, WorkflowStep};
 pub use retry::RetryPolicy;
+pub use replay::{snapshot as replay_snapshot, verify_replay, ReplaySnapshot};
 pub use scheduler::{ScheduleRequest, Scheduler};
 pub use validation::{new_validated_instance, ready_steps, topological_order, validate_definition, workflow_id};
 
