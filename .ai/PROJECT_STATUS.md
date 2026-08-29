@@ -61,15 +61,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** LLM / AI Core — authorized tool execution boundary
+**Current Task:** Decision Core — approval and human-gate foundation
 
-**Document:** `core/llm/rust/src/execution_policy.rs` + `core/llm/rust/tests/execution_policy_contract.rs`
+**Document:** `core/decision/rust/src/approval.rs` + `core/decision/rust/tests/approval_gate_contract.rs`
 
-**Status:** Completed. Authorization now composes domain policy and provider capability grants before registered tool execution, preserving fail-closed semantics and phase separation.
+**Status:** Completed. Decision outcomes now have an explicit, idempotent, fail-closed human approval gate with terminal approval/rejection transitions.
 
 # Next Task
 
-LLM / AI Core — authorized tool execution boundary completed; next: Decision Core — P0 foundation
+Decision Core — approval and human-gate foundation completed; next: Decision Core — trace and replay foundation
 
 # Next Tasks
 
@@ -77,5 +77,5 @@ LLM / AI Core — authorized tool execution boundary completed; next: Decision C
 2. LLM / AI Core — provider/tool authorization boundary completed
 3. Memory Core — P0 foundation completed
 4. Reasoning Core — P0 foundation completed
-5. Decision Core — P0 foundation (next implementation focus)
+5. Decision Core — approval/human-gate foundation completed\n6. Decision Core — trace and replay foundation (next implementation focus)
 6. Planning Core — P0 foundation
