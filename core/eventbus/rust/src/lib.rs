@@ -39,7 +39,7 @@ mod eventbus_contract_tests;
 
 pub use ack::{AckDecision, RecordingAcker, TransportAcker};
 pub use async_inbox::AsyncInboxStore;
-pub use async_inbox_metrics::MetricsAsyncInbox;
+pub use async_inbox_metrics::{AsyncInboxDiagnostics, MetricsAsyncInbox, MetricsAsyncInboxSnapshot};
 pub use async_delivery::{AsyncDeliveryOutcome, AsyncOutboxDispatcher, RecordingAsyncTransport};
 pub use async_in_memory::AsyncInMemoryInbox;
 pub use async_in_memory_outbox::AsyncInMemoryOutbox;
