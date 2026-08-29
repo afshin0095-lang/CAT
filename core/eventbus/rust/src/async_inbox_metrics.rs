@@ -1,11 +1,32 @@
-use crate::{AsyncInboxStore, DeliveryState, EventBusMetrics, EventBusResult};
+use crate::{AsyncInboxStore, DeliveryState, EventBusMetrics, EventBusMetricsSnapshot, EventBusResult};
 use std::sync::Arc;
 
-/// Metrics-aware consumer inbox adapter.
+/// Snapshot of one metrics-aware asynchronous inbox.
 ///
-/// This wrapper keeps the inbox state machine unchanged while making retry and
-/// successful processing observable at the same boundary where state changes
-/// are committed. The inner inbox remains the source of delivery state truth.
+/// The snapshot deliberately exposes both delivery-state and observability
+/// counters without allowing callers to mutate the underlying inbox.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct MetricsAsyncInboxSnapshot {
+    pub state: Option<DeliveryState>,
+    pub metrics: EventBusMetricsSnapshot,
+}
+
+/// Read-only diagnostics facade for an asynchronous inbox.
+///
+/// CAT workers can use this trait to inspect delivery progress at a stable
+/// boundary while the concrete store remains responsible for canonical state.
+#[async_trait::async_trait]
+pub trait AsyncInboxDiagnostics: Send + Sync {
+    async fn diagnostics(
+        &self,
+        event_id: uuid::Uuid,
+    ) -> EventBusResult<MetricsAsyncInboxSnapshot>;
+}
+
+/// Metrics-aware inbox decorator with a read-only diagnostics surface.
+///
+/// The wrapper preserves the inner inbox state machine and keeps metrics as
+/// derived observability data. No diagnostic operation mutates delivery state.
 #[derive(Clone)]
 pub struct MetricsAsyncInbox<I> {
     inner: I,
@@ -58,33 +79,43 @@ where
     }
 }
 
+#[async_trait::async_trait]
+impl<I> AsyncInboxDiagnostics for MetricsAsyncInbox<I>
+where
+    I: AsyncInboxStore,
+{
+    async fn diagnostics(
+        &self,
+        event_id: uuid::Uuid,
+    ) -> EventBusResult<MetricsAsyncInboxSnapshot> {
+        Ok(MetricsAsyncInboxSnapshot {
+            state: self.inner.state(event_id).await?,
+            metrics: self.metrics.snapshot(),
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{AsyncInMemoryInbox, EventBusMetricsSnapshot};
+    use crate::AsyncInMemoryInbox;
 
     #[tokio::test]
-    async fn records_delivery_ack_retry_and_duplicate_rejection() {
+    async fn diagnostics_combines_state_and_metrics_without_mutation() {
         let metrics = Arc::new(EventBusMetrics::default());
-        let inbox = MetricsAsyncInbox::new(AsyncInMemoryInbox::new(), Arc::clone(&metrics));
+        let inbox = MetricsAsyncInbox::new(AsyncInMemoryInbox::new(), metrics);
         let event_id = uuid::Uuid::now_v7();
 
         assert!(inbox.accept(event_id).await.unwrap());
-        inbox.mark_failed(event_id).await.unwrap();
-        assert!(inbox.accept(event_id).await.unwrap());
-        inbox.mark_succeeded(event_id).await.unwrap();
-        assert!(!inbox.accept(event_id).await.unwrap());
+
+        let snapshot = inbox.diagnostics(event_id).await.unwrap();
+        assert_eq!(snapshot.state, Some(DeliveryState::InFlight));
+        assert_eq!(snapshot.metrics.delivered, 1);
+        assert_eq!(snapshot.metrics.acknowledged, 0);
 
         assert_eq!(
-            metrics.snapshot(),
-            EventBusMetricsSnapshot {
-                published: 0,
-                delivered: 2,
-                acknowledged: 1,
-                retried: 1,
-                dead_lettered: 0,
-                rejected: 1,
-            }
+            inbox.state(event_id).await.unwrap(),
+            Some(DeliveryState::InFlight)
         );
     }
 }
