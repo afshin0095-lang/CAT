@@ -16,7 +16,7 @@ pub mod tool;
 pub use adapters::{AnthropicProvider, OpenAiCompatibleProvider};
 pub use authorization::{safety_allowed as policy_safety_allowed, PolicyDecision, PolicyId, PolicyVersion, PromptToolPolicy, ToolGrant};
 pub use error::LlmError;
-pub use execution_policy::{ExecutionAuthorizationRequest, ExecutionAuthorizationResult, ExecutionPolicyGate};
+pub use execution_policy::{AuthorizedToolExecution, ExecutionAuthorizationRequest, ExecutionAuthorizationResult, ExecutionPolicyGate};
 pub use evaluation::{NonEmptyOutputEvaluator, PromptEvaluation, PromptEvaluator};
 pub use health::{ProviderHealthConfig, ProviderHealthRegistry, ProviderHealthSnapshot, ProviderHealthState};
 pub use model::{GenerationChunk, GenerationRequest, GenerationResponse, Message, ModelId, ProviderId, Role, SafetyClass, Usage};
