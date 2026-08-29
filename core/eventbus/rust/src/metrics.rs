@@ -50,3 +50,33 @@ impl EventBusMetrics {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn snapshot_and_reset_preserve_counter_semantics() {
+        let metrics = EventBusMetrics::default();
+        metrics.record_published();
+        metrics.record_delivered();
+        metrics.record_retried();
+        metrics.record_rejected();
+
+        assert_eq!(
+            metrics.snapshot(),
+            EventBusMetricsSnapshot {
+                published: 1,
+                delivered: 1,
+                acknowledged: 0,
+                retried: 1,
+                dead_lettered: 0,
+                rejected: 1,
+            }
+        );
+
+        let previous = metrics.reset();
+        assert_eq!(previous.published, 1);
+        assert_eq!(metrics.snapshot(), EventBusMetricsSnapshot::default());
+    }
+}
