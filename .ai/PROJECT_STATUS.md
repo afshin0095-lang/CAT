@@ -61,20 +61,20 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** LLM / AI Core — prompt/tool policy hardening
+**Current Task:** LLM / AI Core — provider/tool authorization boundary
 
-**Document:** `core/llm/rust/src/authorization.rs` + `core/llm/rust/src/error.rs` + `core/llm/rust/src/lib.rs` + `core/llm/rust/tests/prompt_tool_policy_contract.rs`
+**Document:** `core/llm/rust/src/provider_authorization.rs` + `core/llm/rust/src/error.rs` + `core/llm/rust/src/lib.rs` + `core/llm/rust/tests/provider_authorization_contract.rs`
 
-**Status:** Completed. Version-specific, fail-closed prompt and tool authorization now enforces explicit grants, safety ceilings, immutable policy identity/version, enabled state, and deterministic prompt/tool input size limits. The LLM core still does not own canonical business-state mutation; authorization here governs LLM-facing contract admission only.
+**Status:** Completed. Provider-specific tool authorization now fails closed unless an explicit exact provider/tool/version grant exists. Routing remains separate from authorization, preserving the boundary between provider selection and capability admission.
 
 # Next Task
 
-LLM / AI Core — provider/tool authorization boundary
+LLM / AI Core — execution-time policy integration
 
 # Next Tasks
 
-1. LLM / AI Core — provider/tool authorization boundary
-2. LLM / AI Core — execution-time policy integration
+1. LLM / AI Core — execution-time policy integration
+2. LLM / AI Core — provider/tool authorization boundary completed
 3. Memory Core — P0 foundation completed
 4. Reasoning Core — P0 foundation completed
 5. Decision Core — P0 foundation
