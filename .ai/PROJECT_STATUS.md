@@ -61,19 +61,19 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** LLM / AI Core — provider/tool authorization boundary
+**Current Task:** LLM / AI Core — execution-time policy integration
 
-**Document:** `core/llm/rust/src/provider_authorization.rs` + `core/llm/rust/src/error.rs` + `core/llm/rust/src/lib.rs` + `core/llm/rust/tests/provider_authorization_contract.rs`
+**Document:** `core/llm/rust/src/execution_policy.rs` + `core/llm/rust/src/lib.rs`
 
-**Status:** Completed. Provider-specific tool authorization now fails closed unless an explicit exact provider/tool/version grant exists. Routing remains separate from authorization, preserving the boundary between provider selection and capability admission.
+**Status:** Completed. Execution-time admission now composes domain policy and provider capability grants with fail-closed semantics. Routing remains separate from execution authorization.
 
 # Next Task
 
-LLM / AI Core — execution-time policy integration
+LLM / AI Core — execution-time policy integration completed
 
 # Next Tasks
 
-1. LLM / AI Core — execution-time policy integration
+1. LLM / AI Core — execution-time policy integration completed
 2. LLM / AI Core — provider/tool authorization boundary completed
 3. Memory Core — P0 foundation completed
 4. Reasoning Core — P0 foundation completed
