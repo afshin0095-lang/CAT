@@ -1,12 +1,14 @@
 #![forbid(unsafe_code)]
 #![deny(clippy::all)]
 
+mod approval;
 mod engine;
 mod error;
 mod model;
 mod policy;
 mod trace;
 
+pub use approval::{ApprovalGate, ApprovalRecord, ApprovalState};
 pub use engine::DeterministicDecisionEngine;
 pub use error::{DecisionError, DecisionResult};
 pub use model::{Alternative, DecisionOutcome, DecisionRequest, DecisionStatus};
