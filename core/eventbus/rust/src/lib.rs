@@ -7,6 +7,8 @@ mod async_delivery;
 mod async_delivery_tests;
 mod async_inbox;
 mod async_inbox_metrics;
+#[cfg(test)]
+mod async_inbox_metrics_tests;
 mod async_in_memory;
 mod async_in_memory_outbox;
 mod async_nats_consumer;
