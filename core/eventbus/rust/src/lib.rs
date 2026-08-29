@@ -6,6 +6,7 @@ mod async_contract_tests;
 mod async_delivery;
 mod async_delivery_tests;
 mod async_inbox;
+mod async_inbox_metrics;
 mod async_in_memory;
 mod async_in_memory_outbox;
 mod async_nats_consumer;
@@ -36,6 +37,7 @@ mod eventbus_contract_tests;
 
 pub use ack::{AckDecision, RecordingAcker, TransportAcker};
 pub use async_inbox::AsyncInboxStore;
+pub use async_inbox_metrics::MetricsAsyncInbox;
 pub use async_delivery::{AsyncDeliveryOutcome, AsyncOutboxDispatcher, RecordingAsyncTransport};
 pub use async_in_memory::AsyncInMemoryInbox;
 pub use async_in_memory_outbox::AsyncInMemoryOutbox;
