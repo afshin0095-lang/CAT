@@ -18,4 +18,8 @@ pub enum LlmError {
     InvalidPolicy(String),
     #[error("LLM policy denied the operation: {0}")]
     PolicyDenied(String),
+    #[error("invalid provider authorization policy: {0}")]
+    InvalidProviderPolicy(String),
+    #[error("provider authorization denied the operation: {0}")]
+    ProviderPolicyDenied(String),
 }
