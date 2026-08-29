@@ -61,21 +61,21 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** LLM / AI Core — execution-time policy integration
+**Current Task:** LLM / AI Core — authorized tool execution boundary
 
-**Document:** `core/llm/rust/src/execution_policy.rs` + `core/llm/rust/src/lib.rs`
+**Document:** `core/llm/rust/src/execution_policy.rs` + `core/llm/rust/tests/execution_policy_contract.rs`
 
-**Status:** Completed. Execution-time admission now composes domain policy and provider capability grants with fail-closed semantics. Routing remains separate from execution authorization.
+**Status:** Completed. Authorization now composes domain policy and provider capability grants before registered tool execution, preserving fail-closed semantics and phase separation.
 
 # Next Task
 
-LLM / AI Core — execution-time policy integration completed
+LLM / AI Core — authorized tool execution boundary completed; next: Decision Core — P0 foundation
 
 # Next Tasks
 
-1. LLM / AI Core — execution-time policy integration completed
+1. LLM / AI Core — authorized tool execution boundary completed
 2. LLM / AI Core — provider/tool authorization boundary completed
 3. Memory Core — P0 foundation completed
 4. Reasoning Core — P0 foundation completed
-5. Decision Core — P0 foundation
+5. Decision Core — P0 foundation (next implementation focus)
 6. Planning Core — P0 foundation
