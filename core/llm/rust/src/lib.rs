@@ -8,6 +8,7 @@ pub mod model;
 pub mod policy;
 pub mod prompt;
 pub mod provider;
+pub mod provider_authorization;
 pub mod stream;
 pub mod tool;
 
@@ -20,5 +21,6 @@ pub use model::{GenerationChunk, GenerationRequest, GenerationResponse, Message,
 pub use policy::{LlmRouter, ModelRoute, RoutingPolicy};
 pub use prompt::{PromptId, PromptRegistry, PromptTemplate, PromptVersion, RenderedPrompt};
 pub use provider::{DeterministicProvider, LlmProvider};
+pub use provider_authorization::{ProviderToolAuthorizationRegistry, ProviderToolPolicy};
 pub use stream::{collect_stream, LlmGenerationStream};
 pub use tool::{ToolCall, ToolDefinition, ToolExecution, ToolExecutionStatus, ToolExecutor, ToolExecutorRegistry, ToolId, ToolRegistry, ToolVersion};
