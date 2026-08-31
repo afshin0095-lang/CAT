@@ -61,15 +61,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Decision Core — approval and human-gate foundation
+**Current Task:** Decision Core — trace and replay foundation
 
-**Document:** `core/decision/rust/src/approval.rs` + `core/decision/rust/tests/approval_gate_contract.rs`
+**Document:** `core/decision/rust/src/trace.rs` + `core/decision/rust/tests/decision_trace_replay_contract.rs`
 
-**Status:** Completed. Decision outcomes now have an explicit, idempotent, fail-closed human approval gate with terminal approval/rejection transitions.
+**Status:** Completed. Decision traces can now be recorded, retrieved, and replayed into a deterministic advisory snapshot while identity mismatches fail closed.
 
 # Next Task
 
-Decision Core — approval and human-gate foundation completed; next: Decision Core — trace and replay foundation
+Decision Core — trace and replay foundation completed; next: Decision Core — persistence and event-store integration
 
 # Next Tasks
 
