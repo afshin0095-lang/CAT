@@ -61,15 +61,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Decision Core — durable PostgreSQL Event Store trace adapter
+**Current Task:** Decision Core — transactional EventBus publication boundary
 
-**Document:** `core/decision/rust/src/durable_persistence.rs` + `core/decision/rust/tests/decision_trace_postgres_contract.rs`
+**Document:** `core/decision/rust/src/event_publication.rs` + `core/decision/rust/src/lib.rs` + `core/decision/rust/Cargo.toml`
 
-**Status:** Completed in code. A PostgreSQL-backed adapter now persists immutable decision traces through the durable Event Store, hydrates immutable trace state, preserves optimistic concurrency and idempotency, and keeps replay advisory-only.
+**Status:** Completed in code. The Decision Core now exposes a committed-event publication boundary for immutable decision traces, validates the decision-trace event type, and relies on EventBus duplicate suppression for idempotent delivery. Durable outbox persistence remains the transactional responsibility of the persistence layer.
 
 # Next Task
 
-Decision Core — durable Event Store adapter added; next: compile/integration verification and transactional EventBus publication wiring
+Decision Core — transactional EventBus publication boundary added; next: compile/integration verification and durable outbox relay wiring
 
 # Next Tasks
 
