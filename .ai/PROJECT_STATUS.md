@@ -61,15 +61,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Decision Core — trace replay public API and persistence preparation
+**Current Task:** Decision Core — Event Store trace persistence integration
 
-**Document:** `core/decision/rust/src/trace.rs` + `core/decision/rust/src/lib.rs` + `core/decision/rust/tests/decision_trace_public_api_contract.rs`
+**Document:** `core/decision/rust/src/persistence.rs` + `core/decision/rust/tests/decision_trace_event_store_contract.rs`
 
-**Status:** Completed. The trace replay API is publicly exposed, store contracts now expose deterministic query semantics, and public integration tests verify that replay remains advisory-only.
+**Status:** Completed. Decision traces now persist through the kernel Event Store contract, hydrate back into immutable trace state, preserve optimistic concurrency and idempotency, and replay only into advisory snapshots.
 
 # Next Task
 
-Decision Core — persistence and Event Store integration
+Decision Core — trace persistence completed; next: durable Event Store adapter integration
 
 # Next Tasks
 
