@@ -61,15 +61,15 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Decision Core — Event Store trace persistence integration
+**Current Task:** Decision Core — durable PostgreSQL Event Store trace adapter
 
-**Document:** `core/decision/rust/src/persistence.rs` + `core/decision/rust/tests/decision_trace_event_store_contract.rs`
+**Document:** `core/decision/rust/src/durable_persistence.rs` + `core/decision/rust/tests/decision_trace_postgres_contract.rs`
 
-**Status:** Completed. Decision traces now persist through the kernel Event Store contract, hydrate back into immutable trace state, preserve optimistic concurrency and idempotency, and replay only into advisory snapshots.
+**Status:** Completed in code. A PostgreSQL-backed adapter now persists immutable decision traces through the durable Event Store, hydrates immutable trace state, preserves optimistic concurrency and idempotency, and keeps replay advisory-only.
 
 # Next Task
 
-Decision Core — trace persistence completed; next: durable Event Store adapter integration
+Decision Core — durable Event Store adapter added; next: compile/integration verification and transactional EventBus publication wiring
 
 # Next Tasks
 
@@ -77,5 +77,5 @@ Decision Core — trace persistence completed; next: durable Event Store adapter
 2. LLM / AI Core — provider/tool authorization boundary completed
 3. Memory Core — P0 foundation completed
 4. Reasoning Core — P0 foundation completed
-5. Decision Core — approval/human-gate foundation completed\n6. Decision Core — trace and replay foundation (next implementation focus)
+5. Decision Core — approval/human-gate foundation completed\n6. Decision Core — durable PostgreSQL trace persistence adapter completed; next integration verification
 6. Planning Core — P0 foundation
