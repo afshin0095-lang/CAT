@@ -11,7 +11,11 @@ path = "src/lib.rs"
 [dependencies]
 cat-kernel = { path = "../../kernel/rust" }
 cat-reasoning = { path = "../../reasoning/rust" }
+cat-eventstore-postgres = { path = "../../eventstore-postgres/rust" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
 uuid = { version = "1", features = ["v7", "serde"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
