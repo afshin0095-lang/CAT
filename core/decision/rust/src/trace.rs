@@ -52,7 +52,15 @@ impl DecisionTrace {
         });
     }
 
+    /// Traces are append-only after recording. This method communicates the
+    /// contract to callers; mutation is intentionally kept behind ownership.
     pub fn is_immutable_view(&self) -> bool { true }
+
+    /// Returns a deterministic, serializable replay summary without granting
+    /// the replay path authority to execute the selected alternative.
+    pub fn replay_summary(&self, outcome: &DecisionOutcome) -> Result<DecisionReplay, DecisionError> {
+        self.replay(outcome)
+    }
 
     pub fn replay(&self, outcome: &DecisionOutcome) -> Result<DecisionReplay, DecisionError> {
         if self.decision_id != outcome.decision_id || self.trace_id != outcome.trace_id {
@@ -85,6 +93,18 @@ impl DecisionTraceStore {
 
     pub fn get(&self, trace_id: Uuid) -> Option<&DecisionTrace> {
         self.traces.get(&trace_id)
+    }
+
+    pub fn contains(&self, trace_id: Uuid) -> bool {
+        self.traces.contains_key(&trace_id)
+    }
+
+    pub fn len(&self) -> usize {
+        self.traces.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.traces.is_empty()
     }
 
     pub fn replay(
@@ -169,5 +189,7 @@ mod tests {
         let mut store = DecisionTraceStore::default();
         store.record(trace.clone()).unwrap();
         assert!(store.record(trace).is_err());
+        assert_eq!(store.len(), 1);
+        assert!(!store.is_empty());
     }
 }
