@@ -6,12 +6,14 @@ mod engine;
 mod error;
 mod model;
 mod policy;
+mod persistence;
 mod trace;
 
 pub use approval::{ApprovalGate, ApprovalRecord, ApprovalState};
 pub use engine::DeterministicDecisionEngine;
 pub use error::{DecisionError, DecisionResult};
 pub use model::{Alternative, DecisionOutcome, DecisionRequest, DecisionStatus};
+pub use persistence::DecisionTraceEventStore;
 pub use policy::{DecisionPolicy, PolicyError, PolicyEvaluation};
 pub use trace::{
     trace_from_request, DecisionReplay, DecisionTrace, DecisionTraceStep, DecisionTraceStore,
