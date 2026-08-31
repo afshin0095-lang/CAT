@@ -26,6 +26,8 @@ mod envelope;
 mod error;
 mod in_memory;
 mod inbox_metrics;
+#[cfg(test)]
+mod inbox_contract_tests;
 mod metrics;
 mod nats;
 mod nats_consumer;
