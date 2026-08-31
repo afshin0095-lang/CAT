@@ -13,7 +13,9 @@ pub use engine::DeterministicDecisionEngine;
 pub use error::{DecisionError, DecisionResult};
 pub use model::{Alternative, DecisionOutcome, DecisionRequest, DecisionStatus};
 pub use policy::{DecisionPolicy, PolicyError, PolicyEvaluation};
-pub use trace::{DecisionTrace, DecisionTraceStep};
+pub use trace::{
+    trace_from_request, DecisionReplay, DecisionTrace, DecisionTraceStep, DecisionTraceStore,
+};
 
 #[cfg(test)]
 mod tests {
