@@ -26,6 +26,7 @@ mod envelope;
 mod error;
 mod in_memory;
 mod inbox_metrics;
+mod inbox_health;
 #[cfg(test)]
 mod inbox_contract_tests;
 mod metrics;
@@ -61,6 +62,7 @@ pub use durable::{DeadLetter, DeadLetterStore, EventCodec, InMemoryDeadLetterSto
 pub use envelope::{EventEnvelope, EventKind};
 pub use error::{EventBusError, EventBusResult};
 pub use in_memory::{InMemoryIdempotency, InMemoryInbox, InMemoryOutbox};
+pub use inbox_health::{InboxHealthSnapshot, MetricsInboxHealth};
 pub use inbox_metrics::{InboxDiagnostics, MetricsInbox, MetricsInboxSnapshot};
 pub use metrics::{EventBusMetrics, EventBusMetricsSnapshot};
 pub use nats::{subject_for_prefix, AsyncEventTransport, NatsJetStreamTransport};
