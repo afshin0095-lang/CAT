@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::{validate_plan, PlanBuilder, PlanStatus, PlanTrace, PlanTraceKind, StepKind};
+    use crate::{schedule_plan, validate_plan, PlanBuilder, PlanStatus, PlanTrace, PlanTraceKind, StepKind};
     use serde_json::json;
 
     #[test]
@@ -22,6 +22,32 @@ mod tests {
         builder = builder.depends_on(a, b, true).depends_on(b, a, true);
         let report = validate_plan(&builder.build());
         assert!(!report.is_valid());
+    }
+
+    #[test]
+    fn schedule_creates_parallel_levels() {
+        let mut builder = PlanBuilder::new("publish campaign");
+        let discover = builder.step("discover", StepKind::Action);
+        let enrich = builder.step("enrich", StepKind::Action);
+        let review = builder.step("review", StepKind::Approval);
+        builder = builder.depends_on(review, discover, true).depends_on(review, enrich, true);
+
+        let plan = builder.build();
+        let schedule = schedule_plan(&plan).expect("plan should schedule");
+
+        assert_eq!(schedule.levels().len(), 2);
+        assert_eq!(schedule.levels()[0], vec![discover, enrich]);
+        assert_eq!(schedule.levels()[1], vec![review]);
+        assert_eq!(schedule.level_for(review), Some(1));
+    }
+
+    #[test]
+    fn schedule_preserves_plan_identity() {
+        let plan = PlanBuilder::new("observe").step("observe", StepKind::Observation);
+        let plan = plan.build();
+        let schedule = schedule_plan(&plan).expect("plan should schedule");
+        assert_eq!(schedule.plan_id(), plan.id);
+        assert_eq!(schedule.execution_order().collect::<Vec<_>>(), vec![plan.steps[0].id]);
     }
 
     #[test]
