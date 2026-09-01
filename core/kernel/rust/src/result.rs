@@ -6,6 +6,9 @@ pub type KernelResult<T> = Result<T, KernelError>;
 
 #[derive(Debug, Error)]
 pub enum KernelError {
+    #[error("invalid input: {0}")]
+    InvalidInput(String),
+
     #[error("invalid identifier: {0}")]
     InvalidIdentifier(String),
 
