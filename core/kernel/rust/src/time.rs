@@ -1,3 +1,5 @@
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use serde::{Deserialize, Serialize};
 
 use crate::{KernelError, KernelResult};
@@ -36,4 +38,15 @@ impl Default for TimestampMs {
     fn default() -> Self {
         Self(0)
     }
+}
+
+/// Returns the current wall-clock Unix time in milliseconds.
+///
+/// This function is an infrastructure-facing convenience; deterministic domain
+/// logic should inject a `Clock` instead of calling it directly.
+pub fn unix_millis() -> KernelResult<u64> {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|duration| duration.as_millis() as u64)
+        .map_err(|error| KernelError::InvalidTimestamp(error.to_string()))
 }
