@@ -27,8 +27,6 @@ pub enum OutboxDisposition {
     DeadLettered { attempt: u32 },
 }
 
-/// Small deterministic queue used by local tests. Production implementations should
-/// use a database transaction plus row locking/claim semantics.
 #[derive(Default)]
 pub struct InMemoryDurableOutbox {
     records: VecDeque<OutboxRecord>,
@@ -49,7 +47,8 @@ impl DurableOutboxStore for InMemoryDurableOutbox {
 
     fn claim_next(&mut self, owner: &str, now_ms: u64) -> OrchestratorResult<Option<OutboxRecord>> {
         let Some(position) = self.records.iter().position(|record| {
-            record.available_at_ms <= now_ms && record.claimed_by.as_deref().is_none_or(|claimant| claimant == owner)
+            record.available_at_ms <= now_ms
+                && record.claimed_by.as_deref().is_none_or(|claimant| claimant == owner)
         }) else {
             return Ok(None);
         };
@@ -78,7 +77,7 @@ impl DurableOutboxStore for InMemoryDurableOutbox {
         record.attempt = record.attempt.saturating_add(1);
         record.claimed_by = None;
         if policy.retryable(record.attempt) {
-            let delay = policy.delay_for(record.attempt).as_millis().min(u64::MAX as u128) as u64;
+            let delay = policy.delay_ms(record.attempt);
             record.available_at_ms = now_ms.saturating_add(delay);
             Ok(OutboxDisposition::RetryScheduled { attempt: record.attempt, available_at_ms: record.available_at_ms })
         } else {
@@ -92,7 +91,6 @@ impl DurableOutboxStore for InMemoryDurableOutbox {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::RetryPolicy;
 
     fn event() -> EventEnvelope {
         EventEnvelope { event_id: Uuid::now_v7(), event_type: "orchestrator.test".into(), version: 1, kind: cat_eventbus::EventKind::Domain, occurred_at_ms: 1, producer: "test".into(), correlation_id: None, causation_id: None, subject_id: None, payload: serde_json::json!({}) }
@@ -101,8 +99,7 @@ mod tests {
     #[test]
     fn claim_ack_removes_record() {
         let mut outbox = InMemoryDurableOutbox::default();
-        let id = event().event_id;
-        outbox.enqueue(EventEnvelope { event_id: id, event_type: "orchestrator.test".into(), version: 1, kind: cat_eventbus::EventKind::Domain, occurred_at_ms: 1, producer: "test".into(), correlation_id: None, causation_id: None, subject_id: None, payload: serde_json::json!({}) }).unwrap();
+        let event = event(); let id = event.event_id; outbox.enqueue(event).unwrap();
         let record = outbox.claim_next("dispatcher-a", 0).unwrap().unwrap();
         assert_eq!(record.event.event_id, id);
         outbox.acknowledge(id, "dispatcher-a").unwrap();
