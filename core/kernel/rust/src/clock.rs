@@ -19,19 +19,15 @@ impl Clock for SystemClock {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct FixedClock {
     now: TimestampMs,
 }
 
 impl FixedClock {
-    pub const fn new(now: TimestampMs) -> Self {
-        Self { now }
-    }
+    pub const fn new(now: TimestampMs) -> Self { Self { now } }
 }
 
 impl Clock for FixedClock {
-    fn now(&self) -> KernelResult<TimestampMs> {
-        Ok(self.now)
-    }
+    fn now(&self) -> KernelResult<TimestampMs> { Ok(self.now) }
 }
