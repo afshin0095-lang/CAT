@@ -16,6 +16,9 @@ mod async_in_memory;
 mod async_in_memory_outbox;
 mod async_nats_consumer;
 mod async_outbox;
+mod async_outbox_metrics;
+#[cfg(test)]
+mod async_outbox_diagnostics_tests;
 mod async_worker;
 mod bus;
 mod causality;
@@ -53,6 +56,9 @@ pub use async_in_memory::AsyncInMemoryInbox;
 pub use async_in_memory_outbox::AsyncInMemoryOutbox;
 pub use async_nats_consumer::AsyncNatsJetStreamConsumer;
 pub use async_outbox::AsyncOutboxStore;
+pub use async_outbox_metrics::{
+    AsyncOutboxDiagnostics, MetricsAsyncOutbox, MetricsAsyncOutboxSnapshot,
+};
 pub use async_worker::{AsyncDeliveryWorker, AsyncDeliveryWorkerConfig};
 pub use bus::{EventBus, EventHandler, PublishOutcome, SubscriptionId};
 pub use causality::EventCausality;
