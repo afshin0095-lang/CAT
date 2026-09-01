@@ -27,6 +27,7 @@ mod outbox;
 mod outbox_dispatcher;
 mod postgres_contract;
 mod postgres;
+mod postgres_outbox;
 
 pub use compensation::{begin_compensation, compensation_order};
 pub use error::{OrchestratorError, OrchestratorResult};
@@ -54,6 +55,7 @@ pub use outbox::{DurableOutboxStore, InMemoryDurableOutbox, OutboxDisposition, O
 pub use outbox_dispatcher::{OutboxDispatchOutcome, OutboxDispatcher};
 pub use postgres_contract::{PostgresDurableExecutor, PostgresSchemaV1};
 pub use postgres::{AsyncPostgresExecutionStore, PostgresExecutionStore};
+pub use postgres_outbox::{AsyncPostgresOutbox, PostgresOutboxDisposition, PostgresOutboxRecord};
 
 #[cfg(test)]
 mod tests {
