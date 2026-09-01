@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS cat_workflow_outbox (
     last_error TEXT
 );
 
-ALTER TABLE cat_workflow_outbox ADD COLUMN IF NOT EXISTS event_kind TEXT NOT NULL DEFAULT 'Integration';
+ALTER TABLE cat_workflow_outbox ADD COLUMN IF NOT EXISTS event_kind TEXT NOT NULL DEFAULT 'integration';
 ALTER TABLE cat_workflow_outbox ADD COLUMN IF NOT EXISTS producer TEXT NOT NULL DEFAULT 'orchestrator.postgres_outbox';
 ALTER TABLE cat_workflow_outbox ADD COLUMN IF NOT EXISTS correlation_id UUID;
 ALTER TABLE cat_workflow_outbox ADD COLUMN IF NOT EXISTS causation_id UUID;
