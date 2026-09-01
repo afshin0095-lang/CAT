@@ -10,6 +10,7 @@ pub struct FencingToken(u64);
 
 impl FencingToken {
     pub const fn value(self) -> u64 { self.0 }
+    pub(crate) const fn from_value(value: u64) -> Self { Self(value) }
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
