@@ -43,11 +43,11 @@ pub struct KnowledgeNeighborhood {
 }
 
 impl KnowledgeGraph {
-    pub fn query_nodes(&self, query: &KnowledgeQuery) -> Vec<&KnowledgeNode> {
+    pub fn query_nodes<'a>(&'a self, query: &KnowledgeQuery) -> Vec<&'a KnowledgeNode> {
         self.nodes_matching(query).collect()
     }
 
-    pub fn query_edges(&self, query: &KnowledgeQuery) -> Vec<&KnowledgeEdge> {
+    pub fn query_edges<'a>(&'a self, query: &KnowledgeQuery) -> Vec<&'a KnowledgeEdge> {
         self.edges_matching(query).collect()
     }
 
@@ -74,11 +74,11 @@ impl KnowledgeGraph {
         result
     }
 
-    pub(crate) fn nodes_matching<'a>(&'a self, query: &'a KnowledgeQuery) -> impl Iterator<Item = &'a KnowledgeNode> {
+    pub(crate) fn nodes_matching<'a>(&'a self, query: &KnowledgeQuery) -> impl Iterator<Item = &'a KnowledgeNode> {
         self.nodes_iter().filter(|node| query.matches_node(node))
     }
 
-    pub(crate) fn edges_matching<'a>(&'a self, query: &'a KnowledgeQuery) -> impl Iterator<Item = &'a KnowledgeEdge> {
+    pub(crate) fn edges_matching<'a>(&'a self, query: &KnowledgeQuery) -> impl Iterator<Item = &'a KnowledgeEdge> {
         self.edges_iter().filter(|edge| query.matches_edge(edge))
     }
 }
