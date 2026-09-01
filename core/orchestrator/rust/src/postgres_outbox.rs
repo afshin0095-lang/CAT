@@ -1,0 +1,135 @@
+use async_trait::async_trait;
+use cat_eventbus::EventEnvelope;
+use sqlx::{postgres::PgPool, Row};
+use uuid::Uuid;
+
+use crate::{OrchestratorError, OrchestratorResult, RetryPolicy};
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PostgresOutboxRecord {
+    pub event: EventEnvelope,
+    pub attempt: u32,
+    pub available_at_ms: u64,
+    pub claimed_by: Option<String>,
+    pub claimed_until_ms: Option<u64>,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum PostgresOutboxDisposition {
+    RetryScheduled { attempt: u32, available_at_ms: u64 },
+    DeadLettered { attempt: u32 },
+}
+
+#[async_trait]
+pub trait AsyncPostgresOutbox: Send + Sync {
+    async fn claim_next(&self, owner: &str, now_ms: u64, claim_ttl_ms: u64) -> OrchestratorResult<Option<PostgresOutboxRecord>>;
+    async fn acknowledge(&self, event_id: Uuid, owner: &str) -> OrchestratorResult<()>;
+    async fn fail(
+        &self,
+        event_id: Uuid,
+        owner: &str,
+        now_ms: u64,
+        policy: RetryPolicy,
+        error: &str,
+    ) -> OrchestratorResult<PostgresOutboxDisposition>;
+}
+
+impl super::PostgresExecutionStore {
+    pub async fn enqueue_outbox(&self, event: &EventEnvelope, workflow_id: Uuid) -> OrchestratorResult<()> {
+        sqlx::query(
+            "INSERT INTO cat_workflow_outbox (event_id, workflow_id, event_type, version, occurred_at_ms, payload) VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (event_id) DO NOTHING",
+        )
+        .bind(event.event_id)
+        .bind(workflow_id)
+        .bind(&event.event_type)
+        .bind(event.version as i32)
+        .bind(event.occurred_at_ms as i64)
+        .bind(&event.payload)
+        .execute(self.pool())
+        .await
+        .map_err(|e| OrchestratorError::Serialization(format!("postgresql outbox error: {e}")))?;
+        Ok(())
+    }
+}
+
+#[async_trait]
+impl AsyncPostgresOutbox for super::PostgresExecutionStore {
+    async fn claim_next(&self, owner: &str, now_ms: u64, claim_ttl_ms: u64) -> OrchestratorResult<Option<PostgresOutboxRecord>> {
+        let mut tx = self.pool().begin().await.map_err(db_error)?;
+        let claim_until = now_ms.saturating_add(claim_ttl_ms) as f64;
+        let row = sqlx::query(
+            "UPDATE cat_workflow_outbox SET claimed_by = $1, claimed_until = TO_TIMESTAMP($2 / 1000.0) WHERE event_id = (SELECT event_id FROM cat_workflow_outbox WHERE available_at <= NOW() AND (claimed_by IS NULL OR claimed_until <= NOW()) ORDER BY available_at, event_id FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING event_id, workflow_id, event_type, version, occurred_at_ms, payload, attempt, EXTRACT(EPOCH FROM available_at) * 1000 AS available_at_ms, claimed_by, EXTRACT(EPOCH FROM claimed_until) * 1000 AS claimed_until_ms",
+        )
+        .bind(owner)
+        .bind(claim_until)
+        .fetch_optional(&mut *tx)
+        .await
+        .map_err(db_error)?;
+        tx.commit().await.map_err(db_error)?;
+
+        let Some(row) = row else { return Ok(None); };
+        let workflow_id: Uuid = row.try_get("workflow_id").map_err(row_error)?;
+        let event = EventEnvelope {
+            event_id: row.try_get("event_id").map_err(row_error)?,
+            event_type: row.try_get("event_type").map_err(row_error)?,
+            version: row.try_get::<i32, _>("version").map_err(row_error)?.max(0) as u16,
+            kind: cat_eventbus::EventKind::Integration,
+            occurred_at_ms: row.try_get::<i64, _>("occurred_at_ms").map_err(row_error)?.max(0) as u64,
+            producer: "orchestrator.postgres_outbox".into(),
+            correlation_id: None,
+            causation_id: None,
+            subject_id: Some(workflow_id),
+            payload: row.try_get("payload").map_err(row_error)?,
+        };
+        Ok(Some(PostgresOutboxRecord {
+            event,
+            attempt: row.try_get::<i32, _>("attempt").map_err(row_error)?.max(0) as u32,
+            available_at_ms: row.try_get::<f64, _>("available_at_ms").map_err(row_error)?.max(0.0) as u64,
+            claimed_by: row.try_get("claimed_by").map_err(row_error)?,
+            claimed_until_ms: row.try_get::<Option<f64>, _>("claimed_until_ms").map_err(row_error)?.map(|v| v.max(0.0) as u64),
+        }))
+    }
+
+    async fn acknowledge(&self, event_id: Uuid, owner: &str) -> OrchestratorResult<()> {
+        let result = sqlx::query("DELETE FROM cat_workflow_outbox WHERE event_id = $1 AND claimed_by = $2")
+            .bind(event_id)
+            .bind(owner)
+            .execute(self.pool())
+            .await
+            .map_err(db_error)?;
+        if result.rows_affected() != 1 {
+            return Err(OrchestratorError::LeaseOwnerMismatch { lease_id: event_id.to_string(), owner: owner.to_owned() });
+        }
+        Ok(())
+    }
+
+    async fn fail(&self, event_id: Uuid, owner: &str, now_ms: u64, policy: RetryPolicy, error: &str) -> OrchestratorResult<PostgresOutboxDisposition> {
+        let mut tx = self.pool().begin().await.map_err(db_error)?;
+        let row = sqlx::query("SELECT attempt FROM cat_workflow_outbox WHERE event_id = $1 AND claimed_by = $2 FOR UPDATE")
+            .bind(event_id)
+            .bind(owner)
+            .fetch_optional(&mut *tx)
+            .await
+            .map_err(db_error)?
+            .ok_or_else(|| OrchestratorError::LeaseOwnerMismatch { lease_id: event_id.to_string(), owner: owner.to_owned() })?;
+        let attempt = row.try_get::<i32, _>("attempt").map_err(row_error)?.max(0) as u32 + 1;
+
+        if policy.retryable(attempt) {
+            let delay = policy.delay_ms(attempt);
+            let available_at = now_ms.saturating_add(delay);
+            sqlx::query("UPDATE cat_workflow_outbox SET attempt = $3, available_at = TO_TIMESTAMP($4 / 1000.0), claimed_by = NULL, claimed_until = NULL, last_error = $5 WHERE event_id = $1 AND claimed_by = $2")
+                .bind(event_id).bind(owner).bind(attempt as i32).bind(available_at as f64).bind(error)
+                .execute(&mut *tx).await.map_err(db_error)?;
+            tx.commit().await.map_err(db_error)?;
+            Ok(PostgresOutboxDisposition::RetryScheduled { attempt, available_at_ms: available_at })
+        } else {
+            sqlx::query("DELETE FROM cat_workflow_outbox WHERE event_id = $1 AND claimed_by = $2")
+                .bind(event_id).bind(owner).execute(&mut *tx).await.map_err(db_error)?;
+            tx.commit().await.map_err(db_error)?;
+            Ok(PostgresOutboxDisposition::DeadLettered { attempt })
+        }
+    }
+}
+
+fn db_error(error: sqlx::Error) -> OrchestratorError { OrchestratorError::Serialization(format!("postgresql outbox error: {error}")) }
+fn row_error(error: sqlx::Error) -> OrchestratorError { OrchestratorError::Serialization(format!("postgresql outbox row error: {error}")) }
