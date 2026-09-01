@@ -40,8 +40,6 @@ pub struct WorkflowStep {
     pub attempt: u32,
     pub max_attempts: u32,
     pub compensation_step: Option<String>,
-    #[serde(default)]
-    pub wake_at_ms: Option<u64>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
