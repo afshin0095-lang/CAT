@@ -72,12 +72,15 @@ impl AsyncPostgresExecutionStore for PostgresExecutionStore {
             });
         }
         for event in events {
+            let event_kind = serde_json::to_value(event.kind)
+                .and_then(|value| value.as_str().map(str::to_owned).ok_or_else(|| serde_json::Error::io(std::io::Error::new(std::io::ErrorKind::InvalidData, "event kind is not a string"))))
+                .map_err(json_error)?;
             sqlx::query("INSERT INTO cat_workflow_outbox (event_id, workflow_id, event_type, version, event_kind, occurred_at_ms, producer, correlation_id, causation_id, subject_id, payload) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) ON CONFLICT (event_id) DO NOTHING")
                 .bind(event.event_id)
                 .bind(workflow.id)
                 .bind(&event.event_type)
                 .bind(event.version as i32)
-                .bind(format!("{:?}", event.kind))
+                .bind(event_kind)
                 .bind(event.occurred_at_ms as i64)
                 .bind(&event.producer)
                 .bind(event.correlation_id)
