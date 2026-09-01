@@ -14,6 +14,7 @@ mod async_inbox_metrics_tests;
 mod async_inbox_diagnostics_tests;
 mod async_in_memory;
 mod async_in_memory_outbox;
+mod async_tokio_in_memory_outbox;
 mod async_nats_consumer;
 mod async_outbox;
 mod async_outbox_metrics;
@@ -54,6 +55,7 @@ pub use async_inbox_metrics::{AsyncInboxDiagnostics, MetricsAsyncInbox, MetricsA
 pub use async_delivery::{AsyncDeliveryOutcome, AsyncOutboxDispatcher, RecordingAsyncTransport};
 pub use async_in_memory::AsyncInMemoryInbox;
 pub use async_in_memory_outbox::AsyncInMemoryOutbox;
+pub use async_tokio_in_memory_outbox::AsyncTokioInMemoryOutbox;
 pub use async_nats_consumer::AsyncNatsJetStreamConsumer;
 pub use async_outbox::AsyncOutboxStore;
 pub use async_outbox_metrics::{
