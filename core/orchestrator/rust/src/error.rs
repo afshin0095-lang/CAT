@@ -16,10 +16,14 @@ pub enum OrchestratorError {
     LeaseOwnerMismatch { lease_id: String, owner: String },
     #[error("lease {lease_id} has expired")]
     LeaseExpired { lease_id: String },
+    #[error("lease is unavailable for resource {resource}")]
+    LeaseUnavailable { resource: String },
     #[error("workflow {workflow_id} is not in a runnable state")]
     InvalidState { workflow_id: String },
     #[error("workflow dependency cycle detected")]
     DependencyCycle,
+    #[error("workflow {workflow_id} revision conflict: expected {expected}, actual {actual}")]
+    RevisionConflict { workflow_id: String, expected: u64, actual: u64 },
     #[error("workflow serialization failed: {0}")]
     Serialization(String),
 }
