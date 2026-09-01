@@ -3,10 +3,6 @@ use async_nats::jetstream::{consumer, AckKind, Context};
 use futures_util::StreamExt;
 
 /// Async JetStream consumer backed by an async durable inbox.
-///
-/// The ordering is deliberate: admit -> handle -> persist success -> broker ACK.
-/// A handler failure is retried with JetStream NAK until `max_deliver`, after which
-/// the event is parked in the CAT dead-letter store and terminated on the broker.
 pub struct AsyncNatsJetStreamConsumer<I, D = InMemoryDeadLetterStore> {
     context: Context,
     stream_name: String,
@@ -19,12 +15,7 @@ impl<I> AsyncNatsJetStreamConsumer<I, InMemoryDeadLetterStore>
 where
     I: AsyncInboxStore,
 {
-    pub fn new(
-        context: Context,
-        stream_name: impl Into<String>,
-        config: NatsConsumerConfig,
-        inbox: I,
-    ) -> Self {
+    pub fn new(context: Context, stream_name: impl Into<String>, config: NatsConsumerConfig, inbox: I) -> Self {
         Self::with_dead_letters(context, stream_name, config, inbox, InMemoryDeadLetterStore::default())
     }
 }
@@ -34,13 +25,7 @@ where
     I: AsyncInboxStore,
     D: DeadLetterStore,
 {
-    pub fn with_dead_letters(
-        context: Context,
-        stream_name: impl Into<String>,
-        config: NatsConsumerConfig,
-        inbox: I,
-        dead_letters: D,
-    ) -> Self {
+    pub fn with_dead_letters(context: Context, stream_name: impl Into<String>, config: NatsConsumerConfig, inbox: I, dead_letters: D) -> Self {
         Self { context, stream_name: stream_name.into(), config, inbox, dead_letters }
     }
 
@@ -90,7 +75,9 @@ where
                             .map_err(|error| EventBusError::TransportUnavailable(error.to_string()))?;
                         processed += 1;
                     }
-                    Some(DeliveryState::InFlight) | Some(DeliveryState::RetryScheduled) => {
+                    Some(DeliveryState::InFlight)
+                    | Some(DeliveryState::RetryScheduled)
+                    | Some(DeliveryState::Pending) => {
                         message.ack_with(AckKind::Nak(Some(self.config.retry.delay_for(delivered)))).await
                             .map_err(|error| EventBusError::TransportUnavailable(error.to_string()))?;
                     }
@@ -98,7 +85,7 @@ where
                 continue;
             }
 
-            match handler.handle(event.clone()).await {
+            match handler.handle(&event).await {
                 Ok(()) => {
                     self.inbox.mark_succeeded(event.event_id).await?;
                     message.double_ack().await
@@ -109,10 +96,7 @@ where
                     self.inbox.mark_failed(event.event_id).await?;
                     if self.config.retry.exhausted(delivered, self.config.max_deliver) {
                         if self.config.retry.dead_letter_on_exhaustion {
-                            self.dead_letters.park(
-                                event,
-                                format!("handler failure after {delivered} delivery attempts: {error}"),
-                            )?;
+                            self.dead_letters.park(event.clone(), format!("handler failure after {delivered} delivery attempts: {error}"))?;
                         }
                         message.ack_with(AckKind::Term).await
                             .map_err(|ack| EventBusError::TransportUnavailable(ack.to_string()))?;
