@@ -29,6 +29,8 @@ pub trait AsyncPostgresExecutionStore: Send + Sync {
     async fn load_workflow(&self, workflow_id: Uuid) -> OrchestratorResult<WorkflowInstance>;
     async fn commit_workflow_and_outbox(&self, workflow: &WorkflowInstance, expected_revision: u64, events: &[EventEnvelope]) -> OrchestratorResult<()>;
     async fn acquire_fenced_lease(&self, resource: &str, owner: &str, now_ms: u64, ttl_ms: u64) -> OrchestratorResult<FencingToken>;
+    async fn renew_fenced_lease(&self, resource: &str, owner: &str, token: FencingToken, now_ms: u64, ttl_ms: u64) -> OrchestratorResult<()>;
+    async fn validate_fencing_token(&self, resource: &str, token: FencingToken, now_ms: u64) -> OrchestratorResult<()>;
 }
 
 #[async_trait]
@@ -127,6 +129,41 @@ impl AsyncPostgresExecutionStore for PostgresExecutionStore {
             .map_err(db_error)?;
         tx.commit().await.map_err(db_error)?;
         Ok(FencingToken::from_value(next_token))
+    }
+
+    async fn renew_fenced_lease(&self, resource: &str, owner: &str, token: FencingToken, now_ms: u64, ttl_ms: u64) -> OrchestratorResult<()> {
+        let expiry_ms = now_ms.saturating_add(ttl_ms) as f64;
+        let result = sqlx::query("UPDATE cat_execution_leases SET expires_at = TO_TIMESTAMP($4 / 1000.0), updated_at = NOW() WHERE resource = $1 AND owner = $2 AND fencing_token = $3 AND expires_at > TO_TIMESTAMP($5 / 1000.0)")
+            .bind(resource)
+            .bind(owner)
+            .bind(token.value() as i64)
+            .bind(expiry_ms)
+            .bind(now_ms as f64)
+            .execute(&self.pool)
+            .await
+            .map_err(db_error)?;
+        if result.rows_affected() != 1 {
+            return Err(OrchestratorError::LeaseExpired { lease_id: resource.to_owned() });
+        }
+        Ok(())
+    }
+
+    async fn validate_fencing_token(&self, resource: &str, token: FencingToken, now_ms: u64) -> OrchestratorResult<()> {
+        let row = sqlx::query("SELECT fencing_token, EXTRACT(EPOCH FROM expires_at) * 1000 AS expires_at_ms FROM cat_execution_leases WHERE resource = $1")
+            .bind(resource)
+            .fetch_optional(&self.pool)
+            .await
+            .map_err(db_error)?
+            .ok_or_else(|| OrchestratorError::LeaseUnavailable { resource: resource.to_owned() })?;
+        let current_token: i64 = row.try_get("fencing_token").map_err(row_error)?;
+        let expires_at_ms: f64 = row.try_get("expires_at_ms").map_err(row_error)?;
+        if expires_at_ms <= now_ms as f64 {
+            return Err(OrchestratorError::LeaseExpired { lease_id: resource.to_owned() });
+        }
+        if current_token != token.value() as i64 {
+            return Err(OrchestratorError::LeaseOwnerMismatch { lease_id: resource.to_owned(), owner: format!("fencing token {}", token.value()) });
+        }
+        Ok(())
     }
 }
 
