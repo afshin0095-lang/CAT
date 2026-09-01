@@ -107,7 +107,7 @@ impl AsyncOutboxStore for AsyncInMemoryOutbox {
     }
 
     async fn state(&self, event_id: uuid::Uuid) -> EventBusResult<Option<DeliveryState>> {
-        Ok(self.state(event_id))
+        Ok(AsyncInMemoryOutbox::state(self, event_id))
     }
 }
 
