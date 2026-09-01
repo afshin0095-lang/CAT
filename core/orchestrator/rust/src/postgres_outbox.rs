@@ -105,25 +105,53 @@ impl AsyncPostgresOutbox for super::PostgresExecutionStore {
 
     async fn fail(&self, event_id: Uuid, owner: &str, now_ms: u64, policy: RetryPolicy, error: &str) -> OrchestratorResult<PostgresOutboxDisposition> {
         let mut tx = self.pool().begin().await.map_err(db_error)?;
-        let row = sqlx::query("SELECT attempt FROM cat_workflow_outbox WHERE event_id = $1 AND claimed_by = $2 FOR UPDATE")
+        let row = sqlx::query("SELECT event_id, workflow_id, event_type, version, event_kind, occurred_at_ms, producer, correlation_id, causation_id, subject_id, payload, attempt FROM cat_workflow_outbox WHERE event_id = $1 AND claimed_by = $2 FOR UPDATE")
             .bind(event_id)
             .bind(owner)
             .fetch_optional(&mut *tx)
             .await
             .map_err(db_error)?
             .ok_or_else(|| OrchestratorError::LeaseOwnerMismatch { lease_id: event_id.to_string(), owner: owner.to_owned() })?;
+
         let attempt = row.try_get::<i32, _>("attempt").map_err(row_error)?.max(0) as u32 + 1;
         if policy.retryable(attempt) {
             let delay = policy.delay_ms(attempt);
             let available_at = now_ms.saturating_add(delay);
-            sqlx::query("UPDATE cat_workflow_outbox SET attempt = $3, available_at = TO_TIMESTAMP($4 / 1000.0), claimed_by = NULL, claimed_until = NULL, last_error = $5 WHERE event_id = $1 AND claimed_by = $2")
+            let updated = sqlx::query("UPDATE cat_workflow_outbox SET attempt = $3, available_at = TO_TIMESTAMP($4 / 1000.0), claimed_by = NULL, claimed_until = NULL, last_error = $5 WHERE event_id = $1 AND claimed_by = $2")
                 .bind(event_id).bind(owner).bind(attempt as i32).bind(available_at as f64).bind(error)
                 .execute(&mut *tx).await.map_err(db_error)?;
+            if updated.rows_affected() != 1 {
+                return Err(OrchestratorError::LeaseOwnerMismatch { lease_id: event_id.to_string(), owner: owner.to_owned() });
+            }
             tx.commit().await.map_err(db_error)?;
             Ok(PostgresOutboxDisposition::RetryScheduled { attempt, available_at_ms: available_at })
         } else {
-            sqlx::query("DELETE FROM cat_workflow_outbox WHERE event_id = $1 AND claimed_by = $2")
+            let dead_letter_insert = sqlx::query("INSERT INTO cat_workflow_dead_letters (event_id, workflow_id, event_type, version, event_kind, occurred_at_ms, producer, correlation_id, causation_id, subject_id, payload, attempt, last_error) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) ON CONFLICT (event_id) DO NOTHING")
+                .bind(row.try_get::<Uuid, _>("event_id").map_err(row_error)?)
+                .bind(row.try_get::<Uuid, _>("workflow_id").map_err(row_error)?)
+                .bind(row.try_get::<String, _>("event_type").map_err(row_error)?)
+                .bind(row.try_get::<i32, _>("version").map_err(row_error)?)
+                .bind(row.try_get::<String, _>("event_kind").map_err(row_error)?)
+                .bind(row.try_get::<i64, _>("occurred_at_ms").map_err(row_error)?)
+                .bind(row.try_get::<String, _>("producer").map_err(row_error)?)
+                .bind(row.try_get::<Option<Uuid>, _>("correlation_id").map_err(row_error)?)
+                .bind(row.try_get::<Option<Uuid>, _>("causation_id").map_err(row_error)?)
+                .bind(row.try_get::<Option<Uuid>, _>("subject_id").map_err(row_error)?)
+                .bind(row.try_get::<serde_json::Value, _>("payload").map_err(row_error)?)
+                .bind(attempt as i32)
+                .bind(error)
+                .execute(&mut *tx)
+                .await
+                .map_err(db_error)?;
+            if dead_letter_insert.rows_affected() != 1 {
+                return Err(OrchestratorError::Serialization("failed to persist PostgreSQL dead letter".to_owned()));
+            }
+
+            let deleted = sqlx::query("DELETE FROM cat_workflow_outbox WHERE event_id = $1 AND claimed_by = $2")
                 .bind(event_id).bind(owner).execute(&mut *tx).await.map_err(db_error)?;
+            if deleted.rows_affected() != 1 {
+                return Err(OrchestratorError::LeaseOwnerMismatch { lease_id: event_id.to_string(), owner: owner.to_owned() });
+            }
             tx.commit().await.map_err(db_error)?;
             Ok(PostgresOutboxDisposition::DeadLettered { attempt })
         }
