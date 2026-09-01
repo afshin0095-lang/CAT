@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::{Lease, OrchestratorError, OrchestratorResult};
 
@@ -39,8 +38,6 @@ pub trait FencedLeaseProvider {
     fn validate(&self, resource: &str, owner: &str, fencing_token: FencingToken, now_ms: u64) -> OrchestratorResult<()>;
 }
 
-/// Deterministic local implementation for tests. Production deployments should use
-/// a strongly consistent store and reject stale tokens at every side-effect boundary.
 #[derive(Default)]
 pub struct InMemoryFencedLeaseProvider {
     leases: HashMap<String, FencedLease>,
@@ -106,10 +103,10 @@ mod tests {
     }
 
     #[test]
-    fn token_type_is_stable_and_copyable() {
-        let token = FencingToken(7);
-        let copied = token;
-        assert_eq!(token, copied);
-        assert_eq!(Uuid::nil().as_bytes().len(), 16);
+    fn token_order_is_monotonic() {
+        let mut provider = InMemoryFencedLeaseProvider::default();
+        let first = provider.acquire("workflow/1", "worker-a", 0, 1).unwrap();
+        let second = provider.acquire("workflow/1", "worker-b", 1, 1).unwrap();
+        assert!(second.fencing_token > first.fencing_token);
     }
 }

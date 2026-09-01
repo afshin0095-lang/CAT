@@ -22,6 +22,10 @@ mod scheduler;
 mod validation;
 mod durable;
 mod execution_coordinator;
+mod fencing;
+mod outbox;
+mod outbox_dispatcher;
+mod postgres_contract;
 
 pub use compensation::{begin_compensation, compensation_order};
 pub use error::{OrchestratorError, OrchestratorResult};
@@ -44,6 +48,10 @@ pub use scheduler::{ScheduleRequest, Scheduler};
 pub use validation::{new_validated_instance, ready_steps, topological_order, validate_definition, workflow_id};
 pub use durable::{DurableWorkflowStore, EventBusExecutionEventSink, ExecutionEventSink, InMemoryDurableWorkflowStore, InMemoryLeaseProvider, LeaseProvider, RecordingExecutionEventSink};
 pub use execution_coordinator::ExecutionCoordinator;
+pub use fencing::{FencedLease, FencedLeaseProvider, FencingToken, InMemoryFencedLeaseProvider};
+pub use outbox::{DurableOutboxStore, InMemoryDurableOutbox, OutboxDisposition, OutboxRecord};
+pub use outbox_dispatcher::{OutboxDispatchOutcome, OutboxDispatcher};
+pub use postgres_contract::{PostgresDurableExecutor, PostgresSchemaV1};
 
 #[cfg(test)]
 mod tests {
