@@ -43,11 +43,12 @@ mod tests {
 
     #[test]
     fn schedule_preserves_plan_identity() {
-        let plan = PlanBuilder::new("observe").step("observe", StepKind::Observation);
-        let plan = plan.build();
+        let mut builder = PlanBuilder::new("observe");
+        let observe = builder.step("observe", StepKind::Observation);
+        let plan = builder.build();
         let schedule = schedule_plan(&plan).expect("plan should schedule");
         assert_eq!(schedule.plan_id(), plan.id);
-        assert_eq!(schedule.execution_order().collect::<Vec<_>>(), vec![plan.steps[0].id]);
+        assert_eq!(schedule.execution_order().collect::<Vec<_>>(), vec![observe]);
     }
 
     #[test]
