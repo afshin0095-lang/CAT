@@ -3,9 +3,6 @@ use crate::{
 };
 
 /// A read-only health and delivery view over an inbox implementation.
-///
-/// This is intentionally derived from inbox state and metrics only; it never
-/// mutates canonical event or delivery truth.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InboxHealthSnapshot {
     pub event_id: uuid::Uuid,
@@ -22,17 +19,10 @@ pub struct InboxDiagnostics<'a, S: InboxStore> {
 }
 
 impl<'a, S: InboxStore> InboxDiagnostics<'a, S> {
-    pub fn new(store: &'a S) -> Self {
-        Self { store }
-    }
+    pub fn new(store: &'a S) -> Self { Self { store } }
 
     pub fn inspect(&self, event_id: uuid::Uuid) -> InboxHealthSnapshot {
         let state = self.store.state(event_id);
-        let terminal = matches!(
-            state,
-            Some(DeliveryState::Succeeded) | Some(DeliveryState::DeadLettered)
-        );
-
         InboxHealthSnapshot {
             event_id,
             state,
@@ -40,24 +30,24 @@ impl<'a, S: InboxStore> InboxDiagnostics<'a, S> {
                 state,
                 Some(DeliveryState::Succeeded) | Some(DeliveryState::InFlight)
             ),
-            terminal,
+            terminal: matches!(
+                state,
+                Some(DeliveryState::Succeeded) | Some(DeliveryState::DeadLettered)
+            ),
         }
     }
 }
 
 /// Convenience adapter for the standard metrics-decorated inbox.
-#[derive(Debug)]
 pub struct MetricsInboxHealth<'a, S: InboxStore> {
     inbox: &'a MetricsInbox<S>,
 }
 
 impl<'a, S: InboxStore> MetricsInboxHealth<'a, S> {
-    pub fn new(inbox: &'a MetricsInbox<S>) -> Self {
-        Self { inbox }
-    }
+    pub fn new(inbox: &'a MetricsInbox<S>) -> Self { Self { inbox } }
 
     pub fn metrics(&self) -> MetricsInboxSnapshot {
-        self.inbox.snapshot()
+        self.inbox.metrics().snapshot()
     }
 
     pub fn inspect(&self, event_id: uuid::Uuid) -> EventBusResult<InboxHealthSnapshot> {
@@ -79,7 +69,6 @@ impl<'a, S: InboxStore> MetricsInboxHealth<'a, S> {
 #[cfg(test)]
 mod tests {
     use crate::{InMemoryInbox, InboxStore};
-
     use super::*;
 
     #[test]
@@ -88,10 +77,7 @@ mod tests {
         let id = uuid::Uuid::now_v7();
         inbox.accept(id).unwrap();
         inbox.mark_failed(id).unwrap();
-
-        let diagnostics = InboxDiagnostics::new(&inbox);
-        let snapshot = diagnostics.inspect(id);
-
+        let snapshot = InboxDiagnostics::new(&inbox).inspect(id);
         assert_eq!(snapshot.state, Some(DeliveryState::RetryScheduled));
         assert!(!snapshot.duplicate_suppressed);
         assert!(!snapshot.terminal);
@@ -103,9 +89,7 @@ mod tests {
         let id = uuid::Uuid::now_v7();
         inbox.accept(id).unwrap();
         inbox.mark_succeeded(id).unwrap();
-
         let snapshot = InboxDiagnostics::new(&inbox).inspect(id);
-
         assert!(snapshot.duplicate_suppressed);
         assert!(snapshot.terminal);
     }
