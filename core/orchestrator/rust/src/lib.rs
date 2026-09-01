@@ -20,6 +20,8 @@ mod retry_decision;
 mod replay;
 mod scheduler;
 mod validation;
+mod durable;
+mod execution_coordinator;
 
 pub use compensation::{begin_compensation, compensation_order};
 pub use error::{OrchestratorError, OrchestratorResult};
@@ -40,6 +42,8 @@ pub use retry_decision::{decide_retry, RetryDecision};
 pub use replay::{snapshot as replay_snapshot, verify_replay, ReplaySnapshot};
 pub use scheduler::{ScheduleRequest, Scheduler};
 pub use validation::{new_validated_instance, ready_steps, topological_order, validate_definition, workflow_id};
+pub use durable::{DurableWorkflowStore, EventBusExecutionEventSink, ExecutionEventSink, InMemoryDurableWorkflowStore, InMemoryLeaseProvider, LeaseProvider, RecordingExecutionEventSink};
+pub use execution_coordinator::ExecutionCoordinator;
 
 #[cfg(test)]
 mod tests {
@@ -47,8 +51,7 @@ mod tests {
 
     fn workflow() -> WorkflowInstance {
         WorkflowInstance::new(WorkflowDefinition {
-            workflow_type: "affiliate.settlement".into(),
-            version: 1,
+            workflow_type: "affiliate.settlement".into(), version: 1,
             steps: vec![
                 WorkflowStep { id: "reserve".into(), dependencies: vec![], state: StepState::Pending, attempt: 0, max_attempts: 3, compensation_step: Some("release_reserve".into()) },
                 WorkflowStep { id: "settle".into(), dependencies: vec!["reserve".into()], state: StepState::Pending, attempt: 0, max_attempts: 3, compensation_step: Some("reverse_settlement".into()) },
@@ -59,83 +62,47 @@ mod tests {
     #[test]
     fn workflow_starts_pending_and_advances_revision_on_compensation() {
         let workflow = WorkflowInstance::new(WorkflowDefinition {
-            workflow_type: "affiliate.settlement".into(),
-            version: 1,
-            steps: vec![
-                WorkflowStep { id: "reserve".into(), dependencies: vec![], state: StepState::Succeeded, attempt: 1, max_attempts: 3, compensation_step: Some("release_reserve".into()) },
-            ],
+            workflow_type: "affiliate.settlement".into(), version: 1,
+            steps: vec![WorkflowStep { id: "reserve".into(), dependencies: vec![], state: StepState::Succeeded, attempt: 1, max_attempts: 3, compensation_step: Some("release_reserve".into()) }],
         });
-        assert_eq!(workflow.state, WorkflowState::Pending);
-        assert_eq!(compensation_order(&workflow), vec!["release_reserve"]);
-        let mut running = workflow;
-        begin_compensation(&mut running);
-        assert_eq!(running.state, WorkflowState::Compensating);
-        assert_eq!(running.revision, 1);
+        assert_eq!(workflow.state, WorkflowState::Pending); assert_eq!(compensation_order(&workflow), vec!["release_reserve"]);
+        let mut running = workflow; begin_compensation(&mut running); assert_eq!(running.state, WorkflowState::Compensating); assert_eq!(running.revision, 1);
     }
 
     #[test]
     fn execution_engine_unlocks_dependent_steps_deterministically() {
-        let engine = ExecutionEngine::default();
-        let mut instance = workflow();
-        engine.start(&mut instance).unwrap();
-        assert_eq!(instance.definition.steps[0].state, StepState::Ready);
-        assert_eq!(instance.definition.steps[1].state, StepState::Pending);
-
-        engine.begin_step(&mut instance, "reserve").unwrap();
-        engine.succeed_step(&mut instance, "reserve").unwrap();
-        assert_eq!(instance.definition.steps[1].state, StepState::Ready);
+        let engine = ExecutionEngine::default(); let mut instance = workflow(); engine.start(&mut instance).unwrap();
+        assert_eq!(instance.definition.steps[0].state, StepState::Ready); assert_eq!(instance.definition.steps[1].state, StepState::Pending);
+        engine.begin_step(&mut instance, "reserve").unwrap(); engine.succeed_step(&mut instance, "reserve").unwrap(); assert_eq!(instance.definition.steps[1].state, StepState::Ready);
     }
 
     #[test]
     fn execution_engine_rejects_invalid_step_transition() {
-        let engine = ExecutionEngine::default();
-        let mut instance = workflow();
-        engine.start(&mut instance).unwrap();
-        let error = engine.succeed_step(&mut instance, "reserve").unwrap_err();
-        assert!(matches!(error, OrchestratorError::InvalidStepTransition { .. }));
+        let engine = ExecutionEngine::default(); let mut instance = workflow(); engine.start(&mut instance).unwrap();
+        assert!(matches!(engine.succeed_step(&mut instance, "reserve"), Err(OrchestratorError::InvalidStepTransition { .. })));
     }
 
     #[test]
     fn execution_engine_fails_unknown_step_without_mutating_revision() {
-        let engine = ExecutionEngine::default();
-        let mut instance = workflow();
-        engine.start(&mut instance).unwrap();
-        let revision = instance.revision;
-        let error = engine.begin_step(&mut instance, "missing").unwrap_err();
-        assert!(matches!(error, OrchestratorError::UnknownStep { .. }));
-        assert_eq!(instance.revision, revision);
+        let engine = ExecutionEngine::default(); let mut instance = workflow(); engine.start(&mut instance).unwrap(); let revision = instance.revision;
+        assert!(matches!(engine.begin_step(&mut instance, "missing"), Err(OrchestratorError::UnknownStep { .. }))); assert_eq!(instance.revision, revision);
     }
 
     #[test]
     fn execution_engine_cancels_non_terminal_workflow() {
-        let engine = ExecutionEngine::default();
-        let mut instance = workflow();
-        engine.start(&mut instance).unwrap();
-        engine.cancel(&mut instance).unwrap();
-        assert_eq!(instance.state, WorkflowState::Cancelled);
-        assert!(instance.state.terminal());
+        let engine = ExecutionEngine::default(); let mut instance = workflow(); engine.start(&mut instance).unwrap(); engine.cancel(&mut instance).unwrap();
+        assert_eq!(instance.state, WorkflowState::Cancelled); assert!(instance.state.terminal());
     }
 
     #[test]
     fn ready_requests_do_not_execute_work() {
-        let engine = ExecutionEngine::default();
-        let mut instance = workflow();
-        engine.start(&mut instance).unwrap();
-        let requests = ready_requests(&instance, 123);
-        assert_eq!(requests.len(), 1);
-        assert_eq!(requests[0].step_id, "reserve");
-        assert_eq!(requests[0].attempt, 1);
-        assert_eq!(instance.definition.steps[0].state, StepState::Ready);
+        let engine = ExecutionEngine::default(); let instance = { let mut value = workflow(); engine.start(&mut value).unwrap(); value };
+        let requests = ready_requests(&instance, 123); assert_eq!(requests.len(), 1); assert_eq!(requests[0].step_id, "reserve"); assert_eq!(requests[0].attempt, 1); assert_eq!(instance.definition.steps[0].state, StepState::Ready);
     }
 
     #[test]
     fn claim_step_changes_state_before_dispatch() {
-        let engine = ExecutionEngine::default();
-        let mut instance = workflow();
-        engine.start(&mut instance).unwrap();
-        let request = claim_step(&engine, &mut instance, "reserve").unwrap();
-        assert_eq!(request.step_id, "reserve");
-        assert_eq!(request.attempt, 1);
-        assert_eq!(instance.definition.steps[0].state, StepState::Running);
+        let engine = ExecutionEngine::default(); let mut instance = workflow(); engine.start(&mut instance).unwrap(); let request = claim_step(&engine, &mut instance, "reserve").unwrap();
+        assert_eq!(request.step_id, "reserve"); assert_eq!(request.attempt, 1); assert_eq!(instance.definition.steps[0].state, StepState::Running);
     }
 }
