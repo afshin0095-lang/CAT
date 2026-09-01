@@ -12,7 +12,7 @@ pub enum EventKind {
     Integration,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct EventEnvelope {
     pub event_id: Uuid,
     pub event_type: String,
