@@ -105,6 +105,10 @@ impl AsyncOutboxStore for AsyncInMemoryOutbox {
         inner.pending.push_back(event);
         Ok(DeliveryState::RetryScheduled)
     }
+
+    async fn state(&self, event_id: uuid::Uuid) -> EventBusResult<Option<DeliveryState>> {
+        Ok(self.state(event_id))
+    }
 }
 
 #[cfg(test)]
