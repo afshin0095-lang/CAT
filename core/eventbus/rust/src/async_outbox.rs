@@ -19,4 +19,13 @@ pub trait AsyncOutboxStore: Send + Sync {
         policy: &RetryPolicy,
         error: &str,
     ) -> EventBusResult<DeliveryState>;
+
+    /// Returns the current producer-side delivery state when exposed by the store.
+    ///
+    /// The default keeps existing third-party implementations source-compatible while
+    /// allowing observability decorators to report lifecycle state without reaching
+    /// into a concrete persistence implementation.
+    async fn state(&self, _event_id: uuid::Uuid) -> EventBusResult<Option<DeliveryState>> {
+        Ok(None)
+    }
 }
