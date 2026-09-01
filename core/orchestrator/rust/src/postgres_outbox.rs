@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use cat_eventbus::EventEnvelope;
+use cat_eventbus::{EventEnvelope, EventKind};
 use sqlx::{postgres::PgPool, Row};
 use uuid::Uuid;
 
@@ -24,30 +24,29 @@ pub enum PostgresOutboxDisposition {
 pub trait AsyncPostgresOutbox: Send + Sync {
     async fn claim_next(&self, owner: &str, now_ms: u64, claim_ttl_ms: u64) -> OrchestratorResult<Option<PostgresOutboxRecord>>;
     async fn acknowledge(&self, event_id: Uuid, owner: &str) -> OrchestratorResult<()>;
-    async fn fail(
-        &self,
-        event_id: Uuid,
-        owner: &str,
-        now_ms: u64,
-        policy: RetryPolicy,
-        error: &str,
-    ) -> OrchestratorResult<PostgresOutboxDisposition>;
+    async fn fail(&self, event_id: Uuid, owner: &str, now_ms: u64, policy: RetryPolicy, error: &str) -> OrchestratorResult<PostgresOutboxDisposition>;
 }
 
 impl super::PostgresExecutionStore {
     pub async fn enqueue_outbox(&self, event: &EventEnvelope, workflow_id: Uuid) -> OrchestratorResult<()> {
-        sqlx::query(
-            "INSERT INTO cat_workflow_outbox (event_id, workflow_id, event_type, version, occurred_at_ms, payload) VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (event_id) DO NOTHING",
-        )
-        .bind(event.event_id)
-        .bind(workflow_id)
-        .bind(&event.event_type)
-        .bind(event.version as i32)
-        .bind(event.occurred_at_ms as i64)
-        .bind(&event.payload)
-        .execute(self.pool())
-        .await
-        .map_err(|e| OrchestratorError::Serialization(format!("postgresql outbox error: {e}")))?;
+        let event_kind = serde_json::to_string(&event.kind)
+            .map_err(|error| OrchestratorError::Serialization(format!("event kind serialization error: {error}")))?;
+        let event_kind = event_kind.trim_matches('"');
+        sqlx::query("INSERT INTO cat_workflow_outbox (event_id, workflow_id, event_type, version, event_kind, occurred_at_ms, producer, correlation_id, causation_id, subject_id, payload) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) ON CONFLICT (event_id) DO NOTHING")
+            .bind(event.event_id)
+            .bind(workflow_id)
+            .bind(&event.event_type)
+            .bind(event.version as i32)
+            .bind(event_kind)
+            .bind(event.occurred_at_ms as i64)
+            .bind(&event.producer)
+            .bind(event.correlation_id)
+            .bind(event.causation_id)
+            .bind(event.subject_id)
+            .bind(&event.payload)
+            .execute(self.pool())
+            .await
+            .map_err(|e| OrchestratorError::Serialization(format!("postgresql outbox error: {e}")))?;
         Ok(())
     }
 }
@@ -57,28 +56,29 @@ impl AsyncPostgresOutbox for super::PostgresExecutionStore {
     async fn claim_next(&self, owner: &str, now_ms: u64, claim_ttl_ms: u64) -> OrchestratorResult<Option<PostgresOutboxRecord>> {
         let mut tx = self.pool().begin().await.map_err(db_error)?;
         let claim_until = now_ms.saturating_add(claim_ttl_ms) as f64;
-        let row = sqlx::query(
-            "UPDATE cat_workflow_outbox SET claimed_by = $1, claimed_until = TO_TIMESTAMP($2 / 1000.0) WHERE event_id = (SELECT event_id FROM cat_workflow_outbox WHERE available_at <= NOW() AND (claimed_by IS NULL OR claimed_until <= NOW()) ORDER BY available_at, event_id FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING event_id, workflow_id, event_type, version, occurred_at_ms, payload, attempt, EXTRACT(EPOCH FROM available_at) * 1000 AS available_at_ms, claimed_by, EXTRACT(EPOCH FROM claimed_until) * 1000 AS claimed_until_ms",
-        )
-        .bind(owner)
-        .bind(claim_until)
-        .fetch_optional(&mut *tx)
-        .await
-        .map_err(db_error)?;
+        let row = sqlx::query("UPDATE cat_workflow_outbox SET claimed_by = $1, claimed_until = TO_TIMESTAMP($2 / 1000.0) WHERE event_id = (SELECT event_id FROM cat_workflow_outbox WHERE available_at <= NOW() AND (claimed_by IS NULL OR claimed_until <= NOW()) ORDER BY available_at, event_id FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING event_id, workflow_id, event_type, version, event_kind, occurred_at_ms, producer, correlation_id, causation_id, subject_id, payload, attempt, EXTRACT(EPOCH FROM available_at) * 1000 AS available_at_ms, claimed_by, EXTRACT(EPOCH FROM claimed_until) * 1000 AS claimed_until_ms")
+            .bind(owner)
+            .bind(claim_until)
+            .fetch_optional(&mut *tx)
+            .await
+            .map_err(db_error)?;
         tx.commit().await.map_err(db_error)?;
 
         let Some(row) = row else { return Ok(None); };
         let workflow_id: Uuid = row.try_get("workflow_id").map_err(row_error)?;
+        let event_kind_raw: String = row.try_get("event_kind").map_err(row_error)?;
+        let event_kind: EventKind = serde_json::from_str(&format!("\"{event_kind_raw}\""))
+            .map_err(|error| OrchestratorError::Serialization(format!("event kind deserialization error: {error}")))?;
         let event = EventEnvelope {
             event_id: row.try_get("event_id").map_err(row_error)?,
             event_type: row.try_get("event_type").map_err(row_error)?,
             version: row.try_get::<i32, _>("version").map_err(row_error)?.max(0) as u16,
-            kind: cat_eventbus::EventKind::Integration,
+            kind: event_kind,
             occurred_at_ms: row.try_get::<i64, _>("occurred_at_ms").map_err(row_error)?.max(0) as u64,
-            producer: "orchestrator.postgres_outbox".into(),
-            correlation_id: None,
-            causation_id: None,
-            subject_id: Some(workflow_id),
+            producer: row.try_get("producer").map_err(row_error)?,
+            correlation_id: row.try_get("correlation_id").map_err(row_error)?,
+            causation_id: row.try_get("causation_id").map_err(row_error)?,
+            subject_id: row.try_get("subject_id").map_err(row_error)?,
             payload: row.try_get("payload").map_err(row_error)?,
         };
         Ok(Some(PostgresOutboxRecord {
@@ -113,7 +113,6 @@ impl AsyncPostgresOutbox for super::PostgresExecutionStore {
             .map_err(db_error)?
             .ok_or_else(|| OrchestratorError::LeaseOwnerMismatch { lease_id: event_id.to_string(), owner: owner.to_owned() })?;
         let attempt = row.try_get::<i32, _>("attempt").map_err(row_error)?.max(0) as u32 + 1;
-
         if policy.retryable(attempt) {
             let delay = policy.delay_ms(attempt);
             let available_at = now_ms.saturating_add(delay);
