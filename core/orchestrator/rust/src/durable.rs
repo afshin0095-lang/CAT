@@ -1,21 +1,19 @@
 use std::collections::HashMap;
 
+use cat_eventbus::EventEnvelope;
 use uuid::Uuid;
 
 use crate::{Lease, OrchestratorError, OrchestratorResult, WorkflowInstance};
 
-/// Persistence boundary for workflow instances.
-///
-/// Implementations may be backed by Postgres, SQLite, a replicated KV store, or another
-/// durable system. The orchestrator only relies on optimistic revision checks.
-pub trait WorkflowRepository {
+/// Durable persistence boundary for workflow state and its transactional event outbox.
+pub trait DurableWorkflowStore {
     fn load(&self, workflow_id: Uuid) -> OrchestratorResult<WorkflowInstance>;
-    fn save(&mut self, workflow: WorkflowInstance, expected_revision: u64) -> OrchestratorResult<()>;
-}
-
-/// Event publication boundary for durable execution.
-pub trait ExecutionEventSink {
-    fn publish(&mut self, event: cat_eventbus::EventEnvelope) -> OrchestratorResult<()>;
+    fn commit(
+        &mut self,
+        workflow: WorkflowInstance,
+        expected_revision: u64,
+        events: &[EventEnvelope],
+    ) -> OrchestratorResult<()>;
 }
 
 /// Lease acquisition boundary. External implementations should use a distributed lease store.
@@ -23,19 +21,23 @@ pub trait LeaseProvider {
     fn acquire(&mut self, resource: &str, owner: &str, now_ms: u64, ttl_ms: u64) -> OrchestratorResult<Lease>;
 }
 
-/// Small deterministic repository for unit tests and local development.
 #[derive(Default)]
-pub struct InMemoryWorkflowRepository {
+pub struct InMemoryDurableWorkflowStore {
     workflows: HashMap<Uuid, WorkflowInstance>,
+    outbox: Vec<EventEnvelope>,
 }
 
-impl InMemoryWorkflowRepository {
+impl InMemoryDurableWorkflowStore {
     pub fn insert(&mut self, workflow: WorkflowInstance) {
         self.workflows.insert(workflow.id, workflow);
     }
+
+    pub fn outbox(&self) -> &[EventEnvelope] {
+        &self.outbox
+    }
 }
 
-impl WorkflowRepository for InMemoryWorkflowRepository {
+impl DurableWorkflowStore for InMemoryDurableWorkflowStore {
     fn load(&self, workflow_id: Uuid) -> OrchestratorResult<WorkflowInstance> {
         self.workflows
             .get(&workflow_id)
@@ -43,10 +45,16 @@ impl WorkflowRepository for InMemoryWorkflowRepository {
             .ok_or_else(|| OrchestratorError::WorkflowNotFound(workflow_id.to_string()))
     }
 
-    fn save(&mut self, workflow: WorkflowInstance, expected_revision: u64) -> OrchestratorResult<()> {
+    fn commit(
+        &mut self,
+        workflow: WorkflowInstance,
+        expected_revision: u64,
+        events: &[EventEnvelope],
+    ) -> OrchestratorResult<()> {
         match self.workflows.get(&workflow.id) {
             Some(current) if current.revision == expected_revision => {
                 self.workflows.insert(workflow.id, workflow);
+                self.outbox.extend_from_slice(events);
                 Ok(())
             }
             Some(current) => Err(OrchestratorError::RevisionConflict {
@@ -71,28 +79,69 @@ impl LeaseProvider for InMemoryLeaseProvider {
                 return Err(OrchestratorError::LeaseUnavailable { resource: resource.to_owned() });
             }
         }
-
         let lease = Lease::acquire(resource, owner, now_ms, ttl_ms);
         self.leases.insert(resource.to_owned(), lease.clone());
         Ok(lease)
     }
 }
 
-/// In-memory sink that preserves event order for deterministic tests.
-#[derive(Default)]
-pub struct RecordingExecutionEventSink {
-    events: Vec<cat_eventbus::EventEnvelope>,
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{StepState, WorkflowDefinition, WorkflowStep, WorkflowState};
 
-impl RecordingExecutionEventSink {
-    pub fn events(&self) -> &[cat_eventbus::EventEnvelope] {
-        &self.events
+    fn workflow() -> WorkflowInstance {
+        WorkflowInstance {
+            id: Uuid::now_v7(),
+            definition: WorkflowDefinition {
+                workflow_type: "test".into(),
+                version: 1,
+                steps: vec![WorkflowStep {
+                    id: "work".into(), dependencies: vec![], state: StepState::Ready,
+                    attempt: 0, max_attempts: 3, compensation_step: None,
+                }],
+            },
+            state: WorkflowState::Running,
+            revision: 0,
+        }
     }
-}
 
-impl ExecutionEventSink for RecordingExecutionEventSink {
-    fn publish(&mut self, event: cat_eventbus::EventEnvelope) -> OrchestratorResult<()> {
-        self.events.push(event);
-        Ok(())
+    #[test]
+    fn commit_persists_state_and_outbox() {
+        let mut store = InMemoryDurableWorkflowStore::default();
+        let workflow = workflow();
+        let id = workflow.id;
+        store.insert(workflow.clone());
+        let event = EventEnvelope {
+            event_id: Uuid::now_v7(), event_type: "test.event".into(), version: 1,
+            kind: cat_eventbus::EventKind::Domain, occurred_at_ms: 10, producer: "test".into(),
+            correlation_id: None, causation_id: None, subject_id: Some(id), payload: serde_json::json!({}),
+        };
+        let mut committed = workflow;
+        committed.revision = 1;
+        store.commit(committed, 0, &[event]).unwrap();
+        assert_eq!(store.load(id).unwrap().revision, 1);
+        assert_eq!(store.outbox().len(), 1);
+    }
+
+    #[test]
+    fn stale_revision_is_rejected() {
+        let mut store = InMemoryDurableWorkflowStore::default();
+        let workflow = workflow();
+        let id = workflow.id;
+        store.insert(workflow.clone());
+        let mut committed = workflow;
+        committed.revision = 1;
+        store.commit(committed, 0, &[]).unwrap();
+        let stale = store.load(id).unwrap();
+        assert!(matches!(store.commit(stale, 0, &[]), Err(OrchestratorError::RevisionConflict { .. })));
+    }
+
+    #[test]
+    fn lease_is_exclusive_until_expiry() {
+        let mut provider = InMemoryLeaseProvider::default();
+        provider.acquire("workflow/1", "worker-a", 100, 50).unwrap();
+        assert!(matches!(provider.acquire("workflow/1", "worker-b", 120, 50), Err(OrchestratorError::LeaseUnavailable { .. })));
+        provider.acquire("workflow/1", "worker-b", 150, 50).unwrap();
     }
 }
