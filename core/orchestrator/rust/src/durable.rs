@@ -5,21 +5,16 @@ use uuid::Uuid;
 
 use crate::{Lease, OrchestratorError, OrchestratorResult, WorkflowInstance};
 
-/// Durable persistence boundary for workflow state and its transactional event outbox.
 pub trait DurableWorkflowStore {
     fn load(&self, workflow_id: Uuid) -> OrchestratorResult<WorkflowInstance>;
     fn commit(&mut self, workflow: WorkflowInstance, expected_revision: u64, events: &[EventEnvelope]) -> OrchestratorResult<()>;
 }
 
-/// Event delivery boundary. Publishing is intentionally outside the state transaction.
 pub trait ExecutionEventSink {
     fn publish(&mut self, event: EventEnvelope) -> OrchestratorResult<()>;
 }
 
-/// Direct adapter to CAT EventBus. A production outbox worker should call this after a durable commit.
-pub struct EventBusExecutionEventSink<'a> {
-    bus: &'a EventBus,
-}
+pub struct EventBusExecutionEventSink<'a> { bus: &'a EventBus }
 
 impl<'a> EventBusExecutionEventSink<'a> {
     pub fn new(bus: &'a EventBus) -> Self { Self { bus } }
@@ -31,7 +26,20 @@ impl ExecutionEventSink for EventBusExecutionEventSink<'_> {
     }
 }
 
-/// Lease acquisition boundary. External implementations should use a distributed lease store.
+#[derive(Default)]
+pub struct RecordingExecutionEventSink { events: Vec<EventEnvelope> }
+
+impl RecordingExecutionEventSink {
+    pub fn events(&self) -> &[EventEnvelope] { &self.events }
+}
+
+impl ExecutionEventSink for RecordingExecutionEventSink {
+    fn publish(&mut self, event: EventEnvelope) -> OrchestratorResult<()> {
+        self.events.push(event);
+        Ok(())
+    }
+}
+
 pub trait LeaseProvider {
     fn acquire(&mut self, resource: &str, owner: &str, now_ms: u64, ttl_ms: u64) -> OrchestratorResult<Lease>;
 }
@@ -92,23 +100,19 @@ mod tests {
 
     #[test]
     fn commit_persists_state_and_outbox() {
-        let mut store = InMemoryDurableWorkflowStore::default();
-        let workflow = workflow(); let id = workflow.id; store.insert(workflow.clone());
+        let mut store = InMemoryDurableWorkflowStore::default(); let workflow = workflow(); let id = workflow.id; store.insert(workflow.clone());
         let event = EventEnvelope { event_id: Uuid::now_v7(), event_type: "test.event".into(), version: 1, kind: cat_eventbus::EventKind::Domain, occurred_at_ms: 10, producer: "test".into(), correlation_id: None, causation_id: None, subject_id: Some(id), payload: serde_json::json!({}) };
-        let mut committed = workflow; committed.revision = 1;
-        store.commit(committed, 0, &[event]).unwrap();
+        let mut committed = workflow; committed.revision = 1; store.commit(committed, 0, &[event]).unwrap();
         assert_eq!(store.load(id).unwrap().revision, 1); assert_eq!(store.outbox().len(), 1);
     }
 
     #[test]
     fn stale_revision_is_rejected() {
-        let mut store = InMemoryDurableWorkflowStore::default(); let workflow = workflow(); store.insert(workflow.clone());
+        let mut store = InMemoryDurableWorkflowStore::default(); let workflow = workflow(); let id = workflow.id; store.insert(workflow.clone());
         let mut committed = workflow; committed.revision = 1; store.commit(committed, 0, &[]).unwrap();
-        let stale = store.load(committed_id(&store)).unwrap();
+        let stale = store.load(id).unwrap();
         assert!(matches!(store.commit(stale, 0, &[]), Err(OrchestratorError::RevisionConflict { .. })));
     }
-
-    fn committed_id(store: &InMemoryDurableWorkflowStore) -> Uuid { store.workflows.keys().copied().next().unwrap() }
 
     #[test]
     fn lease_is_exclusive_until_expiry() {
