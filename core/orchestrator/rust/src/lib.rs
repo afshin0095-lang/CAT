@@ -29,6 +29,8 @@ mod postgres_contract;
 mod postgres;
 mod postgres_outbox;
 mod recovery;
+mod execution_attempt;
+mod execution_attempt_store;
 
 pub use compensation::{begin_compensation, compensation_order};
 pub use error::{OrchestratorError, OrchestratorResult};
@@ -58,6 +60,8 @@ pub use postgres_contract::{PostgresDurableExecutor, PostgresSchemaV1};
 pub use postgres::{AsyncPostgresExecutionStore, PostgresExecutionStore};
 pub use postgres_outbox::{AsyncPostgresOutbox, PostgresOutboxDisposition, PostgresOutboxRecord};
 pub use recovery::{AsyncWorkflowRecovery, RecoveryAction, WorkflowRecoveryReport, WorkflowRecoveryStore};
+pub use execution_attempt::{ExecutionAttempt, ExecutionAttemptHealth, ExecutionAttemptKey, ExecutionAttemptStatus};
+pub use execution_attempt_store::ExecutionAttemptStore;
 
 #[cfg(test)]
 mod tests {
