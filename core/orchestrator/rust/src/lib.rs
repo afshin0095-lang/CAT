@@ -37,6 +37,7 @@ mod provider_result_store;
 mod provider_adapter;
 mod reconciliation_worker;
 mod provider_registry;
+mod provider_selection;
 
 pub use compensation::{begin_compensation, compensation_order};
 pub use error::{OrchestratorError, OrchestratorResult};
@@ -73,6 +74,7 @@ pub use reconciliation::{ExecutionReconciliationStore, ReconciliationReport, Wor
 pub use provider_adapter::{idempotency_key as provider_idempotency_key, normalize_provider_outcome, ProviderExecutionAdapter, ProviderExecutionRequest, ProviderExecutionSubmission};
 pub use reconciliation_worker::ReconciliationWorker;
 pub use provider_registry::{ProviderAdapterRegistry, ProviderCapability, ProviderRegistration};
+pub use provider_selection::{ProviderScore, ProviderSelection, ProviderSelectionEngine, ProviderSelectionRequest};
 
 #[cfg(test)]
 mod tests {
