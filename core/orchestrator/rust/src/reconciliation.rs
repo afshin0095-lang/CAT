@@ -2,8 +2,8 @@ use async_trait::async_trait;
 use uuid::Uuid;
 
 use crate::{
-    AsyncPostgresExecutionStore, ExecutionAttempt, OrchestratorResult, ProviderExecutionRecord,
-    ProviderOutcomeState, ReconciliationAction,
+    AsyncPostgresExecutionStore, ExecutionAttempt, ExecutionAttemptStatus, OrchestratorResult,
+    ProviderExecutionRecord, ProviderOutcomeState, ReconciliationAction,
 };
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -55,43 +55,24 @@ where
         let action = match provider_result.as_ref() {
             Some(result) => result.action(),
             None if attempt.status.terminal() => match attempt.status {
-                crate::ExecutionAttemptStatus::Succeeded => ReconciliationAction::ConfirmSuccess,
-                crate::ExecutionAttemptStatus::Failed | crate::ExecutionAttemptStatus::Cancelled => ReconciliationAction::ConfirmFailure,
-                crate::ExecutionAttemptStatus::Running => ReconciliationAction::ManualReview,
+                ExecutionAttemptStatus::Succeeded => ReconciliationAction::ConfirmSuccess,
+                ExecutionAttemptStatus::Failed | ExecutionAttemptStatus::Cancelled => ReconciliationAction::ConfirmFailure,
+                ExecutionAttemptStatus::Running => ReconciliationAction::ManualReview,
             },
             None => ReconciliationAction::Continue,
         };
 
-        Ok(ReconciliationReport {
-            execution_id,
-            action,
-            provider_result,
-        })
+        Ok(ReconciliationReport { execution_id, action, provider_result })
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{ExecutionAttemptKey, ExecutionAttemptStatus, FencingToken};
-
-    fn running_attempt() -> ExecutionAttempt {
-        ExecutionAttempt {
-            execution_id: Uuid::now_v7(),
-            key: ExecutionAttemptKey { workflow_id: Uuid::now_v7(), step_id: "publish".into(), attempt: 1 },
-            status: ExecutionAttemptStatus::Running,
-            owner: "worker-1".into(),
-            fencing_token: FencingToken::from_value(1),
-            started_at_ms: 100,
-            heartbeat_at_ms: 100,
-            finished_at_ms: None,
-            result: None,
-            error: None,
-        }
-    }
+    use crate::ProviderExecutionRecord;
 
     #[test]
-    fn provider_success_is_the_authoritative_reconciliation_signal() {
+    fn provider_success_is_authoritative() {
         let record = ProviderExecutionRecord {
             execution_id: Uuid::now_v7(),
             provider: "affiliate-api".into(),
@@ -107,11 +88,18 @@ mod tests {
     }
 
     #[test]
-    fn terminal_attempt_without_provider_result_is_still_conservative() {
-        let mut attempt = running_attempt();
-        attempt.status = ExecutionAttemptStatus::Succeeded;
-        assert_eq!(attempt.status, ExecutionAttemptStatus::Succeeded);
-        // The reconciler implementation uses the durable attempt state only as a fallback;
-        // provider evidence remains preferred whenever available.
+    fn unknown_provider_outcome_requires_review() {
+        let record = ProviderExecutionRecord {
+            execution_id: Uuid::now_v7(),
+            provider: "affiliate-api".into(),
+            provider_execution_id: "remote-456".into(),
+            request_hash: "sha256:def".into(),
+            submitted_at_ms: 100,
+            outcome: Some(ProviderOutcomeState::Unknown),
+            observed_at_ms: Some(300),
+            result: None,
+            error: Some("provider unavailable".into()),
+        };
+        assert_eq!(record.action(), ReconciliationAction::ManualReview);
     }
 }
