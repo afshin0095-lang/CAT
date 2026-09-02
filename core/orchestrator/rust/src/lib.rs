@@ -30,7 +30,9 @@ mod postgres;
 mod postgres_outbox;
 mod recovery;
 mod execution_attempt;
-mod execution_attempt_store;
+mod provider_result;
+mod reconciliation;
+mod provider_result_store;
 
 pub use compensation::{begin_compensation, compensation_order};
 pub use error::{OrchestratorError, OrchestratorResult};
@@ -61,7 +63,8 @@ pub use postgres::{AsyncPostgresExecutionStore, PostgresExecutionStore};
 pub use postgres_outbox::{AsyncPostgresOutbox, PostgresOutboxDisposition, PostgresOutboxRecord};
 pub use recovery::{AsyncWorkflowRecovery, RecoveryAction, WorkflowRecoveryReport, WorkflowRecoveryStore};
 pub use execution_attempt::{ExecutionAttempt, ExecutionAttemptHealth, ExecutionAttemptKey, ExecutionAttemptStatus};
-pub use execution_attempt_store::ExecutionAttemptStore;
+pub use provider_result::{ProviderExecutionRecord, ProviderOutcomeState, ReconciliationAction};
+pub use reconciliation::{ExecutionReconciliationStore, ReconciliationReport, WorkflowExecutionReconciler};
 
 #[cfg(test)]
 mod tests {
