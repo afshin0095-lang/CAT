@@ -3,9 +3,8 @@ use sqlx::Row;
 use uuid::Uuid;
 
 use crate::{
-    ExecutionAttempt, ExecutionAttemptStatus, ExecutionReconciliationStore, FencingToken,
-    OrchestratorError, OrchestratorResult, PostgresExecutionStore, ProviderExecutionRecord,
-    ProviderOutcomeState,
+    ExecutionAttempt, ExecutionAttemptStatus, ExecutionReconciliationStore, OrchestratorError,
+    OrchestratorResult, PostgresExecutionStore, ProviderExecutionRecord, ProviderOutcomeState,
 };
 
 #[async_trait]
@@ -93,12 +92,11 @@ impl ExecutionReconciliationStore for PostgresExecutionStore {
         request_hash: &str,
         submitted_at_ms: u64,
     ) -> OrchestratorResult<()> {
-        let result = sqlx::query(
+        let inserted = sqlx::query(
             "INSERT INTO cat_provider_execution_results\
              (execution_id, provider, provider_execution_id, request_hash, submitted_at)\
              VALUES ($1, $2, $3, $4, TO_TIMESTAMP($5 / 1000.0))\
-             ON CONFLICT (execution_id) DO UPDATE SET provider = EXCLUDED.provider,\
-             provider_execution_id = EXCLUDED.provider_execution_id, request_hash = EXCLUDED.request_hash",
+             ON CONFLICT (execution_id) DO NOTHING",
         )
         .bind(execution_id)
         .bind(provider)
@@ -108,10 +106,25 @@ impl ExecutionReconciliationStore for PostgresExecutionStore {
         .execute(self.pool())
         .await
         .map_err(db_error)?;
-        if result.rows_affected() != 1 {
-            return Err(OrchestratorError::Serialization(format!("provider submission was not persisted: {execution_id}")));
+
+        if inserted.rows_affected() == 1 {
+            return Ok(());
         }
-        Ok(())
+
+        let existing = self
+            .load_provider_result(execution_id)
+            .await?
+            .ok_or_else(|| OrchestratorError::Serialization(format!("provider submission disappeared: {execution_id}")))?;
+        if existing.provider == provider
+            && existing.provider_execution_id == provider_execution_id
+            && existing.request_hash == request_hash
+        {
+            return Ok(());
+        }
+
+        Err(OrchestratorError::Serialization(format!(
+            "provider execution identity conflict for execution {execution_id}"
+        )))
     }
 
     async fn record_provider_result(
