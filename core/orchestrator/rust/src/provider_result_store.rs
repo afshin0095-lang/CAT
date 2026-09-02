@@ -3,9 +3,9 @@ use sqlx::Row;
 use uuid::Uuid;
 
 use crate::{
-    AsyncPostgresExecutionStore, ExecutionAttempt, ExecutionAttemptKey, ExecutionAttemptStatus,
-    FencingToken, OrchestratorError, OrchestratorResult, PostgresExecutionStore,
-    ProviderExecutionRecord, ProviderOutcomeState, ExecutionReconciliationStore,
+    ExecutionAttempt, ExecutionAttemptStatus, ExecutionReconciliationStore, FencingToken,
+    OrchestratorError, OrchestratorResult, PostgresExecutionStore, ProviderExecutionRecord,
+    ProviderOutcomeState,
 };
 
 #[async_trait]
@@ -24,37 +24,33 @@ impl ExecutionReconciliationStore for PostgresExecutionStore {
         .map_err(db_error)?
         .ok_or_else(|| OrchestratorError::Serialization(format!("execution attempt not found: {execution_id}")))?;
 
-        let status: String = row.try_get("status").map_err(row_error)?;
-        let status = match status.as_str() {
+        let status_text: String = row.try_get("status").map_err(row_error)?;
+        let status = match status_text.as_str() {
             "running" => ExecutionAttemptStatus::Running,
             "succeeded" => ExecutionAttemptStatus::Succeeded,
             "failed" => ExecutionAttemptStatus::Failed,
             "cancelled" => ExecutionAttemptStatus::Cancelled,
             other => return Err(OrchestratorError::Serialization(format!("unknown execution attempt status: {other}"))),
         };
-
-        let fencing_token: i64 = row.try_get("fencing_token").map_err(row_error)?;
         let started_at_ms: f64 = row.try_get("started_at_ms").map_err(row_error)?;
         let heartbeat_at_ms: f64 = row.try_get("heartbeat_at_ms").map_err(row_error)?;
         let finished_at_ms: Option<f64> = row.try_get("finished_at_ms").map_err(row_error)?;
+        let fencing_token: i64 = row.try_get("fencing_token").map_err(row_error)?;
         let attempt: i32 = row.try_get("attempt").map_err(row_error)?;
-        let workflow_id: Uuid = row.try_get("workflow_id").map_err(row_error)?;
-        let step_id: String = row.try_get("step_id").map_err(row_error)?;
-        let owner: String = row.try_get("owner").map_err(row_error)?;
-        let result: Option<serde_json::Value> = row.try_get("result").map_err(row_error)?;
-        let error: Option<String> = row.try_get("error").map_err(row_error)?;
 
         Ok(ExecutionAttempt {
-            execution_id,
-            key: ExecutionAttemptKey { workflow_id, step_id, attempt: attempt.max(0) as u32 },
+            execution_id: row.try_get("execution_id").map_err(row_error)?,
+            workflow_id: row.try_get("workflow_id").map_err(row_error)?,
+            step_id: row.try_get("step_id").map_err(row_error)?,
+            attempt: attempt.max(0) as u32,
             status,
-            owner,
-            fencing_token: FencingToken::from_value(fencing_token.max(0) as u64),
+            owner: row.try_get("owner").map_err(row_error)?,
+            fencing_token: fencing_token.max(0) as u64,
             started_at_ms: started_at_ms.max(0.0) as u64,
             heartbeat_at_ms: heartbeat_at_ms.max(0.0) as u64,
             finished_at_ms: finished_at_ms.map(|value| value.max(0.0) as u64),
-            result,
-            error,
+            result: row.try_get("result").map_err(row_error)?,
+            error: row.try_get("error").map_err(row_error)?,
         })
     }
 
@@ -132,7 +128,7 @@ impl ExecutionReconciliationStore for PostgresExecutionStore {
             ProviderOutcomeState::Failed => "failed",
             ProviderOutcomeState::Unknown => "unknown",
         };
-        let update = sqlx::query(
+        let updated = sqlx::query(
             "UPDATE cat_provider_execution_results\
              SET outcome_state = $1, observed_at = TO_TIMESTAMP($2 / 1000.0), result = $3, error = $4\
              WHERE execution_id = $5 AND provider_execution_id = $6\
@@ -147,11 +143,8 @@ impl ExecutionReconciliationStore for PostgresExecutionStore {
         .fetch_optional(self.pool())
         .await
         .map_err(db_error)?;
-
-        if update.is_none() {
-            return Err(OrchestratorError::Serialization(format!(
-                "provider result rejected or conflicting for execution {execution_id}"
-            )));
+        if updated.is_none() {
+            return Err(OrchestratorError::Serialization(format!("provider result rejected or conflicting for execution {execution_id}")));
         }
         Ok(())
     }
