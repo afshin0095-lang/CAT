@@ -10,6 +10,8 @@ pub mod provenance;
 pub mod repository;
 pub mod service;
 pub mod versioning;
+pub mod content;
+pub mod ftc_compliance;
 
 pub use error::{ContentDomainError, ContentDomainResult};
 pub use events::{ContentPublished, ContentVersionCreated};
@@ -20,9 +22,8 @@ pub use provenance::{ContentProvenance, ProvenanceLink};
 pub use repository::ContentRepository;
 pub use service::ContentDomain;
 pub use versioning::{build_revision, RevisionPlan};
+pub use content::{ContentTemplate, TemplateLibrary, TemplateMetrics, TemplateType};
+pub use ftc_compliance::{ComplianceCheck, ComplianceIssue, CompliancePolicy};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct ContentEventMetadata {
-    pub event_id: Uuid,
-    pub producer: String,
-}
+pub struct ContentEventMetadata { pub event_id: Uuid, pub producer: String }
