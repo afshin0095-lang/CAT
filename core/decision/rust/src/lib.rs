@@ -12,6 +12,7 @@ mod persistence;
 mod trace;
 pub mod ab_testing;
 pub mod volume_mode;
+pub mod self_improver;
 
 pub use approval::{ApprovalGate, ApprovalRecord, ApprovalState};
 pub use engine::DeterministicDecisionEngine;
@@ -24,3 +25,4 @@ pub use policy::{DecisionPolicy, PolicyError, PolicyEvaluation};
 pub use trace::{trace_from_request, DecisionReplay, DecisionTrace, DecisionTraceStep, DecisionTraceStore};
 pub use ab_testing::{ABTest, TestRunner, Variant, VariantMetrics};
 pub use volume_mode::{VolumeLedger, VolumeMode};
+pub use self_improver::{ExperimentOutcome, ImprovementProposal, SelfImprover};
