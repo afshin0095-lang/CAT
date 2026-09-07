@@ -12,6 +12,7 @@ pub mod service;
 pub mod versioning;
 pub mod content;
 pub mod ftc_compliance;
+pub mod optimization;
 
 pub use error::{ContentDomainError, ContentDomainResult};
 pub use events::{ContentPublished, ContentVersionCreated};
@@ -24,6 +25,7 @@ pub use service::ContentDomain;
 pub use versioning::{build_revision, RevisionPlan};
 pub use content::{ContentTemplate, TemplateLibrary, TemplateMetrics, TemplateType};
 pub use ftc_compliance::{ComplianceCheck, ComplianceIssue, CompliancePolicy};
+pub use optimization::{ContentOptimizer, ContentVariant};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ContentEventMetadata { pub event_id: Uuid, pub producer: String }
