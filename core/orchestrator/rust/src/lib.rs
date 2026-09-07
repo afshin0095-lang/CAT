@@ -40,6 +40,7 @@ mod provider_registry;
 mod provider_selection;
 pub mod validation_gates;
 pub mod flywheel;
+mod monitoring_workflow;
 
 pub use compensation::{begin_compensation, compensation_order};
 pub use error::{OrchestratorError, OrchestratorResult};
@@ -79,3 +80,4 @@ pub use provider_registry::{ProviderAdapterRegistry, ProviderCapability, Provide
 pub use provider_selection::{ProviderScore, ProviderSelection, ProviderSelectionEngine, ProviderSelectionRequest};
 pub use validation_gates::{ContentValidator, ValidationGate, ValidationLevel, ValidationResult};
 pub use flywheel::{FlywheelNode, FlywheelPlan, FlywheelStage};
+pub use monitoring_workflow::{DailyMonitoringRun, MonitoringRunState};
