@@ -10,6 +10,7 @@ pub mod scoring;
 pub mod service;
 pub mod tracking;
 pub mod smart_router;
+pub mod monitoring;
 
 pub use error::{AffiliateDomainError, AffiliateDomainResult};
 pub use events::{AffiliateRegistered, CommissionObligationCreated, ConversionStateChanged, MerchantCreated, OfferCreated, ProgramCreated, ProgramStatusChanged, ReferralStateChanged};
@@ -23,6 +24,7 @@ pub use network_adapter::{NetworkAdapter, NetworkConversion, NetworkId, NetworkI
 pub use scoring::{rank_programs, score_content_potential, score_earning_potential, ProgramScore, ProgramVerdict};
 pub use tracking::{build_utm_link, Click, ClickFraudFlag, ClickId, ExternalUserId, Identity, IdentityId, Link, LinkId, UtmParams, VelocityChecker};
 pub use smart_router::{LinkHealth, RouteCandidate, RouteRequest, SmartRouter};
+pub use monitoring::{build_daily_report, DailyMonitoringReport, FindingSeverity, MonitoringFinding, MonitoringInput};
 
 pub const DOMAIN_NAME: &str = "affiliate";
 pub const DOMAIN_VERSION: u16 = 2;

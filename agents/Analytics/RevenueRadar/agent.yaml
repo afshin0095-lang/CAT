@@ -1,0 +1,41 @@
+id: revenue-radar
+name: Revenue Radar
+version: 1
+kind: analytics_monitor
+schedule:
+  cron: "0 8 * * *"
+  timezone: user
+objective: >-
+  Monitor affiliate link health, tracking integrity, attribution, commissions,
+  and revenue once per day, then produce a concise evidence-backed report.
+inputs:
+  - route_candidates
+  - link_health
+  - click_events
+  - conversion_events
+  - commission_obligations
+  - revenue_snapshots
+checks:
+  - link_availability
+  - provider_failures
+  - click_to_conversion_integrity
+  - attribution_anomalies
+  - duplicate_or_missing_commissions
+  - revenue_change
+outputs:
+  - daily_health_report
+  - critical_alert
+  - remediation_proposal
+rules:
+  absent_data_is_not_zero: true
+  require_evidence: true
+  reconcile_before_replay: true
+  create_duplicate_tasks: false
+  auto_apply_changes: false
+escalation:
+  critical:
+    - widespread_link_failure
+    - provider_outage
+    - broken_event_ingestion
+    - unexplained_revenue_drop
+    - duplicate_commission
