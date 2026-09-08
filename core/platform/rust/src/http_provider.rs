@@ -4,8 +4,6 @@ use reqwest::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE};
 use serde_json::{json, Value};
 use std::time::Duration;
 
-/// Concrete JSON-over-HTTP provider adapter. Provider failures remain classified at the transport boundary;
-/// CAT domain truth, decisions, and monetary semantics never depend on provider-specific error text.
 pub struct HttpJsonProviderAdapter { client: Client, capabilities: ProviderCapabilities, base_url: String, health_path: String, headers: HeaderMap }
 impl HttpJsonProviderAdapter {
     pub fn new(provider_id: impl Into<String>, target: IntegrationTarget, base_url: impl Into<String>, operations: impl IntoIterator<Item = impl Into<String>>, health_path: impl Into<String>, timeout: Duration) -> PlatformResult<Self> {
@@ -59,10 +57,10 @@ mod tests {
     use super::*;
     #[test] fn rejects_invalid_configuration() {
         assert!(HttpJsonProviderAdapter::new("x", IntegrationTarget::Llm, "ftp://example.test", ["generate"], "/health", Duration::from_secs(1)).is_err());
-        assert!(HttpJsonProviderAdapter::new("x", IntegrationTarget::Llm, "https://example.test", [], "/health", Duration::from_secs(1)).is_err());
+        assert!(HttpJsonProviderAdapter::new("x", IntegrationTarget::Llm, "https://example.test", Vec::<String>::new(), "/health", Duration::from_secs(1)).is_err());
         assert!(HttpJsonProviderAdapter::new("x", IntegrationTarget::Llm, "https://example.test", ["generate"], "health", Duration::from_secs(1)).is_err());
         assert!(HttpJsonProviderAdapter::new("x", IntegrationTarget::Llm, "https://example.test", ["generate"], "/health", Duration::ZERO).is_err());
     }
     #[test] fn constructs_deterministic_urls() { let adapter = HttpJsonProviderAdapter::new("x", IntegrationTarget::Llm, "https://example.test/", ["generate"], "/health", Duration::from_secs(1)).unwrap(); assert_eq!(adapter.operation_url("generate"), "https://example.test/generate"); assert_eq!(adapter.health_url(), "https://example.test/health"); }
-    #[test] fn validates_custom_headers() { let adapter = HttpJsonProviderAdapter::new("x", IntegrationTarget::Llm, "https://example.test", ["generate"], "/health", Duration::from_secs(1)).unwrap(); assert!(adapter.with_header("authorization", "Bearer test").is_ok()); assert!(adapter.with_header("not a header", "x").is_err()); }
+    #[test] fn validates_custom_headers() { let adapter = HttpJsonProviderAdapter::new("x", IntegrationTarget::Llm, "https://example.test", ["generate"], "/health", Duration::from_secs(1)).unwrap(); let adapter = adapter.with_header("authorization", "Bearer test").unwrap(); assert!(adapter.with_header("not a header", "x").is_err()); }
 }
