@@ -6,6 +6,8 @@ use crate::validation::topological_order;
 pub struct ReplaySnapshot {
     pub workflow_id: uuid::Uuid,
     pub revision: u64,
+    pub workflow_type: String,
+    pub definition_version: u32,
     pub workflow_state: WorkflowState,
     pub ordered_steps: Vec<(String, StepState, u32)>,
     pub graph_identity: Vec<(String, Vec<String>)>,
@@ -41,6 +43,8 @@ pub fn snapshot(instance: &WorkflowInstance) -> OrchestratorResult<ReplaySnapsho
     Ok(ReplaySnapshot {
         workflow_id: instance.id,
         revision: instance.revision,
+        workflow_type: instance.definition.workflow_type.clone(),
+        definition_version: instance.definition.version,
         workflow_state: instance.state,
         ordered_steps,
         graph_identity: graph_identity(&instance.definition),
@@ -63,6 +67,14 @@ pub fn verify_replay(
     {
         return Err(OrchestratorError::Serialization(
             "workflow replay order does not match snapshot".to_string(),
+        ));
+    }
+
+    if definition.workflow_type != expected.workflow_type
+        || definition.version != expected.definition_version
+    {
+        return Err(OrchestratorError::Serialization(
+            "workflow replay definition identity does not match snapshot".to_string(),
         ));
     }
 
@@ -111,6 +123,8 @@ mod tests {
         let replay = snapshot(&instance).unwrap();
         assert_eq!(replay.ordered_steps[0].0, "a");
         assert_eq!(replay.ordered_steps[1].0, "b");
+        assert_eq!(replay.workflow_type, "replay");
+        assert_eq!(replay.definition_version, 1);
         assert_eq!(replay.graph_identity, vec![("a".into(), vec![]), ("b".into(), vec!["a".into()])]);
     }
 
@@ -120,6 +134,15 @@ mod tests {
         let replay = snapshot(&instance).unwrap();
         let mut changed = definition();
         changed.steps[1].dependencies.clear();
+        assert!(verify_replay(&changed, &replay).is_err());
+    }
+
+    #[test]
+    fn replay_verification_rejects_different_definition_version() {
+        let instance = WorkflowInstance::new(definition());
+        let replay = snapshot(&instance).unwrap();
+        let mut changed = definition();
+        changed.version = 2;
         assert!(verify_replay(&changed, &replay).is_err());
     }
 
