@@ -7,7 +7,7 @@ pub struct ReplaySnapshot {
     pub workflow_id: uuid::Uuid,
     pub revision: u64,
     pub workflow_type: String,
-    pub definition_version: u32,
+    pub definition_version: u16,
     pub workflow_state: WorkflowState,
     pub ordered_steps: Vec<(String, StepState, u32)>,
     pub graph_identity: Vec<(String, Vec<String>)>,
