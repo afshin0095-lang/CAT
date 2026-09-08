@@ -30,17 +30,12 @@ pub struct EventStore<T> {
 
 impl<T> Default for EventStore<T> {
     fn default() -> Self {
-        Self {
-            streams: BTreeMap::new(),
-            idempotency: IdempotencyLedger::default(),
-        }
+        Self { streams: BTreeMap::new(), idempotency: IdempotencyLedger::default() }
     }
 }
 
 impl<T: Clone> EventStore<T> {
-    pub fn new() -> Self {
-        Self::default()
-    }
+    pub fn new() -> Self { Self::default() }
 
     pub fn append(
         &mut self,
@@ -50,18 +45,11 @@ impl<T: Clone> EventStore<T> {
         envelope: EventEnvelope<T>,
     ) -> KernelResult<AppendReceipt> {
         if let Some(receipt) = self.idempotency.lookup(&key) {
-            return Ok(AppendReceipt {
-                event_id: receipt.event_id,
-                sequence: receipt.sequence,
-                idempotent_replay: true,
-            });
+            return Ok(AppendReceipt { event_id: receipt.event_id, sequence: receipt.sequence, idempotent_replay: true });
         }
 
         let stream = self.streams.entry(stream_id).or_default();
-        let current = stream
-            .last()
-            .map(|event| event.envelope.sequence)
-            .unwrap_or(SequenceNumber::ZERO);
+        let current = stream.last().map(|event| event.envelope.sequence).unwrap_or(SequenceNumber::ZERO);
 
         match expected {
             ExpectedVersion::Any => {}
@@ -83,7 +71,6 @@ impl<T: Clone> EventStore<T> {
         let event_id = envelope.event_id;
         stream.push(StoredEvent { stream_id, envelope });
         self.idempotency.record(key, IdempotencyReceipt { event_id, sequence: next })?;
-
         Ok(AppendReceipt { event_id, sequence: next, idempotent_replay: false })
     }
 
@@ -107,8 +94,8 @@ mod tests {
     fn event(sequence: u64) -> EventEnvelope<&'static str> {
         EventEnvelope::new(
             "cat.test.event", 1, TenantId::new(), CorrelationId::new(), None,
-            EntityId::new(), TimestampMs::new(1).unwrap(),
-            SequenceNumber::new(sequence).unwrap(), "payload",
+            EntityId::new(), TimestampMs::new(1),
+            SequenceNumber::new(sequence), "payload",
         ).unwrap()
     }
 
@@ -117,8 +104,8 @@ mod tests {
         let mut store = EventStore::new();
         let stream = EntityId::new();
         store.append(stream, ExpectedVersion::Empty, IdempotencyKey::new("a").unwrap(), event(1)).unwrap();
-        store.append(stream, ExpectedVersion::Exact(SequenceNumber::new(1).unwrap()), IdempotencyKey::new("b").unwrap(), event(2)).unwrap();
-        assert_eq!(store.current_version(stream), SequenceNumber::new(2).unwrap());
+        store.append(stream, ExpectedVersion::Exact(SequenceNumber::new(1)), IdempotencyKey::new("b").unwrap(), event(2)).unwrap();
+        assert_eq!(store.current_version(stream), SequenceNumber::new(2));
         assert_eq!(store.read_stream(stream).len(), 2);
     }
 
