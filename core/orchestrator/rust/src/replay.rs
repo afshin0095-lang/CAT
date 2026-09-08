@@ -8,6 +8,19 @@ pub struct ReplaySnapshot {
     pub revision: u64,
     pub workflow_state: WorkflowState,
     pub ordered_steps: Vec<(String, StepState, u32)>,
+    pub graph_identity: Vec<(String, Vec<String>)>,
+}
+
+fn graph_identity(definition: &WorkflowDefinition) -> Vec<(String, Vec<String>)> {
+    definition
+        .steps
+        .iter()
+        .map(|step| {
+            let mut dependencies = step.dependencies.clone();
+            dependencies.sort();
+            (step.id.clone(), dependencies)
+        })
+        .collect()
 }
 
 pub fn snapshot(instance: &WorkflowInstance) -> OrchestratorResult<ReplaySnapshot> {
@@ -30,6 +43,7 @@ pub fn snapshot(instance: &WorkflowInstance) -> OrchestratorResult<ReplaySnapsho
         revision: instance.revision,
         workflow_state: instance.state,
         ordered_steps,
+        graph_identity: graph_identity(&instance.definition),
     })
 }
 
@@ -49,6 +63,12 @@ pub fn verify_replay(
     {
         return Err(OrchestratorError::Serialization(
             "workflow replay order does not match snapshot".to_string(),
+        ));
+    }
+
+    if graph_identity(definition) != expected.graph_identity {
+        return Err(OrchestratorError::Serialization(
+            "workflow replay graph does not match snapshot".to_string(),
         ));
     }
 
@@ -91,6 +111,7 @@ mod tests {
         let replay = snapshot(&instance).unwrap();
         assert_eq!(replay.ordered_steps[0].0, "a");
         assert_eq!(replay.ordered_steps[1].0, "b");
+        assert_eq!(replay.graph_identity, vec![("a".into(), vec![]), ("b".into(), vec!["a".into()])]);
     }
 
     #[test]
@@ -100,5 +121,22 @@ mod tests {
         let mut changed = definition();
         changed.steps[1].dependencies.clear();
         assert!(verify_replay(&changed, &replay).is_err());
+    }
+
+    #[test]
+    fn replay_verification_accepts_same_graph_with_dependency_order_difference() {
+        let mut original = definition();
+        original.steps.push(WorkflowStep {
+            id: "c".into(),
+            dependencies: vec!["b".into(), "a".into()],
+            state: StepState::Pending,
+            attempt: 0,
+            max_attempts: 3,
+            compensation_step: None,
+        });
+        let instance = WorkflowInstance::new(original.clone());
+        let replay = snapshot(&instance).unwrap();
+        original.steps[2].dependencies.reverse();
+        assert!(verify_replay(&original, &replay).is_ok());
     }
 }
