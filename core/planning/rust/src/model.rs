@@ -53,13 +53,24 @@ impl PlanBuilder {
     }
 
     pub fn metadata(mut self, key: impl Into<String>, value: serde_json::Value) -> Self {
-        self.plan.metadata.insert(key.into(), value); self
+        self.plan.metadata.insert(key.into(), value);
+        self
     }
 
-    pub fn step(mut self, name: impl Into<String>, kind: StepKind) -> StepId {
+    /// Adds a step while retaining the builder so multiple steps can be declared
+    /// before the final dependency graph is assembled.
+    pub fn step(&mut self, name: impl Into<String>, kind: StepKind) -> StepId {
         let id = StepId(Uuid::now_v7());
         let order = self.plan.steps.len() as u32;
-        self.plan.steps.push(PlanStep { id, name: name.into(), kind, order, dependencies: Vec::new(), inputs: BTreeMap::new(), policy: BTreeMap::new() });
+        self.plan.steps.push(PlanStep {
+            id,
+            name: name.into(),
+            kind,
+            order,
+            dependencies: Vec::new(),
+            inputs: BTreeMap::new(),
+            policy: BTreeMap::new(),
+        });
         id
     }
 
