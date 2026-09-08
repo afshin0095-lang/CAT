@@ -71,7 +71,7 @@ jobs:
       - name: Cache Cargo
         uses: Swatinem/rust-cache@v2
       - name: Check package
-        run: cargo check -p ${{ matrix.package }} --all-targets --locked
+        run: cargo check -p ${{ matrix.package }} --all-targets
 
   test:
     name: Test ${{ matrix.package }}
@@ -106,7 +106,7 @@ jobs:
       - name: Cache Cargo
         uses: Swatinem/rust-cache@v2
       - name: Run package tests
-        run: cargo test -p ${{ matrix.package }} --all-targets --locked
+        run: cargo test -p ${{ matrix.package }} --all-targets
 
   workspace-summary:
     name: Workspace summary
