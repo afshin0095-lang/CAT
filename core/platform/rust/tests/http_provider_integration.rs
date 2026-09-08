@@ -1,4 +1,4 @@
-use cat_platform::{AdapterRequest, ExternalProviderAdapter, HttpJsonProviderAdapter, IntegrationCommand, IntegrationContext, IntegrationTarget, PlatformError, PlatformResult, ProviderHealth, ProviderHealthProbe, ProviderCircuitConfig, ProviderRetryConfig, ResilientProviderAdapter};
+use cat_platform::{AdapterRequest, ExternalProviderAdapter, HttpJsonProviderAdapter, IntegrationCommand, IntegrationContext, IntegrationTarget, PlatformError, ProviderHealth, ProviderHealthProbe, ProviderCircuitConfig, ProviderRetryConfig, ResilientProviderAdapter};
 use serde_json::json;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
@@ -87,7 +87,7 @@ fn request(operation: &str) -> AdapterRequest {
 fn http_provider_success_and_health_are_verified_against_local_fixture() {
     let server = FixtureServer::start(0, false, false);
     let adapter = HttpJsonProviderAdapter::new("fixture", IntegrationTarget::Llm, &server.address, ["generate"], "/health", Duration::from_secs(1)).unwrap();
-    assert_eq!(adapter.probe_health().unwrap(), ProviderHealth::Ready);
+    assert_eq!(ProviderHealthProbe::probe_health(&adapter).unwrap(), ProviderHealth::Ready);
     let response = adapter.execute(&request("generate")).unwrap();
     assert!(response.accepted);
     assert_eq!(response.payload["provider"], "fixture");
@@ -116,7 +116,7 @@ fn http_provider_timeout_is_bounded() {
 fn http_provider_health_degrades_without_external_credentials() {
     let server = FixtureServer::start(0, false, true);
     let adapter = HttpJsonProviderAdapter::new("fixture", IntegrationTarget::Llm, &server.address, ["generate"], "/health", Duration::from_secs(1)).unwrap();
-    assert_eq!(adapter.probe_health().unwrap(), ProviderHealth::Degraded);
+    assert_eq!(ProviderHealthProbe::probe_health(&adapter).unwrap(), ProviderHealth::Degraded);
 }
 
 #[test]
