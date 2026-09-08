@@ -1,4 +1,4 @@
-use cat_kernel::{CorrelationId, EntityId, EventEnvelope, EventId, KernelResult, ProjectionHandler, ProjectionRegistry, ProjectionDescriptor, ProjectionRuntime, SequenceNumber, StoredEvent, TenantId, TimestampMs};
+use cat_kernel::{CorrelationId, EntityId, EventEnvelope, EventId, KernelResult, ProjectionDescriptor, ProjectionHandler, ProjectionRegistry, ProjectionRuntime, SequenceNumber, StoredEvent, TenantId, TimestampMs};
 
 struct Counter;
 impl ProjectionHandler<u64, u64> for Counter {
@@ -14,8 +14,7 @@ fn event(stream: EntityId, sequence: u64, value: u64) -> StoredEvent<u64> {
         stream_id: stream,
         envelope: EventEnvelope::new(
             "cat.test.counter", 1, TenantId::new(), CorrelationId::new(), None,
-            EntityId::new(), TimestampMs::new(sequence).unwrap(),
-            SequenceNumber::new(sequence).unwrap(), value,
+            EntityId::new(), TimestampMs::new(sequence), SequenceNumber::new(sequence), value,
         ).unwrap(),
     }
 }
@@ -34,5 +33,5 @@ fn projection_runtime_replays_safely_and_registry_bootstraps() {
     runtime.apply(&second).unwrap();
 
     assert_eq!(*runtime.state(), 5);
-    assert_eq!(runtime.checkpoint().sequence, SequenceNumber::new(2).unwrap());
+    assert_eq!(runtime.checkpoint().sequence, SequenceNumber::new(2));
 }
