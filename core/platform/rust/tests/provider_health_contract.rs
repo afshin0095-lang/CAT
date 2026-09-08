@@ -84,7 +84,11 @@ fn resilient_adapter_can_be_registered_and_reports_circuit_health() {
     let resilient = Arc::new(
         ResilientProviderAdapter::new(
             Arc::new(FailingProvider::new(10)),
-            ProviderRetryConfig { max_attempts: 2, retry_delay: Duration::ZERO },
+            ProviderRetryConfig {
+                max_attempts: 2,
+                retry_delay: Duration::ZERO,
+                max_retry_delay: Duration::ZERO,
+            },
             ProviderCircuitConfig { failure_threshold: 1, recovery_after: Duration::from_secs(60) },
         ).unwrap(),
     );
@@ -103,12 +107,16 @@ fn resilient_adapter_can_be_registered_and_reports_circuit_health() {
 fn resilient_adapter_preserves_provider_contract_after_recovery() {
     let resilient = ResilientProviderAdapter::new(
         Arc::new(FailingProvider::new(1)),
-        ProviderRetryConfig { max_attempts: 2, retry_delay: Duration::ZERO },
+        ProviderRetryConfig {
+            max_attempts: 2,
+            retry_delay: Duration::ZERO,
+            max_retry_delay: Duration::ZERO,
+        },
         ProviderCircuitConfig { failure_threshold: 3, recovery_after: Duration::ZERO },
     ).unwrap();
 
     assert!(resilient.execute(&request()).unwrap().accepted);
-    assert_eq!(resilient.probe_health().unwrap(), ProviderHealth::Ready);
+    assert_eq!(ExternalProviderAdapter::probe_health(&resilient).unwrap(), ProviderHealth::Ready);
     assert_eq!(resilient.capabilities().target, IntegrationTarget::Llm);
 }
 
