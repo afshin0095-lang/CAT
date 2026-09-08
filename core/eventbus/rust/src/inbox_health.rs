@@ -1,5 +1,5 @@
 use crate::{
-    DeliveryState, EventBusResult, InboxStore, MetricsInbox, MetricsInboxSnapshot,
+    DeliveryState, EventBusMetricsSnapshot, EventBusResult, InboxStore, MetricsInbox,
 };
 
 /// A read-only health and delivery view over an inbox implementation.
@@ -46,7 +46,7 @@ pub struct MetricsInboxHealth<'a, S: InboxStore> {
 impl<'a, S: InboxStore> MetricsInboxHealth<'a, S> {
     pub fn new(inbox: &'a MetricsInbox<S>) -> Self { Self { inbox } }
 
-    pub fn metrics(&self) -> MetricsInboxSnapshot {
+    pub fn metrics(&self) -> EventBusMetricsSnapshot {
         self.inbox.metrics().snapshot()
     }
 
