@@ -1,0 +1,110 @@
+use cat_affiliate::{
+    DiscoveryCandidate, DiscoveryIngestion, DiscoverySource, DiscoverySourceBatch,
+    DiscoverySourceCapability, DiscoverySourceFuture, DiscoverySourceId, DiscoverySourceInfo,
+    DiscoverySourceKind, DiscoverySourceRegistry, DiscoverySourceRequest,
+};
+use std::future::ready;
+
+struct TestSource {
+    info: DiscoverySourceInfo,
+    batch: DiscoverySourceBatch,
+}
+
+impl DiscoverySource for TestSource {
+    fn info(&self) -> &DiscoverySourceInfo {
+        &self.info
+    }
+
+    fn discover<'a>(&'a self, _request: DiscoverySourceRequest) -> DiscoverySourceFuture<'a, DiscoverySourceBatch> {
+        Box::pin(ready(Ok(self.batch.clone())))
+    }
+}
+
+fn candidate(source: &str, external_id: &str) -> DiscoveryCandidate {
+    DiscoveryCandidate {
+        source: source.into(),
+        external_id: external_id.into(),
+        merchant_name: "Merchant".into(),
+        product_name: "Product".into(),
+        canonical_key: format!("{source}:{external_id}"),
+        destination_url: "https://example.com/product".into(),
+        currency: "EUR".into(),
+        price_minor: 1000,
+        commission_bps: 500,
+        demand_score: 7000,
+        competition_score: 3000,
+        freshness_score: 9000,
+    }
+}
+
+fn block_on<F: std::future::Future>(future: F) -> F::Output {
+    use std::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
+
+    fn clone(_: *const ()) -> RawWaker { RawWaker::new(std::ptr::null(), &VTABLE) }
+    fn wake(_: *const ()) {}
+    fn wake_by_ref(_: *const ()) {}
+    fn drop(_: *const ()) {}
+    static VTABLE: RawWakerVTable = RawWakerVTable::new(clone, wake, wake_by_ref, drop);
+
+    let waker = unsafe { Waker::from_raw(RawWaker::new(std::ptr::null(), &VTABLE)) };
+    let mut context = Context::from_waker(&waker);
+    let mut future = std::pin::pin!(future);
+    loop {
+        match future.as_mut().poll(&mut context) {
+            Poll::Ready(value) => return value,
+            Poll::Pending => std::thread::yield_now(),
+        }
+    }
+}
+
+#[test]
+fn ingestion_collects_each_registered_source_in_order() {
+    let mut registry = DiscoverySourceRegistry::new();
+    for (source, external_id) in [("feed-a", "a-1"), ("feed-b", "b-1")] {
+        registry.register(Box::new(TestSource {
+            info: DiscoverySourceInfo {
+                id: DiscoverySourceId(source.into()),
+                name: source.into(),
+                kind: DiscoverySourceKind::ProductFeed,
+                capabilities: vec![DiscoverySourceCapability::Pagination],
+            },
+            batch: DiscoverySourceBatch {
+                candidates: vec![candidate(source, external_id)],
+                has_more: false,
+                next_page: None,
+            },
+        }));
+    }
+
+    let results = block_on(DiscoveryIngestion::new(&registry).collect(DiscoverySourceRequest {
+        per_page: 25,
+        ..Default::default()
+    }));
+
+    assert_eq!(results.len(), 2);
+    assert_eq!(results[0].as_ref().unwrap().0, DiscoverySourceId("feed-a".into()));
+    assert_eq!(results[0].as_ref().unwrap().1.candidates.len(), 1);
+    assert_eq!(results[1].as_ref().unwrap().0, DiscoverySourceId("feed-b".into()));
+}
+
+#[test]
+fn invalid_request_is_rejected_before_source_execution() {
+    let mut registry = DiscoverySourceRegistry::new();
+    registry.register(Box::new(TestSource {
+        info: DiscoverySourceInfo {
+            id: DiscoverySourceId("feed".into()),
+            name: "Feed".into(),
+            kind: DiscoverySourceKind::ProductFeed,
+            capabilities: vec![],
+        },
+        batch: DiscoverySourceBatch::default(),
+    }));
+
+    let results = block_on(DiscoveryIngestion::new(&registry).collect(DiscoverySourceRequest {
+        per_page: 0,
+        ..Default::default()
+    }));
+
+    assert_eq!(results.len(), 1);
+    assert!(results[0].is_err());
+}
