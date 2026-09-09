@@ -15,7 +15,7 @@ fn commission_to_bps(value: &str) -> Result<u32, DiscoverySourceError> {
     Ok((percentage * 100.0).round() as u32)
 }
 
-fn normalize_program(program: NetworkProgram, observed_at_ms: i64) -> Result<DiscoveryCandidate, DiscoverySourceError> {
+fn normalize_program(program: NetworkProgram, observed_at_ms: u64) -> Result<DiscoveryCandidate, DiscoverySourceError> {
     if program.external_id.trim().is_empty() || program.name.trim().is_empty() || program.merchant_name.trim().is_empty() || program.url.trim().is_empty() {
         return Err(DiscoverySourceError::InvalidResponse("network program contains a required blank field".into()));
     }
@@ -42,7 +42,7 @@ fn normalize_program(program: NetworkProgram, observed_at_ms: i64) -> Result<Dis
 pub struct NetworkDiscoveryAdapter<'a> {
     network: &'a dyn NetworkAdapter,
     info: DiscoverySourceInfo,
-    clock: Box<dyn Fn() -> i64 + Send + Sync + 'a>,
+    clock: Box<dyn Fn() -> u64 + Send + Sync + 'a>,
 }
 
 impl<'a> NetworkDiscoveryAdapter<'a> {
@@ -51,12 +51,12 @@ impl<'a> NetworkDiscoveryAdapter<'a> {
         Self {
             network,
             info: DiscoverySourceInfo { id: DiscoverySourceId(format!("network:{}", network_info.id.0)), name: network_info.name.clone(), kind: DiscoverySourceKind::AffiliateNetwork, capabilities: vec![DiscoverySourceCapability::Pagination] },
-            clock: Box::new(|| std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis() as i64).unwrap_or(0)),
+            clock: Box::new(|| std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis() as u64).unwrap_or(0)),
         }
     }
 
     #[cfg(test)]
-    fn with_clock<F>(network: &'a dyn NetworkAdapter, clock: F) -> Self where F: Fn() -> i64 + Send + Sync + 'a {
+    fn with_clock<F>(network: &'a dyn NetworkAdapter, clock: F) -> Self where F: Fn() -> u64 + Send + Sync + 'a {
         let mut adapter = Self::new(network); adapter.clock = Box::new(clock); adapter
     }
 }
@@ -85,7 +85,6 @@ mod tests {
     use super::*;
     use crate::{AffiliateDomainResult, NetworkConversion, NetworkId, NetworkInfo};
     use std::future::ready;
-
     struct Stub { info: NetworkInfo, programs: Vec<NetworkProgram> }
     impl NetworkAdapter for Stub {
         fn info(&self) -> &NetworkInfo { &self.info }
@@ -96,8 +95,8 @@ mod tests {
     }
     fn network(programs: Vec<NetworkProgram>) -> Stub { Stub { info: NetworkInfo { id: NetworkId("test".into()), name: "Test".into(), base_url: "https://test.invalid".into(), supports_real_time_reporting: false, supports_deep_linking: true, default_cookie_days: 30 }, programs } }
     fn program(rate: &str) -> NetworkProgram { NetworkProgram { external_id: "p1".into(), network_id: NetworkId("test".into()), name: "Widget".into(), merchant_name: "Acme".into(), commission_rate: rate.into(), cookie_days: 30, categories: vec!["electronics".into()], url: "https://merchant.invalid/widget".into(), description: None, accepting_applications: true } }
-    #[test] fn rates_are_normalized() { assert_eq!(commission_to_bps("5%").unwrap(), 500); assert_eq!(commission_to_bps("5.5%").unwrap(), 550); assert_eq!(commission_to_bps("0.05").unwrap(), 500); }
+    #[test] fn rates_are_normalized() { assert_eq!(commission_to_bps("5%").unwrap(),500); assert_eq!(commission_to_bps("5.5%").unwrap(),550); assert_eq!(commission_to_bps("0.05").unwrap(),500); }
     #[test] fn invalid_rates_are_rejected() { assert!(commission_to_bps("bad").is_err()); assert!(commission_to_bps("101%").is_err()); }
-    #[test] fn adapter_exposes_only_supported_capability() { let n=network(vec![]); let a=NetworkDiscoveryAdapter::with_clock(&n,||42); assert_eq!(a.info().id, DiscoverySourceId("network:test".into())); assert!(a.info().supports(DiscoverySourceCapability::Pagination)); assert!(!a.info().supports(DiscoverySourceCapability::CurrencyFilter)); }
-    #[test] fn normalization_preserves_identity_and_timestamp() { let result=normalize_program(program("7.5%"),42).unwrap(); assert_eq!(result.source,"test"); assert_eq!(result.commission_bps,Some(750)); assert_eq!(result.canonical_key,"acme/widget"); assert_eq!(result.observed_at_ms,42); }
+    #[test] fn adapter_exposes_only_supported_capability() { let n=network(vec![]); let a=NetworkDiscoveryAdapter::with_clock(&n,||42); assert_eq!(a.info().id,DiscoverySourceId("network:test".into())); assert!(a.info().supports(DiscoverySourceCapability::Pagination)); assert!(!a.info().supports(DiscoverySourceCapability::CurrencyFilter)); }
+    #[test] fn normalization_preserves_identity_and_timestamp() { let result=normalize_program(program("7.5%"),42).unwrap(); assert_eq!(result.source,"test"); assert_eq!(result.commission_bps,Some(750)); assert_eq!(result.canonical_key,"acme:widget"); assert_eq!(result.observed_at_ms,42); }
 }
