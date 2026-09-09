@@ -1,5 +1,6 @@
 pub mod attribution;
 pub mod commission_rules;
+pub mod discovery_source;
 pub mod error;
 pub mod events;
 pub mod memory_repository;
@@ -21,6 +22,7 @@ pub use service::AffiliateDomain;
 pub use attribution::{apply_model, click_within_window, Attribution, AttributionId, AttributionModel, AttributionResult, AttributionTouch, ConversionEvent, ConversionEventId, ConversionEventType};
 pub use commission_rules::{compute_commission, recurring_cap_exceeded, CommissionRule, CommissionRuleBuilder, CommissionSubRule, CommissionTrigger, CommissionType};
 pub use network_adapter::{NetworkAdapter, NetworkConversion, NetworkId, NetworkInfo, NetworkProgram, NetworkRegistry};
+pub use discovery_source::{DiscoveryIngestion, DiscoverySource, DiscoverySourceBatch, DiscoverySourceCapability, DiscoverySourceError, DiscoverySourceFuture, DiscoverySourceId, DiscoverySourceInfo, DiscoverySourceKind, DiscoverySourceRegistry, DiscoverySourceRequest};
 pub use scoring::{rank_programs, score_content_potential, score_earning_potential, ProgramScore, ProgramVerdict};
 pub use tracking::{build_utm_link, Click, ClickFraudFlag, ClickId, ExternalUserId, Identity, IdentityId, Link, LinkId, UtmParams, VelocityChecker};
 pub use smart_router::{LinkHealth, RouteCandidate, RouteRequest, SmartRouter};
