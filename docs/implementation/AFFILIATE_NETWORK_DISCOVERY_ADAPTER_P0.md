@@ -4,7 +4,7 @@
 
 Bridge the existing `NetworkAdapter` contract into the source-neutral `DiscoverySource` SPI. Network-specific SDK, authentication, transport, and rate-limit behavior remain behind `NetworkAdapter`.
 
-The existing network boundary exposes paginated program discovery through `list_programs(query, page, per_page)`. This adapter maps those programs into validated `DiscoveryCandidate` records. fileciteturn816file0L2-L2
+The network boundary exposes paginated program discovery through `list_programs(query, page, per_page)`. This adapter maps those programs into validated `DiscoveryCandidate` records.
 
 ## Contract
 
@@ -41,7 +41,7 @@ When the returned batch size equals `per_page`, the adapter reports `has_more = 
 
 ## Determinism
 
-Candidate identity and ranking inputs are deterministic for a given network response. `observed_at_ms` is supplied by the adapter clock and is therefore explicitly treated as observation metadata, not an identity field.
+Candidate identity and ranking inputs are deterministic for a given network response. `observed_at_ms` is supplied by the adapter clock and is explicitly treated as observation metadata, not an identity field.
 
 ## Safety Invariants
 
