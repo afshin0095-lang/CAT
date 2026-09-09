@@ -11,9 +11,7 @@ struct TestSource {
 }
 
 impl DiscoverySource for TestSource {
-    fn info(&self) -> &DiscoverySourceInfo {
-        &self.info
-    }
+    fn info(&self) -> &DiscoverySourceInfo { &self.info }
 
     fn discover<'a>(&'a self, _request: DiscoverySourceRequest) -> DiscoverySourceFuture<'a, DiscoverySourceBatch> {
         Box::pin(ready(Ok(self.batch.clone())))
@@ -27,25 +25,26 @@ fn candidate(source: &str, external_id: &str) -> DiscoveryCandidate {
         merchant_name: "Merchant".into(),
         product_name: "Product".into(),
         canonical_key: format!("{source}:{external_id}"),
+        category: Some("electronics".into()),
         destination_url: "https://example.com/product".into(),
         currency: "EUR".into(),
-        price_minor: 1000,
-        commission_bps: 500,
-        demand_score: 7000,
-        competition_score: 3000,
-        freshness_score: 9000,
+        price_minor: Some(1_000),
+        commission_bps: Some(500),
+        demand_score: 7_000,
+        competition_score: 3_000,
+        freshness_score: 9_000,
+        compliance_score: 10_000,
+        observed_at_ms: 1,
     }
 }
 
 fn block_on<F: std::future::Future>(future: F) -> F::Output {
     use std::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
-
     fn clone(_: *const ()) -> RawWaker { RawWaker::new(std::ptr::null(), &VTABLE) }
     fn wake(_: *const ()) {}
     fn wake_by_ref(_: *const ()) {}
     fn drop(_: *const ()) {}
     static VTABLE: RawWakerVTable = RawWakerVTable::new(clone, wake, wake_by_ref, drop);
-
     let waker = unsafe { Waker::from_raw(RawWaker::new(std::ptr::null(), &VTABLE)) };
     let mut context = Context::from_waker(&waker);
     let mut future = std::pin::pin!(future);
