@@ -1,10 +1,8 @@
 //! Discovery-source SPI for affiliate opportunity ingestion.
 //!
-//! This boundary deliberately separates external discovery mechanisms from
-//! CAT's normalized opportunity engine. A source may be an affiliate network,
-//! merchant feed, product API, catalog export, or a future browser/agent
-//! connector. Source-specific transport and authentication stay behind the
-//! adapter boundary.
+//! This boundary separates external discovery mechanisms from CAT's
+//! normalized opportunity engine. Source-specific transport and
+//! authentication stay behind the adapter boundary.
 
 use std::future::Future;
 use std::pin::Pin;
@@ -65,30 +63,25 @@ pub struct DiscoverySourceRequest {
 impl DiscoverySourceRequest {
     pub fn validate(&self) -> Result<(), DiscoverySourceError> {
         if self.per_page == 0 {
-            return Err(DiscoverySourceError::InvalidRequest("per_page must be greater than zero"));
+            return Err(DiscoverySourceError::InvalidRequest(
+                "per_page must be greater than zero".into(),
+            ));
         }
-        if let Some(query) = &self.query {
-            if query.trim().is_empty() {
-                return Err(DiscoverySourceError::InvalidRequest("query must not be blank"));
-            }
-        }
-        if let Some(category) = &self.category {
-            if category.trim().is_empty() {
-                return Err(DiscoverySourceError::InvalidRequest("category must not be blank"));
-            }
-        }
-        if let Some(market) = &self.geographic_market {
-            if market.trim().is_empty() {
-                return Err(DiscoverySourceError::InvalidRequest("geographic_market must not be blank"));
-            }
-        }
-        if let Some(currency) = &self.currency {
-            if currency.trim().is_empty() {
-                return Err(DiscoverySourceError::InvalidRequest("currency must not be blank"));
-            }
-        }
+        validate_optional_text(self.query.as_deref(), "query")?;
+        validate_optional_text(self.category.as_deref(), "category")?;
+        validate_optional_text(self.geographic_market.as_deref(), "geographic_market")?;
+        validate_optional_text(self.currency.as_deref(), "currency")?;
         Ok(())
     }
+}
+
+fn validate_optional_text(value: Option<&str>, field: &str) -> Result<(), DiscoverySourceError> {
+    if value.is_some_and(|text| text.trim().is_empty()) {
+        return Err(DiscoverySourceError::InvalidRequest(format!(
+            "{field} must not be blank"
+        )));
+    }
+    Ok(())
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
@@ -100,7 +93,7 @@ pub struct DiscoverySourceBatch {
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum DiscoverySourceError {
-    InvalidRequest(&'static str),
+    InvalidRequest(String),
     Unavailable(String),
     AuthenticationFailed,
     RateLimited,
@@ -124,15 +117,10 @@ impl std::error::Error for DiscoverySourceError {}
 /// Adapter contract for every external discovery mechanism.
 pub trait DiscoverySource: Send + Sync {
     fn info(&self) -> &DiscoverySourceInfo;
-
     fn discover<'a>(&'a self, request: DiscoverySourceRequest) -> DiscoverySourceFuture<'a, DiscoverySourceBatch>;
 }
 
-/// Thin orchestration boundary over multiple sources.
-///
-/// Sources are queried in registration order. The engine does not rank,
-/// mutate, or silently repair candidates; normalization and opportunity
-/// scoring remain owned by `DiscoveryEngine`.
+/// Registry of source adapters. Registration order is preserved.
 pub struct DiscoverySourceRegistry {
     sources: Vec<Box<dyn DiscoverySource>>,
 }
@@ -168,7 +156,7 @@ impl Default for DiscoverySourceRegistry {
     }
 }
 
-/// Collects source batches without coupling the source SPI to scoring.
+/// Collects batches without coupling the source SPI to scoring.
 pub struct DiscoveryIngestion<'a> {
     registry: &'a DiscoverySourceRegistry,
 }
@@ -222,6 +210,16 @@ mod tests {
     }
 
     #[test]
+    fn request_rejects_blank_filters() {
+        let request = DiscoverySourceRequest {
+            per_page: 10,
+            query: Some("  ".into()),
+            ..Default::default()
+        };
+        assert!(request.validate().is_err());
+    }
+
+    #[test]
     fn capabilities_are_explicit() {
         let info = DiscoverySourceInfo {
             id: DiscoverySourceId("test".into()),
@@ -253,11 +251,9 @@ mod tests {
             },
             batch: DiscoverySourceBatch::default(),
         };
-
         let mut registry = DiscoverySourceRegistry::new();
         registry.register(Box::new(first));
         registry.register(Box::new(second));
-
         assert_eq!(registry.count(), 2);
         assert_eq!(registry.all()[0].info().id, DiscoverySourceId("first".into()));
         assert!(registry.get(&DiscoverySourceId("second".into())).is_some());
