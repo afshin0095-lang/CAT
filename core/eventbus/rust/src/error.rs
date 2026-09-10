@@ -10,6 +10,9 @@ pub enum EventBusError {
     #[error("event storage operation failed: {0}")]
     Storage(String),
 
+    #[error("kernel time operation failed: {0}")]
+    KernelTime(String),
+
     #[error("event type '{0}' is already registered")]
     DuplicateEventType(String),
 
