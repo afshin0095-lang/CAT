@@ -38,7 +38,7 @@ mod tests {
             CorrelationId::new(),
             None,
             EntityId::new(),
-            TimestampMs::new(1).unwrap(),
+            TimestampMs::new(1),
             SequenceNumber::new(sequence),
             value,
         )
