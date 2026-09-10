@@ -107,8 +107,8 @@ mod tests {
     fn event(sequence: u64) -> EventEnvelope<&'static str> {
         EventEnvelope::new(
             "cat.test.event", 1, TenantId::new(), CorrelationId::new(), None,
-            EntityId::new(), TimestampMs::new(1).unwrap(),
-            SequenceNumber::new(sequence).unwrap(), "payload",
+            EntityId::new(), TimestampMs::new(1),
+            SequenceNumber::new(sequence), "payload",
         ).unwrap()
     }
 
@@ -117,8 +117,8 @@ mod tests {
         let mut store = EventStore::new();
         let stream = EntityId::new();
         store.append(stream, ExpectedVersion::Empty, IdempotencyKey::new("a").unwrap(), event(1)).unwrap();
-        store.append(stream, ExpectedVersion::Exact(SequenceNumber::new(1).unwrap()), IdempotencyKey::new("b").unwrap(), event(2)).unwrap();
-        assert_eq!(store.current_version(stream), SequenceNumber::new(2).unwrap());
+        store.append(stream, ExpectedVersion::Exact(SequenceNumber::new(1)), IdempotencyKey::new("b").unwrap(), event(2)).unwrap();
+        assert_eq!(store.current_version(stream), SequenceNumber::new(2));
         assert_eq!(store.read_stream(stream).len(), 2);
     }
 
