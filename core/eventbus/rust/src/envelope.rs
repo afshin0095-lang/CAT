@@ -33,7 +33,8 @@ impl EventEnvelope {
             event_type: T::TYPE.to_owned(),
             version: T::VERSION,
             kind: EventKind::Domain,
-            occurred_at_ms: cat_kernel::time::unix_millis()?,
+            occurred_at_ms: cat_kernel::time::unix_millis()
+                .map_err(|error| EventBusError::KernelTime(error.to_string()))?,
             producer: producer.into(),
             correlation_id: None,
             causation_id: None,
