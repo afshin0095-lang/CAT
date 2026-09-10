@@ -61,21 +61,25 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Decision Core — transactional EventBus publication boundary
+**Current Task:** Sprint 0 — Affiliate Opportunity Platform Foundation
 
-**Document:** `core/decision/rust/src/event_publication.rs` + `core/decision/rust/src/lib.rs` + `core/decision/rust/Cargo.toml`
+**Document:** `core/affiliate/rust/` (opportunity subsystem), `docs/implementation/AFFILIATE_OPPORTUNITY_*.md`
 
-**Status:** Completed in code. The Decision Core now exposes a committed-event publication boundary for immutable decision traces, validates the decision-trace event type, and relies on EventBus duplicate suppression for idempotent delivery. Durable outbox persistence remains the transactional responsibility of the persistence layer.
+**Status:** Implemented on branch `arena/01a08d17-cat` (stacked on `feat/affiliate-opportunity-lifecycle-p0` @ `6791ace`). Sprint 0 completes the discovery → source SPI → network adapter → ingestion → dedup → persistence → freshness → lifecycle → projection → revalidation → observability vertical slice: hardened lifecycle via a single canonical freshness engine, injectable clock, monotonic record revisions with optimistic-concurrency upserts, deterministic revalidation planner with durable request persistence (migration 0002, partial-unique dedup), opportunity status projection, persistence-neutral query/ranking/health contracts, source health tracking, neutral observability names + sink, typed opportunity event contracts, expanded validation (URL/length/identity bounds, ASCII canonical-key limitation documented), and hardened CI (fmt + clippy for cat-affiliate, PostgreSQL service-gated integration tests via `CAT_TEST_DATABASE_URL`).
 
 # Next Task
 
-Decision Core — transactional EventBus publication boundary added; next: compile/integration verification and durable outbox relay wiring
+Sprint 1 — Opportunity Lifecycle → Orchestrator → Durable Revalidation Execution: wire the revalidation request store into the Orchestrator execution boundary, persist attempts/results, and publish the Sprint 0 event contracts through the EventBus.
 
 # Next Tasks
 
-1. LLM / AI Core — authorized tool execution boundary completed
-2. LLM / AI Core — provider/tool authorization boundary completed
-3. Memory Core — P0 foundation completed
-4. Reasoning Core — P0 foundation completed
-5. Decision Core — approval/human-gate foundation completed\n6. Decision Core — durable PostgreSQL trace persistence adapter completed; next integration verification
-6. Planning Core — P0 foundation
+1. Sprint 0 — Affiliate Opportunity Platform Foundation implemented (this branch)
+2. Sprint 1 — revalidation execution through Orchestrator (durable attempts, reconciliation, event publication)
+3. Post-merge — retarget stacked affiliate PRs (#34→#39 chain) so Sprint 0 lands on main
+4. LLM / AI Core — authorized tool execution boundary completed
+5. Memory Core — P0 foundation completed
+6. Reasoning Core — P0 foundation completed
+7. Decision Core — approval/human-gate foundation completed
+8. Decision Core — durable PostgreSQL trace persistence adapter completed; next integration verification
+9. Planning Core — P0 foundation completed
+
