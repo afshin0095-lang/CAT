@@ -87,7 +87,7 @@ impl InMemorySourceHealthStore {
 
 impl SourceHealthStore for InMemorySourceHealthStore {
     fn record_success(&mut self, source: &str, at_ms: u64, latency_ms: u64) {
-        let entry = self.sources.entry_ref(source).or_default();
+        let entry = self.sources.entry(source.to_owned()).or_default();
         entry.source = source.to_owned();
         entry.consecutive_failures = 0;
         entry.total_successes = entry.total_successes.saturating_add(1);
@@ -97,7 +97,7 @@ impl SourceHealthStore for InMemorySourceHealthStore {
     }
 
     fn record_failure(&mut self, source: &str, at_ms: u64, reason: Option<&str>) {
-        let entry = self.sources.entry_ref(source).or_default();
+        let entry = self.sources.entry(source.to_owned()).or_default();
         entry.source = source.to_owned();
         entry.consecutive_failures = entry.consecutive_failures.saturating_add(1);
         entry.total_failures = entry.total_failures.saturating_add(1);

@@ -41,10 +41,10 @@ fn planned_requests_persist_and_claim_deterministically() {
     let planner = RevalidationPlanner::new(policy);
     let mut store = InMemoryRevalidationRequestStore::new();
 
-    let stale = record("Stale Widget", &["network-a"], 10_000);
-    let expired = record("Expired Widget", &["network-b"], 10_000);
-
-    // Both are stale/expired at now = 20_000.
+    // At now = 20_000: 6_000ms old => Stale (past 5_000ms stale threshold);
+    // 12_000ms old => Expired (past 9_000ms expiration threshold).
+    let stale = record("Stale Widget", &["network-a"], 14_000);
+    let expired = record("Expired Widget", &["network-b"], 8_000);
     let stale_decision = planner.plan_for_record(&stale, 20_000, &["network-a".into()]).expect("plan");
     let expired_decision = planner.plan_for_record(&expired, 20_000, &["network-b".into()]).expect("plan");
     assert_eq!(stale_decision.requests[0].priority, RevalidationPriority::High);

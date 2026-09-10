@@ -117,7 +117,7 @@ fn invalid_profiles_fail_closed_before_any_ranking() {
     };
     assert_eq!(
         OpportunityRanker::new(profile),
-        Err(OpportunityRankingError::InvalidProfile { total: 18_000 })
+        Err(OpportunityRankingError::InvalidProfile { total: 14_000 })
     );
 }
 

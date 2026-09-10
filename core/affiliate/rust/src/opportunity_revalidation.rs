@@ -43,7 +43,7 @@ pub enum RevalidationReason {
 }
 
 impl RevalidationReason {
-    pub const fn as_str(&self) -> &str {
+    pub fn as_str(&self) -> &str {
         match self {
             Self::Stale => "stale",
             Self::Expired => "expired",

@@ -257,6 +257,9 @@ impl From<OpportunityProjectionError> for OpportunityQueryError {
     fn from(error: OpportunityProjectionError) -> Self {
         match error {
             OpportunityProjectionError::ClockBeforeObservation => Self::ClockBeforeObservation,
+            OpportunityProjectionError::InvalidPolicy => Self::InvalidFilter(
+                "freshness policy violates 0 <= active <= stale < expiration".into(),
+            ),
         }
     }
 }

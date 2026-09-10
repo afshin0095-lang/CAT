@@ -56,8 +56,17 @@ pub use opportunity_lifecycle::{evaluate_records, evaluate_records_batch, Lifecy
 pub use opportunity_postgres::{AsyncOpportunityStore, AsyncRevalidationRequestStore, AsyncVersionedOpportunityStore, PostgresOpportunityStore, PostgresOpportunityStoreError, PostgresRevalidationStore};
 pub use opportunity_projection::{BestObservationView, OpportunityProjectionError, OpportunityStatusProjector, OpportunityStatusView};
 pub use opportunity_query::{OpportunityFilter, OpportunityQuery, OpportunityQueryError, OpportunityQueryResult, OpportunityQueryService, OpportunitySort, OpportunitySortField, SortDirection};
-pub use opportunity_ranking::{OpportunityRanker, OpportunityRankingError, OpportunityRankingProfile, RankedOpportunity, RankingFactors};
-pub use opportunity_revalidation::{InMemoryRevalidationRequestStore, RevalidationBlockReason, RevalidationDecision, RevalidationPriority, RevalidationReason, RevalidationRequest, RevalidationRequestRecord, RevalidationRequestStore, RevalidationSkipReason, RevalidationStatus, RevalidationStoreError, RevalidationTarget};
+pub use opportunity_ranking::{
+    OpportunityRanker, OpportunityRankingError, OpportunityRankingProfile, RankedOpportunity, RankingFactors,
+    WEIGHT_SCALE, DEFAULT_COMPOSITE_SCORE_WEIGHT_BPS, DEFAULT_FRESHNESS_WEIGHT_BPS, DEFAULT_ECONOMIC_VALUE_WEIGHT_BPS,
+    DEFAULT_SOURCE_RELIABILITY_WEIGHT_BPS, UNKNOWN_SOURCE_RELIABILITY_BPS,
+};
+pub use opportunity_revalidation::{
+    InMemoryRevalidationRequestStore, RevalidationBlockReason, RevalidationDecision, RevalidationPriority,
+    RevalidationReason, RevalidationRequest, RevalidationRequestRecord, RevalidationRequestStore,
+    RevalidationSkipReason, RevalidationStatus, RevalidationStoreError, RevalidationTarget,
+    REVALIDATION_DEDUP_WINDOW_MS,
+};
 pub use opportunity_version::{OpportunityRevision, OpportunityRevisionError};
 pub use revalidation_planner::{RevalidationPlanner, RevalidationPlanningOutcome};
 pub use scoring::{rank_programs, score_content_potential, score_earning_potential, ProgramScore, ProgramVerdict};

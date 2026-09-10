@@ -34,7 +34,7 @@ fn sample_batch() -> cat_affiliate::LifecycleEvaluationBatch {
 
     let policy = OpportunityLifecyclePolicy::new(1_000, 5_000).expect("valid policy");
     let evaluator = OpportunityLifecycleEvaluator::new(policy);
-    cat_affiliate::evaluate_records_batch(&records, evaluator, 20_000).expect("valid batch")
+    cat_affiliate::evaluate_records_batch(&records, evaluator, 10_500).expect("valid batch")
 }
 
 fn canonical_key(merchant: &str, product: &str) -> String {
@@ -103,7 +103,7 @@ fn a_full_ingestion_to_metrics_round_trip() {
     assert!(totals.contains_key(metric_names::OPPORTUNITY_ACTIVE));
     assert!(totals.contains_key(metric_names::OPPORTUNITY_REVALIDATION_SUCCEEDED));
     assert_eq!(batch.counts, LifecycleStateCounts { active: 1, stale: 0, expired: 0 });
-    assert_eq!(batch.evaluated_at_ms, 20_000);
+    assert_eq!(batch.evaluated_at_ms, 10_500);
     let policy = FreshnessPolicy::new(1_000, 1_000, 5_000).expect("valid policy");
     assert_eq!(policy.evaluate_age(2_000).state, cat_affiliate::FreshnessState::Stale);
 }

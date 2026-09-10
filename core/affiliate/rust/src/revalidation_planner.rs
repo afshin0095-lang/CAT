@@ -107,6 +107,9 @@ impl RevalidationPlanner {
                 } else {
                     skipped.push((candidate.to_owned(), RevalidationSkipReason::SourceUnavailable));
                 }
+                if known.iter().all(|source| !available.contains(source)) {
+                    blocked = Some(RevalidationBlockReason::AllSourcesUnavailable);
+                }
             }
             FreshnessState::Stale => {
                 let candidate = record.best_source.as_str();
@@ -339,7 +342,7 @@ mod tests {
     fn stale_records_request_high_priority_refresh_of_best_source() {
         let planner = planner();
         let stored = record(10_000, &["network-a", "network-b"]);
-        let now = 13_000;
+        let now = 16_000; // age 6_000ms: past the 5_000ms stale threshold, before the 9_000ms expiration
         let decision = planner.plan(
             &stored,
             evaluation(&planner.policy(), &stored, now),
@@ -357,7 +360,7 @@ mod tests {
     fn stale_records_with_unavailable_best_source_skip_explicitly() {
         let planner = planner();
         let stored = record(10_000, &["network-a"]);
-        let now = 13_000;
+        let now = 16_000; // age 6_000ms: Stale
         let decision = planner.plan(&stored, evaluation(&planner.policy(), &stored, now), &[], now);
         assert!(decision.requests.is_empty());
         assert_eq!(
