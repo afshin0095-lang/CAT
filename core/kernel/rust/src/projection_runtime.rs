@@ -89,9 +89,9 @@ mod tests {
     use crate::{CorrelationId, EntityId, EventEnvelope, EventId, TenantId, TimestampMs};
 
     struct SumProjection;
-    impl ProjectionHandler<i64, u64> for SumProjection {
+    impl ProjectionHandler<i64, i64> for SumProjection {
         fn projection_id(&self) -> &str { "sum-v1" }
-        fn apply(&mut self, state: &mut u64, event: &StoredEvent<i64>) -> KernelResult<()> {
+        fn apply(&mut self, state: &mut i64, event: &StoredEvent<i64>) -> KernelResult<()> {
             *state += event.envelope.payload;
             Ok(())
         }
@@ -100,8 +100,8 @@ mod tests {
     fn event(stream: EntityId, sequence: u64, payload: i64) -> StoredEvent<i64> {
         StoredEvent { stream_id: stream, envelope: EventEnvelope::new(
             "cat.test.projection", 1, TenantId::new(), CorrelationId::new(),
-            None, EntityId::new(), TimestampMs::new(sequence).unwrap(),
-            SequenceNumber::new(sequence).unwrap(), payload,
+            None, EntityId::new(), TimestampMs::new(sequence),
+            SequenceNumber::new(sequence), payload,
         ).unwrap() }
     }
 
@@ -115,7 +115,7 @@ mod tests {
         let second = event(stream, 2, 4);
         runtime.catch_up(&[first, second]).unwrap();
         assert_eq!(*runtime.state(), 7);
-        assert_eq!(runtime.checkpoint().sequence, SequenceNumber::new(2).unwrap());
+        assert_eq!(runtime.checkpoint().sequence, SequenceNumber::new(2));
         assert_eq!(runtime.checkpoint().phase, ProjectionPhase::Live);
     }
 
