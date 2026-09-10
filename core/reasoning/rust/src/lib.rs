@@ -8,8 +8,8 @@ mod policy;
 mod trace;
 
 pub use engine::DeterministicReasoningEngine;
-pub use error::{ReasoningError, ReasoningResult};
-pub use model::{Evidence, Hypothesis, ReasoningMode, ReasoningRequest, ReasoningResult as ReasoningDecision, ReasoningStep};
+pub use error::{ReasoningError, ReasoningOutcome};
+pub use model::{Evidence, Hypothesis, ReasoningMode, ReasoningRequest, ReasoningResult, ReasoningStep};
 pub use policy::ReasoningPolicy;
 pub use trace::ReasoningTrace;
 
