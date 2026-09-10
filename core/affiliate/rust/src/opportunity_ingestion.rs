@@ -1,23 +1,15 @@
-//! Bridge between discovery-source batches and durable opportunity persistence.
+//! Bridge between discovery-source batches and opportunity persistence.
 //!
-//! The source SPI remains transport-oriented, while the discovery engine owns
-//! validation/ranking and the opportunity store owns deduplication/provenance.
-
-use async_trait::async_trait;
+//! The source SPI remains transport-oriented, the discovery engine owns
+//! validation/ranking, and the opportunity store owns deduplication/provenance.
 
 use crate::{
-    DiscoveryEngine, DiscoveryIngestion, DiscoveryRequest, DiscoverySourceError,
-    DiscoverySourceId, OpportunityStoreError, OpportunityUpsertResult,
+    DiscoveryEngine, DiscoveryIngestion, DiscoveryRequest, DiscoverySourceRegistry,
+    OpportunityStore, OpportunityStoreError, OpportunityUpsertResult,
 };
-use crate::opportunity_store::OpportunityStore;
 
 #[derive(Debug, thiserror::Error)]
 pub enum OpportunityIngestionError {
-    #[error("discovery source {source:?} failed: {error}")]
-    Source {
-        source: DiscoverySourceId,
-        error: DiscoverySourceError,
-    },
     #[error("discovery engine failed: {0}")]
     Discovery(#[from] crate::DiscoveryError),
     #[error("opportunity persistence failed: {0}")]
@@ -33,6 +25,7 @@ pub struct OpportunityIngestionReport {
     pub candidates_rejected: usize,
     pub opportunities_created: usize,
     pub opportunities_changed: usize,
+    pub persistence_failures: usize,
 }
 
 impl OpportunityIngestionReport {
@@ -48,8 +41,9 @@ impl OpportunityIngestionReport {
 
 /// Coordinates source collection, deterministic discovery, and persistence.
 ///
-/// Source failures are isolated to the failing source so a transient provider
-/// does not discard valid opportunities discovered elsewhere in the same pass.
+/// A source failure is isolated from other sources. A persistence failure is
+/// also isolated to its opportunity so one malformed record cannot discard the
+/// rest of the batch.
 pub struct OpportunityIngestion<'a, S> {
     discovery: DiscoveryIngestion<'a>,
     store: S,
@@ -60,7 +54,7 @@ impl<'a, S> OpportunityIngestion<'a, S>
 where
     S: OpportunityStore,
 {
-    pub fn new(registry: &'a crate::DiscoverySourceRegistry, store: S) -> Self {
+    pub fn new(registry: &'a DiscoverySourceRegistry, store: S) -> Self {
         Self {
             discovery: DiscoveryIngestion::new(registry),
             store,
@@ -77,7 +71,7 @@ where
     /// The per-source limit prevents one provider from starving other providers;
     /// global deduplication still happens in the shared `OpportunityStore`.
     pub async fn ingest(
-        &self,
+        &mut self,
         request: crate::DiscoverySourceRequest,
         min_score: u32,
         limit_per_source: usize,
@@ -85,26 +79,20 @@ where
         let mut report = OpportunityIngestionReport::default();
 
         for result in self.discovery.collect(request).await {
-            let (source, batch) = match result {
+            let (_source, batch) = match result {
                 Ok(value) => value,
-                Err(error) => {
+                Err(_) => {
                     report.sources_failed += 1;
-                    let _ = OpportunityIngestionError::Source {
-                        source: DiscoverySourceId("unknown".into()),
-                        error,
-                    };
                     continue;
                 }
             };
 
             report.sources_succeeded += 1;
-            let discovery = self.engine.discover(DiscoveryRequest {
+            let discovery = match self.engine.discover(DiscoveryRequest {
                 candidates: batch.candidates,
                 min_score,
                 limit: limit_per_source,
-            });
-
-            let discovery = match discovery {
+            }) {
                 Ok(value) => value,
                 Err(_) => continue,
             };
@@ -113,26 +101,15 @@ where
             report.candidates_rejected += discovery.rejected;
 
             for opportunity in discovery.opportunities {
-                if let Ok(result) = self.store.upsert(&opportunity) {
-                    report.record_persistence(result);
+                match self.store.upsert(opportunity) {
+                    Ok(result) => report.record_persistence(result),
+                    Err(_) => report.persistence_failures += 1,
                 }
             }
-
-            let _ = source;
         }
 
         report
     }
-}
-
-/// Async persistence boundary for implementations that cannot use the
-/// synchronous `OpportunityStore` contract (for example PostgreSQL).
-#[async_trait]
-pub trait AsyncOpportunitySink: Send + Sync {
-    async fn persist(
-        &self,
-        opportunity: &crate::DiscoveryOpportunity,
-    ) -> Result<OpportunityUpsertResult, OpportunityIngestionError>;
 }
 
 #[cfg(test)]
@@ -140,8 +117,8 @@ mod tests {
     use super::*;
     use crate::{
         canonical_key, DiscoveryCandidate, DiscoverySource, DiscoverySourceBatch,
-        DiscoverySourceInfo, DiscoverySourceKind, DiscoverySourceRequest,
-        InMemoryOpportunityStore,
+        DiscoverySourceId, DiscoverySourceInfo, DiscoverySourceKind, DiscoverySourceRequest,
+        InMemoryOpportunityStore, OpportunityIdentity,
     };
     use std::future::{ready, Future};
     use std::pin::Pin;
@@ -234,11 +211,11 @@ mod tests {
             },
         };
 
-        let mut registry = crate::DiscoverySourceRegistry::new();
+        let mut registry = DiscoverySourceRegistry::new();
         registry.register(Box::new(first));
         registry.register(Box::new(second));
         let store = InMemoryOpportunityStore::new();
-        let ingestion = OpportunityIngestion::new(&registry, store);
+        let mut ingestion = OpportunityIngestion::new(&registry, store);
 
         let report = block_on(ingestion.ingest(
             DiscoverySourceRequest {
@@ -254,9 +231,10 @@ mod tests {
         assert_eq!(report.opportunities_discovered, 2);
         assert_eq!(report.opportunities_created, 1);
         assert_eq!(report.opportunities_changed, 2);
+        assert_eq!(report.persistence_failures, 0);
         let record = ingestion
             .store()
-            .get(&crate::OpportunityIdentity::new(&candidate("first", "Widget", 10)))
+            .get(&OpportunityIdentity::new(&candidate("first", "Widget", 10)))
             .expect("deduplicated record");
         assert_eq!(record.observations.len(), 2);
         assert_eq!(record.best_source, "first");
