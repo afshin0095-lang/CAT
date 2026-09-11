@@ -225,7 +225,7 @@ pub struct OpportunityQueryResult {
 
 impl OpportunityQueryResult {
     pub fn has_more(&self) -> bool {
-        self.offset + self.items.len() as u64 < self.total_matched
+        self.offset + (self.items.len() as u64) < self.total_matched
     }
 }
 
