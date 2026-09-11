@@ -97,6 +97,8 @@ impl PostgresOpportunityStore {
     /// Idempotent schema bootstrap, aligned with `migrations/`. Safe to call
     /// on every start; never drops or rewrites existing data.
     pub async fn ensure_schema(&self) -> Result<(), sqlx::Error> {
+        // One statement per prepared query: PostgreSQL rejects multi-statement
+        // prepared commands, so each DDL statement runs (idempotently) alone.
         sqlx::query(
             r#"
             CREATE TABLE IF NOT EXISTS cat_affiliate_opportunities (
@@ -111,7 +113,10 @@ impl PostgresOpportunityStore {
                 last_observed_at_ms BIGINT NOT NULL,
                 version BIGINT NOT NULL DEFAULT 1,
                 updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-            );
+            );"#,
+        ).execute(&self.pool).await?;
+        sqlx::query(
+            r#"
             CREATE TABLE IF NOT EXISTS cat_affiliate_opportunity_observations (
                 identity TEXT NOT NULL REFERENCES cat_affiliate_opportunities(identity) ON DELETE CASCADE,
                 source TEXT NOT NULL,
@@ -123,10 +128,12 @@ impl PostgresOpportunityStore {
                 score INTEGER NOT NULL CHECK (score BETWEEN 0 AND 10000),
                 observed_at_ms BIGINT NOT NULL,
                 PRIMARY KEY (identity, source)
-            );
+            );"#,
+        ).execute(&self.pool).await?;
+        sqlx::query(
+            r#"
             CREATE INDEX IF NOT EXISTS idx_cat_affiliate_opportunities_score
-                ON cat_affiliate_opportunities (best_score DESC, identity ASC);
-            "#,
+                ON cat_affiliate_opportunities (best_score DESC, identity ASC);"#,
         ).execute(&self.pool).await?;
         Self::ensure_revalidation_schema(&self.pool).await
     }
@@ -134,6 +141,7 @@ impl PostgresOpportunityStore {
     /// Revalidation request persistence bootstrap (see migration
     /// `0002_opportunity_revalidation.sql`).
     pub async fn ensure_revalidation_schema(pool: &PgPool) -> Result<(), sqlx::Error> {
+        // One statement per prepared query (see `ensure_schema`).
         sqlx::query(
             r#"
             CREATE TABLE IF NOT EXISTS cat_affiliate_revalidation_requests (
@@ -151,15 +159,23 @@ impl PostgresOpportunityStore {
                 attempt INTEGER NOT NULL DEFAULT 0 CHECK (attempt >= 0),
                 last_error TEXT,
                 updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-            );
+            );"#,
+        ).execute(pool).await?;
+        sqlx::query(
+            r#"
             CREATE UNIQUE INDEX IF NOT EXISTS uq_cat_affiliate_revalidation_active_dedup
                 ON cat_affiliate_revalidation_requests (dedup_key)
-                WHERE status IN ('pending', 'claimed', 'running');
+                WHERE status IN ('pending', 'claimed', 'running');"#,
+        ).execute(pool).await?;
+        sqlx::query(
+            r#"
             CREATE INDEX IF NOT EXISTS idx_cat_affiliate_revalidation_claim
-                ON cat_affiliate_revalidation_requests (status, scheduled_at_ms ASC);
+                ON cat_affiliate_revalidation_requests (status, scheduled_at_ms ASC);"#,
+        ).execute(pool).await?;
+        sqlx::query(
+            r#"
             CREATE INDEX IF NOT EXISTS idx_cat_affiliate_revalidation_identity
-                ON cat_affiliate_revalidation_requests (identity, created_at_ms DESC);
-            "#,
+                ON cat_affiliate_revalidation_requests (identity, created_at_ms DESC);"#,
         ).execute(pool).await?;
         Ok(())
     }
