@@ -1,0 +1,203 @@
+# CAT Rust Workspace (hardened — Sprint 0 target)
+
+# This file is PRESERVED, NOT ACTIVE. See docs/implementation/CI_HARDENING.md.
+# It must be applied manually as .github/workflows/rust-workspace.yml by an
+# identity with workflow write permission. It is additive over the committed
+# workflow: existing jobs, triggers, permissions, concurrency, timeouts, the
+# fail-fast:false matrices, and the fail-closed summary are unchanged; fmt,
+# clippy, and a PostgreSQL service job are added.
+
+name: CAT Rust Workspace
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.rs'
+      - '**/Cargo.toml'
+      - '**/Cargo.lock'
+      - '.github/workflows/rust-workspace.yml'
+  pull_request:
+    paths:
+      - '**/*.rs'
+      - '**/Cargo.toml'
+      - '**/Cargo.lock'
+      - '.github/workflows/rust-workspace.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cat-rust-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_NET_RETRY: 3
+
+jobs:
+  metadata:
+    name: Workspace metadata
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Validate Cargo metadata
+        run: cargo metadata --no-deps --format-version 1
+
+  fmt:
+    name: Format
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+  check:
+    name: Check ${{ matrix.package }}
+    needs: metadata
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - cat-kernel
+          - cat-eventbus
+          - cat-eventstore-postgres
+          - cat-runtime
+          - cat-knowledge
+          - cat-memory
+          - cat-llm
+          - cat-reasoning
+          - cat-decision
+          - cat-planning
+          - cat-orchestrator
+          - cat-platform
+          - cat-rag
+          - cat-affiliate
+          - cat-content
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+      - name: Check package
+        run: cargo check -p ${{ matrix.package }} --all-targets
+
+  clippy:
+    name: Clippy cat-affiliate
+    needs: metadata
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+      - name: Lint cat-affiliate
+        run: cargo clippy -p cat-affiliate --all-targets --all-features -- -D warnings
+
+  test:
+    name: Test ${{ matrix.package }}
+    needs: metadata
+    if: ${{ always() && needs.metadata.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - cat-kernel
+          - cat-eventbus
+          - cat-eventstore-postgres
+          - cat-runtime
+          - cat-knowledge
+          - cat-memory
+          - cat-llm
+          - cat-reasoning
+          - cat-decision
+          - cat-planning
+          - cat-orchestrator
+          - cat-platform
+          - cat-rag
+          - cat-affiliate
+          - cat-content
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+      - name: Run package tests
+        run: cargo test -p ${{ matrix.package }} --all-targets
+
+  database:
+    name: PostgreSQL integration (cat-affiliate)
+    needs: metadata
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: cat
+          POSTGRES_PASSWORD: cat-test-only
+          POSTGRES_DB: cat_affiliate_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U cat"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+      - name: Run PostgreSQL-backed opportunity tests
+        env:
+          CAT_TEST_DATABASE_URL: postgres://cat:cat-test-only@localhost:5432/cat_affiliate_test
+        run: cargo test -p cat-affiliate --test opportunity_postgres --all-targets
+
+  workspace-summary:
+    name: Workspace summary
+    needs: [check, test, fmt, clippy, database]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report results
+        run: |
+          echo "check=${{ needs.check.result }}"
+          echo "test=${{ needs.test.result }}"
+          echo "fmt=${{ needs.fmt.result }}"
+          echo "clippy=${{ needs.clippy.result }}"
+          echo "database=${{ needs.database.result }}"
+          if [ "${{ needs.check.result }}" != "success" ] \
+            || [ "${{ needs.test.result }}" != "success" ] \
+            || [ "${{ needs.fmt.result }}" != "success" ] \
+            || [ "${{ needs.clippy.result }}" != "success" ] \
+            || [ "${{ needs.database.result }}" != "success" ]; then
+            echo "CAT Rust validation failed. Inspect the failing package matrix jobs above."
+            exit 1
+          fi
+          echo "CAT Rust workspace validation passed."

@@ -65,7 +65,14 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 **Document:** `core/affiliate/rust/` (opportunity subsystem), `docs/implementation/AFFILIATE_OPPORTUNITY_*.md`
 
-**Status:** Implemented on branch `arena/01a08d17-cat` (stacked on `feat/affiliate-opportunity-lifecycle-p0` @ `6791ace`). Sprint 0 completes the discovery → source SPI → network adapter → ingestion → dedup → persistence → freshness → lifecycle → projection → revalidation → observability vertical slice: hardened lifecycle via a single canonical freshness engine, injectable clock, monotonic record revisions with optimistic-concurrency upserts, deterministic revalidation planner with durable request persistence (migration 0002, partial-unique dedup), opportunity status projection, persistence-neutral query/ranking/health contracts, source health tracking, neutral observability names + sink, typed opportunity event contracts, expanded validation (URL/length/identity bounds, ASCII canonical-key limitation documented), and hardened CI (fmt + clippy for cat-affiliate, PostgreSQL service-gated integration tests via `CAT_TEST_DATABASE_URL`).
+**Status:** Implemented on branch `arena/01a08d17-cat` (stacked on `feat/affiliate-opportunity-lifecycle-p0` @ `6791ace`), PR #40. Sprint 0 completes the discovery → source SPI → network adapter → ingestion → dedup → persistence → freshness → lifecycle → projection → revalidation → observability vertical slice: hardened lifecycle via a single canonical freshness engine, injectable clock, monotonic record revisions with optimistic-concurrency upserts, deterministic revalidation planner with durable request persistence (migration 0002, partial-unique dedup), opportunity status projection, persistence-neutral query/ranking/health contracts, source health tracking, neutral observability names + sink, typed opportunity event contracts, and expanded validation (URL/length/identity bounds, ASCII canonical-key limitation documented).
+
+**Validation status: INCOMPLETE — Sprint 0 is NOT closed.**
+- Local `cargo` execution is impossible in the working sandbox (rust-lang.org/crates.io are TLS-blocked by the egress proxy).
+- CI is the authoritative validator. The latest runs on this branch (GitHub Actions runs #157/#159-era, head `79e48b4`/`73816b2`) fail on `Check cat-affiliate` / `Test cat-affiliate`; the compiler output is not retrievable from the sandbox (Actions log hosts blocked), so the remaining defect could not be located despite repeated full static audits plus automated name/field/path resolution checks.
+- The GitHub Actions minutes for this private repository were exhausted during bisect probing; all subsequent runs fail at startup ("workflow file may be broken"). CI must be re-run once minutes are available.
+- CI hardening (fmt + clippy for cat-affiliate, PostgreSQL service job) is preserved at `docs/ci/rust-workspace-hardened.yml` and is NOT committed under `.github/` because the integration lacks the `workflows` permission. See `docs/implementation/CI_HARDENING.md`.
+- Gate to close Sprint 0: `Check cat-affiliate`, `Test cat-affiliate`, fmt, clippy, and the PostgreSQL job must be green on the latest run of PR #40; then record results in `docs/implementation/SPRINT_0_MANIFEST.md`.
 
 # Next Task
 
@@ -73,7 +80,7 @@ Sprint 1 — Opportunity Lifecycle → Orchestrator → Durable Revalidation Exe
 
 # Next Tasks
 
-1. Sprint 0 — Affiliate Opportunity Platform Foundation implemented (this branch)
+1. Sprint 0 — Affiliate Opportunity Platform Foundation implemented (this branch); CI closure pending
 2. Sprint 1 — revalidation execution through Orchestrator (durable attempts, reconciliation, event publication)
 3. Post-merge — retarget stacked affiliate PRs (#34→#39 chain) so Sprint 0 lands on main
 4. LLM / AI Core — authorized tool execution boundary completed
