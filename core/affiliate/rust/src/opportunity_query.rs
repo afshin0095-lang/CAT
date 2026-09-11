@@ -11,9 +11,11 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::opportunity_freshness::{FreshnessPolicy, FreshnessState};
-use crate::opportunity_projection::{OpportunityProjectionError, OpportunityStatusProjector, OpportunityStatusView};
 use crate::OpportunityRecord;
+use crate::opportunity_freshness::{FreshnessPolicy, FreshnessState};
+use crate::opportunity_projection::{
+    OpportunityProjectionError, OpportunityStatusProjector, OpportunityStatusView,
+};
 
 /// Hard upper bound on a single page; keeps accidental `limit = u32::MAX`
 /// queries from materializing unbounded views.
@@ -93,15 +95,15 @@ impl OpportunityFilter {
         record.observations.values().any(|observation| {
             let price_ok = match (self.price_min_minor, self.price_max_minor) {
                 (None, None) => true,
-                (min, max) => observation
-                    .price_minor
-                    .is_some_and(|value| min.is_none_or(|bound| value >= bound) && max.is_none_or(|bound| value <= bound)),
+                (min, max) => observation.price_minor.is_some_and(|value| {
+                    min.is_none_or(|bound| value >= bound) && max.is_none_or(|bound| value <= bound)
+                }),
             };
             let commission_ok = match (self.commission_min_bps, self.commission_max_bps) {
                 (None, None) => true,
-                (min, max) => observation
-                    .commission_bps
-                    .is_some_and(|value| min.is_none_or(|bound| value >= bound) && max.is_none_or(|bound| value <= bound)),
+                (min, max) => observation.commission_bps.is_some_and(|value| {
+                    min.is_none_or(|bound| value >= bound) && max.is_none_or(|bound| value <= bound)
+                }),
             };
             price_ok && commission_ok
         })
@@ -117,7 +119,9 @@ impl OpportunityFilter {
         }
         if let (Some(min), Some(max)) = (self.price_min_minor, self.price_max_minor) {
             if min > max {
-                return Err(OpportunityQueryError::InvalidFilter("price_min_minor must not exceed price_max_minor".into()));
+                return Err(OpportunityQueryError::InvalidFilter(
+                    "price_min_minor must not exceed price_max_minor".into(),
+                ));
             }
         }
         if let (Some(min), Some(max)) = (self.commission_min_bps, self.commission_max_bps) {
@@ -129,7 +133,9 @@ impl OpportunityFilter {
         }
         if let Some(min_score) = self.min_score {
             if min_score > 10_000 {
-                return Err(OpportunityQueryError::InvalidFilter("min_score must be within 0..=10000".into()));
+                return Err(OpportunityQueryError::InvalidFilter(
+                    "min_score must be within 0..=10000".into(),
+                ));
             }
         }
         Ok(())
@@ -239,7 +245,9 @@ pub enum OpportunityQueryError {
 impl std::fmt::Display for OpportunityQueryError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::InvalidFilter(message) => write!(formatter, "invalid opportunity filter: {message}"),
+            Self::InvalidFilter(message) => {
+                write!(formatter, "invalid opportunity filter: {message}")
+            }
             Self::InvalidLimit => write!(
                 formatter,
                 "opportunity query limit must be within 1..={MAX_QUERY_LIMIT}"
@@ -308,7 +316,9 @@ impl OpportunityQueryService {
         matched.sort_by(|left, right| self.compare(left, right, query.sort));
 
         let offset = query.offset.min(total_matched);
-        let end = offset.saturating_add(u64::from(query.limit)).min(total_matched);
+        let end = offset
+            .saturating_add(u64::from(query.limit))
+            .min(total_matched);
         let mut items = Vec::with_capacity((end - offset) as usize);
         for record in &matched[offset as usize..end as usize] {
             items.push(self.projector.project(record, now_ms)?);
@@ -322,7 +332,12 @@ impl OpportunityQueryService {
         })
     }
 
-    fn compare(&self, left: &OpportunityRecord, right: &OpportunityRecord, sort: OpportunitySort) -> std::cmp::Ordering {
+    fn compare(
+        &self,
+        left: &OpportunityRecord,
+        right: &OpportunityRecord,
+        sort: OpportunitySort,
+    ) -> std::cmp::Ordering {
         use OpportunitySortField::*;
         use std::cmp::Ordering;
         let primary = match sort.field {
@@ -342,10 +357,18 @@ impl OpportunityQueryService {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{canonical_key, DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore, OpportunityStore};
+    use crate::{
+        DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore, OpportunityStore,
+        canonical_key,
+    };
     use uuid::Uuid;
 
-    fn build_record(merchant: &str, product: &str, score: u32, observed_at_ms: u64) -> OpportunityRecord {
+    fn build_record(
+        merchant: &str,
+        product: &str,
+        score: u32,
+        observed_at_ms: u64,
+    ) -> OpportunityRecord {
         let candidate = DiscoveryCandidate {
             source: "network-a".into(),
             external_id: "sku-1".into(),
@@ -363,14 +386,21 @@ mod tests {
             compliance_score: 10_000,
             observed_at_ms,
         };
-        let opportunity = DiscoveryOpportunity { id: Uuid::now_v7(), candidate, score, rank: 1 };
+        let opportunity = DiscoveryOpportunity {
+            id: Uuid::now_v7(),
+            candidate,
+            score,
+            rank: 1,
+        };
         let mut store = InMemoryOpportunityStore::new();
         store.upsert(opportunity).expect("valid opportunity");
         store.list().into_iter().next().expect("record exists")
     }
 
     fn service() -> OpportunityQueryService {
-        OpportunityQueryService::new(FreshnessPolicy::new(1_000, 5_000, 9_000).expect("valid policy"))
+        OpportunityQueryService::new(
+            FreshnessPolicy::new(1_000, 5_000, 9_000).expect("valid policy"),
+        )
     }
 
     fn default_query() -> OpportunityQuery {
@@ -379,12 +409,18 @@ mod tests {
 
     #[test]
     fn query_is_invalid_without_limit_or_with_excess_limit() {
-        assert_eq!(default_query().with_limit(0).validate(), Err(OpportunityQueryError::InvalidLimit));
+        assert_eq!(
+            default_query().with_limit(0).validate(),
+            Err(OpportunityQueryError::InvalidLimit)
+        );
         assert_eq!(
             default_query().with_limit(MAX_QUERY_LIMIT + 1).validate(),
             Err(OpportunityQueryError::InvalidLimit)
         );
-        assert_eq!(default_query().with_limit(MAX_QUERY_LIMIT).validate(), Ok(()));
+        assert_eq!(
+            default_query().with_limit(MAX_QUERY_LIMIT).validate(),
+            Ok(())
+        );
     }
 
     #[test]
@@ -426,14 +462,18 @@ mod tests {
         filter.merchant = Some("Beta".into());
         filter.min_score = Some(6_000);
         let query = OpportunityQuery::new(filter).with_limit(10);
-        let result = service.execute(&records, &query, 10_500).expect("valid query");
+        let result = service
+            .execute(&records, &query, 10_500)
+            .expect("valid query");
         assert_eq!(result.total_matched, 1);
         assert_eq!(result.items[0].product_name, "Gadget");
 
         let mut filter = OpportunityFilter::default();
         filter.lifecycle_state = Some(FreshnessState::Active);
         let query = OpportunityQuery::new(filter).with_limit(10);
-        let result = service.execute(&records, &query, 10_500).expect("valid query");
+        let result = service
+            .execute(&records, &query, 10_500)
+            .expect("valid query");
         assert_eq!(result.total_matched, 3);
     }
 
@@ -459,7 +499,12 @@ mod tests {
             compliance_score: 10_000,
             observed_at_ms: 10_000,
         };
-        let opportunity = DiscoveryOpportunity { id: stored.id, candidate, score: 9_500, rank: 1 };
+        let opportunity = DiscoveryOpportunity {
+            id: stored.id,
+            candidate,
+            score: 9_500,
+            rank: 1,
+        };
         let mut store = InMemoryOpportunityStore::new();
         store.upsert(opportunity).expect("valid opportunity");
         store
@@ -484,21 +529,30 @@ mod tests {
         let mut filter = OpportunityFilter::default();
         filter.currency = Some("USD".into());
         let query = OpportunityQuery::new(filter).with_limit(10);
-        let result = service.execute(std::slice::from_ref(&stored), &query, 10_500).expect("valid query");
+        let result = service
+            .execute(std::slice::from_ref(&stored), &query, 10_500)
+            .expect("valid query");
         assert_eq!(result.total_matched, 1);
 
         let mut filter = OpportunityFilter::default();
         filter.commission_min_bps = Some(500);
         filter.commission_max_bps = Some(700);
         let query = OpportunityQuery::new(filter).with_limit(10);
-        let result = service.execute(std::slice::from_ref(&stored), &query, 10_500).expect("valid query");
+        let result = service
+            .execute(std::slice::from_ref(&stored), &query, 10_500)
+            .expect("valid query");
         assert_eq!(result.total_matched, 1, "network-a observation has 600 bps");
 
         let mut filter = OpportunityFilter::default();
         filter.price_min_minor = Some(15_000);
         let query = OpportunityQuery::new(filter).with_limit(10);
-        let result = service.execute(std::slice::from_ref(&stored), &query, 10_500).expect("valid query");
-        assert_eq!(result.total_matched, 1, "network-b observation has 19999 minor units");
+        let result = service
+            .execute(std::slice::from_ref(&stored), &query, 10_500)
+            .expect("valid query");
+        assert_eq!(
+            result.total_matched, 1,
+            "network-b observation has 19999 minor units"
+        );
     }
 
     #[test]
@@ -511,7 +565,9 @@ mod tests {
         ];
 
         let query = default_query(); // Score descending
-        let result = service.execute(&records, &query, 11_500).expect("valid query");
+        let result = service
+            .execute(&records, &query, 11_500)
+            .expect("valid query");
         let identities: Vec<&str> = result
             .items
             .iter()
@@ -527,15 +583,27 @@ mod tests {
             field: OpportunitySortField::LastObservedAt,
             direction: SortDirection::Ascending,
         });
-        let result = service.execute(&records, &query, 11_500).expect("valid query");
-        assert_eq!(result.items[0].identity, "beta:gadget", "oldest observation first");
+        let result = service
+            .execute(&records, &query, 11_500)
+            .expect("valid query");
+        assert_eq!(
+            result.items[0].identity, "beta:gadget",
+            "oldest observation first"
+        );
     }
 
     #[test]
     fn pagination_windows_are_stable_and_report_total() {
         let service = service();
         let records: Vec<OpportunityRecord> = (0..7)
-            .map(|index| build_record("Acme", &format!("Item {index}"), 5_000 + index as u32 * 100, 10_000))
+            .map(|index| {
+                build_record(
+                    "Acme",
+                    &format!("Item {index}"),
+                    5_000 + index as u32 * 100,
+                    10_000,
+                )
+            })
             .collect();
 
         let page_one = service
@@ -546,13 +614,21 @@ mod tests {
         assert!(page_one.has_more());
 
         let page_three = service
-            .execute(&records, &default_query().with_limit(3).with_offset(6), 10_500)
+            .execute(
+                &records,
+                &default_query().with_limit(3).with_offset(6),
+                10_500,
+            )
             .expect("valid query");
         assert_eq!(page_three.items.len(), 1);
         assert!(!page_three.has_more());
 
         let beyond = service
-            .execute(&records, &default_query().with_limit(3).with_offset(100), 10_500)
+            .execute(
+                &records,
+                &default_query().with_limit(3).with_offset(100),
+                10_500,
+            )
             .expect("valid query");
         assert!(beyond.items.is_empty());
         assert_eq!(beyond.offset, 7, "offset saturates at the match set size");
