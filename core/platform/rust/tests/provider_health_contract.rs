@@ -30,12 +30,19 @@ impl FailingProvider {
 }
 
 impl ExternalProviderAdapter for FailingProvider {
-    fn capabilities(&self) -> cat_platform::ProviderCapabilities { self.capabilities.clone() }
+    fn capabilities(&self) -> cat_platform::ProviderCapabilities {
+        self.capabilities.clone()
+    }
 
-    fn execute(&self, request: &AdapterRequest) -> cat_platform::PlatformResult<cat_platform::AdapterResponse> {
+    fn execute(
+        &self,
+        request: &AdapterRequest,
+    ) -> cat_platform::PlatformResult<cat_platform::AdapterResponse> {
         if self.remaining_failures.load(Ordering::SeqCst) > 0 {
             self.remaining_failures.fetch_sub(1, Ordering::SeqCst);
-            return Err(PlatformError::TransportUnavailable("synthetic health failure".into()));
+            return Err(PlatformError::TransportUnavailable(
+                "synthetic health failure".into(),
+            ));
         }
         Ok(cat_platform::AdapterResponse {
             request_id: request.context.request_id,
@@ -62,21 +69,37 @@ fn request() -> AdapterRequest {
 fn registry_health_probe_is_deterministic_and_provider_neutral() {
     let mut registry = ProviderAdapterRegistry::default();
     registry
-        .register(Arc::new(DeterministicProviderAdapter::new(
-            "provider-b", IntegrationTarget::Llm, ["generate"],
-        ).unwrap()))
+        .register(Arc::new(
+            DeterministicProviderAdapter::new("provider-b", IntegrationTarget::Llm, ["generate"])
+                .unwrap(),
+        ))
         .unwrap();
     registry
-        .register(Arc::new(DeterministicProviderAdapter::new(
-            "provider-a", IntegrationTarget::Llm, ["generate"],
-        ).unwrap()))
+        .register(Arc::new(
+            DeterministicProviderAdapter::new("provider-a", IntegrationTarget::Llm, ["generate"])
+                .unwrap(),
+        ))
         .unwrap();
 
-    assert_eq!(registry.probe_health(&ProviderId::new("provider-a").unwrap()).unwrap(), ProviderHealth::Ready);
-    assert_eq!(registry.probe_all_health().unwrap(), vec![
-        (ProviderId::new("provider-a").unwrap(), ProviderHealth::Ready),
-        (ProviderId::new("provider-b").unwrap(), ProviderHealth::Ready),
-    ]);
+    assert_eq!(
+        registry
+            .probe_health(&ProviderId::new("provider-a").unwrap())
+            .unwrap(),
+        ProviderHealth::Ready
+    );
+    assert_eq!(
+        registry.probe_all_health().unwrap(),
+        vec![
+            (
+                ProviderId::new("provider-a").unwrap(),
+                ProviderHealth::Ready
+            ),
+            (
+                ProviderId::new("provider-b").unwrap(),
+                ProviderHealth::Ready
+            ),
+        ]
+    );
 }
 
 #[test]
@@ -84,28 +107,51 @@ fn resilient_adapter_can_be_registered_and_reports_circuit_health() {
     let resilient = Arc::new(
         ResilientProviderAdapter::new(
             Arc::new(FailingProvider::new(10)),
-            ProviderRetryConfig { max_attempts: 2, retry_delay: Duration::ZERO },
-            ProviderCircuitConfig { failure_threshold: 1, recovery_after: Duration::from_secs(60) },
-        ).unwrap(),
+            ProviderRetryConfig {
+                max_attempts: 2,
+                retry_delay: Duration::ZERO,
+            },
+            ProviderCircuitConfig {
+                failure_threshold: 1,
+                recovery_after: Duration::from_secs(60),
+            },
+        )
+        .unwrap(),
     );
     let mut registry = ProviderAdapterRegistry::default();
     registry.register(resilient.clone()).unwrap();
     let provider = ProviderId::new("probe-failing").unwrap();
 
-    assert_eq!(registry.probe_health(&provider).unwrap(), ProviderHealth::Ready);
+    assert_eq!(
+        registry.probe_health(&provider).unwrap(),
+        ProviderHealth::Ready
+    );
     assert!(registry.execute(&provider, &request()).is_err());
     assert_eq!(resilient.circuit_state(), ProviderCircuitState::Open);
-    assert_eq!(registry.probe_health(&provider).unwrap(), ProviderHealth::Unavailable);
-    assert!(matches!(registry.execute(&provider, &request()), Err(PlatformError::TransportUnavailable(_))));
+    assert_eq!(
+        registry.probe_health(&provider).unwrap(),
+        ProviderHealth::Unavailable
+    );
+    assert!(matches!(
+        registry.execute(&provider, &request()),
+        Err(PlatformError::TransportUnavailable(_))
+    ));
 }
 
 #[test]
 fn resilient_adapter_preserves_provider_contract_after_recovery() {
     let resilient = ResilientProviderAdapter::new(
         Arc::new(FailingProvider::new(1)),
-        ProviderRetryConfig { max_attempts: 2, retry_delay: Duration::ZERO },
-        ProviderCircuitConfig { failure_threshold: 3, recovery_after: Duration::ZERO },
-    ).unwrap();
+        ProviderRetryConfig {
+            max_attempts: 2,
+            retry_delay: Duration::ZERO,
+        },
+        ProviderCircuitConfig {
+            failure_threshold: 3,
+            recovery_after: Duration::ZERO,
+        },
+    )
+    .unwrap();
 
     assert!(resilient.execute(&request()).unwrap().accepted);
     assert_eq!(resilient.probe_health().unwrap(), ProviderHealth::Ready);
@@ -114,6 +160,10 @@ fn resilient_adapter_preserves_provider_contract_after_recovery() {
 
 #[test]
 fn deterministic_probe_contract_is_available_without_network() {
-    let adapter = DeterministicProviderAdapter::new("local", IntegrationTarget::Llm, ["generate"]).unwrap();
-    assert_eq!(ProviderHealthProbe::probe_health(&adapter).unwrap(), ProviderHealth::Ready);
+    let adapter =
+        DeterministicProviderAdapter::new("local", IntegrationTarget::Llm, ["generate"]).unwrap();
+    assert_eq!(
+        ProviderHealthProbe::probe_health(&adapter).unwrap(),
+        ProviderHealth::Ready
+    );
 }

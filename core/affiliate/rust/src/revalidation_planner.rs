@@ -19,12 +19,15 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::opportunity_freshness::{FreshnessEvaluation, FreshnessPolicy, FreshnessPolicyError, FreshnessState};
-use crate::opportunity_revalidation::{
-    RevalidationBlockReason, RevalidationDecision, RevalidationPriority, RevalidationReason, RevalidationRequest,
-    RevalidationSkipReason, RevalidationTarget, REVALIDATION_DEDUP_WINDOW_MS,
-};
 use crate::OpportunityRecord;
+use crate::opportunity_freshness::{
+    FreshnessEvaluation, FreshnessPolicy, FreshnessPolicyError, FreshnessState,
+};
+use crate::opportunity_revalidation::{
+    REVALIDATION_DEDUP_WINDOW_MS, RevalidationBlockReason, RevalidationDecision,
+    RevalidationPriority, RevalidationReason, RevalidationRequest, RevalidationSkipReason,
+    RevalidationTarget,
+};
 
 #[derive(Clone, Debug)]
 pub struct RevalidationPlanner {
@@ -74,8 +77,15 @@ impl RevalidationPlanner {
         available_sources: &[String],
         now_ms: u64,
     ) -> RevalidationDecision {
-        let available: BTreeSet<&str> = available_sources.iter().map(|source| source.as_str()).collect();
-        let known: BTreeSet<&str> = record.observations.keys().map(|source| source.as_str()).collect();
+        let available: BTreeSet<&str> = available_sources
+            .iter()
+            .map(|source| source.as_str())
+            .collect();
+        let known: BTreeSet<&str> = record
+            .observations
+            .keys()
+            .map(|source| source.as_str())
+            .collect();
 
         let mut requests = Vec::new();
         let mut skipped = Vec::new();
@@ -93,19 +103,24 @@ impl RevalidationPlanner {
             FreshnessState::Active => {
                 let candidate = record.best_source.as_str();
                 if available.contains(candidate) {
-                    requests.push(self.request(
-                        record,
-                        candidate,
-                        RevalidationReason::PeriodicRefresh,
-                        RevalidationPriority::Low,
-                        now_ms,
-                        record
-                            .last_observed_at_ms
-                            .saturating_add(self.policy.active_threshold_ms)
-                            .max(now_ms),
-                    ));
+                    requests.push(
+                        self.request(
+                            record,
+                            candidate,
+                            RevalidationReason::PeriodicRefresh,
+                            RevalidationPriority::Low,
+                            now_ms,
+                            record
+                                .last_observed_at_ms
+                                .saturating_add(self.policy.active_threshold_ms)
+                                .max(now_ms),
+                        ),
+                    );
                 } else {
-                    skipped.push((candidate.to_owned(), RevalidationSkipReason::SourceUnavailable));
+                    skipped.push((
+                        candidate.to_owned(),
+                        RevalidationSkipReason::SourceUnavailable,
+                    ));
                 }
                 if known.iter().all(|source| !available.contains(source)) {
                     blocked = Some(RevalidationBlockReason::AllSourcesUnavailable);
@@ -123,7 +138,10 @@ impl RevalidationPlanner {
                         now_ms,
                     ));
                 } else {
-                    skipped.push((candidate.to_owned(), RevalidationSkipReason::SourceUnavailable));
+                    skipped.push((
+                        candidate.to_owned(),
+                        RevalidationSkipReason::SourceUnavailable,
+                    ));
                 }
                 if known.iter().all(|source| !available.contains(source)) {
                     blocked = Some(RevalidationBlockReason::AllSourcesUnavailable);
@@ -143,7 +161,10 @@ impl RevalidationPlanner {
                             now_ms,
                         ));
                     } else {
-                        skipped.push(((*source).to_owned(), RevalidationSkipReason::SourceUnavailable));
+                        skipped.push((
+                            (*source).to_owned(),
+                            RevalidationSkipReason::SourceUnavailable,
+                        ));
                     }
                 }
                 if !any_available {
@@ -262,14 +283,21 @@ impl RevalidationPlanningOutcome {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{canonical_key, DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore, OpportunityStore};
+    use crate::{
+        DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore, OpportunityStore,
+        canonical_key,
+    };
     use uuid::Uuid;
 
     fn record(observed_at_ms: u64, sources: &[&str]) -> OpportunityRecord {
         record_for_product(observed_at_ms, "Widget", sources)
     }
 
-    fn record_for_product(observed_at_ms: u64, product: &str, sources: &[&str]) -> OpportunityRecord {
+    fn record_for_product(
+        observed_at_ms: u64,
+        product: &str,
+        sources: &[&str],
+    ) -> OpportunityRecord {
         let mut store = InMemoryOpportunityStore::new();
         for (index, source) in sources.iter().enumerate() {
             let candidate = DiscoveryCandidate {
@@ -289,7 +317,12 @@ mod tests {
                 compliance_score: 10_000,
                 observed_at_ms,
             };
-            let opportunity = DiscoveryOpportunity { id: Uuid::now_v7(), candidate, score: 8_000, rank: 1 };
+            let opportunity = DiscoveryOpportunity {
+                id: Uuid::now_v7(),
+                candidate,
+                score: 8_000,
+                rank: 1,
+            };
             store.upsert(opportunity).expect("valid opportunity");
         }
         store.list().into_iter().next().expect("record exists")
@@ -299,8 +332,15 @@ mod tests {
         RevalidationPlanner::new(FreshnessPolicy::new(1_000, 5_000, 9_000).expect("valid policy"))
     }
 
-    fn evaluation(policy: &FreshnessPolicy, record: &OpportunityRecord, now_ms: u64) -> FreshnessEvaluation {
-        policy.evaluate(record, now_ms).expect("valid evaluation").evaluation
+    fn evaluation(
+        policy: &FreshnessPolicy,
+        record: &OpportunityRecord,
+        now_ms: u64,
+    ) -> FreshnessEvaluation {
+        policy
+            .evaluate(record, now_ms)
+            .expect("valid evaluation")
+            .evaluation
     }
 
     #[test]
@@ -335,7 +375,10 @@ mod tests {
         assert_eq!(request.reason, RevalidationReason::PeriodicRefresh);
         assert_eq!(request.priority, RevalidationPriority::Low);
         assert_eq!(request.target.source, "network-a");
-        assert_eq!(request.scheduled_for_ms, 11_500, "refresh already overdue: scheduled immediately");
+        assert_eq!(
+            request.scheduled_for_ms, 11_500,
+            "refresh already overdue: scheduled immediately"
+        );
     }
 
     #[test]
@@ -361,13 +404,24 @@ mod tests {
         let planner = planner();
         let stored = record(10_000, &["network-a"]);
         let now = 16_000; // age 6_000ms: Stale
-        let decision = planner.plan(&stored, evaluation(&planner.policy(), &stored, now), &[], now);
+        let decision = planner.plan(
+            &stored,
+            evaluation(&planner.policy(), &stored, now),
+            &[],
+            now,
+        );
         assert!(decision.requests.is_empty());
         assert_eq!(
             decision.skipped,
-            vec![("network-a".to_owned(), RevalidationSkipReason::SourceUnavailable)]
+            vec![(
+                "network-a".to_owned(),
+                RevalidationSkipReason::SourceUnavailable
+            )]
         );
-        assert_eq!(decision.blocked, Some(RevalidationBlockReason::AllSourcesUnavailable));
+        assert_eq!(
+            decision.blocked,
+            Some(RevalidationBlockReason::AllSourcesUnavailable)
+        );
     }
 
     #[test]
@@ -381,7 +435,11 @@ mod tests {
             &["network-a".into(), "network-c".into()],
             now,
         );
-        assert_eq!(decision.requests.len(), 2, "one request per available source");
+        assert_eq!(
+            decision.requests.len(),
+            2,
+            "one request per available source"
+        );
         for request in &decision.requests {
             assert_eq!(request.reason, RevalidationReason::Expired);
             assert_eq!(request.priority, RevalidationPriority::Critical);
@@ -392,10 +450,17 @@ mod tests {
             .iter()
             .map(|request| request.target.source.as_str())
             .collect();
-        assert_eq!(sources, vec!["network-a", "network-c"], "deterministic source order");
+        assert_eq!(
+            sources,
+            vec!["network-a", "network-c"],
+            "deterministic source order"
+        );
         assert_eq!(
             decision.skipped,
-            vec![("network-b".to_owned(), RevalidationSkipReason::SourceUnavailable)]
+            vec![(
+                "network-b".to_owned(),
+                RevalidationSkipReason::SourceUnavailable
+            )]
         );
         assert!(decision.blocked.is_none());
     }
@@ -405,9 +470,17 @@ mod tests {
         let planner = planner();
         let stored = record(10_000, &["network-a"]);
         let now = 20_000;
-        let decision = planner.plan(&stored, evaluation(&planner.policy(), &stored, now), &[], now);
+        let decision = planner.plan(
+            &stored,
+            evaluation(&planner.policy(), &stored, now),
+            &[],
+            now,
+        );
         assert!(decision.requests.is_empty());
-        assert_eq!(decision.blocked, Some(RevalidationBlockReason::AllSourcesUnavailable));
+        assert_eq!(
+            decision.blocked,
+            Some(RevalidationBlockReason::AllSourcesUnavailable)
+        );
     }
 
     #[test]
@@ -417,12 +490,19 @@ mod tests {
         stored.observations.clear();
         let decision = planner.plan(
             &stored,
-            FreshnessEvaluation { state: FreshnessState::Active, age_ms: 0, is_fresh: true },
+            FreshnessEvaluation {
+                state: FreshnessState::Active,
+                age_ms: 0,
+                is_fresh: true,
+            },
             &[],
             10_000,
         );
         assert!(decision.requests.is_empty());
-        assert_eq!(decision.blocked, Some(RevalidationBlockReason::NoKnownSources));
+        assert_eq!(
+            decision.blocked,
+            Some(RevalidationBlockReason::NoKnownSources)
+        );
     }
 
     #[test]
@@ -431,15 +511,25 @@ mod tests {
         let stored = record(10_000, &["network-a", "network-b"]);
         let before = stored.clone();
         let now = 20_000;
-        let first = planner.plan_for_record(&stored, now, &["network-a".into(), "network-b".into()])
+        let first = planner
+            .plan_for_record(&stored, now, &["network-a".into(), "network-b".into()])
             .expect("valid evaluation");
-        let second = planner.plan_for_record(&stored, now, &["network-a".into(), "network-b".into()])
+        let second = planner
+            .plan_for_record(&stored, now, &["network-a".into(), "network-b".into()])
             .expect("valid evaluation");
         assert_eq!(stored, before, "records are never mutated");
         assert_eq!(first.identity, second.identity);
         assert_eq!(first.requests.len(), second.requests.len());
-        let first_keys: Vec<&str> = first.requests.iter().map(|r| r.dedup_key.as_str()).collect();
-        let second_keys: Vec<&str> = second.requests.iter().map(|r| r.dedup_key.as_str()).collect();
+        let first_keys: Vec<&str> = first
+            .requests
+            .iter()
+            .map(|r| r.dedup_key.as_str())
+            .collect();
+        let second_keys: Vec<&str> = second
+            .requests
+            .iter()
+            .map(|r| r.dedup_key.as_str())
+            .collect();
         assert_eq!(first_keys, second_keys);
     }
 
@@ -451,8 +541,13 @@ mod tests {
         let zeta = record_for_product(10_000, "Zeta Gadget", &["network-a"]);
         let alpha = record_for_product(10_000, "Alpha Widget", &["network-a"]);
 
-        let outcome = RevalidationPlanningOutcome::plan_batch(&planner, &[zeta, alpha], 20_000, &availability)
-            .expect("valid batch");
+        let outcome = RevalidationPlanningOutcome::plan_batch(
+            &planner,
+            &[zeta, alpha],
+            20_000,
+            &availability,
+        )
+        .expect("valid batch");
         assert_eq!(outcome.decisions.len(), 2);
         assert!(outcome.decisions[0].identity < outcome.decisions[1].identity);
         // Distinct identities produce distinct dedup keys, so both survive.

@@ -1,9 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    LlmError, PolicyDecision, PromptToolPolicy, ProviderId,
-    ProviderToolAuthorizationRegistry, ToolCall, ToolExecution, ToolExecutionStatus,
-    ToolExecutorRegistry,
+    LlmError, PolicyDecision, PromptToolPolicy, ProviderId, ProviderToolAuthorizationRegistry,
+    ToolCall, ToolExecution, ToolExecutionStatus, ToolExecutorRegistry,
 };
 
 /// Execution-time authorization input. Routing chooses the provider elsewhere;
@@ -104,9 +103,7 @@ mod tests {
     use async_trait::async_trait;
 
     use super::*;
-    use crate::{
-        PolicyId, PolicyVersion, SafetyClass, ToolExecutor, ToolId, ToolVersion,
-    };
+    use crate::{PolicyId, PolicyVersion, SafetyClass, ToolExecutor, ToolId, ToolVersion};
 
     fn request() -> ExecutionAuthorizationRequest {
         ExecutionAuthorizationRequest {
@@ -118,10 +115,7 @@ mod tests {
                 enabled: true,
                 max_safety: SafetyClass::Sensitive,
                 allowed_prompts: BTreeSet::new(),
-                allowed_tools: BTreeSet::from([(
-                    ToolId::new("cat.search"),
-                    ToolVersion(1),
-                )]),
+                allowed_tools: BTreeSet::from([(ToolId::new("cat.search"), ToolVersion(1))]),
                 max_prompt_bytes: 1024,
                 max_tool_input_bytes: 1024,
             },
@@ -143,7 +137,9 @@ mod tests {
             ID.get_or_init(|| ToolId::new("cat.search"))
         }
 
-        fn tool_version(&self) -> ToolVersion { ToolVersion(1) }
+        fn tool_version(&self) -> ToolVersion {
+            ToolVersion(1)
+        }
 
         async fn execute(&self, call: &ToolCall) -> Result<ToolExecution, LlmError> {
             Ok(ToolExecution {
@@ -153,9 +149,7 @@ mod tests {
                 status: ToolExecutionStatus::Succeeded,
                 output: Some(call.input.clone()),
                 error: None,
-                provenance: BTreeMap::from([
-                    ("executor".to_owned(), "echo.v1".to_owned()),
-                ]),
+                provenance: BTreeMap::from([("executor".to_owned(), "echo.v1".to_owned())]),
             })
         }
     }

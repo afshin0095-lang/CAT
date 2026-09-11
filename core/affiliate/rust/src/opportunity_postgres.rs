@@ -5,8 +5,11 @@ use uuid::Uuid;
 use crate::opportunity_revalidation::{
     RevalidationReason, RevalidationRequest, RevalidationRequestRecord, RevalidationStatus,
 };
-use crate::{DiscoveryOpportunity, OpportunityIdentity, OpportunityRecord, OpportunityRevision, OpportunityStoreError};
 use crate::opportunity_store::{OpportunityObservation, OpportunityUpsertResult};
+use crate::{
+    DiscoveryOpportunity, OpportunityIdentity, OpportunityRecord, OpportunityRevision,
+    OpportunityStoreError,
+};
 
 #[derive(Debug, thiserror::Error)]
 pub enum PostgresOpportunityStoreError {
@@ -38,7 +41,8 @@ impl PostgresOpportunityStoreError {
 }
 
 fn timestamp_to_i64(field: &'static str, value: u64) -> Result<i64, PostgresOpportunityStoreError> {
-    i64::try_from(value).map_err(|_| PostgresOpportunityStoreError::TimestampOverflow { field, value })
+    i64::try_from(value)
+        .map_err(|_| PostgresOpportunityStoreError::TimestampOverflow { field, value })
 }
 
 fn u32_to_i32(field: &'static str, value: u32) -> Result<i32, PostgresOpportunityStoreError> {
@@ -58,8 +62,14 @@ fn i32_to_u32(field: &'static str, value: i32) -> Result<u32, PostgresOpportunit
 
 #[async_trait]
 pub trait AsyncOpportunityStore {
-    async fn upsert(&self, opportunity: &DiscoveryOpportunity) -> Result<OpportunityUpsertResult, PostgresOpportunityStoreError>;
-    async fn get(&self, identity: &OpportunityIdentity) -> Result<OpportunityRecord, PostgresOpportunityStoreError>;
+    async fn upsert(
+        &self,
+        opportunity: &DiscoveryOpportunity,
+    ) -> Result<OpportunityUpsertResult, PostgresOpportunityStoreError>;
+    async fn get(
+        &self,
+        identity: &OpportunityIdentity,
+    ) -> Result<OpportunityRecord, PostgresOpportunityStoreError>;
 }
 
 /// Optimistic-concurrency extension over [`AsyncOpportunityStore`].
@@ -75,7 +85,10 @@ pub trait AsyncVersionedOpportunityStore: AsyncOpportunityStore {
         expected_revision: OpportunityRevision,
     ) -> Result<OpportunityUpsertResult, PostgresOpportunityStoreError>;
 
-    async fn revision(&self, identity: &OpportunityIdentity) -> Result<Option<OpportunityRevision>, PostgresOpportunityStoreError>;
+    async fn revision(
+        &self,
+        identity: &OpportunityIdentity,
+    ) -> Result<Option<OpportunityRevision>, PostgresOpportunityStoreError>;
 }
 
 /// Transaction boundaries:
@@ -91,8 +104,12 @@ pub struct PostgresOpportunityStore {
 }
 
 impl PostgresOpportunityStore {
-    pub fn new(pool: PgPool) -> Self { Self { pool } }
-    pub fn pool(&self) -> &PgPool { &self.pool }
+    pub fn new(pool: PgPool) -> Self {
+        Self { pool }
+    }
+    pub fn pool(&self) -> &PgPool {
+        &self.pool
+    }
 
     /// Idempotent schema bootstrap, aligned with `migrations/`. Safe to call
     /// on every start; never drops or rewrites existing data.
@@ -114,7 +131,9 @@ impl PostgresOpportunityStore {
                 version BIGINT NOT NULL DEFAULT 1,
                 updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             );"#,
-        ).execute(&self.pool).await?;
+        )
+        .execute(&self.pool)
+        .await?;
         sqlx::query(
             r#"
             CREATE TABLE IF NOT EXISTS cat_affiliate_opportunity_observations (
@@ -134,7 +153,9 @@ impl PostgresOpportunityStore {
             r#"
             CREATE INDEX IF NOT EXISTS idx_cat_affiliate_opportunities_score
                 ON cat_affiliate_opportunities (best_score DESC, identity ASC);"#,
-        ).execute(&self.pool).await?;
+        )
+        .execute(&self.pool)
+        .await?;
         Self::ensure_revalidation_schema(&self.pool).await
     }
 
@@ -165,17 +186,23 @@ impl PostgresOpportunityStore {
             CREATE UNIQUE INDEX IF NOT EXISTS uq_cat_affiliate_revalidation_active_dedup
                 ON cat_affiliate_revalidation_requests (dedup_key)
                 WHERE status IN ('pending', 'claimed', 'running');"#,
-        ).execute(pool).await?;
+        )
+        .execute(pool)
+        .await?;
         sqlx::query(
             r#"
             CREATE INDEX IF NOT EXISTS idx_cat_affiliate_revalidation_claim
                 ON cat_affiliate_revalidation_requests (status, scheduled_at_ms ASC);"#,
-        ).execute(pool).await?;
+        )
+        .execute(pool)
+        .await?;
         sqlx::query(
             r#"
             CREATE INDEX IF NOT EXISTS idx_cat_affiliate_revalidation_identity
                 ON cat_affiliate_revalidation_requests (identity, created_at_ms DESC);"#,
-        ).execute(pool).await?;
+        )
+        .execute(pool)
+        .await?;
         Ok(())
     }
 
@@ -183,9 +210,13 @@ impl PostgresOpportunityStore {
         connection: &mut sqlx::PgConnection,
         opportunity: &DiscoveryOpportunity,
     ) -> Result<OpportunityUpsertResult, PostgresOpportunityStoreError> {
-        opportunity.candidate.validate().map_err(|_| OpportunityStoreError::InvalidCandidate)?;
+        opportunity
+            .candidate
+            .validate()
+            .map_err(|_| OpportunityStoreError::InvalidCandidate)?;
         let record = OpportunityRecord::from_opportunity(opportunity);
-        let observed_at_ms = timestamp_to_i64("observed_at_ms", opportunity.candidate.observed_at_ms)?;
+        let observed_at_ms =
+            timestamp_to_i64("observed_at_ms", opportunity.candidate.observed_at_ms)?;
         let observed_at_u64 = i64_to_u64("observed_at_ms", observed_at_ms)?;
         let identity = record.identity.as_str().to_owned();
 
@@ -195,16 +226,20 @@ impl PostgresOpportunityStore {
         let created = existing.is_none();
         let (changed, revision) = match existing {
             None => {
-                let first_observed_at_ms = timestamp_to_i64("first_observed_at_ms", record.first_observed_at_ms)?;
-                let last_observed_at_ms = timestamp_to_i64("last_observed_at_ms", record.last_observed_at_ms)?;
+                let first_observed_at_ms =
+                    timestamp_to_i64("first_observed_at_ms", record.first_observed_at_ms)?;
+                let last_observed_at_ms =
+                    timestamp_to_i64("last_observed_at_ms", record.last_observed_at_ms)?;
                 sqlx::query("INSERT INTO cat_affiliate_opportunities (identity, opportunity_id, merchant_name, product_name, category, best_source, best_score, first_observed_at_ms, last_observed_at_ms, version) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)")
                     .bind(identity.as_str()).bind(record.id).bind(&record.merchant_name).bind(&record.product_name).bind(&record.category).bind(&record.best_source).bind(u32_to_i32("best_score", record.best_score)?).bind(first_observed_at_ms).bind(last_observed_at_ms).bind(1_i64).execute(&mut *connection).await?;
                 (true, OpportunityRevision::initial())
             }
             Some(row) => {
                 let prior_version = i64_to_u64("version", row.get::<i64, _>("version"))?;
-                let prior_revision = OpportunityRevision::from_raw(prior_version)
-                    .map_err(|_| PostgresOpportunityStoreError::CorruptRecord { field: "version" })?;
+                let prior_revision =
+                    OpportunityRevision::from_raw(prior_version).map_err(|_| {
+                        PostgresOpportunityStoreError::CorruptRecord { field: "version" }
+                    })?;
                 let observation = OpportunityObservation::from_opportunity(opportunity);
                 let prior = sqlx::query("SELECT destination_url, currency, price_minor, commission_bps, score, observed_at_ms FROM cat_affiliate_opportunity_observations WHERE identity = $1 AND source = $2")
                     .bind(identity.as_str()).bind(&observation.source).fetch_optional(&mut *connection).await?;
@@ -236,9 +271,12 @@ impl PostgresOpportunityStore {
                 };
                 let best_score = i32_to_u32("best_score", row.get::<i32, _>("best_score"))?;
                 let best_source = row.get::<String, _>("best_source");
-                let promote = opportunity.score > best_score || (opportunity.score == best_score && observation.source < best_source);
+                let promote = opportunity.score > best_score
+                    || (opportunity.score == best_score && observation.source < best_source);
                 if observation_changed || promote {
-                    let new_revision = prior_revision.next().map_err(OpportunityStoreError::RevisionOverflow)?;
+                    let new_revision = prior_revision
+                        .next()
+                        .map_err(OpportunityStoreError::RevisionOverflow)?;
                     sqlx::query("UPDATE cat_affiliate_opportunities SET best_source = CASE WHEN $2 THEN $3 ELSE best_source END, best_score = CASE WHEN $2 THEN $4 ELSE best_score END, first_observed_at_ms = LEAST(first_observed_at_ms,$5), last_observed_at_ms = GREATEST(last_observed_at_ms,$6), category = COALESCE(category,$7), version = version + 1, updated_at = NOW() WHERE identity = $1")
                         .bind(identity.as_str()).bind(promote).bind(&observation.source).bind(u32_to_i32("score", observation.score)?).bind(observed_at_ms).bind(observed_at_ms).bind(&record.category).execute(&mut *connection).await?;
                     (true, new_revision)
@@ -252,13 +290,20 @@ impl PostgresOpportunityStore {
         sqlx::query("INSERT INTO cat_affiliate_opportunity_observations (identity, source, external_id, destination_url, currency, price_minor, commission_bps, score, observed_at_ms) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT (identity, source) DO UPDATE SET external_id=EXCLUDED.external_id, destination_url=EXCLUDED.destination_url, currency=EXCLUDED.currency, price_minor=EXCLUDED.price_minor, commission_bps=EXCLUDED.commission_bps, score=EXCLUDED.score, observed_at_ms=EXCLUDED.observed_at_ms")
             .bind(identity.as_str()).bind(&observation.source).bind(&observation.external_id).bind(&observation.destination_url).bind(&observation.currency).bind(observation.price_minor).bind(observation.commission_bps.map(|v| u32_to_i32("commission_bps", v)).transpose()?).bind(u32_to_i32("score", observation.score)?).bind(observed_at_ms).execute(&mut *connection).await?;
         let _ = changed;
-        Ok(OpportunityUpsertResult { created, changed, revision })
+        Ok(OpportunityUpsertResult {
+            created,
+            changed,
+            revision,
+        })
     }
 }
 
 #[async_trait]
 impl AsyncOpportunityStore for PostgresOpportunityStore {
-    async fn upsert(&self, opportunity: &DiscoveryOpportunity) -> Result<OpportunityUpsertResult, PostgresOpportunityStoreError> {
+    async fn upsert(
+        &self,
+        opportunity: &DiscoveryOpportunity,
+    ) -> Result<OpportunityUpsertResult, PostgresOpportunityStoreError> {
         let mut tx = self.pool.begin().await?;
         let result = Self::upsert_in_transaction(&mut tx, opportunity).await;
         match result {
@@ -275,7 +320,10 @@ impl AsyncOpportunityStore for PostgresOpportunityStore {
         }
     }
 
-    async fn get(&self, identity: &OpportunityIdentity) -> Result<OpportunityRecord, PostgresOpportunityStoreError> {
+    async fn get(
+        &self,
+        identity: &OpportunityIdentity,
+    ) -> Result<OpportunityRecord, PostgresOpportunityStoreError> {
         let row = sqlx::query("SELECT opportunity_id, merchant_name, product_name, category, best_source, best_score, first_observed_at_ms, last_observed_at_ms, version FROM cat_affiliate_opportunities WHERE identity = $1")
             .bind(identity.as_str()).fetch_optional(&self.pool).await?.ok_or(OpportunityStoreError::NotFound)?;
         let observations = sqlx::query("SELECT source, external_id, destination_url, currency, price_minor, commission_bps, score, observed_at_ms FROM cat_affiliate_opportunity_observations WHERE identity = $1 ORDER BY source ASC")
@@ -288,20 +336,25 @@ impl AsyncOpportunityStore for PostgresOpportunityStore {
                 None => None,
             };
             let score = i32_to_u32("score", item.get::<i32, _>("score"))?;
-            let observed_at_ms = i64_to_u64("observed_at_ms", item.get::<i64, _>("observed_at_ms"))?;
-            map.insert(source.clone(), OpportunityObservation {
-                source,
-                external_id: item.get("external_id"),
-                destination_url: item.get("destination_url"),
-                currency: item.get("currency"),
-                price_minor: item.get("price_minor"),
-                commission_bps,
-                score,
-                observed_at_ms,
-            });
+            let observed_at_ms =
+                i64_to_u64("observed_at_ms", item.get::<i64, _>("observed_at_ms"))?;
+            map.insert(
+                source.clone(),
+                OpportunityObservation {
+                    source,
+                    external_id: item.get("external_id"),
+                    destination_url: item.get("destination_url"),
+                    currency: item.get("currency"),
+                    price_minor: item.get("price_minor"),
+                    commission_bps,
+                    score,
+                    observed_at_ms,
+                },
+            );
         }
-        let revision = OpportunityRevision::from_raw(i64_to_u64("version", row.get::<i64, _>("version"))?)
-            .map_err(|_| PostgresOpportunityStoreError::CorruptRecord { field: "version" })?;
+        let revision =
+            OpportunityRevision::from_raw(i64_to_u64("version", row.get::<i64, _>("version"))?)
+                .map_err(|_| PostgresOpportunityStoreError::CorruptRecord { field: "version" })?;
         Ok(OpportunityRecord {
             id: row.get("opportunity_id"),
             identity: identity.clone(),
@@ -311,8 +364,14 @@ impl AsyncOpportunityStore for PostgresOpportunityStore {
             observations: map,
             best_source: row.get("best_source"),
             best_score: i32_to_u32("best_score", row.get::<i32, _>("best_score"))?,
-            first_observed_at_ms: i64_to_u64("first_observed_at_ms", row.get::<i64, _>("first_observed_at_ms"))?,
-            last_observed_at_ms: i64_to_u64("last_observed_at_ms", row.get::<i64, _>("last_observed_at_ms"))?,
+            first_observed_at_ms: i64_to_u64(
+                "first_observed_at_ms",
+                row.get::<i64, _>("first_observed_at_ms"),
+            )?,
+            last_observed_at_ms: i64_to_u64(
+                "last_observed_at_ms",
+                row.get::<i64, _>("last_observed_at_ms"),
+            )?,
             revision,
         })
     }
@@ -325,15 +384,26 @@ impl AsyncVersionedOpportunityStore for PostgresOpportunityStore {
         opportunity: &DiscoveryOpportunity,
         expected_revision: OpportunityRevision,
     ) -> Result<OpportunityUpsertResult, PostgresOpportunityStoreError> {
-        opportunity.candidate.validate().map_err(|_| OpportunityStoreError::InvalidCandidate)?;
+        opportunity
+            .candidate
+            .validate()
+            .map_err(|_| OpportunityStoreError::InvalidCandidate)?;
         let identity = OpportunityIdentity::new(&opportunity.candidate);
         let mut tx = self.pool.begin().await?;
 
-        let stored = sqlx::query("SELECT version FROM cat_affiliate_opportunities WHERE identity = $1 FOR UPDATE")
-            .bind(identity.as_str()).fetch_optional(&mut *tx).await?;
+        let stored = sqlx::query(
+            "SELECT version FROM cat_affiliate_opportunities WHERE identity = $1 FOR UPDATE",
+        )
+        .bind(identity.as_str())
+        .fetch_optional(&mut *tx)
+        .await?;
         let actual = match stored {
-            Some(row) => OpportunityRevision::from_raw(i64_to_u64("version", row.get::<i64, _>("version"))?)
-                .map_err(|_| PostgresOpportunityStoreError::CorruptRecord { field: "version" })?,
+            Some(row) => {
+                OpportunityRevision::from_raw(i64_to_u64("version", row.get::<i64, _>("version"))?)
+                    .map_err(|_| PostgresOpportunityStoreError::CorruptRecord {
+                        field: "version",
+                    })?
+            }
             None => {
                 let _ = tx.rollback().await;
                 return Err(OpportunityStoreError::NotFound.into());
@@ -362,13 +432,21 @@ impl AsyncVersionedOpportunityStore for PostgresOpportunityStore {
         }
     }
 
-    async fn revision(&self, identity: &OpportunityIdentity) -> Result<Option<OpportunityRevision>, PostgresOpportunityStoreError> {
-        let row = sqlx::query("SELECT version FROM cat_affiliate_opportunities WHERE identity = $1")
-            .bind(identity.as_str()).fetch_optional(&self.pool).await?;
+    async fn revision(
+        &self,
+        identity: &OpportunityIdentity,
+    ) -> Result<Option<OpportunityRevision>, PostgresOpportunityStoreError> {
+        let row =
+            sqlx::query("SELECT version FROM cat_affiliate_opportunities WHERE identity = $1")
+                .bind(identity.as_str())
+                .fetch_optional(&self.pool)
+                .await?;
         match row {
             Some(row) => Ok(Some(
                 OpportunityRevision::from_raw(i64_to_u64("version", row.get::<i64, _>("version"))?)
-                    .map_err(|_| PostgresOpportunityStoreError::CorruptRecord { field: "version" })?,
+                    .map_err(|_| PostgresOpportunityStoreError::CorruptRecord {
+                        field: "version",
+                    })?,
             )),
             None => Ok(None),
         }
@@ -383,8 +461,14 @@ pub trait AsyncRevalidationRequestStore {
     /// with the same `dedup_key` suppress the insert with
     /// [`RevalidationStoreError::DuplicateRequest`]; terminal requests never
     /// block re-issue (partial unique index).
-    async fn insert(&self, request: RevalidationRequest) -> Result<RevalidationRequestRecord, PostgresOpportunityStoreError>;
-    async fn get(&self, request_id: Uuid) -> Result<RevalidationRequestRecord, PostgresOpportunityStoreError>;
+    async fn insert(
+        &self,
+        request: RevalidationRequest,
+    ) -> Result<RevalidationRequestRecord, PostgresOpportunityStoreError>;
+    async fn get(
+        &self,
+        request_id: Uuid,
+    ) -> Result<RevalidationRequestRecord, PostgresOpportunityStoreError>;
     /// Applies the domain transition matrix under a row lock.
     async fn transition(
         &self,
@@ -396,7 +480,11 @@ pub trait AsyncRevalidationRequestStore {
     /// Deterministically claims due pending requests, ordered by
     /// (priority desc, scheduled asc, identity asc). Concurrent workers
     /// never observe the same request (`FOR UPDATE SKIP LOCKED`).
-    async fn claim_due(&self, now_ms: u64, limit: u32) -> Result<Vec<RevalidationRequestRecord>, PostgresOpportunityStoreError>;
+    async fn claim_due(
+        &self,
+        now_ms: u64,
+        limit: u32,
+    ) -> Result<Vec<RevalidationRequestRecord>, PostgresOpportunityStoreError>;
 }
 
 pub struct PostgresRevalidationStore {
@@ -412,7 +500,9 @@ impl PostgresRevalidationStore {
         &self.pool
     }
 
-    fn decode_row(row: &sqlx::postgres::PgRow) -> Result<RevalidationRequestRecord, PostgresOpportunityStoreError> {
+    fn decode_row(
+        row: &sqlx::postgres::PgRow,
+    ) -> Result<RevalidationRequestRecord, PostgresOpportunityStoreError> {
         let status_text: String = row.get("status");
         let status = RevalidationStatus::parse_strict(&status_text).ok_or(
             crate::opportunity_revalidation::RevalidationStoreError::UnknownEnumValue {
@@ -434,7 +524,10 @@ impl PostgresRevalidationStore {
         let request = RevalidationRequest {
             request_id: row.get("request_id"),
             opportunity_id: row.get("opportunity_id"),
-            target: crate::RevalidationTarget::new(row.get::<String, _>("identity"), row.get::<String, _>("source")),
+            target: crate::RevalidationTarget::new(
+                row.get::<String, _>("identity"),
+                row.get::<String, _>("source"),
+            ),
             reason,
             priority,
             requested_at_ms: i64_to_u64("created_at_ms", row.get::<i64, _>("created_at_ms"))?,
@@ -461,12 +554,17 @@ impl PostgresRevalidationStore {
 
 #[async_trait]
 impl AsyncRevalidationRequestStore for PostgresRevalidationStore {
-    async fn insert(&self, request: RevalidationRequest) -> Result<RevalidationRequestRecord, PostgresOpportunityStoreError> {
+    async fn insert(
+        &self,
+        request: RevalidationRequest,
+    ) -> Result<RevalidationRequestRecord, PostgresOpportunityStoreError> {
         if request.target.identity.trim().is_empty() || request.target.source.trim().is_empty() {
-            return Err(crate::opportunity_revalidation::RevalidationStoreError::InvalidRequest(
-                "revalidation target requires an identity and a source".into(),
-            )
-            .into());
+            return Err(
+                crate::opportunity_revalidation::RevalidationStoreError::InvalidRequest(
+                    "revalidation target requires an identity and a source".into(),
+                )
+                .into(),
+            );
         }
         let requested_at_ms = request.requested_at_ms;
         let created_at_ms = timestamp_to_i64("requested_at_ms", requested_at_ms)?;
@@ -492,10 +590,12 @@ impl AsyncRevalidationRequestStore for PostgresRevalidationStore {
         .await?;
 
         if result.rows_affected() == 0 {
-            return Err(crate::opportunity_revalidation::RevalidationStoreError::DuplicateRequest {
-                dedup_key: request.dedup_key,
-            }
-            .into());
+            return Err(
+                crate::opportunity_revalidation::RevalidationStoreError::DuplicateRequest {
+                    dedup_key: request.dedup_key,
+                }
+                .into(),
+            );
         }
         Ok(RevalidationRequestRecord {
             request,
@@ -508,7 +608,10 @@ impl AsyncRevalidationRequestStore for PostgresRevalidationStore {
         })
     }
 
-    async fn get(&self, request_id: Uuid) -> Result<RevalidationRequestRecord, PostgresOpportunityStoreError> {
+    async fn get(
+        &self,
+        request_id: Uuid,
+    ) -> Result<RevalidationRequestRecord, PostgresOpportunityStoreError> {
         let row = sqlx::query(
             "SELECT request_id, opportunity_id, identity, source, reason, priority, status, dedup_key, created_at_ms, scheduled_at_ms, started_at_ms, completed_at_ms, attempt, last_error FROM cat_affiliate_revalidation_requests WHERE request_id = $1",
         )
@@ -541,16 +644,24 @@ impl AsyncRevalidationRequestStore for PostgresRevalidationStore {
             },
         )?;
         if !current.can_transition_to(to) {
-            return Err(crate::opportunity_revalidation::RevalidationStoreError::InvalidTransition {
-                from: current,
-                to,
-            }
-            .into());
+            return Err(
+                crate::opportunity_revalidation::RevalidationStoreError::InvalidTransition {
+                    from: current,
+                    to,
+                }
+                .into(),
+            );
         }
         let bounded_error = error.map(|text| {
             let sanitized: String = text
                 .chars()
-                .map(|character| if character.is_control() { ' ' } else { character })
+                .map(|character| {
+                    if character.is_control() {
+                        ' '
+                    } else {
+                        character
+                    }
+                })
                 .take(512)
                 .collect();
             sanitized
@@ -577,7 +688,11 @@ impl AsyncRevalidationRequestStore for PostgresRevalidationStore {
         self.get(request_id).await
     }
 
-    async fn claim_due(&self, now_ms: u64, limit: u32) -> Result<Vec<RevalidationRequestRecord>, PostgresOpportunityStoreError> {
+    async fn claim_due(
+        &self,
+        now_ms: u64,
+        limit: u32,
+    ) -> Result<Vec<RevalidationRequestRecord>, PostgresOpportunityStoreError> {
         if limit == 0 {
             return Ok(Vec::new());
         }
@@ -618,8 +733,17 @@ impl AsyncRevalidationRequestStore for PostgresRevalidationStore {
                 .request
                 .priority
                 .cmp(&left.request.priority)
-                .then_with(|| left.request.scheduled_for_ms.cmp(&right.request.scheduled_for_ms))
-                .then_with(|| left.request.target.identity.cmp(&right.request.target.identity))
+                .then_with(|| {
+                    left.request
+                        .scheduled_for_ms
+                        .cmp(&right.request.scheduled_for_ms)
+                })
+                .then_with(|| {
+                    left.request
+                        .target
+                        .identity
+                        .cmp(&right.request.target.identity)
+                })
                 .then_with(|| left.request.request_id.cmp(&right.request.request_id))
         });
         Ok(claimed)
@@ -633,9 +757,15 @@ mod tests {
     #[test]
     fn timestamp_conversion_rejects_values_outside_postgres_bigint() {
         let result = timestamp_to_i64("observed_at_ms", u64::MAX);
-        assert!(matches!(result, Err(PostgresOpportunityStoreError::TimestampOverflow { .. })));
+        assert!(matches!(
+            result,
+            Err(PostgresOpportunityStoreError::TimestampOverflow { .. })
+        ));
         assert_eq!(timestamp_to_i64("observed_at_ms", 0).unwrap(), 0);
-        assert_eq!(timestamp_to_i64("observed_at_ms", i64::MAX as u64).unwrap(), i64::MAX);
+        assert_eq!(
+            timestamp_to_i64("observed_at_ms", i64::MAX as u64).unwrap(),
+            i64::MAX
+        );
     }
 
     #[test]
@@ -655,7 +785,10 @@ mod tests {
             actual: 7,
         };
         assert!(error.is_revision_conflict());
-        assert!(!PostgresOpportunityStoreError::Database(sqlx::Error::RowNotFound).is_revision_conflict());
+        assert!(
+            !PostgresOpportunityStoreError::Database(sqlx::Error::RowNotFound)
+                .is_revision_conflict()
+        );
         assert!(matches!(
             OpportunityRevision::from_raw(0),
             Err(crate::OpportunityRevisionError::Zero)

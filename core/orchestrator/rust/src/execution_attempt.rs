@@ -51,9 +51,9 @@ impl ExecutionAttempt {
 
     pub fn health(&self, now_ms: u64, heartbeat_timeout_ms: u64) -> ExecutionAttemptHealth {
         match self.status {
-            ExecutionAttemptStatus::Succeeded | ExecutionAttemptStatus::Failed | ExecutionAttemptStatus::Cancelled => {
-                ExecutionAttemptHealth::Completed
-            }
+            ExecutionAttemptStatus::Succeeded
+            | ExecutionAttemptStatus::Failed
+            | ExecutionAttemptStatus::Cancelled => ExecutionAttemptHealth::Completed,
             ExecutionAttemptStatus::Running => {
                 let deadline = self.heartbeat_at_ms.saturating_add(heartbeat_timeout_ms);
                 if deadline < now_ms {
@@ -89,12 +89,18 @@ mod tests {
 
     #[test]
     fn running_attempt_becomes_stale_after_timeout() {
-        assert_eq!(running().health(3_001, 1_000), ExecutionAttemptHealth::Stale);
+        assert_eq!(
+            running().health(3_001, 1_000),
+            ExecutionAttemptHealth::Stale
+        );
     }
 
     #[test]
     fn running_attempt_is_healthy_inside_timeout() {
-        assert_eq!(running().health(2_999, 1_000), ExecutionAttemptHealth::Healthy);
+        assert_eq!(
+            running().health(2_999, 1_000),
+            ExecutionAttemptHealth::Healthy
+        );
     }
 
     #[test]

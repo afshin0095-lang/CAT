@@ -24,9 +24,9 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use crate::OpportunityRecord;
 use crate::discovery_source_health::SourceHealthSnapshot;
 use crate::opportunity_freshness::{FreshnessPolicy, FreshnessPolicyError, FreshnessState};
-use crate::OpportunityRecord;
 
 pub const WEIGHT_SCALE: u32 = 10_000;
 
@@ -104,7 +104,10 @@ impl std::fmt::Display for OpportunityRankingError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::InvalidProfile { total } => {
-                write!(formatter, "ranking weights must sum to {WEIGHT_SCALE} basis points, got {total}")
+                write!(
+                    formatter,
+                    "ranking weights must sum to {WEIGHT_SCALE} basis points, got {total}"
+                )
             }
             Self::ClockBeforeObservation => {
                 formatter.write_str("ranking time cannot precede an opportunity's last observation")
@@ -154,7 +157,12 @@ impl OpportunityRanker {
             let evaluation = freshness_policy
                 .evaluate(record, now_ms)
                 .map_err(|_| OpportunityRankingError::ClockBeforeObservation)?;
-            let factors = self.factors(record, &evaluation.evaluation, freshness_policy, source_health);
+            let factors = self.factors(
+                record,
+                &evaluation.evaluation,
+                freshness_policy,
+                source_health,
+            );
             let score = self.weighted_score(&factors);
             ranked.push(RankedOpportunity {
                 identity: record.identity.as_str().to_owned(),
@@ -208,8 +216,10 @@ impl OpportunityRanker {
         let weighted = u128::from(factors.composite_score)
             * u128::from(self.profile.composite_score_weight_bps)
             + u128::from(factors.freshness) * u128::from(self.profile.freshness_weight_bps)
-            + u128::from(factors.economic_value) * u128::from(self.profile.economic_value_weight_bps)
-            + u128::from(factors.source_reliability) * u128::from(self.profile.source_reliability_weight_bps);
+            + u128::from(factors.economic_value)
+                * u128::from(self.profile.economic_value_weight_bps)
+            + u128::from(factors.source_reliability)
+                * u128::from(self.profile.source_reliability_weight_bps);
         // Max input: 10_000 * 10_000 * 4 << u128::MAX; the division is exact
         // truncation of the weighted average, bounded by WEIGHT_SCALE.
         (weighted / u128::from(WEIGHT_SCALE)) as u32
@@ -218,16 +228,23 @@ impl OpportunityRanker {
 
 /// Freshness factor: Active stays full credit; Stale decays linearly from the
 /// stale threshold to the expiration threshold; Expired is zero.
-fn freshness_factor(evaluation: &crate::opportunity_freshness::FreshnessEvaluation, policy: &FreshnessPolicy) -> u32 {
+fn freshness_factor(
+    evaluation: &crate::opportunity_freshness::FreshnessEvaluation,
+    policy: &FreshnessPolicy,
+) -> u32 {
     match evaluation.state {
         FreshnessState::Active => WEIGHT_SCALE,
         FreshnessState::Expired => 0,
         FreshnessState::Stale => {
-            let window = policy.expiration_threshold_ms.saturating_sub(policy.stale_threshold_ms);
+            let window = policy
+                .expiration_threshold_ms
+                .saturating_sub(policy.stale_threshold_ms);
             if window == 0 {
                 return 0;
             }
-            let remaining = policy.expiration_threshold_ms.saturating_sub(evaluation.age_ms);
+            let remaining = policy
+                .expiration_threshold_ms
+                .saturating_sub(evaluation.age_ms);
             let factor = u128::from(remaining) * u128::from(WEIGHT_SCALE) / u128::from(window);
             factor.min(u128::from(WEIGHT_SCALE)) as u32
         }
@@ -237,13 +254,31 @@ fn freshness_factor(evaluation: &crate::opportunity_freshness::FreshnessEvaluati
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{canonical_key, DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore, OpportunityStore};
+    use crate::{
+        DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore, OpportunityStore,
+        canonical_key,
+    };
 
-    fn record(identity_product: &str, score: u32, commission_bps: Option<u32>, observed_at_ms: u64) -> OpportunityRecord {
-        record_for(identity_product, score, observed_at_ms, commission_bps.unwrap_or(0))
+    fn record(
+        identity_product: &str,
+        score: u32,
+        commission_bps: Option<u32>,
+        observed_at_ms: u64,
+    ) -> OpportunityRecord {
+        record_for(
+            identity_product,
+            score,
+            observed_at_ms,
+            commission_bps.unwrap_or(0),
+        )
     }
 
-    fn record_for(product: &str, score: u32, observed_at_ms: u64, commission: u32) -> OpportunityRecord {
+    fn record_for(
+        product: &str,
+        score: u32,
+        observed_at_ms: u64,
+        commission: u32,
+    ) -> OpportunityRecord {
         let candidate = DiscoveryCandidate {
             source: "network-a".into(),
             external_id: "sku-1".into(),
@@ -261,7 +296,12 @@ mod tests {
             compliance_score: 10_000,
             observed_at_ms,
         };
-        let opportunity = DiscoveryOpportunity { id: Uuid::now_v7(), candidate, score, rank: 1 };
+        let opportunity = DiscoveryOpportunity {
+            id: Uuid::now_v7(),
+            candidate,
+            score,
+            rank: 1,
+        };
         let mut store = InMemoryOpportunityStore::new();
         store.upsert(opportunity).expect("valid opportunity");
         store.list().into_iter().next().expect("record exists")
@@ -305,8 +345,12 @@ mod tests {
             record("Mid", 9_000, Some(1_000), 10_000),
         ];
         let health = BTreeMap::new();
-        let first = ranker.rank(&records, &policy(), 10_500, &health).expect("valid ranking");
-        let second = ranker.rank(&records, &policy(), 10_500, &health).expect("valid ranking");
+        let first = ranker
+            .rank(&records, &policy(), 10_500, &health)
+            .expect("valid ranking");
+        let second = ranker
+            .rank(&records, &policy(), 10_500, &health)
+            .expect("valid ranking");
         assert_eq!(first, second);
         assert_eq!(first[0].identity, "acme:mid", "highest composite first");
         assert_eq!(first[0].rank, 1);
@@ -341,9 +385,14 @@ mod tests {
         let expired = record_for("Expired", 5_000, 10_000, 5_000);
 
         let health = BTreeMap::new();
-        let ranked = ranker.rank(&[active, expired], &policy(), 20_000, &health).expect("valid ranking");
+        let ranked = ranker
+            .rank(&[active, expired], &policy(), 20_000, &health)
+            .expect("valid ranking");
         assert_eq!(ranked[0].identity, "acme:active");
-        assert_eq!(ranked[1].factors.freshness, 0, "expired freshness factor is zero");
+        assert_eq!(
+            ranked[1].factors.freshness, 0,
+            "expired freshness factor is zero"
+        );
         assert!(ranked[1].score < ranked[0].score);
     }
 
@@ -366,8 +415,13 @@ mod tests {
         let ranker = OpportunityRanker::with_default_profile();
         let stored = record("Solo", 5_000, Some(5_000), 10_000);
         let health = BTreeMap::new();
-        let ranked = ranker.rank(&[stored], &policy(), 10_500, &health).expect("valid ranking");
-        assert_eq!(ranked[0].factors.source_reliability, UNKNOWN_SOURCE_RELIABILITY_BPS);
+        let ranked = ranker
+            .rank(&[stored], &policy(), 10_500, &health)
+            .expect("valid ranking");
+        assert_eq!(
+            ranked[0].factors.source_reliability,
+            UNKNOWN_SOURCE_RELIABILITY_BPS
+        );
     }
 
     #[test]
@@ -375,7 +429,9 @@ mod tests {
         let ranker = OpportunityRanker::with_default_profile();
         let perfect = record("Perfect", WEIGHT_SCALE, Some(WEIGHT_SCALE), 10_000);
         let health = BTreeMap::new();
-        let ranked = ranker.rank(&[perfect], &policy(), 10_500, &health).expect("valid ranking");
+        let ranked = ranker
+            .rank(&[perfect], &policy(), 10_500, &health)
+            .expect("valid ranking");
         assert_eq!(ranked[0].score, WEIGHT_SCALE);
 
         // All-zero economic/composite/freshness factors with a fully

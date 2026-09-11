@@ -1,4 +1,4 @@
-use cat_eventbus::{CatEvent, EventEnvelope, EventBusResult};
+use cat_eventbus::{CatEvent, EventBusResult, EventEnvelope};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 

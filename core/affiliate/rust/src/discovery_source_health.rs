@@ -81,7 +81,9 @@ impl InMemorySourceHealthStore {
 
     /// Short, bounded label of the last recorded failure, if any.
     pub fn last_failure_reason(&self, source: &str) -> Option<&str> {
-        self.last_failure_reasons.get(source).map(|reason| reason.as_str())
+        self.last_failure_reasons
+            .get(source)
+            .map(|reason| reason.as_str())
     }
 }
 
@@ -107,7 +109,13 @@ impl SourceHealthStore for InMemorySourceHealthStore {
             const MAX_REASON_CHARS: usize = 128;
             let bounded: String = reason
                 .chars()
-                .map(|character| if character.is_control() { ' ' } else { character })
+                .map(|character| {
+                    if character.is_control() {
+                        ' '
+                    } else {
+                        character
+                    }
+                })
                 .take(MAX_REASON_CHARS)
                 .collect();
             self.last_failure_reasons.insert(source.to_owned(), bounded);
@@ -169,7 +177,11 @@ mod tests {
         store.record_success("network-a", 1_000, 120);
         store.record_failure("network-a", 1_100, Some("timeout"));
         let snapshot = store.snapshot("network-a");
-        assert_eq!(snapshot.state, SourceHealthState::Healthy, "one failure cannot degrade");
+        assert_eq!(
+            snapshot.state,
+            SourceHealthState::Healthy,
+            "one failure cannot degrade"
+        );
         assert_eq!(snapshot.consecutive_failures, 0);
         assert_eq!(snapshot.last_success_latency_ms, Some(120));
         assert_eq!(snapshot.availability_bps, Some(5_000));
@@ -181,18 +193,27 @@ mod tests {
         for at in 0..DEGRADED_AFTER_CONSECUTIVE_FAILURES {
             store.record_failure("network-b", u64::from(at), None);
         }
-        assert_eq!(store.snapshot("network-b").state, SourceHealthState::Degraded);
+        assert_eq!(
+            store.snapshot("network-b").state,
+            SourceHealthState::Degraded
+        );
         for at in DEGRADED_AFTER_CONSECUTIVE_FAILURES..UNAVAILABLE_AFTER_CONSECUTIVE_FAILURES {
             store.record_failure("network-b", u64::from(at), None);
         }
-        assert_eq!(store.snapshot("network-b").state, SourceHealthState::Unavailable);
+        assert_eq!(
+            store.snapshot("network-b").state,
+            SourceHealthState::Unavailable
+        );
 
         // A single success resets the streak without erasing history.
         store.record_success("network-b", 9_000, 80);
         let snapshot = store.snapshot("network-b");
         assert_eq!(snapshot.state, SourceHealthState::Healthy);
         assert_eq!(snapshot.consecutive_failures, 0);
-        assert_eq!(snapshot.total_failures, u64::from(UNAVAILABLE_AFTER_CONSECUTIVE_FAILURES));
+        assert_eq!(
+            snapshot.total_failures,
+            u64::from(UNAVAILABLE_AFTER_CONSECUTIVE_FAILURES)
+        );
     }
 
     #[test]
@@ -200,7 +221,9 @@ mod tests {
         let mut store = InMemorySourceHealthStore::new();
         let payload = "x".repeat(500);
         store.record_failure("network-c", 1_000, Some(&format!("boom\n{payload}")));
-        let reason = store.last_failure_reason("network-c").expect("reason recorded");
+        let reason = store
+            .last_failure_reason("network-c")
+            .expect("reason recorded");
         assert!(reason.len() <= 128);
         assert!(!reason.contains('\n'));
     }

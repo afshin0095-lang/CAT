@@ -13,13 +13,17 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use crate::OpportunityRecord;
 use crate::discovery_source_health::SourceHealthSnapshot;
-use crate::opportunity_freshness::{FreshnessEvaluation, FreshnessPolicy, FreshnessPolicyError, FreshnessState};
-use crate::opportunity_health::{HealthConcern, OpportunityHealth, OpportunityHealthAssessment, OpportunityHealthAssessor};
+use crate::opportunity_freshness::{
+    FreshnessEvaluation, FreshnessPolicy, FreshnessPolicyError, FreshnessState,
+};
+use crate::opportunity_health::{
+    HealthConcern, OpportunityHealth, OpportunityHealthAssessment, OpportunityHealthAssessor,
+};
 use crate::opportunity_revalidation::RevalidationBlockReason;
 use crate::opportunity_version::OpportunityRevision;
 use crate::revalidation_planner::RevalidationPlanner;
-use crate::OpportunityRecord;
 
 /// The best (highest-scoring, deterministically tie-broken) observation.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -133,9 +137,12 @@ impl OpportunityStatusProjector {
         available_sources: &[String],
     ) -> Result<OpportunityStatusView, OpportunityProjectionError> {
         let record_freshness = self.policy.evaluate(record, now_ms)?;
-        let decision = self
-            .planner
-            .plan(record, record_freshness.evaluation, available_sources, now_ms);
+        let decision = self.planner.plan(
+            record,
+            record_freshness.evaluation,
+            available_sources,
+            now_ms,
+        );
 
         // "Needs revalidation" is a freshness fact: anything past the active
         // freshness target needs a refresh even when planning is currently
@@ -144,19 +151,25 @@ impl OpportunityStatusProjector {
 
         let assessor = OpportunityHealthAssessor;
         let best_source_health: Option<SourceHealthSnapshot> = None;
-        let assessment: OpportunityHealthAssessment =
-            assessor.assess(record, &record_freshness.evaluation, best_source_health.as_ref(), needs_revalidation);
+        let assessment: OpportunityHealthAssessment = assessor.assess(
+            record,
+            &record_freshness.evaluation,
+            best_source_health.as_ref(),
+            needs_revalidation,
+        );
 
-        let best_observation = record.best_observation().map(|observation| BestObservationView {
-            source: observation.source.clone(),
-            external_id: observation.external_id.clone(),
-            destination_url: observation.destination_url.clone(),
-            currency: observation.currency.clone(),
-            price_minor: observation.price_minor,
-            commission_bps: observation.commission_bps,
-            score: observation.score,
-            observed_at_ms: observation.observed_at_ms,
-        });
+        let best_observation = record
+            .best_observation()
+            .map(|observation| BestObservationView {
+                source: observation.source.clone(),
+                external_id: observation.external_id.clone(),
+                destination_url: observation.destination_url.clone(),
+                currency: observation.currency.clone(),
+                price_minor: observation.price_minor,
+                commission_bps: observation.commission_bps,
+                score: observation.score,
+                observed_at_ms: observation.observed_at_ms,
+            });
 
         Ok(OpportunityStatusView {
             opportunity_id: record.id,
@@ -184,7 +197,10 @@ impl OpportunityStatusProjector {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{canonical_key, DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore, OpportunityStore};
+    use crate::{
+        DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore, OpportunityStore,
+        canonical_key,
+    };
     use uuid::Uuid;
 
     fn record(observed_at_ms: u64) -> OpportunityRecord {
@@ -205,21 +221,30 @@ mod tests {
             compliance_score: 10_000,
             observed_at_ms,
         };
-        let opportunity = DiscoveryOpportunity { id: Uuid::now_v7(), candidate, score: 8_800, rank: 1 };
+        let opportunity = DiscoveryOpportunity {
+            id: Uuid::now_v7(),
+            candidate,
+            score: 8_800,
+            rank: 1,
+        };
         let mut store = InMemoryOpportunityStore::new();
         store.upsert(opportunity).expect("valid opportunity");
         store.list().into_iter().next().expect("record exists")
     }
 
     fn projector() -> OpportunityStatusProjector {
-        OpportunityStatusProjector::new(FreshnessPolicy::new(1_000, 5_000, 9_000).expect("valid policy"))
+        OpportunityStatusProjector::new(
+            FreshnessPolicy::new(1_000, 5_000, 9_000).expect("valid policy"),
+        )
     }
 
     #[test]
     fn view_answers_the_standard_questions() {
         let projector = projector();
         let stored = record(10_000);
-        let view = projector.project(&stored, 10_500).expect("valid projection");
+        let view = projector
+            .project(&stored, 10_500)
+            .expect("valid projection");
 
         assert_eq!(view.identity, "acme:widget");
         assert_eq!(view.lifecycle_state, FreshnessState::Active);
@@ -241,7 +266,9 @@ mod tests {
     fn stale_views_explain_why_revalidation_is_needed() {
         let projector = projector();
         let stored = record(10_000);
-        let view = projector.project(&stored, 13_000).expect("valid projection");
+        let view = projector
+            .project(&stored, 13_000)
+            .expect("valid projection");
         assert_eq!(view.lifecycle_state, FreshnessState::Stale);
         assert!(view.needs_revalidation);
         assert_eq!(view.revalidation_reasons, vec!["stale"]);
@@ -252,8 +279,12 @@ mod tests {
     fn projection_is_deterministic() {
         let projector = projector();
         let stored = record(10_000);
-        let first = projector.project(&stored, 12_000).expect("valid projection");
-        let second = projector.project(&stored, 12_000).expect("valid projection");
+        let first = projector
+            .project(&stored, 12_000)
+            .expect("valid projection");
+        let second = projector
+            .project(&stored, 12_000)
+            .expect("valid projection");
         assert_eq!(first, second);
     }
 
@@ -278,11 +309,16 @@ mod tests {
         assert!(reachable.needs_revalidation);
         assert!(reachable.revalidation_blocked.is_none());
 
-        let unreachable = projector.project_with_availability(&stored, now, &[]).expect("valid projection");
+        let unreachable = projector
+            .project_with_availability(&stored, now, &[])
+            .expect("valid projection");
         // Still stale, so it still *needs* revalidation — the block reason
         // explains why no request could be planned.
         assert!(unreachable.needs_revalidation);
         assert!(unreachable.revalidation_reasons.is_empty());
-        assert_eq!(unreachable.revalidation_blocked, Some(RevalidationBlockReason::AllSourcesUnavailable));
+        assert_eq!(
+            unreachable.revalidation_blocked,
+            Some(RevalidationBlockReason::AllSourcesUnavailable)
+        );
     }
 }

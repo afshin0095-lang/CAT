@@ -18,10 +18,14 @@ pub struct PromptEvaluation {
 impl PromptEvaluation {
     pub fn validate(&self) -> Result<(), LlmError> {
         if self.evaluator.trim().is_empty() {
-            return Err(LlmError::InvalidEvaluation("evaluator must not be empty".to_owned()));
+            return Err(LlmError::InvalidEvaluation(
+                "evaluator must not be empty".to_owned(),
+            ));
         }
         if self.rationale.trim().is_empty() {
-            return Err(LlmError::InvalidEvaluation("rationale must not be empty".to_owned()));
+            return Err(LlmError::InvalidEvaluation(
+                "rationale must not be empty".to_owned(),
+            ));
         }
         if let Some(score) = self.score {
             if !score.is_finite() || !(0.0..=1.0).contains(&score) {
@@ -55,7 +59,9 @@ pub struct NonEmptyOutputEvaluator;
 
 #[async_trait]
 impl PromptEvaluator for NonEmptyOutputEvaluator {
-    fn id(&self) -> &str { "cat.non_empty_output.v1" }
+    fn id(&self) -> &str {
+        "cat.non_empty_output.v1"
+    }
 
     async fn evaluate(
         &self,
@@ -102,7 +108,10 @@ mod tests {
 
     #[tokio::test]
     async fn baseline_evaluation_is_derived_and_bounded() {
-        let evaluation = NonEmptyOutputEvaluator.evaluate(&prompt(), "derived answer").await.unwrap();
+        let evaluation = NonEmptyOutputEvaluator
+            .evaluate(&prompt(), "derived answer")
+            .await
+            .unwrap();
         assert!(evaluation.passed);
         assert_eq!(evaluation.score, Some(1.0));
         evaluation.validate().unwrap();
@@ -118,6 +127,9 @@ mod tests {
             score: Some(1.5),
             rationale: "invalid".to_owned(),
         };
-        assert!(matches!(evaluation.validate(), Err(LlmError::InvalidEvaluation(_))));
+        assert!(matches!(
+            evaluation.validate(),
+            Err(LlmError::InvalidEvaluation(_))
+        ));
     }
 }

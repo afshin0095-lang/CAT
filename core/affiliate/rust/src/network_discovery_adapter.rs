@@ -9,9 +9,9 @@
 use crate::clock::{Clock, SystemClock};
 use crate::network_adapter::{NetworkAdapter, NetworkProgram};
 use crate::{
-    canonical_key, DiscoveryCandidate, DiscoverySource, DiscoverySourceBatch, DiscoverySourceCapability,
-    DiscoverySourceError, DiscoverySourceFuture, DiscoverySourceId, DiscoverySourceInfo, DiscoverySourceKind,
-    DiscoverySourceRequest,
+    DiscoveryCandidate, DiscoverySource, DiscoverySourceBatch, DiscoverySourceCapability,
+    DiscoverySourceError, DiscoverySourceFuture, DiscoverySourceId, DiscoverySourceInfo,
+    DiscoverySourceKind, DiscoverySourceRequest, canonical_key,
 };
 
 /// Converts a provider commission string into basis points.
@@ -27,20 +27,51 @@ use crate::{
 /// bounds-checked so no input can produce an out-of-range rate.
 fn commission_to_bps(value: &str) -> Result<u32, DiscoverySourceError> {
     let value = value.trim();
-    if value.is_empty() { return Err(DiscoverySourceError::InvalidResponse("commission_rate must not be blank".into())); }
+    if value.is_empty() {
+        return Err(DiscoverySourceError::InvalidResponse(
+            "commission_rate must not be blank".into(),
+        ));
+    }
     let percent = value.ends_with('%');
-    let number = value.trim_end_matches('%').trim().parse::<f64>().map_err(|_| DiscoverySourceError::InvalidResponse(format!("invalid commission_rate: {value}")))?;
-    let percentage = if percent { number } else if number <= 1.0 { number * 100.0 } else { number };
-    if !percentage.is_finite() || !(0.0..=100.0).contains(&percentage) { return Err(DiscoverySourceError::InvalidResponse(format!("commission_rate out of range: {value}"))); }
+    let number = value
+        .trim_end_matches('%')
+        .trim()
+        .parse::<f64>()
+        .map_err(|_| {
+            DiscoverySourceError::InvalidResponse(format!("invalid commission_rate: {value}"))
+        })?;
+    let percentage = if percent {
+        number
+    } else if number <= 1.0 {
+        number * 100.0
+    } else {
+        number
+    };
+    if !percentage.is_finite() || !(0.0..=100.0).contains(&percentage) {
+        return Err(DiscoverySourceError::InvalidResponse(format!(
+            "commission_rate out of range: {value}"
+        )));
+    }
     Ok((percentage * 100.0).round() as u32)
 }
 
-fn normalize_program(program: NetworkProgram, observed_at_ms: u64) -> Result<DiscoveryCandidate, DiscoverySourceError> {
-    if program.external_id.trim().is_empty() || program.name.trim().is_empty() || program.merchant_name.trim().is_empty() || program.url.trim().is_empty() {
-        return Err(DiscoverySourceError::InvalidResponse("network program contains a required blank field".into()));
+fn normalize_program(
+    program: NetworkProgram,
+    observed_at_ms: u64,
+) -> Result<DiscoveryCandidate, DiscoverySourceError> {
+    if program.external_id.trim().is_empty()
+        || program.name.trim().is_empty()
+        || program.merchant_name.trim().is_empty()
+        || program.url.trim().is_empty()
+    {
+        return Err(DiscoverySourceError::InvalidResponse(
+            "network program contains a required blank field".into(),
+        ));
     }
     if program.external_id.chars().count() > crate::discovery::MAX_EXTERNAL_ID_LEN {
-        return Err(DiscoverySourceError::InvalidResponse("network program external_id exceeds the supported length".into()));
+        return Err(DiscoverySourceError::InvalidResponse(
+            "network program external_id exceeds the supported length".into(),
+        ));
     }
     // The adapter emits an unknown currency: networks do not report currency
     // in this contract. Downstream stores keep this as a fact; it is never
@@ -59,10 +90,18 @@ fn normalize_program(program: NetworkProgram, observed_at_ms: u64) -> Result<Dis
         demand_score: 5_000,
         competition_score: 5_000,
         freshness_score: 10_000,
-        compliance_score: if program.accepting_applications { 10_000 } else { 5_000 },
+        compliance_score: if program.accepting_applications {
+            10_000
+        } else {
+            5_000
+        },
         observed_at_ms,
     };
-    candidate.validate().map_err(|error| DiscoverySourceError::InvalidResponse(format!("normalized program failed validation: {error}")))?;
+    candidate.validate().map_err(|error| {
+        DiscoverySourceError::InvalidResponse(format!(
+            "normalized program failed validation: {error}"
+        ))
+    })?;
     Ok(candidate)
 }
 
@@ -78,7 +117,12 @@ impl<'a> NetworkDiscoveryAdapter<'a> {
         let network_info = network.info();
         Self {
             network,
-            info: DiscoverySourceInfo { id: DiscoverySourceId(format!("network:{}", network_info.id.0)), name: network_info.name.clone(), kind: DiscoverySourceKind::AffiliateNetwork, capabilities: vec![DiscoverySourceCapability::Pagination] },
+            info: DiscoverySourceInfo {
+                id: DiscoverySourceId(format!("network:{}", network_info.id.0)),
+                name: network_info.name.clone(),
+                kind: DiscoverySourceKind::AffiliateNetwork,
+                capabilities: vec![DiscoverySourceCapability::Pagination],
+            },
             clock: Box::new(SystemClock::new()),
         }
     }
@@ -93,21 +137,41 @@ impl<'a> NetworkDiscoveryAdapter<'a> {
 }
 
 impl<'a> DiscoverySource for NetworkDiscoveryAdapter<'a> {
-    fn info(&self) -> &DiscoverySourceInfo { &self.info }
+    fn info(&self) -> &DiscoverySourceInfo {
+        &self.info
+    }
 
-    fn discover<'b>(&'b self, request: DiscoverySourceRequest) -> DiscoverySourceFuture<'b, DiscoverySourceBatch> {
+    fn discover<'b>(
+        &'b self,
+        request: DiscoverySourceRequest,
+    ) -> DiscoverySourceFuture<'b, DiscoverySourceBatch> {
         Box::pin(async move {
             request.validate()?;
-            if request.category.is_some() || request.geographic_market.is_some() || request.currency.is_some() {
-                return Err(DiscoverySourceError::InvalidRequest("network adapter supports only query and pagination".into()));
+            if request.category.is_some()
+                || request.geographic_market.is_some()
+                || request.currency.is_some()
+            {
+                return Err(DiscoverySourceError::InvalidRequest(
+                    "network adapter supports only query and pagination".into(),
+                ));
             }
-            let programs = self.network.list_programs(request.query.as_deref(), request.page, request.per_page).await.map_err(|e| DiscoverySourceError::Unavailable(e.to_string()))?;
+            let programs = self
+                .network
+                .list_programs(request.query.as_deref(), request.page, request.per_page)
+                .await
+                .map_err(|e| DiscoverySourceError::Unavailable(e.to_string()))?;
             let observed_at_ms = self.clock.now_ms();
             let mut candidates = Vec::with_capacity(programs.len());
-            for program in programs { candidates.push(normalize_program(program, observed_at_ms)?); }
+            for program in programs {
+                candidates.push(normalize_program(program, observed_at_ms)?);
+            }
             let has_more = candidates.len() == request.per_page as usize && request.per_page > 0;
             let next_page = has_more.then(|| request.page.saturating_add(1));
-            Ok(DiscoverySourceBatch { candidates, has_more, next_page })
+            Ok(DiscoverySourceBatch {
+                candidates,
+                has_more,
+                next_page,
+            })
         })
     }
 }
@@ -115,9 +179,9 @@ impl<'a> DiscoverySource for NetworkDiscoveryAdapter<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{AffiliateDomainResult, NetworkConversion, NetworkId, NetworkInfo};
     use crate::clock::FixedClock;
-    use std::future::{ready, Future};
+    use crate::{AffiliateDomainResult, NetworkConversion, NetworkId, NetworkInfo};
+    use std::future::{Future, ready};
     use std::pin::Pin;
     use std::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
 
@@ -127,28 +191,87 @@ mod tests {
         fail: bool,
     }
     impl NetworkAdapter for Stub {
-        fn info(&self) -> &NetworkInfo { &self.info }
-        fn list_programs(&self, _: Option<&str>, _: u32, _: u32) -> Pin<Box<dyn Future<Output=AffiliateDomainResult<Vec<NetworkProgram>>> + Send + '_>> {
+        fn info(&self) -> &NetworkInfo {
+            &self.info
+        }
+        fn list_programs(
+            &self,
+            _: Option<&str>,
+            _: u32,
+            _: u32,
+        ) -> Pin<Box<dyn Future<Output = AffiliateDomainResult<Vec<NetworkProgram>>> + Send + '_>>
+        {
             if self.fail {
-                Box::pin(ready(Err(crate::AffiliateDomainError::RepositoryNotFound("programs"))))
+                Box::pin(ready(Err(crate::AffiliateDomainError::RepositoryNotFound(
+                    "programs",
+                ))))
             } else {
                 Box::pin(ready(Ok(self.programs.clone())))
             }
         }
-        fn generate_link(&self, _: &str, _: &str, _: &str) -> Pin<Box<dyn Future<Output=AffiliateDomainResult<String>> + Send + '_>> { Box::pin(ready(Ok("https://example.test/link".into()))) }
-        fn fetch_conversions(&self, _: i64, _: i64) -> Pin<Box<dyn Future<Output=AffiliateDomainResult<Vec<NetworkConversion>>> + Send + '_>> { Box::pin(ready(Ok(vec![]))) }
-        fn validate_credentials(&self) -> Pin<Box<dyn Future<Output=AffiliateDomainResult<bool>> + Send + '_>> { Box::pin(ready(Ok(true))) }
+        fn generate_link(
+            &self,
+            _: &str,
+            _: &str,
+            _: &str,
+        ) -> Pin<Box<dyn Future<Output = AffiliateDomainResult<String>> + Send + '_>> {
+            Box::pin(ready(Ok("https://example.test/link".into())))
+        }
+        fn fetch_conversions(
+            &self,
+            _: i64,
+            _: i64,
+        ) -> Pin<Box<dyn Future<Output = AffiliateDomainResult<Vec<NetworkConversion>>> + Send + '_>>
+        {
+            Box::pin(ready(Ok(vec![])))
+        }
+        fn validate_credentials(
+            &self,
+        ) -> Pin<Box<dyn Future<Output = AffiliateDomainResult<bool>> + Send + '_>> {
+            Box::pin(ready(Ok(true)))
+        }
     }
-    fn network(programs: Vec<NetworkProgram>) -> Stub { Stub { info: NetworkInfo { id: NetworkId("test".into()), name: "Test".into(), base_url: "https://test.invalid".into(), supports_real_time_reporting: false, supports_deep_linking: true, default_cookie_days: 30 }, programs, fail: false } }
-    fn program(rate: &str) -> NetworkProgram { NetworkProgram { external_id: "p1".into(), network_id: NetworkId("test".into()), name: "Widget".into(), merchant_name: "Acme".into(), commission_rate: rate.into(), cookie_days: 30, categories: vec!["electronics".into()], url: "https://merchant.invalid/widget".into(), description: None, accepting_applications: true } }
+    fn network(programs: Vec<NetworkProgram>) -> Stub {
+        Stub {
+            info: NetworkInfo {
+                id: NetworkId("test".into()),
+                name: "Test".into(),
+                base_url: "https://test.invalid".into(),
+                supports_real_time_reporting: false,
+                supports_deep_linking: true,
+                default_cookie_days: 30,
+            },
+            programs,
+            fail: false,
+        }
+    }
+    fn program(rate: &str) -> NetworkProgram {
+        NetworkProgram {
+            external_id: "p1".into(),
+            network_id: NetworkId("test".into()),
+            name: "Widget".into(),
+            merchant_name: "Acme".into(),
+            commission_rate: rate.into(),
+            cookie_days: 30,
+            categories: vec!["electronics".into()],
+            url: "https://merchant.invalid/widget".into(),
+            description: None,
+            accepting_applications: true,
+        }
+    }
 
     fn block_on<F: Future>(future: F) -> F::Output {
-        fn clone(_: *const ()) -> RawWaker { raw_waker() }
+        fn clone(_: *const ()) -> RawWaker {
+            raw_waker()
+        }
         fn wake(_: *const ()) {}
         fn wake_by_ref(_: *const ()) {}
         fn drop(_: *const ()) {}
         fn raw_waker() -> RawWaker {
-            RawWaker::new(std::ptr::null(), &RawWakerVTable::new(clone, wake, wake_by_ref, drop))
+            RawWaker::new(
+                std::ptr::null(),
+                &RawWakerVTable::new(clone, wake, wake_by_ref, drop),
+            )
         }
         let waker = unsafe { Waker::from_raw(raw_waker()) };
         let mut context = Context::from_waker(&waker);
@@ -170,7 +293,11 @@ mod tests {
         assert_eq!(commission_to_bps("100%").unwrap(), 10_000);
         assert_eq!(commission_to_bps("7%").unwrap(), 700);
         assert_eq!(commission_to_bps(" 7 % ").unwrap(), 700);
-        assert_eq!(commission_to_bps("1.0").unwrap(), 10_000, "fraction 1.0 means 100%");
+        assert_eq!(
+            commission_to_bps("1.0").unwrap(),
+            10_000,
+            "fraction 1.0 means 100%"
+        );
     }
 
     #[test]
@@ -183,7 +310,10 @@ mod tests {
         assert!(commission_to_bps("-5%").is_err());
         assert!(commission_to_bps("NaN%").is_err());
         assert!(commission_to_bps("inf").is_err());
-        assert!(commission_to_bps("1e400%").is_err(), "parses as +inf, rejected");
+        assert!(
+            commission_to_bps("1e400%").is_err(),
+            "parses as +inf, rejected"
+        );
     }
 
     #[test]
@@ -203,14 +333,20 @@ mod tests {
         assert_eq!(result.canonical_key, "acme:widget");
         assert_eq!(result.observed_at_ms, 42);
         assert_eq!(result.currency, "UNKNOWN");
-        assert!(result.validate().is_ok(), "normalized candidates satisfy domain validation");
+        assert!(
+            result.validate().is_ok(),
+            "normalized candidates satisfy domain validation"
+        );
     }
 
     #[test]
     fn blank_program_fields_are_rejected() {
         let mut blank = program("5%");
         blank.merchant_name = "  ".into();
-        assert!(matches!(normalize_program(blank, 1), Err(DiscoverySourceError::InvalidResponse(_))));
+        assert!(matches!(
+            normalize_program(blank, 1),
+            Err(DiscoverySourceError::InvalidResponse(_))
+        ));
         let mut blank_url = program("5%");
         blank_url.url = "".into();
         assert!(normalize_program(blank_url, 1).is_err());
@@ -220,7 +356,10 @@ mod tests {
     fn oversized_external_ids_are_rejected() {
         let mut oversized = program("5%");
         oversized.external_id = "p".repeat(crate::discovery::MAX_EXTERNAL_ID_LEN + 1);
-        assert!(matches!(normalize_program(oversized, 1), Err(DiscoverySourceError::InvalidResponse(_))));
+        assert!(matches!(
+            normalize_program(oversized, 1),
+            Err(DiscoverySourceError::InvalidResponse(_))
+        ));
     }
 
     #[test]
@@ -243,7 +382,10 @@ mod tests {
         let mut n = network(vec![]);
         n.fail = true;
         let a = NetworkDiscoveryAdapter::with_clock(&n, FixedClock::new(1));
-        let result = block_on(a.discover(DiscoverySourceRequest { per_page: 10, ..Default::default() }));
+        let result = block_on(a.discover(DiscoverySourceRequest {
+            per_page: 10,
+            ..Default::default()
+        }));
         assert!(matches!(&result, Err(DiscoverySourceError::Unavailable(_))));
         // Error classification: retryable transient failure.
         let error = result.unwrap_err();
@@ -256,16 +398,29 @@ mod tests {
         let n = network(programs);
         let a = NetworkDiscoveryAdapter::with_clock(&n, FixedClock::new(7));
 
-        let batch = block_on(a.discover(DiscoverySourceRequest { page: 1, per_page: 3, ..Default::default() }))
-            .expect("valid batch");
+        let batch = block_on(a.discover(DiscoverySourceRequest {
+            page: 1,
+            per_page: 3,
+            ..Default::default()
+        }))
+        .expect("valid batch");
         assert!(batch.has_more);
         assert_eq!(batch.next_page, Some(2));
         assert_eq!(batch.candidates.len(), 3);
-        assert!(batch.candidates.iter().all(|candidate| candidate.observed_at_ms == 7));
+        assert!(
+            batch
+                .candidates
+                .iter()
+                .all(|candidate| candidate.observed_at_ms == 7)
+        );
 
         // Last page: fewer candidates than per_page ends pagination.
-        let batch = block_on(a.discover(DiscoverySourceRequest { page: 2, per_page: 5, ..Default::default() }))
-            .expect("valid batch");
+        let batch = block_on(a.discover(DiscoverySourceRequest {
+            page: 2,
+            per_page: 5,
+            ..Default::default()
+        }))
+        .expect("valid batch");
         assert!(!batch.has_more);
         assert_eq!(batch.next_page, None);
     }
@@ -282,13 +437,23 @@ mod tests {
         }))
         .expect("valid batch");
         assert!(batch.has_more);
-        assert_eq!(batch.next_page, Some(u32::MAX), "page counter saturates instead of wrapping");
+        assert_eq!(
+            batch.next_page,
+            Some(u32::MAX),
+            "page counter saturates instead of wrapping"
+        );
     }
 
     #[test]
     fn zero_per_page_is_rejected_before_the_provider_is_called() {
         let n = network(vec![]);
         let a = NetworkDiscoveryAdapter::with_clock(&n, FixedClock::new(1));
-        assert!(block_on(a.discover(DiscoverySourceRequest { per_page: 0, ..Default::default() })).is_err());
+        assert!(
+            block_on(a.discover(DiscoverySourceRequest {
+                per_page: 0,
+                ..Default::default()
+            }))
+            .is_err()
+        );
     }
 }

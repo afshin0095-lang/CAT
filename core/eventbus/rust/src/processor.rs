@@ -1,4 +1,7 @@
-use crate::{DeadLetterStore, DeliveryState, EventBusError, EventBusResult, EventEnvelope, InboxStore, RetryPolicy};
+use crate::{
+    DeadLetterStore, DeliveryState, EventBusError, EventBusResult, EventEnvelope, InboxStore,
+    RetryPolicy,
+};
 use uuid::Uuid;
 
 /// Broker-independent result of applying CAT's delivery policy to an event.
@@ -23,14 +26,28 @@ where
     D: DeadLetterStore,
 {
     pub fn new(inbox: I, dead_letters: D, retry: RetryPolicy) -> Self {
-        Self { inbox, dead_letters, retry }
+        Self {
+            inbox,
+            dead_letters,
+            retry,
+        }
     }
 
-    pub fn inbox(&self) -> &I { &self.inbox }
-    pub fn inbox_mut(&mut self) -> &mut I { &mut self.inbox }
-    pub fn dead_letters(&self) -> &D { &self.dead_letters }
-    pub fn dead_letters_mut(&mut self) -> &mut D { &mut self.dead_letters }
-    pub fn retry_policy(&self) -> RetryPolicy { self.retry }
+    pub fn inbox(&self) -> &I {
+        &self.inbox
+    }
+    pub fn inbox_mut(&mut self) -> &mut I {
+        &mut self.inbox
+    }
+    pub fn dead_letters(&self) -> &D {
+        &self.dead_letters
+    }
+    pub fn dead_letters_mut(&mut self) -> &mut D {
+        &mut self.dead_letters
+    }
+    pub fn retry_policy(&self) -> RetryPolicy {
+        self.retry
+    }
 
     pub fn begin(&mut self, event_id: Uuid) -> EventBusResult<ProcessingDecision> {
         if self.inbox.accept(event_id)? {
@@ -63,10 +80,14 @@ where
 
     pub fn require_retryable(state: DeliveryState) -> EventBusResult<()> {
         match state {
-            DeliveryState::RetryScheduled | DeliveryState::InFlight | DeliveryState::Pending => Ok(()),
-            DeliveryState::Succeeded | DeliveryState::DeadLettered => Err(EventBusError::InvalidConfiguration(
-                "terminal delivery state cannot be retried".to_owned(),
-            )),
+            DeliveryState::RetryScheduled | DeliveryState::InFlight | DeliveryState::Pending => {
+                Ok(())
+            }
+            DeliveryState::Succeeded | DeliveryState::DeadLettered => {
+                Err(EventBusError::InvalidConfiguration(
+                    "terminal delivery state cannot be retried".to_owned(),
+                ))
+            }
         }
     }
 }
@@ -114,7 +135,10 @@ mod tests {
         );
         let e = event();
         p.begin(e.event_id).unwrap();
-        assert_eq!(p.fail(e, 2, "poison event").unwrap(), ProcessingDecision::DeadLettered);
+        assert_eq!(
+            p.fail(e, 2, "poison event").unwrap(),
+            ProcessingDecision::DeadLettered
+        );
         assert_eq!(p.dead_letters().len(), 1);
     }
 
@@ -127,6 +151,9 @@ mod tests {
         );
         let e = event();
         p.begin(e.event_id).unwrap();
-        assert_eq!(p.fail(e, 1, "temporary failure").unwrap(), ProcessingDecision::Retry { delay_ms: 20 });
+        assert_eq!(
+            p.fail(e, 1, "temporary failure").unwrap(),
+            ProcessingDecision::Retry { delay_ms: 20 }
+        );
     }
 }

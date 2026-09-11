@@ -1,4 +1,6 @@
-use cat_content::{ContentDomain, ContentKind, ContentStatus, InMemoryContentRepository, PublicationPolicy};
+use cat_content::{
+    ContentDomain, ContentKind, ContentStatus, InMemoryContentRepository, PublicationPolicy,
+};
 
 fn record(status: ContentStatus) -> cat_content::ContentRecord {
     let mut repo = InMemoryContentRepository::default();

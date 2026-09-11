@@ -126,7 +126,10 @@ fn bus_suppresses_duplicate_event_delivery() {
         payload: serde_json::json!({"event_id": event_id}),
     };
 
-    assert!(matches!(bus.publish(envelope.clone()).unwrap(), PublishOutcome::Published { .. }));
+    assert!(matches!(
+        bus.publish(envelope.clone()).unwrap(),
+        PublishOutcome::Published { .. }
+    ));
     assert_eq!(
         bus.publish(envelope).unwrap(),
         PublishOutcome::DuplicateSuppressed
@@ -208,7 +211,10 @@ fn envelope(event_id: Uuid, event_type: &str, version: u16) -> EventEnvelope {
 
 #[test]
 fn typed_event_builds_stable_envelope() {
-    let event = OrderCreated { order_id: "ord-1".into(), amount_minor: 4200 };
+    let event = OrderCreated {
+        order_id: "ord-1".into(),
+        amount_minor: 4200,
+    };
     let envelope = event.into_envelope("orders").unwrap();
 
     assert_eq!(envelope.event_type, "order.created");
@@ -260,9 +266,13 @@ fn registered_publish_requires_exact_contract_version() {
         .unwrap();
 
     let id = Uuid::now_v7();
-    assert!(bus.publish_registered(envelope(id, "order.created", 2), &registry).is_err());
+    assert!(
+        bus.publish_registered(envelope(id, "order.created", 2), &registry)
+            .is_err()
+    );
     assert_eq!(
-        bus.publish_registered(envelope(id, "order.created", 1), &registry).unwrap(),
+        bus.publish_registered(envelope(id, "order.created", 1), &registry)
+            .unwrap(),
         PublishOutcome::Published { handlers_called: 0 }
     );
 }
@@ -289,8 +299,14 @@ fn outbox_retry_policy_transitions_to_dead_letter() {
     assert_eq!(outbox.len(), 1);
 
     let policy = cat_eventbus::RetryPolicy::new(2, 0);
-    assert!(matches!(cat_eventbus::OutboxStore::fail(&mut outbox, id, 1, &policy).unwrap(), cat_eventbus::DeliveryState::RetryScheduled));
-    assert!(matches!(cat_eventbus::OutboxStore::fail(&mut outbox, id, 2, &policy).unwrap(), cat_eventbus::DeliveryState::DeadLettered));
+    assert!(matches!(
+        cat_eventbus::OutboxStore::fail(&mut outbox, id, 1, &policy).unwrap(),
+        cat_eventbus::DeliveryState::RetryScheduled
+    ));
+    assert!(matches!(
+        cat_eventbus::OutboxStore::fail(&mut outbox, id, 2, &policy).unwrap(),
+        cat_eventbus::DeliveryState::DeadLettered
+    ));
 }
 
 #[test]

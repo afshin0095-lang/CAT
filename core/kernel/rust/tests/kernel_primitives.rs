@@ -1,10 +1,12 @@
 use cat_kernel::{
-    parse_uuid, require_non_nil, Clock, CorrelationId, EntityId, EventEnvelope, ExecutionContext,
-    FixedClock, SequenceNumber, TenantId, TimestampMs, Uuid,
+    Clock, CorrelationId, EntityId, EventEnvelope, ExecutionContext, FixedClock, SequenceNumber,
+    TenantId, TimestampMs, Uuid, parse_uuid, require_non_nil,
 };
 
 #[test]
-fn entity_ids_are_unique() { assert_ne!(EntityId::new(), EntityId::new()); }
+fn entity_ids_are_unique() {
+    assert_ne!(EntityId::new(), EntityId::new());
+}
 
 #[test]
 fn entity_id_round_trips_through_uuid() {
@@ -33,7 +35,11 @@ fn sequence_is_strict_and_overflow_safe() {
     let zero = SequenceNumber::ZERO;
     assert_eq!(zero.next().unwrap().as_u64(), 1);
     assert!(SequenceNumber::new(1).checked_after(zero).is_ok());
-    assert!(SequenceNumber::new(1).checked_after(SequenceNumber::new(1)).is_err());
+    assert!(
+        SequenceNumber::new(1)
+            .checked_after(SequenceNumber::new(1))
+            .is_err()
+    );
     assert!(SequenceNumber::new(u64::MAX).next().is_err());
 }
 
@@ -52,11 +58,46 @@ fn execution_context_preserves_correlation_and_causation() {
 
 #[test]
 fn event_envelope_rejects_invalid_contract_metadata() {
-    let base = || (TenantId::new(), CorrelationId::new(), None, EntityId::new(), TimestampMs::new(10), SequenceNumber::new(1));
+    let base = || {
+        (
+            TenantId::new(),
+            CorrelationId::new(),
+            None,
+            EntityId::new(),
+            TimestampMs::new(10),
+            SequenceNumber::new(1),
+        )
+    };
     let (tenant, correlation, causation, actor, occurred, sequence) = base();
-    assert!(EventEnvelope::new("", 1, tenant, correlation, causation, actor, occurred, sequence, "payload").is_err());
+    assert!(
+        EventEnvelope::new(
+            "",
+            1,
+            tenant,
+            correlation,
+            causation,
+            actor,
+            occurred,
+            sequence,
+            "payload"
+        )
+        .is_err()
+    );
     let (tenant, correlation, causation, actor, occurred, sequence) = base();
-    assert!(EventEnvelope::new("cat.test", 0, tenant, correlation, causation, actor, occurred, sequence, "payload").is_err());
+    assert!(
+        EventEnvelope::new(
+            "cat.test",
+            0,
+            tenant,
+            correlation,
+            causation,
+            actor,
+            occurred,
+            sequence,
+            "payload"
+        )
+        .is_err()
+    );
 }
 
 #[test]
@@ -64,7 +105,18 @@ fn event_envelope_preserves_typed_payload_and_metadata() {
     let tenant = TenantId::new();
     let correlation = CorrelationId::new();
     let actor = EntityId::new();
-    let envelope = EventEnvelope::new("affiliate.partner.created", 1, tenant, correlation, None, actor, TimestampMs::new(123), SequenceNumber::new(7), 42u64).unwrap();
+    let envelope = EventEnvelope::new(
+        "affiliate.partner.created",
+        1,
+        tenant,
+        correlation,
+        None,
+        actor,
+        TimestampMs::new(123),
+        SequenceNumber::new(7),
+        42u64,
+    )
+    .unwrap();
     assert_eq!(envelope.event_type, "affiliate.partner.created");
     assert_eq!(envelope.event_version, 1);
     assert_eq!(envelope.tenant_id, tenant);

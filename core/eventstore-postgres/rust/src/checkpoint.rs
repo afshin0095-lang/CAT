@@ -46,7 +46,11 @@ impl PostgresProjectionCheckpointStore {
             let phase = match phase.as_str() {
                 "catchup" => ProjectionPhase::Catchup,
                 "live" => ProjectionPhase::Live,
-                other => return Err(CheckpointError::InvalidState(format!("unknown phase: {other}"))),
+                other => {
+                    return Err(CheckpointError::InvalidState(format!(
+                        "unknown phase: {other}"
+                    )));
+                }
             };
             let event_id = EventId::from_uuid(row.try_get::<uuid::Uuid, _>("event_id")?);
             ProjectionCheckpoint::new(

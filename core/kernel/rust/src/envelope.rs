@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{CausationId, CorrelationId, EntityId, EventId, KernelResult, SequenceNumber, TenantId, TimestampMs};
+use crate::{
+    CausationId, CorrelationId, EntityId, EventId, KernelResult, SequenceNumber, TenantId,
+    TimestampMs,
+};
 
 /// Immutable event envelope shared by kernel and domain runtimes.
 ///

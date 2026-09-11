@@ -9,7 +9,9 @@ use crate::{LlmError, PromptId, PromptVersion, SafetyClass, ToolCall, ToolId, To
 pub struct PolicyId(pub String);
 
 impl PolicyId {
-    pub fn new(value: impl Into<String>) -> Self { Self(value.into()) }
+    pub fn new(value: impl Into<String>) -> Self {
+        Self(value.into())
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
@@ -36,10 +38,14 @@ pub struct PromptToolPolicy {
 impl PromptToolPolicy {
     pub fn validate(&self) -> Result<(), LlmError> {
         if self.id.0.trim().is_empty() {
-            return Err(LlmError::InvalidPolicy("policy id must not be empty".to_owned()));
+            return Err(LlmError::InvalidPolicy(
+                "policy id must not be empty".to_owned(),
+            ));
         }
         if self.max_prompt_bytes == 0 || self.max_tool_input_bytes == 0 {
-            return Err(LlmError::InvalidPolicy("policy size limits must be greater than zero".to_owned()));
+            return Err(LlmError::InvalidPolicy(
+                "policy size limits must be greater than zero".to_owned(),
+            ));
         }
         Ok(())
     }
@@ -53,19 +59,28 @@ impl PromptToolPolicy {
     ) -> Result<(), LlmError> {
         self.validate()?;
         if !self.enabled {
-            return Err(LlmError::PolicyDenied("prompt/tool policy is disabled".to_owned()));
+            return Err(LlmError::PolicyDenied(
+                "prompt/tool policy is disabled".to_owned(),
+            ));
         }
         if !safety_allowed(self.max_safety, safety) {
-            return Err(LlmError::PolicyDenied("prompt safety class exceeds policy allowance".to_owned()));
+            return Err(LlmError::PolicyDenied(
+                "prompt safety class exceeds policy allowance".to_owned(),
+            ));
         }
-        if !self.allowed_prompts.contains(&(prompt_id.clone(), prompt_version)) {
+        if !self
+            .allowed_prompts
+            .contains(&(prompt_id.clone(), prompt_version))
+        {
             return Err(LlmError::PolicyDenied(format!(
                 "prompt {} version {} is not granted by policy",
                 prompt_id.0, prompt_version.0
             )));
         }
         if rendered_content.len() > self.max_prompt_bytes {
-            return Err(LlmError::PolicyDenied("rendered prompt exceeds policy size limit".to_owned()));
+            return Err(LlmError::PolicyDenied(
+                "rendered prompt exceeds policy size limit".to_owned(),
+            ));
         }
         Ok(())
     }
@@ -73,19 +88,27 @@ impl PromptToolPolicy {
     pub fn authorize_tool(&self, call: &ToolCall) -> Result<(), LlmError> {
         self.validate()?;
         if !self.enabled {
-            return Err(LlmError::PolicyDenied("prompt/tool policy is disabled".to_owned()));
+            return Err(LlmError::PolicyDenied(
+                "prompt/tool policy is disabled".to_owned(),
+            ));
         }
         call.validate()?;
-        if !self.allowed_tools.contains(&(call.tool_id.clone(), call.tool_version)) {
+        if !self
+            .allowed_tools
+            .contains(&(call.tool_id.clone(), call.tool_version))
+        {
             return Err(LlmError::PolicyDenied(format!(
                 "tool {} version {} is not granted by policy",
                 call.tool_id.0, call.tool_version.0
             )));
         }
-        let encoded = serde_json::to_vec(&call.input)
-            .map_err(|error| LlmError::InvalidTool(format!("tool input cannot be encoded: {error}")))?;
+        let encoded = serde_json::to_vec(&call.input).map_err(|error| {
+            LlmError::InvalidTool(format!("tool input cannot be encoded: {error}"))
+        })?;
         if encoded.len() > self.max_tool_input_bytes {
-            return Err(LlmError::PolicyDenied("tool input exceeds policy size limit".to_owned()));
+            return Err(LlmError::PolicyDenied(
+                "tool input exceeds policy size limit".to_owned(),
+            ));
         }
         Ok(())
     }
@@ -130,12 +153,16 @@ mod tests {
     #[test]
     fn prompt_policy_is_version_specific_and_safety_bounded() {
         let policy = policy();
-        assert!(policy.authorize_prompt(
-            &PromptId::new("cat.summary"),
-            PromptVersion(1),
-            SafetyClass::Standard,
-            "safe prompt",
-        ).is_ok());
+        assert!(
+            policy
+                .authorize_prompt(
+                    &PromptId::new("cat.summary"),
+                    PromptVersion(1),
+                    SafetyClass::Standard,
+                    "safe prompt",
+                )
+                .is_ok()
+        );
         assert!(matches!(
             policy.authorize_prompt(
                 &PromptId::new("cat.summary"),
@@ -165,7 +192,10 @@ mod tests {
             tool_version: ToolVersion(1),
             input: serde_json::json!({"x": 1}),
         };
-        assert!(matches!(policy.authorize_tool(&denied), Err(LlmError::PolicyDenied(_))));
+        assert!(matches!(
+            policy.authorize_tool(&denied),
+            Err(LlmError::PolicyDenied(_))
+        ));
 
         let oversized = ToolCall {
             call_id: "call-2".to_owned(),
@@ -173,6 +203,9 @@ mod tests {
             tool_version: ToolVersion(1),
             input: serde_json::json!({"query": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"}),
         };
-        assert!(matches!(policy.authorize_tool(&oversized), Err(LlmError::PolicyDenied(_))));
+        assert!(matches!(
+            policy.authorize_tool(&oversized),
+            Err(LlmError::PolicyDenied(_))
+        ));
     }
 }

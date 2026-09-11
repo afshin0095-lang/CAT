@@ -21,12 +21,24 @@ pub struct EventBusMetricsSnapshot {
 }
 
 impl EventBusMetrics {
-    pub fn record_published(&self) { self.published.fetch_add(1, Ordering::Relaxed); }
-    pub fn record_delivered(&self) { self.delivered.fetch_add(1, Ordering::Relaxed); }
-    pub fn record_acknowledged(&self) { self.acknowledged.fetch_add(1, Ordering::Relaxed); }
-    pub fn record_retried(&self) { self.retried.fetch_add(1, Ordering::Relaxed); }
-    pub fn record_dead_lettered(&self) { self.dead_lettered.fetch_add(1, Ordering::Relaxed); }
-    pub fn record_rejected(&self) { self.rejected.fetch_add(1, Ordering::Relaxed); }
+    pub fn record_published(&self) {
+        self.published.fetch_add(1, Ordering::Relaxed);
+    }
+    pub fn record_delivered(&self) {
+        self.delivered.fetch_add(1, Ordering::Relaxed);
+    }
+    pub fn record_acknowledged(&self) {
+        self.acknowledged.fetch_add(1, Ordering::Relaxed);
+    }
+    pub fn record_retried(&self) {
+        self.retried.fetch_add(1, Ordering::Relaxed);
+    }
+    pub fn record_dead_lettered(&self) {
+        self.dead_lettered.fetch_add(1, Ordering::Relaxed);
+    }
+    pub fn record_rejected(&self) {
+        self.rejected.fetch_add(1, Ordering::Relaxed);
+    }
 
     pub fn snapshot(&self) -> EventBusMetricsSnapshot {
         EventBusMetricsSnapshot {

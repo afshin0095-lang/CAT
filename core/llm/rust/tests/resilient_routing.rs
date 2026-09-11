@@ -1,8 +1,8 @@
 use async_trait::async_trait;
 use cat_llm::{
-    DeterministicProvider, GenerationRequest, GenerationResponse, LlmError, LlmProvider,
-    LlmRouter, Message, ModelId, ModelRoute, ProviderHealthConfig, ProviderHealthState,
-    ProviderId, RoutingPolicy, SafetyClass,
+    DeterministicProvider, GenerationRequest, GenerationResponse, LlmError, LlmProvider, LlmRouter,
+    Message, ModelId, ModelRoute, ProviderHealthConfig, ProviderHealthState, ProviderId,
+    RoutingPolicy, SafetyClass,
 };
 use std::time::Duration;
 
@@ -16,7 +16,9 @@ impl LlmProvider for FailingProvider {
     }
 
     async fn generate(&self, _request: GenerationRequest) -> Result<GenerationResponse, LlmError> {
-        Err(LlmError::ProviderFailure("synthetic provider failure".to_owned()))
+        Err(LlmError::ProviderFailure(
+            "synthetic provider failure".to_owned(),
+        ))
     }
 }
 
@@ -65,7 +67,10 @@ async fn resilient_router_falls_back_only_to_declared_route() {
     assert_eq!(response.provider, ProviderId::new("local.deterministic"));
     assert_eq!(response.model, ModelId::new("deterministic-v1"));
     assert_eq!(
-        router.health().snapshot(&ProviderId::new("mock.failing")).state,
+        router
+            .health()
+            .snapshot(&ProviderId::new("mock.failing"))
+            .state,
         ProviderHealthState::Open
     );
     assert_eq!(

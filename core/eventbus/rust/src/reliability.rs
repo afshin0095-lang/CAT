@@ -25,7 +25,10 @@ impl RetryPolicy {
         }
         let mut delay = self.initial_delay;
         for _ in 1..attempt {
-            let millis = delay.as_millis().saturating_mul(self.multiplier_millis as u128) / 1000;
+            let millis = delay
+                .as_millis()
+                .saturating_mul(self.multiplier_millis as u128)
+                / 1000;
             delay = Duration::from_millis(millis.min(self.max_delay.as_millis()) as u64);
         }
         delay.min(self.max_delay)

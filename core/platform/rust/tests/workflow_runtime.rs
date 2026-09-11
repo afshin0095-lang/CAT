@@ -29,5 +29,12 @@ fn scheduler_contract_remains_explicit_at_the_platform_boundary() {
     runtime.schedule(&context, workflow_id, 1000, 3).unwrap();
     assert_eq!(runtime.queue_depth(), 1);
     assert!(runtime.pop_ready(999).is_none());
-    assert_eq!(runtime.pop_ready(1000), Some(ScheduleRequest { workflow_id, not_before_ms: 1000, priority: 3 }));
+    assert_eq!(
+        runtime.pop_ready(1000),
+        Some(ScheduleRequest {
+            workflow_id,
+            not_before_ms: 1000,
+            priority: 3
+        })
+    );
 }

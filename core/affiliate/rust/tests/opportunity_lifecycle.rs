@@ -1,7 +1,7 @@
 use cat_affiliate::{
-    canonical_key, DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore,
+    DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore,
     OpportunityLifecycleEvaluator, OpportunityLifecyclePolicy, OpportunityLifecycleState,
-    OpportunityStore,
+    OpportunityStore, canonical_key,
 };
 use uuid::Uuid;
 
@@ -43,10 +43,22 @@ fn lifecycle_transitions_at_exact_thresholds() {
     let evaluator = OpportunityLifecycleEvaluator::new(policy);
     let stored = record(10_000);
 
-    assert_eq!(evaluator.evaluate(&stored, 10_999).unwrap().state, OpportunityLifecycleState::Active);
-    assert_eq!(evaluator.evaluate(&stored, 11_000).unwrap().state, OpportunityLifecycleState::Stale);
-    assert_eq!(evaluator.evaluate(&stored, 14_999).unwrap().state, OpportunityLifecycleState::Stale);
-    assert_eq!(evaluator.evaluate(&stored, 15_000).unwrap().state, OpportunityLifecycleState::Expired);
+    assert_eq!(
+        evaluator.evaluate(&stored, 10_999).unwrap().state,
+        OpportunityLifecycleState::Active
+    );
+    assert_eq!(
+        evaluator.evaluate(&stored, 11_000).unwrap().state,
+        OpportunityLifecycleState::Stale
+    );
+    assert_eq!(
+        evaluator.evaluate(&stored, 14_999).unwrap().state,
+        OpportunityLifecycleState::Stale
+    );
+    assert_eq!(
+        evaluator.evaluate(&stored, 15_000).unwrap().state,
+        OpportunityLifecycleState::Expired
+    );
 }
 
 #[test]
@@ -88,10 +100,9 @@ fn batch_evaluation_is_sorted_by_stable_identity() {
         store.list().into_iter().next().expect("record exists")
     };
 
-    let snapshots = cat_affiliate::opportunity_lifecycle::evaluate_records(
-        &[second, first], evaluator, 10_500,
-    )
-    .expect("valid evaluation");
+    let snapshots =
+        cat_affiliate::opportunity_lifecycle::evaluate_records(&[second, first], evaluator, 10_500)
+            .expect("valid evaluation");
 
     assert_eq!(snapshots.len(), 2);
     assert!(snapshots[0].0 < snapshots[1].0);

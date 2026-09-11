@@ -31,7 +31,11 @@ fn affiliate_event_types_are_globally_unique() {
 
     let unique = types.iter().copied().collect::<HashSet<_>>();
     assert_eq!(unique.len(), types.len());
-    assert!(types.iter().all(|event_type| event_type.starts_with("affiliate.")));
+    assert!(
+        types
+            .iter()
+            .all(|event_type| event_type.starts_with("affiliate."))
+    );
 }
 
 fn identity() -> String {
@@ -90,14 +94,21 @@ fn opportunity_revalidation_events_carry_request_identity() {
         requested_at_ms: 1_000,
         scheduled_for_ms: 2_000,
     };
-    let envelope = requested.clone().into_envelope("affiliate-domain").expect("envelope");
-    assert_eq!(envelope.event_type, "affiliate.opportunity.revalidation_requested");
+    let envelope = requested
+        .clone()
+        .into_envelope("affiliate-domain")
+        .expect("envelope");
+    assert_eq!(
+        envelope.event_type,
+        "affiliate.opportunity.revalidation_requested"
+    );
     assert_eq!(envelope.version, 1);
     assert_eq!(envelope.payload["reason"], "stale");
     assert_eq!(envelope.payload["priority"], "high");
 
     let encoded = serde_json::to_string(&requested).expect("serialize");
-    let decoded: OpportunityRevalidationRequested = serde_json::from_str(&encoded).expect("deserialize");
+    let decoded: OpportunityRevalidationRequested =
+        serde_json::from_str(&encoded).expect("deserialize");
     assert_eq!(decoded.request_id, requested.request_id);
     assert_eq!(decoded.reason, RevalidationReason::Stale);
 
@@ -128,21 +139,35 @@ fn revalidation_failure_details_are_bounded_and_sanitized() {
         oversized,
     );
     assert!(failed.detail.len() <= 512, "detail is bounded");
-    assert!(!failed.detail.contains('\n'), "control characters are sanitized");
+    assert!(
+        !failed.detail.contains('\n'),
+        "control characters are sanitized"
+    );
     assert_eq!(failed.reason, RevalidationReason::ProviderUnavailable);
 
-    let envelope = failed.clone().into_envelope("affiliate-domain").expect("envelope");
-    assert_eq!(envelope.event_type, "affiliate.opportunity.revalidation_failed");
+    let envelope = failed
+        .clone()
+        .into_envelope("affiliate-domain")
+        .expect("envelope");
+    assert_eq!(
+        envelope.event_type,
+        "affiliate.opportunity.revalidation_failed"
+    );
     let encoded = serde_json::to_string(&failed).expect("serialize");
-    let decoded: OpportunityRevalidationFailed = serde_json::from_str(&encoded).expect("deserialize");
+    let decoded: OpportunityRevalidationFailed =
+        serde_json::from_str(&encoded).expect("deserialize");
     assert_eq!(decoded, failed);
 }
 
 #[test]
 fn malformed_opportunity_event_payloads_are_rejected() {
     // Missing required fields must fail deserialization (fail closed).
-    assert!(serde_json::from_str::<OpportunityDiscovered>(r#"{"identity":"acme:widget"}"#).is_err());
-    assert!(serde_json::from_str::<OpportunityRevalidated>(r#"{"request_id":"not-a-uuid"}"#).is_err());
+    assert!(
+        serde_json::from_str::<OpportunityDiscovered>(r#"{"identity":"acme:widget"}"#).is_err()
+    );
+    assert!(
+        serde_json::from_str::<OpportunityRevalidated>(r#"{"request_id":"not-a-uuid"}"#).is_err()
+    );
     // Unknown enum values in closed enums are rejected.
     assert!(serde_json::from_str::<OpportunityRevalidationRequested>(
         r#"{"request_id":"01890a5d-ac96-774b-bcce-b302099a8057","opportunity_id":"01890a5d-ac96-774b-bcce-b302099a8057","identity":"i","source":"s","reason":"stale","priority":"mega","requested_at_ms":1,"scheduled_for_ms":2}"#
@@ -161,7 +186,9 @@ fn discovered_and_updated_events_produce_typed_envelopes() {
         observed_at_ms: 2_000,
         revision: 2,
     };
-    let envelope = updated.into_envelope("affiliate-opportunity").expect("envelope");
+    let envelope = updated
+        .into_envelope("affiliate-opportunity")
+        .expect("envelope");
     assert_eq!(envelope.event_type, "affiliate.opportunity.updated");
     assert_eq!(envelope.payload["identity"], "acme:widget");
     assert_eq!(envelope.payload["best_score"], 9_000);
@@ -183,7 +210,10 @@ fn commission_event_preserves_idempotency_identity() {
     assert_eq!(envelope.event_type, CommissionObligationCreated::TYPE);
     assert_eq!(envelope.version, CommissionObligationCreated::VERSION);
     assert_eq!(envelope.payload["currency"], "EUR");
-    assert_eq!(envelope.payload["idempotency_key"], "commission:conversion:affiliate:1250");
+    assert_eq!(
+        envelope.payload["idempotency_key"],
+        "commission:conversion:affiliate:1250"
+    );
 }
 
 #[test]

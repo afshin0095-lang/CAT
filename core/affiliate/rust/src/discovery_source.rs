@@ -103,11 +103,19 @@ pub enum DiscoverySourceError {
 impl std::fmt::Display for DiscoverySourceError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::InvalidRequest(message) => write!(formatter, "invalid discovery source request: {message}"),
-            Self::Unavailable(message) => write!(formatter, "discovery source unavailable: {message}"),
-            Self::AuthenticationFailed => formatter.write_str("discovery source authentication failed"),
+            Self::InvalidRequest(message) => {
+                write!(formatter, "invalid discovery source request: {message}")
+            }
+            Self::Unavailable(message) => {
+                write!(formatter, "discovery source unavailable: {message}")
+            }
+            Self::AuthenticationFailed => {
+                formatter.write_str("discovery source authentication failed")
+            }
             Self::RateLimited => formatter.write_str("discovery source rate limited"),
-            Self::InvalidResponse(message) => write!(formatter, "invalid discovery source response: {message}"),
+            Self::InvalidResponse(message) => {
+                write!(formatter, "invalid discovery source response: {message}")
+            }
         }
     }
 }
@@ -117,7 +125,10 @@ impl std::error::Error for DiscoverySourceError {}
 /// Adapter contract for every external discovery mechanism.
 pub trait DiscoverySource: Send + Sync {
     fn info(&self) -> &DiscoverySourceInfo;
-    fn discover<'a>(&'a self, request: DiscoverySourceRequest) -> DiscoverySourceFuture<'a, DiscoverySourceBatch>;
+    fn discover<'a>(
+        &'a self,
+        request: DiscoverySourceRequest,
+    ) -> DiscoverySourceFuture<'a, DiscoverySourceBatch>;
 }
 
 /// Registry of source adapters. Registration order is preserved.
@@ -127,7 +138,9 @@ pub struct DiscoverySourceRegistry {
 
 impl DiscoverySourceRegistry {
     pub fn new() -> Self {
-        Self { sources: Vec::new() }
+        Self {
+            sources: Vec::new(),
+        }
     }
 
     pub fn register(&mut self, source: Box<dyn DiscoverySource>) {
@@ -174,7 +187,10 @@ impl<'a> DiscoveryIngestion<'a> {
         for source in self.registry.all() {
             let source_id = source.info().id.clone();
             let result = match request.validate() {
-                Ok(()) => source.discover(request.clone()).await.map(|batch| (source_id, batch)),
+                Ok(()) => source
+                    .discover(request.clone())
+                    .await
+                    .map(|batch| (source_id, batch)),
                 Err(error) => Err(error),
             };
             results.push(result);
@@ -194,17 +210,28 @@ mod tests {
     }
 
     impl DiscoverySource for StaticSource {
-        fn info(&self) -> &DiscoverySourceInfo { &self.info }
+        fn info(&self) -> &DiscoverySourceInfo {
+            &self.info
+        }
 
-        fn discover<'a>(&'a self, _request: DiscoverySourceRequest) -> DiscoverySourceFuture<'a, DiscoverySourceBatch> {
+        fn discover<'a>(
+            &'a self,
+            _request: DiscoverySourceRequest,
+        ) -> DiscoverySourceFuture<'a, DiscoverySourceBatch> {
             Box::pin(ready(Ok(self.batch.clone())))
         }
     }
 
     #[test]
     fn request_rejects_zero_page_size() {
-        let request = DiscoverySourceRequest { per_page: 0, ..Default::default() };
-        assert!(matches!(request.validate(), Err(DiscoverySourceError::InvalidRequest(_))));
+        let request = DiscoverySourceRequest {
+            per_page: 0,
+            ..Default::default()
+        };
+        assert!(matches!(
+            request.validate(),
+            Err(DiscoverySourceError::InvalidRequest(_))
+        ));
     }
 
     #[test]
@@ -253,7 +280,10 @@ mod tests {
         registry.register(Box::new(first));
         registry.register(Box::new(second));
         assert_eq!(registry.count(), 2);
-        assert_eq!(registry.all()[0].info().id, DiscoverySourceId("first".into()));
+        assert_eq!(
+            registry.all()[0].info().id,
+            DiscoverySourceId("first".into())
+        );
         assert!(registry.get(&DiscoverySourceId("second".into())).is_some());
     }
 }

@@ -22,12 +22,16 @@ fn policy() -> PromptToolPolicy {
 fn authorization_contract_fails_closed_for_unknown_prompt_and_tool_versions() {
     let policy = policy();
 
-    assert!(policy.authorize_prompt(
-        &PromptId::new("cat.external"),
-        PromptVersion(2),
-        SafetyClass::Standard,
-        "hello",
-    ).is_err());
+    assert!(
+        policy
+            .authorize_prompt(
+                &PromptId::new("cat.external"),
+                PromptVersion(2),
+                SafetyClass::Standard,
+                "hello",
+            )
+            .is_err()
+    );
 
     let call = ToolCall {
         call_id: "contract-1".to_owned(),

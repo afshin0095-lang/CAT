@@ -69,7 +69,10 @@ impl TransactionalEventPublisher {
         match expected {
             ExpectedVersion::Any => {}
             ExpectedVersion::Empty if current != 0 => {
-                return Err(PostgresEventStoreError::ConcurrencyConflict { expected: 0, actual: current });
+                return Err(PostgresEventStoreError::ConcurrencyConflict {
+                    expected: 0,
+                    actual: current,
+                });
             }
             ExpectedVersion::Empty => {}
             ExpectedVersion::Exact(version) if current != version.as_u64() => {
@@ -81,7 +84,9 @@ impl TransactionalEventPublisher {
             ExpectedVersion::Exact(_) => {}
         }
 
-        let next = current.checked_add(1).ok_or(PostgresEventStoreError::SequenceOverflow)?;
+        let next = current
+            .checked_add(1)
+            .ok_or(PostgresEventStoreError::SequenceOverflow)?;
         if kernel_event.sequence.as_u64() != next {
             return Err(PostgresEventStoreError::SequenceConflict {
                 expected: next,

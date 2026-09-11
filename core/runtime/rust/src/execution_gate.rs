@@ -19,7 +19,13 @@ impl ExecutionGate {
         (max_attempts > 0).then_some(Self { max_attempts })
     }
 
-    pub fn admit(&self, lease: &TaskLease, owner: &str, attempt: u32, now_ms: u64) -> DispatchDecision {
+    pub fn admit(
+        &self,
+        lease: &TaskLease,
+        owner: &str,
+        attempt: u32,
+        now_ms: u64,
+    ) -> DispatchDecision {
         if attempt == 0 || attempt > self.max_attempts {
             return DispatchDecision::RejectAttemptBudget;
         }

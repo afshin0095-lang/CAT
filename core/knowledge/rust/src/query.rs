@@ -26,12 +26,16 @@ impl KnowledgeQuery {
     }
 
     pub fn matches_node(&self, node: &KnowledgeNode) -> bool {
-        self.entity_type.as_deref().is_none_or(|kind| node.entity_type == kind)
+        self.entity_type
+            .as_deref()
+            .is_none_or(|kind| node.entity_type == kind)
             && self.min_confidence.is_none_or(|min| node.confidence >= min)
     }
 
     pub fn matches_edge(&self, edge: &KnowledgeEdge) -> bool {
-        self.relation.as_deref().is_none_or(|relation| edge.relation == relation)
+        self.relation
+            .as_deref()
+            .is_none_or(|relation| edge.relation == relation)
             && self.min_confidence.is_none_or(|min| edge.confidence >= min)
     }
 }
@@ -74,11 +78,17 @@ impl KnowledgeGraph {
         result
     }
 
-    pub(crate) fn nodes_matching<'a>(&'a self, query: &KnowledgeQuery) -> impl Iterator<Item = &'a KnowledgeNode> {
+    pub(crate) fn nodes_matching<'a>(
+        &'a self,
+        query: &KnowledgeQuery,
+    ) -> impl Iterator<Item = &'a KnowledgeNode> {
         self.nodes_iter().filter(|node| query.matches_node(node))
     }
 
-    pub(crate) fn edges_matching<'a>(&'a self, query: &KnowledgeQuery) -> impl Iterator<Item = &'a KnowledgeEdge> {
+    pub(crate) fn edges_matching<'a>(
+        &'a self,
+        query: &KnowledgeQuery,
+    ) -> impl Iterator<Item = &'a KnowledgeEdge> {
         self.edges_iter().filter(|edge| query.matches_edge(edge))
     }
 }

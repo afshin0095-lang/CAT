@@ -4,9 +4,21 @@ use reqwest::StatusCode;
 #[test]
 fn http_statuses_have_stable_retry_semantics() {
     let cases = [
-        (StatusCode::BAD_REQUEST, ProviderFailureClass::InvalidRequest, false),
-        (StatusCode::UNAUTHORIZED, ProviderFailureClass::Unauthorized, false),
-        (StatusCode::TOO_MANY_REQUESTS, ProviderFailureClass::RateLimited, true),
+        (
+            StatusCode::BAD_REQUEST,
+            ProviderFailureClass::InvalidRequest,
+            false,
+        ),
+        (
+            StatusCode::UNAUTHORIZED,
+            ProviderFailureClass::Unauthorized,
+            false,
+        ),
+        (
+            StatusCode::TOO_MANY_REQUESTS,
+            ProviderFailureClass::RateLimited,
+            true,
+        ),
         (StatusCode::BAD_GATEWAY, ProviderFailureClass::Server, true),
     ];
     for (status, expected, retryable) in cases {
@@ -27,5 +39,10 @@ fn telemetry_is_provider_local_and_deterministic() {
 
     assert_eq!(telemetry.count(ProviderFailureClass::Server), 2);
     assert_eq!(telemetry.retryable_failures(), 3);
-    assert_eq!(telemetry.snapshot().get(&ProviderFailureClass::Unauthorized), Some(&1));
+    assert_eq!(
+        telemetry
+            .snapshot()
+            .get(&ProviderFailureClass::Unauthorized),
+        Some(&1)
+    );
 }

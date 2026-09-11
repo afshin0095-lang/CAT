@@ -9,8 +9,12 @@ use crate::{Lease, OrchestratorError, OrchestratorResult};
 pub struct FencingToken(u64);
 
 impl FencingToken {
-    pub const fn value(self) -> u64 { self.0 }
-    pub(crate) const fn from_value(value: u64) -> Self { Self(value) }
+    pub const fn value(self) -> u64 {
+        self.0
+    }
+    pub(crate) const fn from_value(value: u64) -> Self {
+        Self(value)
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -20,7 +24,12 @@ pub struct FencedLease {
 }
 
 impl FencedLease {
-    pub fn valid_for(&self, owner: &str, fencing_token: FencingToken, now_ms: u64) -> OrchestratorResult<()> {
+    pub fn valid_for(
+        &self,
+        owner: &str,
+        fencing_token: FencingToken,
+        now_ms: u64,
+    ) -> OrchestratorResult<()> {
         self.lease.valid_for(owner, now_ms)?;
         if fencing_token != self.fencing_token {
             return Err(OrchestratorError::FencingTokenMismatch {
@@ -35,8 +44,20 @@ impl FencedLease {
 
 /// Distributed implementations must persist and atomically advance the token per resource.
 pub trait FencedLeaseProvider {
-    fn acquire(&mut self, resource: &str, owner: &str, now_ms: u64, ttl_ms: u64) -> OrchestratorResult<FencedLease>;
-    fn validate(&self, resource: &str, owner: &str, fencing_token: FencingToken, now_ms: u64) -> OrchestratorResult<()>;
+    fn acquire(
+        &mut self,
+        resource: &str,
+        owner: &str,
+        now_ms: u64,
+        ttl_ms: u64,
+    ) -> OrchestratorResult<FencedLease>;
+    fn validate(
+        &self,
+        resource: &str,
+        owner: &str,
+        fencing_token: FencingToken,
+        now_ms: u64,
+    ) -> OrchestratorResult<()>;
 }
 
 #[derive(Default)]
@@ -46,10 +67,18 @@ pub struct InMemoryFencedLeaseProvider {
 }
 
 impl FencedLeaseProvider for InMemoryFencedLeaseProvider {
-    fn acquire(&mut self, resource: &str, owner: &str, now_ms: u64, ttl_ms: u64) -> OrchestratorResult<FencedLease> {
+    fn acquire(
+        &mut self,
+        resource: &str,
+        owner: &str,
+        now_ms: u64,
+        ttl_ms: u64,
+    ) -> OrchestratorResult<FencedLease> {
         if let Some(existing) = self.leases.get(resource) {
             if existing.lease.expires_at_ms > now_ms && existing.lease.owner != owner {
-                return Err(OrchestratorError::LeaseUnavailable { resource: resource.to_owned() });
+                return Err(OrchestratorError::LeaseUnavailable {
+                    resource: resource.to_owned(),
+                });
             }
         }
 
@@ -63,8 +92,19 @@ impl FencedLeaseProvider for InMemoryFencedLeaseProvider {
         Ok(fenced)
     }
 
-    fn validate(&self, resource: &str, owner: &str, fencing_token: FencingToken, now_ms: u64) -> OrchestratorResult<()> {
-        let current = self.leases.get(resource).ok_or_else(|| OrchestratorError::LeaseUnavailable { resource: resource.to_owned() })?;
+    fn validate(
+        &self,
+        resource: &str,
+        owner: &str,
+        fencing_token: FencingToken,
+        now_ms: u64,
+    ) -> OrchestratorResult<()> {
+        let current =
+            self.leases
+                .get(resource)
+                .ok_or_else(|| OrchestratorError::LeaseUnavailable {
+                    resource: resource.to_owned(),
+                })?;
         current.valid_for(owner, fencing_token, now_ms)
     }
 }
@@ -88,9 +128,16 @@ mod tests {
         let mut provider = InMemoryFencedLeaseProvider::default();
         let first = provider.acquire("workflow/1", "worker-a", 100, 10).unwrap();
         let second = provider.acquire("workflow/1", "worker-b", 110, 10).unwrap();
-        let error = provider.validate("workflow/1", "worker-b", first.fencing_token, 111).unwrap_err();
-        assert!(matches!(error, OrchestratorError::FencingTokenMismatch { .. }));
-        provider.validate("workflow/1", "worker-b", second.fencing_token, 111).unwrap();
+        let error = provider
+            .validate("workflow/1", "worker-b", first.fencing_token, 111)
+            .unwrap_err();
+        assert!(matches!(
+            error,
+            OrchestratorError::FencingTokenMismatch { .. }
+        ));
+        provider
+            .validate("workflow/1", "worker-b", second.fencing_token, 111)
+            .unwrap();
     }
 
     #[test]

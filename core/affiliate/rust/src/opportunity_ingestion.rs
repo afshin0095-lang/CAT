@@ -16,8 +16,8 @@ use uuid::Uuid;
 
 use crate::clock::{Clock, SystemClock};
 use crate::{
-    DiscoveryEngine, DiscoveryIngestion, DiscoveryRequest, DiscoverySourceRegistry, OpportunityStore,
-    OpportunityStoreError, OpportunityUpsertResult,
+    DiscoveryEngine, DiscoveryIngestion, DiscoveryRequest, DiscoverySourceRegistry,
+    OpportunityStore, OpportunityStoreError, OpportunityUpsertResult,
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -110,7 +110,11 @@ where
         Self::with_clock(registry, store, SystemClock::new())
     }
 
-    pub fn with_clock(registry: &'a DiscoverySourceRegistry, store: S, clock: impl Clock + 'static) -> Self {
+    pub fn with_clock(
+        registry: &'a DiscoverySourceRegistry,
+        store: S,
+        clock: impl Clock + 'static,
+    ) -> Self {
         Self {
             discovery: DiscoveryIngestion::new(registry),
             store,
@@ -182,18 +186,20 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        canonical_key, DiscoveryCandidate, DiscoverySource, DiscoverySourceBatch,
-        DiscoverySourceError, DiscoverySourceFuture, DiscoverySourceId, DiscoverySourceInfo,
-        DiscoverySourceKind, DiscoverySourceRequest, InMemoryOpportunityStore, OpportunityIdentity,
-    };
     use crate::clock::FixedClock;
-    use std::future::{ready, Future};
+    use crate::{
+        DiscoveryCandidate, DiscoverySource, DiscoverySourceBatch, DiscoverySourceError,
+        DiscoverySourceFuture, DiscoverySourceId, DiscoverySourceInfo, DiscoverySourceKind,
+        DiscoverySourceRequest, InMemoryOpportunityStore, OpportunityIdentity, canonical_key,
+    };
+    use std::future::{Future, ready};
     use std::pin::Pin;
     use std::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
 
     fn block_on<F: Future>(mut future: F) -> F::Output {
-        fn clone(_: *const ()) -> RawWaker { raw_waker() }
+        fn clone(_: *const ()) -> RawWaker {
+            raw_waker()
+        }
         fn wake(_: *const ()) {}
         fn wake_by_ref(_: *const ()) {}
         fn drop(_: *const ()) {}
@@ -221,14 +227,18 @@ mod tests {
     }
 
     impl DiscoverySource for StaticSource {
-        fn info(&self) -> &DiscoverySourceInfo { &self.info }
+        fn info(&self) -> &DiscoverySourceInfo {
+            &self.info
+        }
 
         fn discover<'a>(
             &'a self,
             _request: DiscoverySourceRequest,
         ) -> DiscoverySourceFuture<'a, DiscoverySourceBatch> {
             if self.fail {
-                Box::pin(ready(Err(DiscoverySourceError::Unavailable("provider down".into()))))
+                Box::pin(ready(Err(DiscoverySourceError::Unavailable(
+                    "provider down".into(),
+                ))))
             } else {
                 Box::pin(ready(Ok(self.batch.clone())))
             }
@@ -289,7 +299,8 @@ mod tests {
         registry.register(Box::new(first));
         registry.register(Box::new(second));
         let store = InMemoryOpportunityStore::new();
-        let mut ingestion = OpportunityIngestion::with_clock(&registry, store, FixedClock::new(1_000));
+        let mut ingestion =
+            OpportunityIngestion::with_clock(&registry, store, FixedClock::new(1_000));
 
         let report = block_on(ingestion.ingest(
             DiscoverySourceRequest {
@@ -343,7 +354,10 @@ mod tests {
         let mut ingestion = OpportunityIngestion::new(&registry, store);
 
         let report = block_on(ingestion.ingest(
-            DiscoverySourceRequest { per_page: 10, ..Default::default() },
+            DiscoverySourceRequest {
+                per_page: 10,
+                ..Default::default()
+            },
             0,
             10,
         ));
@@ -375,7 +389,10 @@ mod tests {
         let mut ingestion = OpportunityIngestion::new(&registry, store);
 
         let report = block_on(ingestion.ingest(
-            DiscoverySourceRequest { per_page: 10, ..Default::default() },
+            DiscoverySourceRequest {
+                per_page: 10,
+                ..Default::default()
+            },
             0,
             10,
         ));
@@ -404,7 +421,10 @@ mod tests {
         let mut ingestion = OpportunityIngestion::new(&registry, store);
 
         let report = block_on(ingestion.ingest(
-            DiscoverySourceRequest { per_page: 10, ..Default::default() },
+            DiscoverySourceRequest {
+                per_page: 10,
+                ..Default::default()
+            },
             0,
             10,
         ));
@@ -418,11 +438,17 @@ mod tests {
     struct FailingStore;
 
     impl OpportunityStore for FailingStore {
-        fn upsert(&mut self, _: crate::DiscoveryOpportunity) -> Result<OpportunityUpsertResult, OpportunityStoreError> {
+        fn upsert(
+            &mut self,
+            _: crate::DiscoveryOpportunity,
+        ) -> Result<OpportunityUpsertResult, OpportunityStoreError> {
             Err(OpportunityStoreError::InvalidCandidate)
         }
 
-        fn get(&self, _: &OpportunityIdentity) -> Result<crate::OpportunityRecord, OpportunityStoreError> {
+        fn get(
+            &self,
+            _: &OpportunityIdentity,
+        ) -> Result<crate::OpportunityRecord, OpportunityStoreError> {
             Err(OpportunityStoreError::NotFound)
         }
 

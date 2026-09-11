@@ -19,13 +19,20 @@ pub struct LifecycleState {
 
 impl Default for LifecycleState {
     fn default() -> Self {
-        Self { phase: LifecyclePhase::Created, generation: 0 }
+        Self {
+            phase: LifecyclePhase::Created,
+            generation: 0,
+        }
     }
 }
 
 impl LifecycleState {
-    pub fn phase(&self) -> LifecyclePhase { self.phase }
-    pub fn generation(&self) -> u64 { self.generation }
+    pub fn phase(&self) -> LifecyclePhase {
+        self.phase
+    }
+    pub fn generation(&self) -> u64 {
+        self.generation
+    }
 
     pub fn transition(&mut self, next: LifecyclePhase) -> Result<(), LifecycleError> {
         let valid = matches!(
@@ -39,8 +46,15 @@ impl LifecycleState {
                 | (LifecyclePhase::Draining, LifecyclePhase::Failed)
                 | (LifecyclePhase::Failed, LifecyclePhase::Starting)
         );
-        if !valid { return Err(LifecycleError::InvalidTransition { from: self.phase, to: next }); }
-        if matches!(next, LifecyclePhase::Starting) { self.generation = self.generation.saturating_add(1); }
+        if !valid {
+            return Err(LifecycleError::InvalidTransition {
+                from: self.phase,
+                to: next,
+            });
+        }
+        if matches!(next, LifecyclePhase::Starting) {
+            self.generation = self.generation.saturating_add(1);
+        }
         self.phase = next;
         Ok(())
     }
@@ -49,11 +63,16 @@ impl LifecycleState {
 #[derive(Debug, thiserror::Error)]
 pub enum LifecycleError {
     #[error("invalid runtime lifecycle transition: {from:?} -> {to:?}")]
-    InvalidTransition { from: LifecyclePhase, to: LifecyclePhase },
+    InvalidTransition {
+        from: LifecyclePhase,
+        to: LifecyclePhase,
+    },
 }
 
 impl fmt::Display for LifecyclePhase {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{self:?}") }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{self:?}")
+    }
 }
 
 #[cfg(test)]

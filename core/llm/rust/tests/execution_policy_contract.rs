@@ -15,7 +15,9 @@ impl ToolExecutor for CountingExecutor {
         ID.get_or_init(|| ToolId::new("cat.lookup"))
     }
 
-    fn tool_version(&self) -> ToolVersion { ToolVersion(1) }
+    fn tool_version(&self) -> ToolVersion {
+        ToolVersion(1)
+    }
 
     async fn execute(&self, call: &ToolCall) -> Result<cat_llm::ToolExecution, LlmError> {
         Ok(cat_llm::ToolExecution {
@@ -75,7 +77,10 @@ async fn authorization_and_execution_preserve_phase_boundary() {
 
     assert!(result.authorization.decision.allowed);
     assert_eq!(result.execution.status, ToolExecutionStatus::Succeeded);
-    assert_eq!(result.execution.output, Some(serde_json::json!({"accepted": true})));
+    assert_eq!(
+        result.execution.output,
+        Some(serde_json::json!({"accepted": true}))
+    );
 }
 
 #[tokio::test]

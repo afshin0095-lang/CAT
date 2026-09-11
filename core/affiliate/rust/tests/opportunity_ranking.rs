@@ -1,9 +1,9 @@
 //! Integration coverage for deterministic ranking over real store records.
 
 use cat_affiliate::{
-    canonical_key, DiscoveryCandidate, DiscoveryOpportunity, FreshnessPolicy, InMemoryOpportunityStore,
-    OpportunityRanker, OpportunityRankingError, OpportunityRankingProfile, OpportunityStore, RankedOpportunity,
-    SourceHealthSnapshot, SourceHealthState, WEIGHT_SCALE,
+    DiscoveryCandidate, DiscoveryOpportunity, FreshnessPolicy, InMemoryOpportunityStore,
+    OpportunityRanker, OpportunityRankingError, OpportunityRankingProfile, OpportunityStore,
+    RankedOpportunity, SourceHealthSnapshot, SourceHealthState, WEIGHT_SCALE, canonical_key,
 };
 use std::collections::BTreeMap;
 use uuid::Uuid;
@@ -12,7 +12,12 @@ fn record(product: &str, score: u32, observed_at_ms: u64) -> cat_affiliate::Oppo
     record_with_commission(product, score, observed_at_ms, 5_000)
 }
 
-fn record_with_commission(product: &str, score: u32, observed_at_ms: u64, commission_bps: u32) -> cat_affiliate::OpportunityRecord {
+fn record_with_commission(
+    product: &str,
+    score: u32,
+    observed_at_ms: u64,
+    commission_bps: u32,
+) -> cat_affiliate::OpportunityRecord {
     let candidate = DiscoveryCandidate {
         source: "network-a".into(),
         external_id: format!("sku-{product}"),
@@ -30,7 +35,12 @@ fn record_with_commission(product: &str, score: u32, observed_at_ms: u64, commis
         compliance_score: 10_000,
         observed_at_ms,
     };
-    let opportunity = DiscoveryOpportunity { id: Uuid::now_v7(), candidate, score, rank: 1 };
+    let opportunity = DiscoveryOpportunity {
+        id: Uuid::now_v7(),
+        candidate,
+        score,
+        rank: 1,
+    };
     let mut store = InMemoryOpportunityStore::new();
     store.upsert(opportunity).expect("valid opportunity");
     store.list().into_iter().next().expect("record exists")
@@ -47,8 +57,12 @@ fn ranking_orders_by_score_then_identity_and_never_reorders_on_repeat() {
         record("Echo", 9_500, 10_000),
     ];
 
-    let first = ranker.rank(&records, &policy, 10_500, &health).expect("valid");
-    let second = ranker.rank(&records, &policy, 10_500, &health).expect("valid");
+    let first = ranker
+        .rank(&records, &policy, 10_500, &health)
+        .expect("valid");
+    let second = ranker
+        .rank(&records, &policy, 10_500, &health)
+        .expect("valid");
     assert_eq!(first, second, "ranking is deterministic");
 
     let identities: Vec<&str> = first.iter().map(|entry| entry.identity.as_str()).collect();
@@ -102,11 +116,19 @@ fn scores_stay_within_the_declared_scale_at_boundaries() {
 
     let top = record_with_commission("Top", WEIGHT_SCALE, 10_000, WEIGHT_SCALE);
     let bottom = record_with_commission("Bottom", 0, 10_000, 0);
-    let ranked = ranker.rank(&[top, bottom], &policy, 10_500, &health).expect("valid");
+    let ranked = ranker
+        .rank(&[top, bottom], &policy, 10_500, &health)
+        .expect("valid");
     for entry in &ranked {
-        assert!(entry.score <= WEIGHT_SCALE, "score escaped the declared scale");
+        assert!(
+            entry.score <= WEIGHT_SCALE,
+            "score escaped the declared scale"
+        );
     }
-    assert_eq!(ranked[0].score, WEIGHT_SCALE, "perfect inputs produce the maximum score");
+    assert_eq!(
+        ranked[0].score, WEIGHT_SCALE,
+        "perfect inputs produce the maximum score"
+    );
 }
 
 #[test]
@@ -127,7 +149,9 @@ fn ranked_entries_serialize_for_downstream_consumption() {
     let policy = FreshnessPolicy::new(1_000, 5_000, 9_000).expect("valid policy");
     let health = BTreeMap::new();
     let records = vec![record("Solo", 8_000, 10_000)];
-    let ranked: Vec<RankedOpportunity> = ranker.rank(&records, &policy, 10_500, &health).expect("valid");
+    let ranked: Vec<RankedOpportunity> = ranker
+        .rank(&records, &policy, 10_500, &health)
+        .expect("valid");
     let encoded = serde_json::to_string(&ranked).expect("serialize");
     let decoded: Vec<RankedOpportunity> = serde_json::from_str(&encoded).expect("deserialize");
     assert_eq!(decoded, ranked);

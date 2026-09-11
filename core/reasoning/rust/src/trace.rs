@@ -13,6 +13,12 @@ pub struct ReasoningTrace {
 
 impl ReasoningTrace {
     pub fn from_result(result: &ReasoningResult, created_at_ms: u64) -> Self {
-        Self { trace_id: Uuid::now_v7(), reasoning_id: result.reasoning_id, request_id: result.request_id, steps: result.steps.clone(), created_at_ms }
+        Self {
+            trace_id: Uuid::now_v7(),
+            reasoning_id: result.reasoning_id,
+            request_id: result.request_id,
+            steps: result.steps.clone(),
+            created_at_ms,
+        }
     }
 }

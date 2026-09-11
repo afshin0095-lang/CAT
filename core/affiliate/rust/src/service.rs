@@ -124,7 +124,10 @@ impl AffiliateDomain {
     }
 
     pub fn attribute_referral(referral: &mut Referral) {
-        if matches!(referral.state, ReferralState::Received | ReferralState::Qualified) {
+        if matches!(
+            referral.state,
+            ReferralState::Received | ReferralState::Qualified
+        ) {
             referral.state = ReferralState::Attributed;
         }
     }
@@ -175,7 +178,10 @@ impl AffiliateDomain {
         }
 
         let currency = currency.into();
-        let idempotency_key = format!("commission:{}:{}:{}", conversion.id.0, affiliate.id.0, amount_minor);
+        let idempotency_key = format!(
+            "commission:{}:{}:{}",
+            conversion.id.0, affiliate.id.0, amount_minor
+        );
         let obligation = CommissionObligation {
             id: CommissionObligationId(Uuid::now_v7()),
             conversion_id: conversion.id,
@@ -213,4 +219,5 @@ fn _type_markers(
     _: ReferralId,
     _: ConversionId,
     _: CommissionObligationId,
-) {}
+) {
+}

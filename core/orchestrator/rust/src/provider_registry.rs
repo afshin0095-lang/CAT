@@ -28,9 +28,13 @@ impl ProviderAdapterRegistry {
             return Err("provider name must not be empty".into());
         }
         if self.providers.contains_key(&registration.name) {
-            return Err(format!("provider already registered: {}", registration.name));
+            return Err(format!(
+                "provider already registered: {}",
+                registration.name
+            ));
         }
-        self.providers.insert(registration.name.clone(), registration);
+        self.providers
+            .insert(registration.name.clone(), registration);
         Ok(())
     }
 
@@ -39,14 +43,22 @@ impl ProviderAdapterRegistry {
     }
 
     pub fn supports(&self, name: &str, required: &[ProviderCapability]) -> bool {
-        let Some(provider) = self.get(name) else { return false; };
-        required.iter().all(|capability| provider.capabilities.contains(capability))
+        let Some(provider) = self.get(name) else {
+            return false;
+        };
+        required
+            .iter()
+            .all(|capability| provider.capabilities.contains(capability))
     }
 
     pub fn eligible(&self, required: &[ProviderCapability]) -> Vec<&ProviderRegistration> {
         self.providers
             .values()
-            .filter(|provider| required.iter().all(|capability| provider.capabilities.contains(capability)))
+            .filter(|provider| {
+                required
+                    .iter()
+                    .all(|capability| provider.capabilities.contains(capability))
+            })
             .collect()
     }
 

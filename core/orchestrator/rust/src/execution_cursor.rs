@@ -25,7 +25,7 @@ pub fn cursor(workflow: &WorkflowInstance) -> ExecutionCursor {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{WorkflowDefinition, WorkflowStep, WorkflowState};
+    use crate::{WorkflowDefinition, WorkflowState, WorkflowStep};
 
     #[test]
     fn cursor_exposes_only_ready_steps() {
@@ -35,8 +35,22 @@ mod tests {
                 workflow_type: "test".into(),
                 version: 1,
                 steps: vec![
-                    WorkflowStep { id: "ready".into(), dependencies: vec![], state: StepState::Ready, attempt: 0, max_attempts: 3, compensation_step: None },
-                    WorkflowStep { id: "pending".into(), dependencies: vec![], state: StepState::Pending, attempt: 0, max_attempts: 3, compensation_step: None },
+                    WorkflowStep {
+                        id: "ready".into(),
+                        dependencies: vec![],
+                        state: StepState::Ready,
+                        attempt: 0,
+                        max_attempts: 3,
+                        compensation_step: None,
+                    },
+                    WorkflowStep {
+                        id: "pending".into(),
+                        dependencies: vec![],
+                        state: StepState::Pending,
+                        attempt: 0,
+                        max_attempts: 3,
+                        compensation_step: None,
+                    },
                 ],
             },
             state: WorkflowState::Running,

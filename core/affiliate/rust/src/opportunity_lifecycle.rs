@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::opportunity_freshness::{FreshnessPolicy, FreshnessPolicyError, FreshnessState};
 use crate::OpportunityRecord;
+use crate::opportunity_freshness::{FreshnessPolicy, FreshnessPolicyError, FreshnessState};
 
 /// Lifecycle classification derived from the age of the most recent observation.
 ///
@@ -50,7 +50,10 @@ pub struct OpportunityLifecyclePolicy {
 }
 
 impl OpportunityLifecyclePolicy {
-    pub fn new(stale_after_ms: u64, expire_after_ms: u64) -> Result<Self, OpportunityLifecycleError> {
+    pub fn new(
+        stale_after_ms: u64,
+        expire_after_ms: u64,
+    ) -> Result<Self, OpportunityLifecycleError> {
         if stale_after_ms == 0 || stale_after_ms >= expire_after_ms {
             return Err(OpportunityLifecycleError::InvalidPolicy);
         }
@@ -122,8 +125,11 @@ pub enum OpportunityLifecycleError {
 impl std::fmt::Display for OpportunityLifecycleError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::InvalidPolicy => formatter.write_str("lifecycle policy must satisfy 0 < stale_after_ms < expire_after_ms"),
-            Self::ClockBeforeObservation => formatter.write_str("evaluation time cannot precede the last observation"),
+            Self::InvalidPolicy => formatter
+                .write_str("lifecycle policy must satisfy 0 < stale_after_ms < expire_after_ms"),
+            Self::ClockBeforeObservation => {
+                formatter.write_str("evaluation time cannot precede the last observation")
+            }
         }
     }
 }
@@ -156,7 +162,11 @@ impl OpportunityLifecycleEvaluator {
         }
     }
 
-    pub fn evaluate(&self, record: &OpportunityRecord, now_ms: u64) -> Result<OpportunityLifecycleSnapshot, OpportunityLifecycleError> {
+    pub fn evaluate(
+        &self,
+        record: &OpportunityRecord,
+        now_ms: u64,
+    ) -> Result<OpportunityLifecycleSnapshot, OpportunityLifecycleError> {
         let evaluation = self.freshness.evaluate(record, now_ms)?;
         Ok(OpportunityLifecycleSnapshot {
             state: evaluation.state().into(),
@@ -230,7 +240,10 @@ impl LifecycleEvaluationBatch {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{canonical_key, DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore, OpportunityStore};
+    use crate::{
+        DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore, OpportunityStore,
+        canonical_key,
+    };
     use uuid::Uuid;
 
     fn record(observed_at_ms: u64, merchant: &str) -> OpportunityRecord {
@@ -251,7 +264,12 @@ mod tests {
             compliance_score: 10_000,
             observed_at_ms,
         };
-        let opportunity = DiscoveryOpportunity { id: Uuid::now_v7(), candidate, score: 8_000, rank: 1 };
+        let opportunity = DiscoveryOpportunity {
+            id: Uuid::now_v7(),
+            candidate,
+            score: 8_000,
+            rank: 1,
+        };
         let mut store = InMemoryOpportunityStore::new();
         store.upsert(opportunity).expect("valid opportunity");
         store.list().into_iter().next().expect("record exists")
@@ -259,9 +277,18 @@ mod tests {
 
     #[test]
     fn lifecycle_state_matches_freshness_state() {
-        assert_eq!(OpportunityLifecycleState::from(FreshnessState::Active), OpportunityLifecycleState::Active);
-        assert_eq!(OpportunityLifecycleState::from(FreshnessState::Stale), OpportunityLifecycleState::Stale);
-        assert_eq!(OpportunityLifecycleState::from(FreshnessState::Expired), OpportunityLifecycleState::Expired);
+        assert_eq!(
+            OpportunityLifecycleState::from(FreshnessState::Active),
+            OpportunityLifecycleState::Active
+        );
+        assert_eq!(
+            OpportunityLifecycleState::from(FreshnessState::Stale),
+            OpportunityLifecycleState::Stale
+        );
+        assert_eq!(
+            OpportunityLifecycleState::from(FreshnessState::Expired),
+            OpportunityLifecycleState::Expired
+        );
     }
 
     #[test]
@@ -293,7 +320,10 @@ mod tests {
             .iter()
             .map(|evaluation| evaluation.identity.as_str())
             .collect();
-        assert_eq!(identities, vec!["alpha:widget", "beta:widget", "zeta:widget"]);
+        assert_eq!(
+            identities,
+            vec!["alpha:widget", "beta:widget", "zeta:widget"]
+        );
         assert_eq!(batch.counts.active, 2);
         assert_eq!(batch.counts.stale, 1);
         assert_eq!(batch.counts.expired, 0);

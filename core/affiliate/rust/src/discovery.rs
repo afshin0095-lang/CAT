@@ -42,7 +42,11 @@ impl DiscoveryCandidate {
         // Degenerate identity guard (see `canonical_key` internationalization
         // notes): a fully non-ASCII name normalizes to the bare separator,
         // which would collide across unrelated products. Fail closed instead.
-        if !self.canonical_key.chars().any(|character| character.is_ascii_alphanumeric()) {
+        if !self
+            .canonical_key
+            .chars()
+            .any(|character| character.is_ascii_alphanumeric())
+        {
             return Err(DiscoveryError::MissingField("canonical_key"));
         }
         if let Some(category) = &self.category {
@@ -75,12 +79,19 @@ impl DiscoveryCandidate {
     }
 }
 
-fn validate_bounded(field: &'static str, value: &str, max_len: usize) -> Result<(), DiscoveryError> {
+fn validate_bounded(
+    field: &'static str,
+    value: &str,
+    max_len: usize,
+) -> Result<(), DiscoveryError> {
     if value.trim().is_empty() {
         return Err(DiscoveryError::MissingField(field));
     }
     if value.chars().count() > max_len {
-        return Err(DiscoveryError::TooLong { field, max: max_len });
+        return Err(DiscoveryError::TooLong {
+            field,
+            max: max_len,
+        });
     }
     if value.chars().any(|character| character.is_control()) {
         return Err(DiscoveryError::InvalidCharacters(field));
@@ -105,17 +116,26 @@ fn validate_destination_url(url: &str) -> Result<(), DiscoveryError> {
         return Err(DiscoveryError::InvalidUrl("missing scheme separator"));
     };
     if !scheme.eq_ignore_ascii_case("http") && !scheme.eq_ignore_ascii_case("https") {
-        return Err(DiscoveryError::InvalidUrl("only http and https schemes are accepted"));
+        return Err(DiscoveryError::InvalidUrl(
+            "only http and https schemes are accepted",
+        ));
     }
     let host = remainder.split(['/', '?', '#']).next().unwrap_or_default();
     if host.is_empty() {
         return Err(DiscoveryError::InvalidUrl("missing host"));
     }
-    if host.chars().any(|character| character.is_whitespace() || character.is_control()) {
-        return Err(DiscoveryError::InvalidUrl("host must not contain whitespace or control characters"));
+    if host
+        .chars()
+        .any(|character| character.is_whitespace() || character.is_control())
+    {
+        return Err(DiscoveryError::InvalidUrl(
+            "host must not contain whitespace or control characters",
+        ));
     }
     if url.chars().any(|character| character.is_control()) {
-        return Err(DiscoveryError::InvalidUrl("control characters are not allowed"));
+        return Err(DiscoveryError::InvalidUrl(
+            "control characters are not allowed",
+        ));
     }
     Ok(())
 }
@@ -173,11 +193,17 @@ impl std::fmt::Display for DiscoveryError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::MissingField(field) => write!(formatter, "missing required field: {field}"),
-            Self::NegativeValue(field) => write!(formatter, "negative value is not allowed: {field}"),
+            Self::NegativeValue(field) => {
+                write!(formatter, "negative value is not allowed: {field}")
+            }
             Self::OutOfRange(field) => write!(formatter, "value is out of range: {field}"),
             Self::InvalidLimit => formatter.write_str("discovery limit must be greater than zero"),
-            Self::TooLong { field, max } => write!(formatter, "field {field} exceeds {max} characters"),
-            Self::InvalidCharacters(field) => write!(formatter, "field {field} contains forbidden characters"),
+            Self::TooLong { field, max } => {
+                write!(formatter, "field {field} exceeds {max} characters")
+            }
+            Self::InvalidCharacters(field) => {
+                write!(formatter, "field {field} contains forbidden characters")
+            }
             Self::InvalidUrl(reason) => write!(formatter, "destination_url is invalid: {reason}"),
         }
     }
@@ -228,7 +254,10 @@ impl DiscoveryEngine {
             })
             .collect();
 
-        Ok(DiscoveryResult { opportunities, rejected })
+        Ok(DiscoveryResult {
+            opportunities,
+            rejected,
+        })
     }
 }
 
@@ -299,7 +328,10 @@ mod tests {
 
     #[test]
     fn canonical_key_is_deterministic_and_normalized() {
-        assert_eq!(canonical_key(" ACME ", "Noise Cancelling Headphones!"), "acme:noise-cancelling-headphones");
+        assert_eq!(
+            canonical_key(" ACME ", "Noise Cancelling Headphones!"),
+            "acme:noise-cancelling-headphones"
+        );
     }
 
     #[test]
@@ -323,29 +355,56 @@ mod tests {
         let mut candidate = candidate("url-check", 5_000);
 
         candidate.destination_url = "ftp://example.test/file".into();
-        assert!(matches!(candidate.validate(), Err(DiscoveryError::InvalidUrl(_))));
+        assert!(matches!(
+            candidate.validate(),
+            Err(DiscoveryError::InvalidUrl(_))
+        ));
 
         candidate.destination_url = "example.test/product".into();
-        assert!(matches!(candidate.validate(), Err(DiscoveryError::InvalidUrl(_))));
+        assert!(matches!(
+            candidate.validate(),
+            Err(DiscoveryError::InvalidUrl(_))
+        ));
 
         candidate.destination_url = "https:///no-host".into();
-        assert!(matches!(candidate.validate(), Err(DiscoveryError::InvalidUrl(_))));
+        assert!(matches!(
+            candidate.validate(),
+            Err(DiscoveryError::InvalidUrl(_))
+        ));
 
         candidate.destination_url = "https://exa mple.test/product".into();
-        assert!(matches!(candidate.validate(), Err(DiscoveryError::InvalidUrl(_))));
+        assert!(matches!(
+            candidate.validate(),
+            Err(DiscoveryError::InvalidUrl(_))
+        ));
 
-        candidate.destination_url = format!("https://example.test/{}", "a".repeat(MAX_DESTINATION_URL_LEN));
-        assert!(matches!(candidate.validate(), Err(DiscoveryError::TooLong { .. })));
+        candidate.destination_url = format!(
+            "https://example.test/{}",
+            "a".repeat(MAX_DESTINATION_URL_LEN)
+        );
+        assert!(matches!(
+            candidate.validate(),
+            Err(DiscoveryError::TooLong { .. })
+        ));
 
         candidate.destination_url = "HTTPS://Example.Test/Product".into();
-        assert!(candidate.validate().is_ok(), "scheme case is accepted without normalization");
+        assert!(
+            candidate.validate().is_ok(),
+            "scheme case is accepted without normalization"
+        );
     }
 
     #[test]
     fn oversized_and_control_character_values_are_rejected() {
         let mut candidate = candidate("bounds", 5_000);
         candidate.source = "s".repeat(MAX_SOURCE_LEN + 1);
-        assert!(matches!(candidate.validate(), Err(DiscoveryError::TooLong { field: "source", .. })));
+        assert!(matches!(
+            candidate.validate(),
+            Err(DiscoveryError::TooLong {
+                field: "source",
+                ..
+            })
+        ));
 
         let mut candidate = candidate("bounds", 5_000);
         candidate.external_id = "id\u{7f}ent".into();
@@ -356,7 +415,13 @@ mod tests {
 
         let mut candidate = candidate("bounds", 5_000);
         candidate.currency = "EURURURURURURURUR".into(); // 17 characters
-        assert!(matches!(candidate.validate(), Err(DiscoveryError::TooLong { field: "currency", .. })));
+        assert!(matches!(
+            candidate.validate(),
+            Err(DiscoveryError::TooLong {
+                field: "currency",
+                ..
+            })
+        ));
     }
 
     #[test]

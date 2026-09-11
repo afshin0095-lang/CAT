@@ -1,4 +1,4 @@
-use cat_affiliate::{canonical_key, DiscoveryCandidate, DiscoveryEngine, DiscoveryRequest};
+use cat_affiliate::{DiscoveryCandidate, DiscoveryEngine, DiscoveryRequest, canonical_key};
 
 fn candidate(external_id: &str, demand: u32, commission_bps: u32) -> DiscoveryCandidate {
     DiscoveryCandidate {

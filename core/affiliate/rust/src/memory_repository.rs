@@ -1,6 +1,10 @@
 use std::collections::HashMap;
 
-use crate::{Affiliate, AffiliateId, AffiliateRepository, CommissionObligation, CommissionObligationId, Conversion, ConversionId, Merchant, MerchantId, Offer, OfferId, Product, ProductId, Program, ProgramId, Referral, ReferralId, AffiliateDomainError, AffiliateDomainResult};
+use crate::{
+    Affiliate, AffiliateDomainError, AffiliateDomainResult, AffiliateId, AffiliateRepository,
+    CommissionObligation, CommissionObligationId, Conversion, ConversionId, Merchant, MerchantId,
+    Offer, OfferId, Product, ProductId, Program, ProgramId, Referral, ReferralId,
+};
 
 #[derive(Default)]
 pub struct InMemoryAffiliateRepository {
@@ -15,7 +19,9 @@ pub struct InMemoryAffiliateRepository {
 }
 
 impl InMemoryAffiliateRepository {
-    pub fn new() -> Self { Self::default() }
+    pub fn new() -> Self {
+        Self::default()
+    }
 
     fn insert<T, I>(map: &mut HashMap<I, T>, id: I, value: T) -> AffiliateDomainResult<()>
     where
@@ -35,18 +41,70 @@ macro_rules! repository_impl {
             Self::insert(&mut self.$field, value.id, value)
         }
         fn $get(&self, id: $id) -> AffiliateDomainResult<$ty> {
-            self.$field.get(&id).cloned().ok_or(AffiliateDomainError::RepositoryNotFound($entity))
+            self.$field
+                .get(&id)
+                .cloned()
+                .ok_or(AffiliateDomainError::RepositoryNotFound($entity))
         }
     };
 }
 
 impl AffiliateRepository for InMemoryAffiliateRepository {
-    repository_impl!(save_merchant, merchant, merchants, Merchant, MerchantId, "merchant");
-    repository_impl!(save_program, program, programs, Program, ProgramId, "program");
-    repository_impl!(save_product, product, products, Product, ProductId, "product");
+    repository_impl!(
+        save_merchant,
+        merchant,
+        merchants,
+        Merchant,
+        MerchantId,
+        "merchant"
+    );
+    repository_impl!(
+        save_program,
+        program,
+        programs,
+        Program,
+        ProgramId,
+        "program"
+    );
+    repository_impl!(
+        save_product,
+        product,
+        products,
+        Product,
+        ProductId,
+        "product"
+    );
     repository_impl!(save_offer, offer, offers, Offer, OfferId, "offer");
-    repository_impl!(save_affiliate, affiliate, affiliates, Affiliate, AffiliateId, "affiliate");
-    repository_impl!(save_referral, referral, referrals, Referral, ReferralId, "referral");
-    repository_impl!(save_conversion, conversion, conversions, Conversion, ConversionId, "conversion");
-    repository_impl!(save_commission_obligation, commission_obligation, obligations, CommissionObligation, CommissionObligationId, "commission_obligation");
+    repository_impl!(
+        save_affiliate,
+        affiliate,
+        affiliates,
+        Affiliate,
+        AffiliateId,
+        "affiliate"
+    );
+    repository_impl!(
+        save_referral,
+        referral,
+        referrals,
+        Referral,
+        ReferralId,
+        "referral"
+    );
+    repository_impl!(
+        save_conversion,
+        conversion,
+        conversions,
+        Conversion,
+        ConversionId,
+        "conversion"
+    );
+    repository_impl!(
+        save_commission_obligation,
+        commission_obligation,
+        obligations,
+        CommissionObligation,
+        CommissionObligationId,
+        "commission_obligation"
+    );
 }

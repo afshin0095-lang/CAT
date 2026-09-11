@@ -1,10 +1,10 @@
 //! Integration coverage: health and lifecycle are independent dimensions.
 
 use cat_affiliate::{
-    canonical_key, DiscoveryCandidate, DiscoveryOpportunity, FreshnessEvaluation, FreshnessState,
-    HealthConcern, InMemoryOpportunityStore, InMemorySourceHealthStore, OpportunityHealth,
+    DiscoveryCandidate, DiscoveryOpportunity, FreshnessEvaluation, FreshnessState, HealthConcern,
+    InMemoryOpportunityStore, InMemorySourceHealthStore, OpportunityHealth,
     OpportunityHealthAssessment, OpportunityHealthAssessor, OpportunityRecord, OpportunityStore,
-    SourceHealthState, SourceHealthStore,
+    SourceHealthState, SourceHealthStore, canonical_key,
 };
 use uuid::Uuid;
 
@@ -26,7 +26,12 @@ fn record() -> OpportunityRecord {
         compliance_score: 10_000,
         observed_at_ms: 1_000,
     };
-    let opportunity = DiscoveryOpportunity { id: Uuid::now_v7(), candidate, score: 8_000, rank: 1 };
+    let opportunity = DiscoveryOpportunity {
+        id: Uuid::now_v7(),
+        candidate,
+        score: 8_000,
+        rank: 1,
+    };
     let mut store = InMemoryOpportunityStore::new();
     store.upsert(opportunity).expect("valid opportunity");
     store.list().into_iter().next().expect("record exists")
@@ -52,8 +57,12 @@ fn the_full_matrix_of_lifecycle_x_health_is_representable() {
     assert_eq!(degraded.state, SourceHealthState::Degraded);
 
     // Active + Degraded: fresh observation, struggling source.
-    let assessment: OpportunityHealthAssessment =
-        assessor.assess(&stored, &freshness(FreshnessState::Active), Some(&degraded), false);
+    let assessment: OpportunityHealthAssessment = assessor.assess(
+        &stored,
+        &freshness(FreshnessState::Active),
+        Some(&degraded),
+        false,
+    );
     assert_eq!(assessment.health, OpportunityHealth::Degraded);
     assert!(matches!(
         assessment.concerns.as_slice(),
@@ -92,6 +101,11 @@ fn degraded_source_snapshots_come_from_the_health_store() {
 
     let assessor = OpportunityHealthAssessor;
     let stored = record();
-    let assessment = assessor.assess(&stored, &freshness(FreshnessState::Active), Some(&snapshot), false);
+    let assessment = assessor.assess(
+        &stored,
+        &freshness(FreshnessState::Active),
+        Some(&snapshot),
+        false,
+    );
     assert_eq!(assessment.health, OpportunityHealth::Unavailable);
 }

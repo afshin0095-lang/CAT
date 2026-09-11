@@ -1,4 +1,7 @@
-use cat_reasoning::{DeterministicReasoningEngine, Evidence, ReasoningError, ReasoningMode, ReasoningPolicy, ReasoningRequest};
+use cat_reasoning::{
+    DeterministicReasoningEngine, Evidence, ReasoningError, ReasoningMode, ReasoningPolicy,
+    ReasoningRequest,
+};
 use serde_json::json;
 use uuid::Uuid;
 
@@ -63,7 +66,9 @@ fn authoritative_evidence_outweighs_non_authoritative_evidence() {
         evidence("candidate-b", 0.95, false),
     ]);
 
-    let result = DeterministicReasoningEngine::default().reason(&req).unwrap();
+    let result = DeterministicReasoningEngine::default()
+        .reason(&req)
+        .unwrap();
     assert_eq!(result.hypotheses[0].statement, "candidate-a");
     assert!(result.advisory_only);
     assert_eq!(result.evidence_used.len(), 2);
@@ -76,7 +81,9 @@ fn equal_confidence_hypotheses_have_stable_lexical_tie_breaking() {
         evidence("alpha", 0.75, true),
     ]);
 
-    let result = DeterministicReasoningEngine::default().reason(&req).unwrap();
+    let result = DeterministicReasoningEngine::default()
+        .reason(&req)
+        .unwrap();
     assert_eq!(result.hypotheses[0].statement, "alpha");
     assert_eq!(result.hypotheses[1].statement, "zulu");
 }
@@ -88,11 +95,10 @@ fn custom_policy_caps_step_budget() {
         min_evidence_confidence: 0.5,
         require_authoritative_evidence_for_execution: true,
     };
-    let req = request(vec![
-        evidence("A", 0.9, true),
-        evidence("B", 0.9, true),
-    ]);
+    let req = request(vec![evidence("A", 0.9, true), evidence("B", 0.9, true)]);
 
-    let error = DeterministicReasoningEngine::new(policy).reason(&req).unwrap_err();
+    let error = DeterministicReasoningEngine::new(policy)
+        .reason(&req)
+        .unwrap_err();
     assert!(matches!(error, ReasoningError::PolicyRejected(_)));
 }

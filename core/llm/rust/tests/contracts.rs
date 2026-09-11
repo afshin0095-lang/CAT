@@ -1,4 +1,7 @@
-use cat_llm::{DeterministicProvider, GenerationRequest, LlmProvider, ModelId, ModelRoute, ProviderId, RoutingPolicy, SafetyClass};
+use cat_llm::{
+    DeterministicProvider, GenerationRequest, LlmProvider, ModelId, ModelRoute, ProviderId,
+    RoutingPolicy, SafetyClass,
+};
 
 #[test]
 fn routing_respects_safety_ceiling() {
@@ -20,11 +23,17 @@ fn routing_respects_safety_ceiling() {
 #[tokio::test]
 async fn deterministic_provider_is_replayable() {
     let provider = DeterministicProvider;
-    let request = GenerationRequest::new(ModelId::new("test-model"), vec![cat_llm::Message::user("hello cat")]);
+    let request = GenerationRequest::new(
+        ModelId::new("test-model"),
+        vec![cat_llm::Message::user("hello cat")],
+    );
     let response = provider.generate(request.clone()).await.unwrap();
     assert_eq!(response.model, request.model);
     assert_eq!(response.content, "CAT deterministic provider: hello cat");
-    assert_eq!(response.usage.total_tokens, response.usage.input_tokens + response.usage.output_tokens);
+    assert_eq!(
+        response.usage.total_tokens,
+        response.usage.input_tokens + response.usage.output_tokens
+    );
 }
 
 #[test]

@@ -1,7 +1,15 @@
-use cat_affiliate::{canonical_key, DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore, OpportunityIdentity, OpportunityStore};
+use cat_affiliate::{
+    DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore, OpportunityIdentity,
+    OpportunityStore, canonical_key,
+};
 use uuid::Uuid;
 
-fn opportunity(source: &str, external_id: &str, score: u32, observed_at_ms: u64) -> DiscoveryOpportunity {
+fn opportunity(
+    source: &str,
+    external_id: &str,
+    score: u32,
+    observed_at_ms: u64,
+) -> DiscoveryOpportunity {
     let candidate = DiscoveryCandidate {
         source: source.into(),
         external_id: external_id.into(),
@@ -19,14 +27,26 @@ fn opportunity(source: &str, external_id: &str, score: u32, observed_at_ms: u64)
         compliance_score: 10_000,
         observed_at_ms,
     };
-    DiscoveryOpportunity { id: Uuid::now_v7(), candidate, score, rank: 1 }
+    DiscoveryOpportunity {
+        id: Uuid::now_v7(),
+        candidate,
+        score,
+        rank: 1,
+    }
 }
 
 #[test]
 fn same_identity_from_two_sources_is_one_record_with_provenance() {
     let mut store = InMemoryOpportunityStore::new();
-    assert!(store.upsert(opportunity("network-a", "a-1", 7_000, 100)).unwrap().created);
-    let result = store.upsert(opportunity("network-b", "b-9", 9_000, 200)).unwrap();
+    assert!(
+        store
+            .upsert(opportunity("network-a", "a-1", 7_000, 100))
+            .unwrap()
+            .created
+    );
+    let result = store
+        .upsert(opportunity("network-b", "b-9", 9_000, 200))
+        .unwrap();
     assert!(!result.created);
     assert!(result.changed);
 
@@ -54,8 +74,12 @@ fn repeated_identical_observation_is_idempotent() {
 #[test]
 fn equal_best_scores_use_deterministic_source_tiebreak() {
     let mut store = InMemoryOpportunityStore::new();
-    store.upsert(opportunity("zeta", "z-1", 8_000, 100)).unwrap();
-    store.upsert(opportunity("alpha", "a-1", 8_000, 200)).unwrap();
+    store
+        .upsert(opportunity("zeta", "z-1", 8_000, 100))
+        .unwrap();
+    store
+        .upsert(opportunity("alpha", "a-1", 8_000, 200))
+        .unwrap();
     let identity = OpportunityIdentity::new(&opportunity("x", "x-1", 1, 1).candidate);
     assert_eq!(store.get(&identity).unwrap().best_source, "alpha");
 }

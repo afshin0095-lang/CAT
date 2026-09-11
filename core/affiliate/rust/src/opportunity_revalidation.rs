@@ -379,11 +379,19 @@ pub struct RevalidationRequestRecord {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum RevalidationStoreError {
     /// A request with the same `dedup_key` is already active.
-    DuplicateRequest { dedup_key: String },
+    DuplicateRequest {
+        dedup_key: String,
+    },
     NotFound,
-    InvalidTransition { from: RevalidationStatus, to: RevalidationStatus },
+    InvalidTransition {
+        from: RevalidationStatus,
+        to: RevalidationStatus,
+    },
     /// Persisted reason/status strings that this version cannot understand.
-    UnknownEnumValue { field: &'static str, value: String },
+    UnknownEnumValue {
+        field: &'static str,
+        value: String,
+    },
     InvalidRequest(String),
 }
 
@@ -391,7 +399,10 @@ impl std::fmt::Display for RevalidationStoreError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::DuplicateRequest { dedup_key } => {
-                write!(formatter, "revalidation request already active: {dedup_key}")
+                write!(
+                    formatter,
+                    "revalidation request already active: {dedup_key}"
+                )
             }
             Self::NotFound => formatter.write_str("revalidation request was not found"),
             Self::InvalidTransition { from, to } => {
@@ -400,7 +411,9 @@ impl std::fmt::Display for RevalidationStoreError {
             Self::UnknownEnumValue { field, value } => {
                 write!(formatter, "unknown {field} value: {value}")
             }
-            Self::InvalidRequest(message) => write!(formatter, "invalid revalidation request: {message}"),
+            Self::InvalidRequest(message) => {
+                write!(formatter, "invalid revalidation request: {message}")
+            }
         }
     }
 }
@@ -413,7 +426,10 @@ impl std::error::Error for RevalidationStoreError {}
 /// whose key matches an active (non-terminal) request is a
 /// [`RevalidationStoreError::DuplicateRequest`], not a new row.
 pub trait RevalidationRequestStore {
-    fn insert(&mut self, request: RevalidationRequest) -> Result<RevalidationRequestRecord, RevalidationStoreError>;
+    fn insert(
+        &mut self,
+        request: RevalidationRequest,
+    ) -> Result<RevalidationRequestRecord, RevalidationStoreError>;
     fn get(&self, request_id: Uuid) -> Result<RevalidationRequestRecord, RevalidationStoreError>;
     fn find_by_dedup_key(&self, dedup_key: &str) -> Option<RevalidationRequestRecord>;
     /// Applies a checked status transition; terminal statuses reject further
@@ -446,7 +462,10 @@ impl InMemoryRevalidationRequestStore {
 }
 
 impl RevalidationRequestStore for InMemoryRevalidationRequestStore {
-    fn insert(&mut self, request: RevalidationRequest) -> Result<RevalidationRequestRecord, RevalidationStoreError> {
+    fn insert(
+        &mut self,
+        request: RevalidationRequest,
+    ) -> Result<RevalidationRequestRecord, RevalidationStoreError> {
         if request.target.identity.trim().is_empty() || request.target.source.trim().is_empty() {
             return Err(RevalidationStoreError::InvalidRequest(
                 "revalidation target requires an identity and a source".into(),
@@ -469,8 +488,10 @@ impl RevalidationRequestStore for InMemoryRevalidationRequestStore {
             last_error: None,
             request,
         };
-        self.dedup_index.insert(record.request.dedup_key.clone(), record.request.request_id);
-        self.records.insert(record.request.request_id, record.clone());
+        self.dedup_index
+            .insert(record.request.dedup_key.clone(), record.request.request_id);
+        self.records
+            .insert(record.request.request_id, record.clone());
         Ok(record)
     }
 
@@ -493,7 +514,10 @@ impl RevalidationRequestStore for InMemoryRevalidationRequestStore {
         at_ms: u64,
         error: Option<String>,
     ) -> Result<RevalidationRequestRecord, RevalidationStoreError> {
-        let record = self.records.get_mut(&request_id).ok_or(RevalidationStoreError::NotFound)?;
+        let record = self
+            .records
+            .get_mut(&request_id)
+            .ok_or(RevalidationStoreError::NotFound)?;
         if !record.status.can_transition_to(to) {
             return Err(RevalidationStoreError::InvalidTransition {
                 from: record.status,
@@ -526,7 +550,8 @@ impl RevalidationRequestStore for InMemoryRevalidationRequestStore {
             .records
             .values()
             .filter(|record| {
-                record.status == RevalidationStatus::Pending && record.request.scheduled_for_ms <= now_ms
+                record.status == RevalidationStatus::Pending
+                    && record.request.scheduled_for_ms <= now_ms
             })
             .cloned()
             .collect();
@@ -535,16 +560,28 @@ impl RevalidationRequestStore for InMemoryRevalidationRequestStore {
                 .request
                 .priority
                 .cmp(&left.request.priority)
-                .then_with(|| left.request.scheduled_for_ms.cmp(&right.request.scheduled_for_ms))
-                .then_with(|| left.request.target.identity.cmp(&right.request.target.identity))
+                .then_with(|| {
+                    left.request
+                        .scheduled_for_ms
+                        .cmp(&right.request.scheduled_for_ms)
+                })
+                .then_with(|| {
+                    left.request
+                        .target
+                        .identity
+                        .cmp(&right.request.target.identity)
+                })
                 .then_with(|| left.request.request_id.cmp(&right.request.request_id))
         });
         due.truncate(limit);
         let mut claimed = Vec::with_capacity(due.len());
         for record in due {
-            if let Ok(claimed_record) =
-                self.transition(record.request.request_id, RevalidationStatus::Claimed, now_ms, None)
-            {
+            if let Ok(claimed_record) = self.transition(
+                record.request.request_id,
+                RevalidationStatus::Claimed,
+                now_ms,
+                None,
+            ) {
                 claimed.push(claimed_record);
             }
         }
@@ -567,7 +604,13 @@ fn bound_error_text(value: &str) -> String {
     const MAX_ERROR_CHARS: usize = 512;
     let sanitized: String = value
         .chars()
-        .map(|character| if character.is_control() { ' ' } else { character })
+        .map(|character| {
+            if character.is_control() {
+                ' '
+            } else {
+                character
+            }
+        })
         .take(MAX_ERROR_CHARS)
         .collect();
     sanitized
@@ -590,10 +633,16 @@ mod tests {
 
     #[test]
     fn reason_serialization_is_forward_compatible() {
-        assert_eq!(serde_json::to_string(&RevalidationReason::PriceChanged).unwrap(), "\"price_changed\"");
+        assert_eq!(
+            serde_json::to_string(&RevalidationReason::PriceChanged).unwrap(),
+            "\"price_changed\""
+        );
         // A future writer introduces a reason this version does not know.
         let decoded: RevalidationReason = serde_json::from_str("\"voice_search_boost\"").unwrap();
-        assert_eq!(decoded, RevalidationReason::Unknown("voice_search_boost".into()));
+        assert_eq!(
+            decoded,
+            RevalidationReason::Unknown("voice_search_boost".into())
+        );
         assert!(decoded.is_unknown());
         assert_eq!(decoded.as_str(), "voice_search_boost");
         // Strict parsing rejects the same value (write paths fail closed).
@@ -608,7 +657,10 @@ mod tests {
         assert!(RevalidationPriority::Critical > RevalidationPriority::High);
         assert!(RevalidationPriority::High > RevalidationPriority::Normal);
         assert!(RevalidationPriority::Normal > RevalidationPriority::Low);
-        assert_eq!(RevalidationPriority::parse_strict("critical"), Some(RevalidationPriority::Critical));
+        assert_eq!(
+            RevalidationPriority::parse_strict("critical"),
+            Some(RevalidationPriority::Critical)
+        );
         assert_eq!(RevalidationPriority::parse_strict("urgent"), None);
     }
 
@@ -688,56 +740,99 @@ mod tests {
             .find_by_dedup_key(&dedup_key)
             .expect("existing request");
         store
-            .transition(record.request.request_id, RevalidationStatus::Running, 2_000, None)
+            .transition(
+                record.request.request_id,
+                RevalidationStatus::Running,
+                2_000,
+                None,
+            )
             .expect("start");
         store
-            .transition(record.request.request_id, RevalidationStatus::Succeeded, 3_000, None)
+            .transition(
+                record.request.request_id,
+                RevalidationStatus::Succeeded,
+                3_000,
+                None,
+            )
             .expect("complete");
-        assert!(store.find_by_dedup_key(&dedup_key).expect("terminal record").status.is_terminal());
+        assert!(
+            store
+                .find_by_dedup_key(&dedup_key)
+                .expect("terminal record")
+                .status
+                .is_terminal()
+        );
 
         // Terminal requests stop suppressing dedup: a fresh plan may re-issue.
         let reissued = RevalidationRequest {
             request_id: Uuid::now_v7(),
             ..request(1_000, RevalidationPriority::High)
         };
-        assert!(store.insert(reissued).is_ok(), "terminal dedup entry must not block re-issue");
+        assert!(
+            store.insert(reissued).is_ok(),
+            "terminal dedup entry must not block re-issue"
+        );
         assert_eq!(store.list().len(), 2);
     }
 
     #[test]
     fn transition_sets_attempt_started_and_completed_times() {
         let mut store = InMemoryRevalidationRequestStore::new();
-        let inserted = store.insert(request(1_000, RevalidationPriority::High)).expect("insert");
+        let inserted = store
+            .insert(request(1_000, RevalidationPriority::High))
+            .expect("insert");
         let id = inserted.request.request_id;
 
         assert_eq!(inserted.status, RevalidationStatus::Pending);
         assert_eq!(inserted.attempt, 0);
         assert_eq!(inserted.created_at_ms, 1_000);
 
-        let running = store.transition(id, RevalidationStatus::Running, 2_000, None).expect("start");
+        let running = store
+            .transition(id, RevalidationStatus::Running, 2_000, None)
+            .expect("start");
         assert_eq!(running.attempt, 1);
         assert_eq!(running.started_at_ms, Some(2_000));
 
         let failed = store
-            .transition(id, RevalidationStatus::Failed, 3_000, Some("provider timeout".into()))
+            .transition(
+                id,
+                RevalidationStatus::Failed,
+                3_000,
+                Some("provider timeout".into()),
+            )
             .expect("fail");
         assert_eq!(failed.completed_at_ms, Some(3_000));
         assert_eq!(failed.last_error.as_deref(), Some("provider timeout"));
 
         // Retry path: Failed -> Pending, then run again with attempt 2.
-        let requeued = store.transition(id, RevalidationStatus::Pending, 4_000, None).expect("requeue");
+        let requeued = store
+            .transition(id, RevalidationStatus::Pending, 4_000, None)
+            .expect("requeue");
         assert_eq!(requeued.attempt, 1);
-        let running_again = store.transition(id, RevalidationStatus::Running, 5_000, None).expect("start again");
+        let running_again = store
+            .transition(id, RevalidationStatus::Running, 5_000, None)
+            .expect("start again");
         assert_eq!(running_again.attempt, 2);
-        assert_eq!(running_again.started_at_ms, Some(2_000), "started_at stays at first start");
+        assert_eq!(
+            running_again.started_at_ms,
+            Some(2_000),
+            "started_at stays at first start"
+        );
     }
 
     #[test]
     fn illegal_transitions_are_rejected() {
         let mut store = InMemoryRevalidationRequestStore::new();
-        let inserted = store.insert(request(1_000, RevalidationPriority::High)).expect("insert");
+        let inserted = store
+            .insert(request(1_000, RevalidationPriority::High))
+            .expect("insert");
         assert_eq!(
-            store.transition(inserted.request.request_id, RevalidationStatus::Succeeded, 2_000, None),
+            store.transition(
+                inserted.request.request_id,
+                RevalidationStatus::Succeeded,
+                2_000,
+                None
+            ),
             Err(RevalidationStoreError::InvalidTransition {
                 from: RevalidationStatus::Pending,
                 to: RevalidationStatus::Succeeded,
@@ -752,24 +847,57 @@ mod tests {
     #[test]
     fn claim_due_is_deterministic_and_marks_claimed() {
         let mut store = InMemoryRevalidationRequestStore::new();
-        let low = store.insert(request(1_000, RevalidationPriority::Low)).expect("insert low");
-        let critical = store.insert(request(500, RevalidationPriority::Critical)).expect("insert critical");
-        let high_later = store.insert(request(2_000, RevalidationPriority::High)).expect("insert high");
-        let not_due = store.insert(request(9_999, RevalidationPriority::Critical)).expect("insert future");
+        let low = store
+            .insert(request(1_000, RevalidationPriority::Low))
+            .expect("insert low");
+        let critical = store
+            .insert(request(500, RevalidationPriority::Critical))
+            .expect("insert critical");
+        let high_later = store
+            .insert(request(2_000, RevalidationPriority::High))
+            .expect("insert high");
+        let not_due = store
+            .insert(request(9_999, RevalidationPriority::Critical))
+            .expect("insert future");
 
         let claimed = store.claim_due(2_000, 10);
-        let ids: Vec<Uuid> = claimed.iter().map(|record| record.request.request_id).collect();
-        assert_eq!(ids, vec![critical.request.request_id, high_later.request.request_id, low.request.request_id]);
-        assert!(claimed.iter().all(|record| record.status == RevalidationStatus::Claimed));
+        let ids: Vec<Uuid> = claimed
+            .iter()
+            .map(|record| record.request.request_id)
+            .collect();
+        assert_eq!(
+            ids,
+            vec![
+                critical.request.request_id,
+                high_later.request.request_id,
+                low.request.request_id
+            ]
+        );
+        assert!(
+            claimed
+                .iter()
+                .all(|record| record.status == RevalidationStatus::Claimed)
+        );
         assert!(store.claim_due(2_000, 10).is_empty(), "already claimed");
-        assert_eq!(store.get(not_due.request.request_id).expect("future request").status, RevalidationStatus::Pending);
-        assert!(store.claim_due(2_000, 0).is_empty(), "zero limit claims nothing");
+        assert_eq!(
+            store
+                .get(not_due.request.request_id)
+                .expect("future request")
+                .status,
+            RevalidationStatus::Pending
+        );
+        assert!(
+            store.claim_due(2_000, 0).is_empty(),
+            "zero limit claims nothing"
+        );
     }
 
     #[test]
     fn error_text_is_bounded_and_sanitized() {
         let mut store = InMemoryRevalidationRequestStore::new();
-        let inserted = store.insert(request(1_000, RevalidationPriority::High)).expect("insert");
+        let inserted = store
+            .insert(request(1_000, RevalidationPriority::High))
+            .expect("insert");
         let payload = "secret".to_string() + &"x".repeat(2_000);
         store
             .transition(
@@ -789,8 +917,12 @@ mod tests {
     #[test]
     fn list_is_ordered_by_creation_time_then_id() {
         let mut store = InMemoryRevalidationRequestStore::new();
-        let later = store.insert(request(5_000, RevalidationPriority::Low)).expect("insert");
-        let earlier = store.insert(request(1_000, RevalidationPriority::Low)).expect("insert");
+        let later = store
+            .insert(request(5_000, RevalidationPriority::Low))
+            .expect("insert");
+        let earlier = store
+            .insert(request(1_000, RevalidationPriority::Low))
+            .expect("insert");
         let records = store.list();
         assert_eq!(records[0].request.request_id, earlier.request.request_id);
         assert_eq!(records[1].request.request_id, later.request.request_id);

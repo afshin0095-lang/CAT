@@ -1,7 +1,6 @@
 use crate::{
     ExecutionReconciliationStore, OrchestratorResult, ProviderExecutionAdapter,
-    ProviderOutcomeState, ReconciliationAction, ReconciliationReport,
-    WorkflowExecutionReconciler,
+    ProviderOutcomeState, ReconciliationAction, ReconciliationReport, WorkflowExecutionReconciler,
 };
 use uuid::Uuid;
 
@@ -19,7 +18,10 @@ where
         Self { store, adapter }
     }
 
-    pub async fn reconcile_once(&self, execution_id: Uuid) -> OrchestratorResult<ReconciliationReport> {
+    pub async fn reconcile_once(
+        &self,
+        execution_id: Uuid,
+    ) -> OrchestratorResult<ReconciliationReport> {
         let reconciler = WorkflowExecutionReconciler::new(self.store);
         let initial = reconciler.reconcile(execution_id).await?;
 
@@ -38,14 +40,16 @@ where
         let observed = self.adapter.lookup(&existing.provider_execution_id).await?;
         if let Some(remote) = observed {
             if let (Some(outcome), Some(observed_at_ms)) = (remote.outcome, remote.observed_at_ms) {
-                self.store.record_provider_result(
-                    execution_id,
-                    &existing.provider_execution_id,
-                    outcome,
-                    observed_at_ms,
-                    remote.result.clone(),
-                    remote.error.as_deref(),
-                ).await?;
+                self.store
+                    .record_provider_result(
+                        execution_id,
+                        &existing.provider_execution_id,
+                        outcome,
+                        observed_at_ms,
+                        remote.result.clone(),
+                        remote.error.as_deref(),
+                    )
+                    .await?;
             }
         }
 

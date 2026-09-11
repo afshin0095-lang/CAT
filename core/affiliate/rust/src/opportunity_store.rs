@@ -3,7 +3,10 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{canonical_key, DiscoveryCandidate, DiscoveryOpportunity, OpportunityRevision, OpportunityRevisionError};
+use crate::{
+    DiscoveryCandidate, DiscoveryOpportunity, OpportunityRevision, OpportunityRevisionError,
+    canonical_key,
+};
 
 /// Stable identity used to deduplicate the same merchant/product across sources.
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
@@ -11,10 +14,15 @@ pub struct OpportunityIdentity(String);
 
 impl OpportunityIdentity {
     pub fn new(candidate: &DiscoveryCandidate) -> Self {
-        Self(canonical_key(&candidate.merchant_name, &candidate.product_name))
+        Self(canonical_key(
+            &candidate.merchant_name,
+            &candidate.product_name,
+        ))
     }
 
-    pub fn as_str(&self) -> &str { &self.0 }
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 
 /// One source's observation of a commercially discoverable opportunity.
@@ -90,7 +98,10 @@ impl OpportunityRecord {
         }
     }
 
-    fn merge(&mut self, opportunity: &DiscoveryOpportunity) -> Result<OpportunityUpsertResult, OpportunityStoreError> {
+    fn merge(
+        &mut self,
+        opportunity: &DiscoveryOpportunity,
+    ) -> Result<OpportunityUpsertResult, OpportunityStoreError> {
         let candidate = &opportunity.candidate;
         let identity = OpportunityIdentity::new(candidate);
         debug_assert_eq!(self.identity, identity);
@@ -110,11 +121,17 @@ impl OpportunityRecord {
             self.category = candidate.category.clone();
         }
         let revision = if changed {
-            self.revision.next().map_err(OpportunityStoreError::RevisionOverflow)?
+            self.revision
+                .next()
+                .map_err(OpportunityStoreError::RevisionOverflow)?
         } else {
             self.revision
         };
-        Ok(OpportunityUpsertResult { created: false, changed, revision })
+        Ok(OpportunityUpsertResult {
+            created: false,
+            changed,
+            revision,
+        })
     }
 
     /// Returns the best-scoring observation, or `None` when the record has no
@@ -146,9 +163,13 @@ impl std::fmt::Display for OpportunityStoreError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::InvalidCandidate => formatter.write_str("opportunity candidate is invalid"),
-            Self::IdentityConflict => formatter.write_str("opportunity identity conflicts with stored record"),
+            Self::IdentityConflict => {
+                formatter.write_str("opportunity identity conflicts with stored record")
+            }
             Self::NotFound => formatter.write_str("opportunity was not found"),
-            Self::RevisionOverflow(error) => write!(formatter, "opportunity revision update failed: {error}"),
+            Self::RevisionOverflow(error) => {
+                write!(formatter, "opportunity revision update failed: {error}")
+            }
         }
     }
 }
@@ -161,8 +182,14 @@ impl std::error::Error for OpportunityStoreError {}
 /// to the same record state; an unchanged re-observation reports
 /// `changed == false` and leaves the revision untouched.
 pub trait OpportunityStore {
-    fn upsert(&mut self, opportunity: DiscoveryOpportunity) -> Result<OpportunityUpsertResult, OpportunityStoreError>;
-    fn get(&self, identity: &OpportunityIdentity) -> Result<OpportunityRecord, OpportunityStoreError>;
+    fn upsert(
+        &mut self,
+        opportunity: DiscoveryOpportunity,
+    ) -> Result<OpportunityUpsertResult, OpportunityStoreError>;
+    fn get(
+        &self,
+        identity: &OpportunityIdentity,
+    ) -> Result<OpportunityRecord, OpportunityStoreError>;
     fn list(&self) -> Vec<OpportunityRecord>;
 }
 
@@ -172,25 +199,44 @@ pub struct InMemoryOpportunityStore {
 }
 
 impl InMemoryOpportunityStore {
-    pub fn new() -> Self { Self::default() }
+    pub fn new() -> Self {
+        Self::default()
+    }
 }
 
 impl OpportunityStore for InMemoryOpportunityStore {
-    fn upsert(&mut self, opportunity: DiscoveryOpportunity) -> Result<OpportunityUpsertResult, OpportunityStoreError> {
-        opportunity.candidate.validate().map_err(|_| OpportunityStoreError::InvalidCandidate)?;
+    fn upsert(
+        &mut self,
+        opportunity: DiscoveryOpportunity,
+    ) -> Result<OpportunityUpsertResult, OpportunityStoreError> {
+        opportunity
+            .candidate
+            .validate()
+            .map_err(|_| OpportunityStoreError::InvalidCandidate)?;
         let identity = OpportunityIdentity::new(&opportunity.candidate);
         match self.records.get_mut(&identity) {
             Some(record) => record.merge(&opportunity),
             None => {
                 let revision = OpportunityRevision::initial();
-                self.records.insert(identity, OpportunityRecord::from_opportunity(&opportunity));
-                Ok(OpportunityUpsertResult { created: true, changed: true, revision })
+                self.records
+                    .insert(identity, OpportunityRecord::from_opportunity(&opportunity));
+                Ok(OpportunityUpsertResult {
+                    created: true,
+                    changed: true,
+                    revision,
+                })
             }
         }
     }
 
-    fn get(&self, identity: &OpportunityIdentity) -> Result<OpportunityRecord, OpportunityStoreError> {
-        self.records.get(identity).cloned().ok_or(OpportunityStoreError::NotFound)
+    fn get(
+        &self,
+        identity: &OpportunityIdentity,
+    ) -> Result<OpportunityRecord, OpportunityStoreError> {
+        self.records
+            .get(identity)
+            .cloned()
+            .ok_or(OpportunityStoreError::NotFound)
     }
 
     fn list(&self) -> Vec<OpportunityRecord> {
@@ -220,7 +266,12 @@ mod tests {
             compliance_score: 10_000,
             observed_at_ms,
         };
-        DiscoveryOpportunity { id: Uuid::now_v7(), candidate, score, rank: 1 }
+        DiscoveryOpportunity {
+            id: Uuid::now_v7(),
+            candidate,
+            score,
+            rank: 1,
+        }
     }
 
     #[test]

@@ -8,7 +8,8 @@ use crate::{GenerationChunk, LlmError};
 ///
 /// The stream carries derived output only. It does not establish canonical
 /// business truth and must be validated by the consuming engine before use.
-pub type LlmGenerationStream = Pin<Box<dyn Stream<Item = Result<GenerationChunk, LlmError>> + Send>>;
+pub type LlmGenerationStream =
+    Pin<Box<dyn Stream<Item = Result<GenerationChunk, LlmError>> + Send>>;
 
 /// Collects a stream into the canonical response text while preserving the
 /// first terminal metadata and usage values supplied by the provider.

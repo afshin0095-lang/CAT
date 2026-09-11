@@ -17,7 +17,11 @@ pub enum LeaseError {
 }
 
 impl TaskLease {
-    pub fn acquire(owner: impl Into<String>, epoch: u64, ttl: Duration) -> Result<Self, LeaseError> {
+    pub fn acquire(
+        owner: impl Into<String>,
+        epoch: u64,
+        ttl: Duration,
+    ) -> Result<Self, LeaseError> {
         let owner = owner.into();
         if owner.trim().is_empty() {
             return Err(LeaseError::InvalidOwner);

@@ -2,14 +2,35 @@ use async_trait::async_trait;
 use sqlx::Row;
 use uuid::Uuid;
 
-use crate::{ExecutionAttempt, ExecutionAttemptStatus, FencingToken, OrchestratorError, OrchestratorResult, PostgresExecutionStore};
+use crate::{
+    ExecutionAttempt, ExecutionAttemptStatus, FencingToken, OrchestratorError, OrchestratorResult,
+    PostgresExecutionStore,
+};
 
 #[async_trait]
 pub trait ExecutionAttemptStore: Send + Sync {
     async fn record_execution_start(&self, attempt: &ExecutionAttempt) -> OrchestratorResult<()>;
-    async fn heartbeat_execution(&self, execution_id: Uuid, owner: &str, token: FencingToken, now_ms: u64) -> OrchestratorResult<()>;
-    async fn complete_execution(&self, execution_id: Uuid, owner: &str, token: FencingToken, status: ExecutionAttemptStatus, finished_at_ms: u64, result: Option<serde_json::Value>, error: Option<&str>) -> OrchestratorResult<()>;
-    async fn load_execution(&self, execution_id: Uuid) -> OrchestratorResult<Option<ExecutionAttempt>>;
+    async fn heartbeat_execution(
+        &self,
+        execution_id: Uuid,
+        owner: &str,
+        token: FencingToken,
+        now_ms: u64,
+    ) -> OrchestratorResult<()>;
+    async fn complete_execution(
+        &self,
+        execution_id: Uuid,
+        owner: &str,
+        token: FencingToken,
+        status: ExecutionAttemptStatus,
+        finished_at_ms: u64,
+        result: Option<serde_json::Value>,
+        error: Option<&str>,
+    ) -> OrchestratorResult<()>;
+    async fn load_execution(
+        &self,
+        execution_id: Uuid,
+    ) -> OrchestratorResult<Option<ExecutionAttempt>>;
 }
 
 #[async_trait]
@@ -32,7 +53,13 @@ impl ExecutionAttemptStore for PostgresExecutionStore {
         .map_err(db_error)
     }
 
-    async fn heartbeat_execution(&self, execution_id: Uuid, owner: &str, token: FencingToken, now_ms: u64) -> OrchestratorResult<()> {
+    async fn heartbeat_execution(
+        &self,
+        execution_id: Uuid,
+        owner: &str,
+        token: FencingToken,
+        now_ms: u64,
+    ) -> OrchestratorResult<()> {
         let result = sqlx::query("UPDATE cat_execution_attempts SET heartbeat_at = TO_TIMESTAMP($4 / 1000.0) WHERE execution_id = $1 AND owner = $2 AND fencing_token = $3 AND status = 'running'")
             .bind(execution_id)
             .bind(owner)
@@ -42,14 +69,31 @@ impl ExecutionAttemptStore for PostgresExecutionStore {
             .await
             .map_err(db_error)?;
         if result.rows_affected() != 1 {
-            return Err(OrchestratorError::LeaseOwnerMismatch { lease_id: execution_id.to_string(), owner: owner.to_owned() });
+            return Err(OrchestratorError::LeaseOwnerMismatch {
+                lease_id: execution_id.to_string(),
+                owner: owner.to_owned(),
+            });
         }
         Ok(())
     }
 
-    async fn complete_execution(&self, execution_id: Uuid, owner: &str, token: FencingToken, status: ExecutionAttemptStatus, finished_at_ms: u64, result: Option<serde_json::Value>, error: Option<&str>) -> OrchestratorResult<()> {
+    async fn complete_execution(
+        &self,
+        execution_id: Uuid,
+        owner: &str,
+        token: FencingToken,
+        status: ExecutionAttemptStatus,
+        finished_at_ms: u64,
+        result: Option<serde_json::Value>,
+        error: Option<&str>,
+    ) -> OrchestratorResult<()> {
         let status_text = match status {
-            ExecutionAttemptStatus::Running => return Err(OrchestratorError::InvalidStateTransition { from: "running".into(), to: "running".into() }),
+            ExecutionAttemptStatus::Running => {
+                return Err(OrchestratorError::InvalidStateTransition {
+                    from: "running".into(),
+                    to: "running".into(),
+                });
+            }
             ExecutionAttemptStatus::Succeeded => "succeeded",
             ExecutionAttemptStatus::Failed => "failed",
             ExecutionAttemptStatus::Cancelled => "cancelled",
@@ -66,12 +110,18 @@ impl ExecutionAttemptStore for PostgresExecutionStore {
             .await
             .map_err(db_error)?;
         if updated.rows_affected() != 1 {
-            return Err(OrchestratorError::LeaseOwnerMismatch { lease_id: execution_id.to_string(), owner: owner.to_owned() });
+            return Err(OrchestratorError::LeaseOwnerMismatch {
+                lease_id: execution_id.to_string(),
+                owner: owner.to_owned(),
+            });
         }
         Ok(())
     }
 
-    async fn load_execution(&self, execution_id: Uuid) -> OrchestratorResult<Option<ExecutionAttempt>> {
+    async fn load_execution(
+        &self,
+        execution_id: Uuid,
+    ) -> OrchestratorResult<Option<ExecutionAttempt>> {
         let row = sqlx::query("SELECT execution_id, workflow_id, step_id, attempt, status, owner, fencing_token, EXTRACT(EPOCH FROM started_at) * 1000 AS started_at_ms, EXTRACT(EPOCH FROM heartbeat_at) * 1000 AS heartbeat_at_ms, EXTRACT(EPOCH FROM finished_at) * 1000 AS finished_at_ms, result, error FROM cat_execution_attempts WHERE execution_id = $1")
             .bind(execution_id)
             .fetch_optional(self.pool())
@@ -88,7 +138,11 @@ fn decode_attempt(row: sqlx::postgres::PgRow) -> OrchestratorResult<ExecutionAtt
         "succeeded" => ExecutionAttemptStatus::Succeeded,
         "failed" => ExecutionAttemptStatus::Failed,
         "cancelled" => ExecutionAttemptStatus::Cancelled,
-        other => return Err(OrchestratorError::Serialization(format!("unknown execution attempt status: {other}"))),
+        other => {
+            return Err(OrchestratorError::Serialization(format!(
+                "unknown execution attempt status: {other}"
+            )));
+        }
     };
     let started: f64 = row.try_get("started_at_ms").map_err(row_error)?;
     let heartbeat: f64 = row.try_get("heartbeat_at_ms").map_err(row_error)?;
@@ -111,5 +165,9 @@ fn decode_attempt(row: sqlx::postgres::PgRow) -> OrchestratorResult<ExecutionAtt
     })
 }
 
-fn db_error(error: sqlx::Error) -> OrchestratorError { OrchestratorError::Serialization(format!("postgresql error: {error}")) }
-fn row_error(error: sqlx::Error) -> OrchestratorError { OrchestratorError::Serialization(format!("postgresql row error: {error}")) }
+fn db_error(error: sqlx::Error) -> OrchestratorError {
+    OrchestratorError::Serialization(format!("postgresql error: {error}"))
+}
+fn row_error(error: sqlx::Error) -> OrchestratorError {
+    OrchestratorError::Serialization(format!("postgresql row error: {error}"))
+}

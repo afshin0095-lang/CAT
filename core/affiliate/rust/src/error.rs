@@ -140,11 +140,21 @@ impl ErrorClassification for crate::OpportunityRevisionError {
 impl ErrorClassification for crate::opportunity_revalidation::RevalidationStoreError {
     fn category(&self) -> ErrorCategory {
         match self {
-            crate::opportunity_revalidation::RevalidationStoreError::DuplicateRequest { .. } => ErrorCategory::Conflict,
-            crate::opportunity_revalidation::RevalidationStoreError::NotFound => ErrorCategory::NotFound,
-            crate::opportunity_revalidation::RevalidationStoreError::InvalidTransition { .. } => ErrorCategory::Validation,
-            crate::opportunity_revalidation::RevalidationStoreError::UnknownEnumValue { .. } => ErrorCategory::Permanent,
-            crate::opportunity_revalidation::RevalidationStoreError::InvalidRequest(_) => ErrorCategory::Validation,
+            crate::opportunity_revalidation::RevalidationStoreError::DuplicateRequest {
+                ..
+            } => ErrorCategory::Conflict,
+            crate::opportunity_revalidation::RevalidationStoreError::NotFound => {
+                ErrorCategory::NotFound
+            }
+            crate::opportunity_revalidation::RevalidationStoreError::InvalidTransition {
+                ..
+            } => ErrorCategory::Validation,
+            crate::opportunity_revalidation::RevalidationStoreError::UnknownEnumValue {
+                ..
+            } => ErrorCategory::Permanent,
+            crate::opportunity_revalidation::RevalidationStoreError::InvalidRequest(_) => {
+                ErrorCategory::Validation
+            }
         }
     }
 }

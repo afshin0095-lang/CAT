@@ -9,7 +9,10 @@ use crate::{
 
 #[async_trait]
 impl ExecutionReconciliationStore for PostgresExecutionStore {
-    async fn load_execution_attempt(&self, execution_id: Uuid) -> OrchestratorResult<ExecutionAttempt> {
+    async fn load_execution_attempt(
+        &self,
+        execution_id: Uuid,
+    ) -> OrchestratorResult<ExecutionAttempt> {
         let row = sqlx::query(
             "SELECT execution_id, workflow_id, step_id, attempt, status, owner, fencing_token,\
              EXTRACT(EPOCH FROM started_at) * 1000 AS started_at_ms,\
@@ -21,7 +24,9 @@ impl ExecutionReconciliationStore for PostgresExecutionStore {
         .fetch_optional(self.pool())
         .await
         .map_err(db_error)?
-        .ok_or_else(|| OrchestratorError::Serialization(format!("execution attempt not found: {execution_id}")))?;
+        .ok_or_else(|| {
+            OrchestratorError::Serialization(format!("execution attempt not found: {execution_id}"))
+        })?;
 
         let status_text: String = row.try_get("status").map_err(row_error)?;
         let status = match status_text.as_str() {
@@ -29,7 +34,11 @@ impl ExecutionReconciliationStore for PostgresExecutionStore {
             "succeeded" => ExecutionAttemptStatus::Succeeded,
             "failed" => ExecutionAttemptStatus::Failed,
             "cancelled" => ExecutionAttemptStatus::Cancelled,
-            other => return Err(OrchestratorError::Serialization(format!("unknown execution attempt status: {other}"))),
+            other => {
+                return Err(OrchestratorError::Serialization(format!(
+                    "unknown execution attempt status: {other}"
+                )));
+            }
         };
         let started_at_ms: f64 = row.try_get("started_at_ms").map_err(row_error)?;
         let heartbeat_at_ms: f64 = row.try_get("heartbeat_at_ms").map_err(row_error)?;
@@ -53,7 +62,10 @@ impl ExecutionReconciliationStore for PostgresExecutionStore {
         })
     }
 
-    async fn load_provider_result(&self, execution_id: Uuid) -> OrchestratorResult<Option<ProviderExecutionRecord>> {
+    async fn load_provider_result(
+        &self,
+        execution_id: Uuid,
+    ) -> OrchestratorResult<Option<ProviderExecutionRecord>> {
         let row = sqlx::query(
             "SELECT execution_id, provider, provider_execution_id, request_hash,\
              EXTRACT(EPOCH FROM submitted_at) * 1000 AS submitted_at_ms, outcome_state,\
@@ -65,7 +77,9 @@ impl ExecutionReconciliationStore for PostgresExecutionStore {
         .await
         .map_err(db_error)?;
 
-        let Some(row) = row else { return Ok(None); };
+        let Some(row) = row else {
+            return Ok(None);
+        };
         let outcome_state: Option<String> = row.try_get("outcome_state").map_err(row_error)?;
         let outcome = outcome_state.as_deref().map(parse_outcome).transpose()?;
         let submitted_at_ms: f64 = row.try_get("submitted_at_ms").map_err(row_error)?;
@@ -114,7 +128,11 @@ impl ExecutionReconciliationStore for PostgresExecutionStore {
         let existing = self
             .load_provider_result(execution_id)
             .await?
-            .ok_or_else(|| OrchestratorError::Serialization(format!("provider submission disappeared: {execution_id}")))?;
+            .ok_or_else(|| {
+                OrchestratorError::Serialization(format!(
+                    "provider submission disappeared: {execution_id}"
+                ))
+            })?;
         if existing.provider == provider
             && existing.provider_execution_id == provider_execution_id
             && existing.request_hash == request_hash
@@ -157,7 +175,9 @@ impl ExecutionReconciliationStore for PostgresExecutionStore {
         .await
         .map_err(db_error)?;
         if updated.is_none() {
-            return Err(OrchestratorError::Serialization(format!("provider result rejected or conflicting for execution {execution_id}")));
+            return Err(OrchestratorError::Serialization(format!(
+                "provider result rejected or conflicting for execution {execution_id}"
+            )));
         }
         Ok(())
     }
@@ -168,7 +188,9 @@ fn parse_outcome(value: &str) -> OrchestratorResult<ProviderOutcomeState> {
         "succeeded" => Ok(ProviderOutcomeState::Succeeded),
         "failed" => Ok(ProviderOutcomeState::Failed),
         "unknown" => Ok(ProviderOutcomeState::Unknown),
-        other => Err(OrchestratorError::Serialization(format!("unknown provider outcome state: {other}"))),
+        other => Err(OrchestratorError::Serialization(format!(
+            "unknown provider outcome state: {other}"
+        ))),
     }
 }
 

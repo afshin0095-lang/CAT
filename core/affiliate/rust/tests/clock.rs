@@ -11,7 +11,10 @@ fn clock_contract_supports_deterministic_and_system_backends() {
 
     // System backend: plausible epoch milliseconds (wide bounds, never flaky).
     let now = SystemClock::new().now_ms();
-    assert!(now > 1_600_000_000_000, "unexpectedly old system clock: {now}");
+    assert!(
+        now > 1_600_000_000_000,
+        "unexpectedly old system clock: {now}"
+    );
 }
 
 #[test]

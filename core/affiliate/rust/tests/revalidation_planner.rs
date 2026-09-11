@@ -2,9 +2,10 @@
 //! Sprint 1 seam (requests are intents; no network calls happen here).
 
 use cat_affiliate::{
-    canonical_key, DiscoveryCandidate, DiscoveryOpportunity, FreshnessPolicy, InMemoryOpportunityStore,
+    DiscoveryCandidate, DiscoveryOpportunity, FreshnessPolicy, InMemoryOpportunityStore,
     InMemoryRevalidationRequestStore, OpportunityRecord, OpportunityStore, RevalidationPlanner,
     RevalidationPriority, RevalidationReason, RevalidationRequestStore, RevalidationStatus,
+    canonical_key,
 };
 use std::collections::BTreeMap;
 use uuid::Uuid;
@@ -29,7 +30,12 @@ fn record(product: &str, sources: &[&str], observed_at_ms: u64) -> OpportunityRe
             compliance_score: 10_000,
             observed_at_ms,
         };
-        let opportunity = DiscoveryOpportunity { id: Uuid::now_v7(), candidate, score: 8_000, rank: 1 };
+        let opportunity = DiscoveryOpportunity {
+            id: Uuid::now_v7(),
+            candidate,
+            score: 8_000,
+            rank: 1,
+        };
         store.upsert(opportunity).expect("valid opportunity");
     }
     store.list().into_iter().next().expect("record exists")
@@ -45,10 +51,20 @@ fn planned_requests_persist_and_claim_deterministically() {
     // 12_000ms old => Expired (past 9_000ms expiration threshold).
     let stale = record("Stale Widget", &["network-a"], 14_000);
     let expired = record("Expired Widget", &["network-b"], 8_000);
-    let stale_decision = planner.plan_for_record(&stale, 20_000, &["network-a".into()]).expect("plan");
-    let expired_decision = planner.plan_for_record(&expired, 20_000, &["network-b".into()]).expect("plan");
-    assert_eq!(stale_decision.requests[0].priority, RevalidationPriority::High);
-    assert_eq!(expired_decision.requests[0].priority, RevalidationPriority::Critical);
+    let stale_decision = planner
+        .plan_for_record(&stale, 20_000, &["network-a".into()])
+        .expect("plan");
+    let expired_decision = planner
+        .plan_for_record(&expired, 20_000, &["network-b".into()])
+        .expect("plan");
+    assert_eq!(
+        stale_decision.requests[0].priority,
+        RevalidationPriority::High
+    );
+    assert_eq!(
+        expired_decision.requests[0].priority,
+        RevalidationPriority::Critical
+    );
 
     // Persist all requests; dedup keys converge across a second planning pass.
     let mut keys = Vec::new();
@@ -60,7 +76,9 @@ fn planned_requests_persist_and_claim_deterministically() {
         }
     }
     // Re-planning produces the same keys (idempotency identity).
-    let replay_stale = planner.plan_for_record(&stale, 20_000, &["network-a".into()]).expect("plan");
+    let replay_stale = planner
+        .plan_for_record(&stale, 20_000, &["network-a".into()])
+        .expect("plan");
     for request in &replay_stale.requests {
         assert!(keys.contains(&request.dedup_key));
         assert!(matches!(
@@ -88,8 +106,13 @@ fn batch_planning_is_stable_and_reports_global_counts() {
     let second = record("Beta", &["network-a"], 10_000);
     let records = vec![second.clone(), first.clone()];
 
-    let outcome = cat_affiliate::RevalidationPlanningOutcome::plan_batch(&planner, &records, 20_000, &availability)
-        .expect("valid batch");
+    let outcome = cat_affiliate::RevalidationPlanningOutcome::plan_batch(
+        &planner,
+        &records,
+        20_000,
+        &availability,
+    )
+    .expect("valid batch");
     assert_eq!(outcome.decisions.len(), 2);
     assert!(outcome.decisions[0].identity < outcome.decisions[1].identity);
     assert_eq!(outcome.requested, 2);
@@ -97,8 +120,13 @@ fn batch_planning_is_stable_and_reports_global_counts() {
     assert_eq!(outcome.unique_requests().len(), 2);
 
     // Input order never changes the output order.
-    let flipped = cat_affiliate::RevalidationPlanningOutcome::plan_batch(&planner, &[first, second], 20_000, &availability)
-        .expect("valid batch");
+    let flipped = cat_affiliate::RevalidationPlanningOutcome::plan_batch(
+        &planner,
+        &[first, second],
+        20_000,
+        &availability,
+    )
+    .expect("valid batch");
     assert_eq!(outcome.decisions, flipped.decisions);
 }
 
@@ -113,8 +141,12 @@ fn planning_never_touches_the_network_or_the_record() {
     let before = stored.clone();
 
     let now = 20_000;
-    let first = planner.plan_for_record(&stored, now, &["network-a".to_owned()]).expect("plan");
-    let second = planner.plan_for_record(&stored, now, &["network-a".to_owned()]).expect("plan");
+    let first = planner
+        .plan_for_record(&stored, now, &["network-a".to_owned()])
+        .expect("plan");
+    let second = planner
+        .plan_for_record(&stored, now, &["network-a".to_owned()])
+        .expect("plan");
     assert_eq!(stored, before);
     assert_eq!(first.requests.len(), second.requests.len());
     for (left, right) in first.requests.iter().zip(second.requests.iter()) {

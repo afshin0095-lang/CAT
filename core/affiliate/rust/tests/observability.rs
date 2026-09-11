@@ -2,10 +2,11 @@
 //! without coupling the domain to any telemetry backend.
 
 use cat_affiliate::{
-    ingestion_report_metrics, lifecycle_batch_metrics, metric_names, revalidation_status_metrics,
     DiscoveryCandidate, DiscoveryEngine, DiscoveryOpportunity, DiscoveryRequest, FreshnessPolicy,
-    InMemoryMetricSink, InMemoryOpportunityStore, LifecycleStateCounts, MetricSink, OpportunityIngestionReport,
-    OpportunityLifecycleEvaluator, OpportunityLifecyclePolicy, OpportunityStore, RevalidationStatus,
+    InMemoryMetricSink, InMemoryOpportunityStore, LifecycleStateCounts, MetricSink,
+    OpportunityIngestionReport, OpportunityLifecycleEvaluator, OpportunityLifecyclePolicy,
+    OpportunityStore, RevalidationStatus, ingestion_report_metrics, lifecycle_batch_metrics,
+    metric_names, revalidation_status_metrics,
 };
 use uuid::Uuid;
 
@@ -27,7 +28,12 @@ fn sample_batch() -> cat_affiliate::LifecycleEvaluationBatch {
         compliance_score: 10_000,
         observed_at_ms: 10_000,
     };
-    let opportunity = DiscoveryOpportunity { id: Uuid::now_v7(), candidate, score: 8_000, rank: 1 };
+    let opportunity = DiscoveryOpportunity {
+        id: Uuid::now_v7(),
+        candidate,
+        score: 8_000,
+        rank: 1,
+    };
     let mut store = InMemoryOpportunityStore::new();
     store.upsert(opportunity).expect("valid opportunity");
     let records = store.list();
@@ -96,14 +102,36 @@ fn a_full_ingestion_to_metrics_round_trip() {
     }
 
     let totals = sink.totals();
-    assert_eq!(totals.get(metric_names::DISCOVERY_CANDIDATES_RECEIVED), Some(&3));
-    assert_eq!(totals.get(metric_names::DISCOVERY_CANDIDATES_REJECTED), Some(&1));
-    assert_eq!(totals.get(metric_names::DISCOVERY_OPPORTUNITIES_CREATED), Some(&1));
-    assert_eq!(totals.get(metric_names::DISCOVERY_OPPORTUNITIES_CHANGED), Some(&2));
+    assert_eq!(
+        totals.get(metric_names::DISCOVERY_CANDIDATES_RECEIVED),
+        Some(&3)
+    );
+    assert_eq!(
+        totals.get(metric_names::DISCOVERY_CANDIDATES_REJECTED),
+        Some(&1)
+    );
+    assert_eq!(
+        totals.get(metric_names::DISCOVERY_OPPORTUNITIES_CREATED),
+        Some(&1)
+    );
+    assert_eq!(
+        totals.get(metric_names::DISCOVERY_OPPORTUNITIES_CHANGED),
+        Some(&2)
+    );
     assert!(totals.contains_key(metric_names::OPPORTUNITY_ACTIVE));
     assert!(totals.contains_key(metric_names::OPPORTUNITY_REVALIDATION_SUCCEEDED));
-    assert_eq!(batch.counts, LifecycleStateCounts { active: 1, stale: 0, expired: 0 });
+    assert_eq!(
+        batch.counts,
+        LifecycleStateCounts {
+            active: 1,
+            stale: 0,
+            expired: 0
+        }
+    );
     assert_eq!(batch.evaluated_at_ms, 10_500);
     let policy = FreshnessPolicy::new(1_000, 1_000, 5_000).expect("valid policy");
-    assert_eq!(policy.evaluate_age(2_000).state, cat_affiliate::FreshnessState::Stale);
+    assert_eq!(
+        policy.evaluate_age(2_000).state,
+        cat_affiliate::FreshnessState::Stale
+    );
 }

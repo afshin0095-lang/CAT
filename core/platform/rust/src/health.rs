@@ -17,15 +17,27 @@ pub struct ComponentHealth {
 
 impl ComponentHealth {
     pub fn healthy(name: impl Into<String>, detail: impl Into<String>) -> Self {
-        Self { name: name.into(), state: HealthState::Healthy, detail: detail.into() }
+        Self {
+            name: name.into(),
+            state: HealthState::Healthy,
+            detail: detail.into(),
+        }
     }
 
     pub fn degraded(name: impl Into<String>, detail: impl Into<String>) -> Self {
-        Self { name: name.into(), state: HealthState::Degraded, detail: detail.into() }
+        Self {
+            name: name.into(),
+            state: HealthState::Degraded,
+            detail: detail.into(),
+        }
     }
 
     pub fn unhealthy(name: impl Into<String>, detail: impl Into<String>) -> Self {
-        Self { name: name.into(), state: HealthState::Unhealthy, detail: detail.into() }
+        Self {
+            name: name.into(),
+            state: HealthState::Unhealthy,
+            detail: detail.into(),
+        }
     }
 }
 
@@ -53,12 +65,19 @@ impl PlatformHealthSnapshot {
         Self {
             state,
             queue_depth,
-            components: vec![ComponentHealth { name: "scheduler".into(), state, detail: detail.into() }],
+            components: vec![ComponentHealth {
+                name: "scheduler".into(),
+                state,
+                detail: detail.into(),
+            }],
         }
     }
 
     pub fn is_ready(&self) -> bool {
         self.state != HealthState::Unhealthy
-            && self.components.iter().all(|component| component.state != HealthState::Unhealthy)
+            && self
+                .components
+                .iter()
+                .all(|component| component.state != HealthState::Unhealthy)
     }
 }

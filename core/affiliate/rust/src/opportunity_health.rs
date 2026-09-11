@@ -11,9 +11,9 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::OpportunityRecord;
 use crate::discovery_source_health::{SourceHealthSnapshot, SourceHealthState};
 use crate::opportunity_freshness::FreshnessEvaluation;
-use crate::OpportunityRecord;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -134,7 +134,10 @@ impl OpportunityHealthAssessor {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{canonical_key, DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore, OpportunityStore};
+    use crate::{
+        DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore, OpportunityStore,
+        canonical_key,
+    };
     use uuid::Uuid;
 
     fn record(sources: &[&str]) -> OpportunityRecord {
@@ -157,14 +160,23 @@ mod tests {
                 compliance_score: 10_000,
                 observed_at_ms: 1_000,
             };
-            let opportunity = DiscoveryOpportunity { id: Uuid::now_v7(), candidate, score: 8_000, rank: 1 };
+            let opportunity = DiscoveryOpportunity {
+                id: Uuid::now_v7(),
+                candidate,
+                score: 8_000,
+                rank: 1,
+            };
             store.upsert(opportunity).expect("valid opportunity");
         }
         store.list().into_iter().next().expect("record exists")
     }
 
     fn freshness_active() -> FreshnessEvaluation {
-        FreshnessEvaluation { state: crate::FreshnessState::Active, age_ms: 10, is_fresh: true }
+        FreshnessEvaluation {
+            state: crate::FreshnessState::Active,
+            age_ms: 10,
+            is_fresh: true,
+        }
     }
 
     fn snapshot(source: &str, state: SourceHealthState) -> SourceHealthSnapshot {
@@ -178,8 +190,8 @@ mod tests {
     #[test]
     fn healthy_record_with_no_health_data_is_healthy() {
         let stored = record(&["network-a"]);
-        let assessment = OpportunityHealthAssessor
-            .assess(&stored, &freshness_active(), None, false);
+        let assessment =
+            OpportunityHealthAssessor.assess(&stored, &freshness_active(), None, false);
         assert_eq!(assessment.health, OpportunityHealth::Healthy);
         assert!(!assessment.needs_revalidation);
         assert!(assessment.concerns.is_empty());
@@ -189,11 +201,14 @@ mod tests {
     fn active_record_can_be_degraded_by_source_health() {
         let stored = record(&["network-a"]);
         let health = snapshot("network-a", SourceHealthState::Degraded);
-        let assessment = OpportunityHealthAssessor.assess(&stored, &freshness_active(), Some(&health), false);
+        let assessment =
+            OpportunityHealthAssessor.assess(&stored, &freshness_active(), Some(&health), false);
         assert_eq!(assessment.health, OpportunityHealth::Degraded);
         assert_eq!(
             assessment.concerns,
-            vec![HealthConcern::BestSourceDegraded { source: "network-a".into() }]
+            vec![HealthConcern::BestSourceDegraded {
+                source: "network-a".into()
+            }]
         );
     }
 
@@ -215,12 +230,19 @@ mod tests {
     fn unavailable_best_source_makes_the_opportunity_unavailable() {
         let stored = record(&["network-a"]);
         let health = snapshot("network-a", SourceHealthState::Unavailable);
-        let assessment = OpportunityHealthAssessor.assess(&stored, &freshness_active(), Some(&health), true);
+        let assessment =
+            OpportunityHealthAssessor.assess(&stored, &freshness_active(), Some(&health), true);
         assert_eq!(assessment.health, OpportunityHealth::Unavailable);
-        assert!(assessment.needs_revalidation, "flag is preserved even when health is worse");
+        assert!(
+            assessment.needs_revalidation,
+            "flag is preserved even when health is worse"
+        );
         assert!(matches!(
             assessment.concerns.as_slice(),
-            [HealthConcern::BestSourceUnavailable { .. }, HealthConcern::RevalidationPending]
+            [
+                HealthConcern::BestSourceUnavailable { .. },
+                HealthConcern::RevalidationPending
+            ]
         ));
     }
 
@@ -228,20 +250,32 @@ mod tests {
     fn needs_revalidation_only_promotes_healthy_records() {
         let stored = record(&["network-a"]);
         let health = snapshot("network-a", SourceHealthState::Degraded);
-        let assessment = OpportunityHealthAssessor.assess(&stored, &freshness_active(), Some(&health), true);
-        assert_eq!(assessment.health, OpportunityHealth::Degraded, "revalidation never masks degradation");
-        assert!(assessment.concerns.contains(&HealthConcern::RevalidationPending));
+        let assessment =
+            OpportunityHealthAssessor.assess(&stored, &freshness_active(), Some(&health), true);
+        assert_eq!(
+            assessment.health,
+            OpportunityHealth::Degraded,
+            "revalidation never masks degradation"
+        );
+        assert!(
+            assessment
+                .concerns
+                .contains(&HealthConcern::RevalidationPending)
+        );
     }
 
     #[test]
     fn unknown_source_health_is_reported_but_not_penalized() {
         let stored = record(&["network-a"]);
         let health = snapshot("network-a", SourceHealthState::Unknown);
-        let assessment = OpportunityHealthAssessor.assess(&stored, &freshness_active(), Some(&health), false);
+        let assessment =
+            OpportunityHealthAssessor.assess(&stored, &freshness_active(), Some(&health), false);
         assert_eq!(assessment.health, OpportunityHealth::Healthy);
         assert_eq!(
             assessment.concerns,
-            vec![HealthConcern::BestSourceUnknown { source: "network-a".into() }]
+            vec![HealthConcern::BestSourceUnknown {
+                source: "network-a".into()
+            }]
         );
     }
 
@@ -249,7 +283,8 @@ mod tests {
     fn records_without_observations_are_unavailable() {
         let mut stored = record(&["network-a"]);
         stored.observations.clear();
-        let assessment = OpportunityHealthAssessor.assess(&stored, &freshness_active(), None, false);
+        let assessment =
+            OpportunityHealthAssessor.assess(&stored, &freshness_active(), None, false);
         assert_eq!(assessment.health, OpportunityHealth::Unavailable);
         assert_eq!(assessment.concerns, vec![HealthConcern::NoObservations]);
     }
@@ -260,6 +295,9 @@ mod tests {
         let assessment = OpportunityHealthAssessor.assess(&stored, &freshness_active(), None, true);
         assert_eq!(assessment.health, OpportunityHealth::NeedsRevalidation);
         assert!(assessment.needs_revalidation);
-        assert_eq!(assessment.concerns, vec![HealthConcern::RevalidationPending]);
+        assert_eq!(
+            assessment.concerns,
+            vec![HealthConcern::RevalidationPending]
+        );
     }
 }

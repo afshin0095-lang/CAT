@@ -15,8 +15,14 @@ pub struct ReconciliationReport {
 
 #[async_trait]
 pub trait ExecutionReconciliationStore: AsyncPostgresExecutionStore {
-    async fn load_execution_attempt(&self, execution_id: Uuid) -> OrchestratorResult<ExecutionAttempt>;
-    async fn load_provider_result(&self, execution_id: Uuid) -> OrchestratorResult<Option<ProviderExecutionRecord>>;
+    async fn load_execution_attempt(
+        &self,
+        execution_id: Uuid,
+    ) -> OrchestratorResult<ExecutionAttempt>;
+    async fn load_provider_result(
+        &self,
+        execution_id: Uuid,
+    ) -> OrchestratorResult<Option<ProviderExecutionRecord>>;
     async fn record_provider_submission(
         &self,
         execution_id: Uuid,
@@ -56,13 +62,19 @@ where
             Some(result) => result.action(),
             None if attempt.status.terminal() => match attempt.status {
                 ExecutionAttemptStatus::Succeeded => ReconciliationAction::ConfirmSuccess,
-                ExecutionAttemptStatus::Failed | ExecutionAttemptStatus::Cancelled => ReconciliationAction::ConfirmFailure,
+                ExecutionAttemptStatus::Failed | ExecutionAttemptStatus::Cancelled => {
+                    ReconciliationAction::ConfirmFailure
+                }
                 ExecutionAttemptStatus::Running => ReconciliationAction::ManualReview,
             },
             None => ReconciliationAction::Continue,
         };
 
-        Ok(ReconciliationReport { execution_id, action, provider_result })
+        Ok(ReconciliationReport {
+            execution_id,
+            action,
+            provider_result,
+        })
     }
 }
 

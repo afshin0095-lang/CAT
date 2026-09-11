@@ -91,7 +91,10 @@ pub enum RevisionCheck {
 }
 
 impl RevisionCheck {
-    pub fn evaluate(expected: OpportunityRevision, actual: u64) -> Result<Self, OpportunityRevisionError> {
+    pub fn evaluate(
+        expected: OpportunityRevision,
+        actual: u64,
+    ) -> Result<Self, OpportunityRevisionError> {
         let actual = OpportunityRevision::from_raw(actual)?;
         if actual == expected {
             Ok(Self::Matched)
@@ -115,10 +118,15 @@ mod tests {
 
     #[test]
     fn zero_is_rejected_on_read() {
-        assert_eq!(OpportunityRevision::from_raw(0), Err(OpportunityRevisionError::Zero));
+        assert_eq!(
+            OpportunityRevision::from_raw(0),
+            Err(OpportunityRevisionError::Zero)
+        );
         assert_eq!(
             OpportunityRevision::initial().get(),
-            OpportunityRevision::from_raw(1).expect("valid revision").get()
+            OpportunityRevision::from_raw(1)
+                .expect("valid revision")
+                .get()
         );
     }
 
@@ -141,7 +149,10 @@ mod tests {
                 actual: OpportunityRevision::from_raw(7).expect("valid revision"),
             })
         );
-        assert_eq!(RevisionCheck::evaluate(OpportunityRevision::initial(), 0), Err(OpportunityRevisionError::Zero));
+        assert_eq!(
+            RevisionCheck::evaluate(OpportunityRevision::initial(), 0),
+            Err(OpportunityRevisionError::Zero)
+        );
     }
 
     #[test]

@@ -17,7 +17,11 @@ fn command_context_preserves_correlation_and_workflow_identity() {
 fn runtime_exposes_deterministic_scheduler_boundary() {
     let mut runtime = PlatformRuntime::default();
     let workflow_id = Uuid::now_v7();
-    runtime.schedule(ScheduleRequest { workflow_id, not_before_ms: 500, priority: 7 });
+    runtime.schedule(ScheduleRequest {
+        workflow_id,
+        not_before_ms: 500,
+        priority: 7,
+    });
 
     assert_eq!(runtime.queue_depth(), 1);
     assert!(runtime.ready_work(499).is_none());

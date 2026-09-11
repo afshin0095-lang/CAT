@@ -9,8 +9,16 @@ pub struct ProjectionDescriptor {
 }
 
 impl ProjectionDescriptor {
-    pub fn new(projection_id: impl Into<String>, version: u16, description: impl Into<String>) -> Self {
-        Self { projection_id: projection_id.into(), version, description: description.into() }
+    pub fn new(
+        projection_id: impl Into<String>,
+        version: u16,
+        description: impl Into<String>,
+    ) -> Self {
+        Self {
+            projection_id: projection_id.into(),
+            version,
+            description: description.into(),
+        }
     }
 }
 
@@ -26,9 +34,13 @@ impl ProjectionRegistry {
             return Err("projection_id must not be empty".into());
         }
         if self.descriptors.contains_key(&descriptor.projection_id) {
-            return Err(format!("projection already registered: {}", descriptor.projection_id));
+            return Err(format!(
+                "projection already registered: {}",
+                descriptor.projection_id
+            ));
         }
-        self.descriptors.insert(descriptor.projection_id.clone(), descriptor);
+        self.descriptors
+            .insert(descriptor.projection_id.clone(), descriptor);
         Ok(())
     }
 
@@ -40,7 +52,9 @@ impl ProjectionRegistry {
         self.descriptors.values()
     }
 
-    pub fn len(&self) -> usize { self.descriptors.len() }
+    pub fn len(&self) -> usize {
+        self.descriptors.len()
+    }
 }
 
 #[cfg(test)]
@@ -50,8 +64,22 @@ mod tests {
     #[test]
     fn registry_is_deterministic_and_rejects_duplicates() {
         let mut registry = ProjectionRegistry::default();
-        registry.register(ProjectionDescriptor::new("affiliate-summary", 1, "Affiliate summary projection")).unwrap();
-        assert!(registry.register(ProjectionDescriptor::new("affiliate-summary", 2, "replacement")).is_err());
+        registry
+            .register(ProjectionDescriptor::new(
+                "affiliate-summary",
+                1,
+                "Affiliate summary projection",
+            ))
+            .unwrap();
+        assert!(
+            registry
+                .register(ProjectionDescriptor::new(
+                    "affiliate-summary",
+                    2,
+                    "replacement"
+                ))
+                .is_err()
+        );
         assert_eq!(registry.get("affiliate-summary").unwrap().version, 1);
         assert_eq!(registry.len(), 1);
     }

@@ -139,6 +139,9 @@ mod tests {
         gate.request(&result).unwrap();
         let approved = gate.approve(result.decision_id, "operator-1").unwrap();
         assert_eq!(approved.state, ApprovalState::Approved);
-        assert!(gate.reject(result.decision_id, "operator-2", "late").is_err());
+        assert!(
+            gate.reject(result.decision_id, "operator-2", "late")
+                .is_err()
+        );
     }
 }

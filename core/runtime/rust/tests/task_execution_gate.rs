@@ -1,7 +1,7 @@
-#[path = "../src/task_lease.rs"]
-mod task_lease;
 #[path = "../src/execution_gate.rs"]
 mod execution_gate;
+#[path = "../src/task_lease.rs"]
+mod task_lease;
 
 use execution_gate::{DispatchDecision, ExecutionGate};
 use std::time::Duration;

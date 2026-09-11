@@ -28,9 +28,13 @@ impl ProgramScore {
 
     pub fn verdict(&self) -> ProgramVerdict {
         let score = self.overall();
-        if score >= 7.5 { ProgramVerdict::StrongPick }
-        else if score >= 5.5 { ProgramVerdict::WorthTesting }
-        else { ProgramVerdict::Skip }
+        if score >= 7.5 {
+            ProgramVerdict::StrongPick
+        } else if score >= 5.5 {
+            ProgramVerdict::WorthTesting
+        } else {
+            ProgramVerdict::Skip
+        }
     }
 }
 
@@ -59,12 +63,19 @@ pub fn score_earning_potential(
 ) -> f64 {
     let mut score = 0.0;
     score += (commission_percent / 10.0).min(4.0);
-    if is_recurring { score += 3.0; }
+    if is_recurring {
+        score += 3.0;
+    }
     let price_dollars = avg_product_price_minor as f64 / 100.0;
-    score += if price_dollars >= 100.0 { 3.0 }
-             else if price_dollars >= 50.0 { 2.0 }
-             else if price_dollars >= 20.0 { 1.0 }
-             else { 0.5 };
+    score += if price_dollars >= 100.0 {
+        3.0
+    } else if price_dollars >= 50.0 {
+        2.0
+    } else if price_dollars >= 20.0 {
+        1.0
+    } else {
+        0.5
+    };
     score.min(10.0)
 }
 
@@ -75,15 +86,23 @@ pub fn score_content_potential(
     content_angle_count: u32,
 ) -> f64 {
     let mut score = 0.0;
-    if has_free_tier { score += 3.0; }
-    if is_visual_product { score += 3.0; }
+    if has_free_tier {
+        score += 3.0;
+    }
+    if is_visual_product {
+        score += 3.0;
+    }
     score += (content_angle_count as f64).min(4.0);
     score.min(10.0)
 }
 
 /// Sort programs by overall score (descending).
 pub fn rank_programs(scores: &mut [ProgramScore]) {
-    scores.sort_by(|a, b| b.overall().partial_cmp(&a.overall()).unwrap_or(std::cmp::Ordering::Equal));
+    scores.sort_by(|a, b| {
+        b.overall()
+            .partial_cmp(&a.overall())
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
 }
 
 #[cfg(test)]
@@ -129,9 +148,30 @@ mod tests {
     #[test]
     fn ranking_sorts_descending() {
         let mut scores = vec![
-            ProgramScore { program_name: "C".into(), earning_potential: 5.0, content_potential: 5.0, market_demand: 5.0, competition: 5.0, trust_factor: 5.0 },
-            ProgramScore { program_name: "A".into(), earning_potential: 9.0, content_potential: 9.0, market_demand: 9.0, competition: 9.0, trust_factor: 9.0 },
-            ProgramScore { program_name: "B".into(), earning_potential: 7.0, content_potential: 7.0, market_demand: 7.0, competition: 7.0, trust_factor: 7.0 },
+            ProgramScore {
+                program_name: "C".into(),
+                earning_potential: 5.0,
+                content_potential: 5.0,
+                market_demand: 5.0,
+                competition: 5.0,
+                trust_factor: 5.0,
+            },
+            ProgramScore {
+                program_name: "A".into(),
+                earning_potential: 9.0,
+                content_potential: 9.0,
+                market_demand: 9.0,
+                competition: 9.0,
+                trust_factor: 9.0,
+            },
+            ProgramScore {
+                program_name: "B".into(),
+                earning_potential: 7.0,
+                content_potential: 7.0,
+                market_demand: 7.0,
+                competition: 7.0,
+                trust_factor: 7.0,
+            },
         ];
         rank_programs(&mut scores);
         assert_eq!(scores[0].program_name, "A");

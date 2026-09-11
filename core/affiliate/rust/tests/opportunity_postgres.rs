@@ -7,10 +7,11 @@
 //! runs without PostgreSQL stay green.
 
 use cat_affiliate::{
-    canonical_key, AsyncOpportunityStore, AsyncRevalidationRequestStore, AsyncVersionedOpportunityStore,
-    DiscoveryCandidate, DiscoveryOpportunity, OpportunityIdentity, OpportunityRevision, PostgresOpportunityStore,
-    PostgresOpportunityStoreError, PostgresRevalidationStore, RevalidationPriority, RevalidationReason,
-    RevalidationRequest, RevalidationStatus, RevalidationStoreError, RevalidationTarget,
+    AsyncOpportunityStore, AsyncRevalidationRequestStore, AsyncVersionedOpportunityStore,
+    DiscoveryCandidate, DiscoveryOpportunity, OpportunityIdentity, OpportunityRevision,
+    PostgresOpportunityStore, PostgresOpportunityStoreError, PostgresRevalidationStore,
+    RevalidationPriority, RevalidationReason, RevalidationRequest, RevalidationStatus,
+    RevalidationStoreError, RevalidationTarget, canonical_key,
 };
 use sqlx::postgres::PgPoolOptions;
 use uuid::Uuid;
@@ -50,7 +51,12 @@ fn opportunity(identity_tag: &str, score: u32, observed_at_ms: u64) -> Discovery
         compliance_score: 10_000,
         observed_at_ms,
     };
-    DiscoveryOpportunity { id: Uuid::now_v7(), candidate, score, rank: 1 }
+    DiscoveryOpportunity {
+        id: Uuid::now_v7(),
+        candidate,
+        score,
+        rank: 1,
+    }
 }
 
 #[tokio::test]
@@ -60,8 +66,14 @@ async fn postgres_store_upsert_get_and_revision_conflicts() {
         return;
     };
     let store = PostgresOpportunityStore::new(pool.clone());
-    store.ensure_schema().await.expect("schema bootstrap is idempotent");
-    store.ensure_schema().await.expect("second bootstrap is a no-op");
+    store
+        .ensure_schema()
+        .await
+        .expect("schema bootstrap is idempotent");
+    store
+        .ensure_schema()
+        .await
+        .expect("second bootstrap is a no-op");
 
     let tag = Uuid::now_v7().simple().to_string();
     let first = opportunity(&tag, 7_000, 1_000);
@@ -90,15 +102,24 @@ async fn postgres_store_upsert_get_and_revision_conflicts() {
     improved.candidate.observed_at_ms = 2_000;
     let updated = store.upsert(&improved).await.expect("update");
     assert!(updated.changed);
-    assert_eq!(updated.revision, OpportunityRevision::from_raw(2).expect("valid"));
+    assert_eq!(
+        updated.revision,
+        OpportunityRevision::from_raw(2).expect("valid")
+    );
 
     // CAS with the current revision succeeds without change.
     let cas = store
         .upsert_if_revision(&improved, OpportunityRevision::from_raw(2).expect("valid"))
         .await
         .expect("cas ok");
-    assert!(!cas.changed, "identical re-observation under matching revision");
-    assert_eq!(cas.revision, OpportunityRevision::from_raw(2).expect("valid"));
+    assert!(
+        !cas.changed,
+        "identical re-observation under matching revision"
+    );
+    assert_eq!(
+        cas.revision,
+        OpportunityRevision::from_raw(2).expect("valid")
+    );
 
     // CAS with a stale revision is rejected with a conflict.
     let stale = opportunity(&tag, 9_500, 3_000);
@@ -106,10 +127,17 @@ async fn postgres_store_upsert_get_and_revision_conflicts() {
         .upsert_if_revision(&stale, OpportunityRevision::from_raw(1).expect("valid"))
         .await
         .expect_err("stale revision must conflict");
-    assert!(matches!(error, PostgresOpportunityStoreError::RevisionConflict { .. }));
+    assert!(matches!(
+        error,
+        PostgresOpportunityStoreError::RevisionConflict { .. }
+    ));
 
     // Current revision is exposed for reload-and-retry flows.
-    let current = store.revision(&identity).await.expect("revision").expect("exists");
+    let current = store
+        .revision(&identity)
+        .await
+        .expect("revision")
+        .expect("exists");
     assert!(current.get() >= 2);
 
     // Cleanup.
@@ -167,7 +195,9 @@ async fn postgres_revalidation_store_enforces_dedup_and_claim_order() {
         .expect_err("duplicate must be suppressed");
     assert!(matches!(
         error,
-        PostgresOpportunityStoreError::Revalidation(RevalidationStoreError::DuplicateRequest { .. })
+        PostgresOpportunityStoreError::Revalidation(
+            RevalidationStoreError::DuplicateRequest { .. }
+        )
     ));
 
     let normal = RevalidationRequest::new(
@@ -188,12 +218,22 @@ async fn postgres_revalidation_store_enforces_dedup_and_claim_order() {
 
     // Domain transition matrix holds in SQL: claimed -> running -> succeeded.
     let done = store
-        .transition(claimed[0].request.request_id, RevalidationStatus::Running, 2_000, None)
+        .transition(
+            claimed[0].request.request_id,
+            RevalidationStatus::Running,
+            2_000,
+            None,
+        )
         .await
         .expect("start");
     assert_eq!(done.attempt, 1);
     let finished = store
-        .transition(done.request.request_id, RevalidationStatus::Succeeded, 2_500, None)
+        .transition(
+            done.request.request_id,
+            RevalidationStatus::Succeeded,
+            2_500,
+            None,
+        )
         .await
         .expect("finish");
     assert_eq!(finished.status, RevalidationStatus::Succeeded);
@@ -201,12 +241,19 @@ async fn postgres_revalidation_store_enforces_dedup_and_claim_order() {
 
     // Illegal transition fails closed in SQL too.
     let error = store
-        .transition(finished.request.request_id, RevalidationStatus::Running, 3_000, None)
+        .transition(
+            finished.request.request_id,
+            RevalidationStatus::Running,
+            3_000,
+            None,
+        )
         .await
         .expect_err("terminal statuses reject transitions");
     assert!(matches!(
         error,
-        PostgresOpportunityStoreError::Revalidation(RevalidationStoreError::InvalidTransition { .. })
+        PostgresOpportunityStoreError::Revalidation(
+            RevalidationStoreError::InvalidTransition { .. }
+        )
     ));
 
     // Terminal records stop suppressing dedup: re-issue works.
@@ -218,7 +265,10 @@ async fn postgres_revalidation_store_enforces_dedup_and_claim_order() {
         3_000,
         1_500,
     );
-    store.insert(reissued).await.expect("re-issue after terminal");
+    store
+        .insert(reissued)
+        .await
+        .expect("re-issue after terminal");
 
     // Cleanup by identity.
     sqlx::query("DELETE FROM cat_affiliate_revalidation_requests WHERE identity = $1")

@@ -1,4 +1,4 @@
-use crate::{validate_plan, Plan, PlanId, StepId};
+use crate::{Plan, PlanId, StepId, validate_plan};
 use std::collections::{BTreeMap, BTreeSet};
 use thiserror::Error;
 
@@ -19,13 +19,19 @@ pub struct PlanSchedule {
 }
 
 impl PlanSchedule {
-    pub fn plan_id(&self) -> PlanId { self.plan_id }
-    pub fn levels(&self) -> &[Vec<StepId>] { &self.levels }
+    pub fn plan_id(&self) -> PlanId {
+        self.plan_id
+    }
+    pub fn levels(&self) -> &[Vec<StepId>] {
+        &self.levels
+    }
     pub fn execution_order(&self) -> impl Iterator<Item = StepId> + '_ {
         self.levels.iter().flat_map(|level| level.iter().copied())
     }
     pub fn level_for(&self, step_id: StepId) -> Option<usize> {
-        self.levels.iter().position(|level| level.contains(&step_id))
+        self.levels
+            .iter()
+            .position(|level| level.contains(&step_id))
     }
 }
 
@@ -43,7 +49,8 @@ pub fn schedule_plan(plan: &Plan) -> Result<PlanSchedule, PlanScheduleError> {
         by_id.insert(step.id, step);
     }
 
-    let mut indegree: BTreeMap<StepId, usize> = plan.steps.iter().map(|step| (step.id, 0)).collect();
+    let mut indegree: BTreeMap<StepId, usize> =
+        plan.steps.iter().map(|step| (step.id, 0)).collect();
     let mut dependents: BTreeMap<StepId, Vec<StepId>> = BTreeMap::new();
 
     for step in &plan.steps {
@@ -54,8 +61,13 @@ pub fn schedule_plan(plan: &Plan) -> Result<PlanSchedule, PlanScheduleError> {
                     prerequisite: dependency.prerequisite,
                 });
             }
-            *indegree.get_mut(&step.id).expect("step ids initialized above") += 1;
-            dependents.entry(dependency.prerequisite).or_default().push(step.id);
+            *indegree
+                .get_mut(&step.id)
+                .expect("step ids initialized above") += 1;
+            dependents
+                .entry(dependency.prerequisite)
+                .or_default()
+                .push(step.id);
         }
     }
 
@@ -79,12 +91,17 @@ pub fn schedule_plan(plan: &Plan) -> Result<PlanSchedule, PlanScheduleError> {
             remaining.remove(step_id);
             if let Some(children) = dependents.get(step_id) {
                 for child in children {
-                    *indegree.get_mut(child).expect("dependent initialized above") -= 1;
+                    *indegree
+                        .get_mut(child)
+                        .expect("dependent initialized above") -= 1;
                 }
             }
         }
         levels.push(ids);
     }
 
-    Ok(PlanSchedule { plan_id: plan.id, levels })
+    Ok(PlanSchedule {
+        plan_id: plan.id,
+        levels,
+    })
 }

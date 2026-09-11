@@ -44,14 +44,19 @@ impl ProviderSelectionEngine {
         request
             .scores
             .into_iter()
-            .filter(|candidate| registry.supports(&candidate.provider, &request.required_capabilities))
+            .filter(|candidate| {
+                registry.supports(&candidate.provider, &request.required_capabilities)
+            })
             .max_by(|left, right| {
                 left.total()
                     .partial_cmp(&right.total())
                     .unwrap_or(std::cmp::Ordering::Equal)
                     .then_with(|| right.provider.cmp(&left.provider))
             })
-            .map(|winner| ProviderSelection { provider: winner.provider, score: winner.total() })
+            .map(|winner| ProviderSelection {
+                provider: winner.provider,
+                score: winner.total(),
+            })
     }
 }
 

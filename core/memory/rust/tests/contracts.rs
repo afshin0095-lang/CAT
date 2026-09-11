@@ -1,4 +1,7 @@
-use cat_memory::{Classification, Consent, InMemoryMemoryStore, LifecycleState, MemoryId, MemoryKind, MemoryObject, MemoryPolicy, MemoryStore, Provenance, Retention};
+use cat_memory::{
+    Classification, Consent, InMemoryMemoryStore, LifecycleState, MemoryId, MemoryKind,
+    MemoryObject, MemoryPolicy, MemoryStore, Provenance, Retention,
+};
 
 fn object(state: LifecycleState, consent: bool) -> MemoryObject {
     MemoryObject {
@@ -10,9 +13,23 @@ fn object(state: LifecycleState, consent: bool) -> MemoryObject {
         state,
         version: 1,
         content: serde_json::json!({"value":"example"}),
-        provenance: Provenance { source: "test".into(), source_version: Some("1".into()), captured_at_ms: 100, captured_by: "test-agent".into() },
-        consent: Consent { required: true, granted: consent, scope: "test".into(), policy_version: "1".into() },
-        retention: Retention { expires_at_ms: Some(10_000), legal_hold: false, policy_version: "1".into() },
+        provenance: Provenance {
+            source: "test".into(),
+            source_version: Some("1".into()),
+            captured_at_ms: 100,
+            captured_by: "test-agent".into(),
+        },
+        consent: Consent {
+            required: true,
+            granted: consent,
+            scope: "test".into(),
+            policy_version: "1".into(),
+        },
+        retention: Retention {
+            expires_at_ms: Some(10_000),
+            legal_hold: false,
+            policy_version: "1".into(),
+        },
         created_at_ms: 100,
         updated_at_ms: 100,
     }

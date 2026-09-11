@@ -1,5 +1,5 @@
 use crate::{EventBusError, EventBusResult};
-use async_nats::jetstream::{self, stream, Context};
+use async_nats::jetstream::{self, Context, stream};
 use std::time::Duration;
 
 #[derive(Clone, Debug)]
@@ -28,13 +28,19 @@ impl Default for NatsStreamConfig {
 impl NatsStreamConfig {
     pub fn validate(&self) -> EventBusResult<()> {
         if self.name.trim().is_empty() {
-            return Err(EventBusError::InvalidConfiguration("NATS stream name cannot be empty".into()));
+            return Err(EventBusError::InvalidConfiguration(
+                "NATS stream name cannot be empty".into(),
+            ));
         }
         if self.subjects.is_empty() || self.subjects.iter().any(|s| s.trim().is_empty()) {
-            return Err(EventBusError::InvalidConfiguration("NATS stream requires at least one subject".into()));
+            return Err(EventBusError::InvalidConfiguration(
+                "NATS stream requires at least one subject".into(),
+            ));
         }
         if self.max_messages == 0 || self.max_bytes == 0 {
-            return Err(EventBusError::InvalidConfiguration("stream limits must be -1 or positive".into()));
+            return Err(EventBusError::InvalidConfiguration(
+                "stream limits must be -1 or positive".into(),
+            ));
         }
         Ok(())
     }
@@ -53,7 +59,10 @@ impl NatsStreamConfig {
     }
 }
 
-pub async fn ensure_stream(context: &Context, config: NatsStreamConfig) -> EventBusResult<jetstream::stream::Stream> {
+pub async fn ensure_stream(
+    context: &Context,
+    config: NatsStreamConfig,
+) -> EventBusResult<jetstream::stream::Stream> {
     let config = config.into_stream_config()?;
     context
         .get_or_create_stream(config)
@@ -78,10 +87,16 @@ mod tests {
     fn invalid_limits_are_rejected_before_network_access() {
         let mut config = NatsStreamConfig::default();
         config.max_messages = 0;
-        assert!(matches!(config.validate(), Err(EventBusError::InvalidConfiguration(_))));
+        assert!(matches!(
+            config.validate(),
+            Err(EventBusError::InvalidConfiguration(_))
+        ));
 
         config.max_messages = -1;
         config.max_bytes = 0;
-        assert!(matches!(config.validate(), Err(EventBusError::InvalidConfiguration(_))));
+        assert!(matches!(
+            config.validate(),
+            Err(EventBusError::InvalidConfiguration(_))
+        ));
     }
 }

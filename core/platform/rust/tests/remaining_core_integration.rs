@@ -1,8 +1,10 @@
 use cat_decision::Alternative;
 use cat_llm::{GenerationRequest, Message, ModelId};
+use cat_platform::{
+    CoreCommand, IntegrationContext, IntegrationTarget, RemainingCoreRuntime, TypedCoreCommand,
+};
 use cat_rag::{DocumentChunk, Embedding, RetrievalQuery};
 use cat_reasoning::{Evidence, ReasoningMode, ReasoningRequest};
-use cat_platform::{CoreCommand, IntegrationContext, IntegrationTarget, RemainingCoreRuntime, TypedCoreCommand};
 use serde_json::json;
 use uuid::Uuid;
 
@@ -15,9 +17,14 @@ fn all_remaining_core_targets_execute_through_one_platform_boundary() {
         ModelId::new("local.deterministic"),
         vec![Message::user("integration smoke test")],
     );
-    let llm = runtime.execute(TypedCoreCommand::Llm(CoreCommand::new(
-        Uuid::now_v7(), "generate", context.clone(), serde_json::to_value(generation).unwrap(),
-    ))).unwrap();
+    let llm = runtime
+        .execute(TypedCoreCommand::Llm(CoreCommand::new(
+            Uuid::now_v7(),
+            "generate",
+            context.clone(),
+            serde_json::to_value(generation).unwrap(),
+        )))
+        .unwrap();
     assert_eq!(llm.target, IntegrationTarget::Llm);
     assert!(llm.accepted);
 
@@ -36,9 +43,14 @@ fn all_remaining_core_targets_execute_through_one_platform_boundary() {
         mode: ReasoningMode::Deterministic,
         max_steps: 4,
     };
-    let reasoning_response = runtime.execute(TypedCoreCommand::Reasoning(CoreCommand::new(
-        Uuid::now_v7(), "reason", context.clone(), serde_json::to_value(reasoning).unwrap(),
-    ))).unwrap();
+    let reasoning_response = runtime
+        .execute(TypedCoreCommand::Reasoning(CoreCommand::new(
+            Uuid::now_v7(),
+            "reason",
+            context.clone(),
+            serde_json::to_value(reasoning).unwrap(),
+        )))
+        .unwrap();
     assert_eq!(reasoning_response.target, IntegrationTarget::Reasoning);
     assert_eq!(reasoning_response.payload["advisory_only"], true);
 
@@ -58,9 +70,14 @@ fn all_remaining_core_targets_execute_through_one_platform_boundary() {
         require_human_approval: false,
         context: json!({}),
     };
-    let decision_response = runtime.execute(TypedCoreCommand::Decision(CoreCommand::new(
-        Uuid::now_v7(), "decide", context.clone(), serde_json::to_value(decision).unwrap(),
-    ))).unwrap();
+    let decision_response = runtime
+        .execute(TypedCoreCommand::Decision(CoreCommand::new(
+            Uuid::now_v7(),
+            "decide",
+            context.clone(),
+            serde_json::to_value(decision).unwrap(),
+        )))
+        .unwrap();
     assert_eq!(decision_response.target, IntegrationTarget::Decision);
     assert_eq!(decision_response.payload["advisory_only"], true);
 
@@ -75,16 +92,26 @@ fn all_remaining_core_targets_execute_through_one_platform_boundary() {
         metadata: json!({"domain":"affiliate"}),
         embedding: Some(Embedding::new("integration", vec![1.0, 0.0])),
     };
-    runtime.execute(TypedCoreCommand::Retrieval(CoreCommand::new(
-        Uuid::now_v7(), "upsert", context.clone(), serde_json::to_value(chunk).unwrap(),
-    ))).unwrap();
+    runtime
+        .execute(TypedCoreCommand::Retrieval(CoreCommand::new(
+            Uuid::now_v7(),
+            "upsert",
+            context.clone(),
+            serde_json::to_value(chunk).unwrap(),
+        )))
+        .unwrap();
 
     let query = RetrievalQuery::new(tenant_id, "affiliate")
         .with_embedding(Embedding::new("integration", vec![1.0, 0.0]))
         .with_limit(5);
-    let retrieval_response = runtime.execute(TypedCoreCommand::Retrieval(CoreCommand::new(
-        Uuid::now_v7(), "retrieve", context, serde_json::to_value(query).unwrap(),
-    ))).unwrap();
+    let retrieval_response = runtime
+        .execute(TypedCoreCommand::Retrieval(CoreCommand::new(
+            Uuid::now_v7(),
+            "retrieve",
+            context,
+            serde_json::to_value(query).unwrap(),
+        )))
+        .unwrap();
     assert_eq!(retrieval_response.target, IntegrationTarget::Retrieval);
     assert_eq!(retrieval_response.payload["count"], 1);
 }

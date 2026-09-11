@@ -1,4 +1,6 @@
-use crate::{IntegrationCommand, IntegrationContext, IntegrationTarget, PlatformError, PlatformResult};
+use crate::{
+    IntegrationCommand, IntegrationContext, IntegrationTarget, PlatformError, PlatformResult,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::BTreeMap;
@@ -45,13 +47,21 @@ pub struct AdapterRegistry {
 }
 
 impl AdapterRegistry {
-    pub fn register(&mut self, name: impl Into<String>, adapter: Box<dyn PlatformAdapter>) -> PlatformResult<()> {
+    pub fn register(
+        &mut self,
+        name: impl Into<String>,
+        adapter: Box<dyn PlatformAdapter>,
+    ) -> PlatformResult<()> {
         let name = name.into();
         if name.trim().is_empty() {
-            return Err(PlatformError::InvalidCommand("adapter name cannot be empty".into()));
+            return Err(PlatformError::InvalidCommand(
+                "adapter name cannot be empty".into(),
+            ));
         }
         if self.adapters.contains_key(&name) {
-            return Err(PlatformError::InvalidCommand(format!("adapter already registered: {name}")));
+            return Err(PlatformError::InvalidCommand(format!(
+                "adapter already registered: {name}"
+            )));
         }
         self.adapters.insert(name, adapter);
         Ok(())
@@ -71,8 +81,12 @@ impl AdapterRegistry {
         adapter.execute(request)
     }
 
-    pub fn len(&self) -> usize { self.adapters.len() }
-    pub fn is_empty(&self) -> bool { self.adapters.is_empty() }
+    pub fn len(&self) -> usize {
+        self.adapters.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.adapters.is_empty()
+    }
 }
 
 #[derive(Default)]
@@ -81,12 +95,17 @@ pub struct PassthroughAdapter {
 }
 
 impl PassthroughAdapter {
-    pub fn new(target: IntegrationTarget) -> Self { Self { target: Some(target) } }
+    pub fn new(target: IntegrationTarget) -> Self {
+        Self {
+            target: Some(target),
+        }
+    }
 }
 
 impl PlatformAdapter for PassthroughAdapter {
     fn target(&self) -> IntegrationTarget {
-        self.target.expect("PassthroughAdapter target is always initialized")
+        self.target
+            .expect("PassthroughAdapter target is always initialized")
     }
 
     fn execute(&self, request: &AdapterRequest) -> PlatformResult<AdapterResponse> {
@@ -107,8 +126,17 @@ mod tests {
     #[test]
     fn registry_routes_only_to_matching_target() {
         let mut registry = AdapterRegistry::default();
-        registry.register("planning", Box::new(PassthroughAdapter::new(IntegrationTarget::Planning))).unwrap();
-        let command = IntegrationCommand::new(IntegrationTarget::Planning, "validate", IntegrationContext::new("test"));
+        registry
+            .register(
+                "planning",
+                Box::new(PassthroughAdapter::new(IntegrationTarget::Planning)),
+            )
+            .unwrap();
+        let command = IntegrationCommand::new(
+            IntegrationTarget::Planning,
+            "validate",
+            IntegrationContext::new("test"),
+        );
         let request = AdapterRequest::from_command(command, serde_json::json!({"plan":"p1"}));
         let response = registry.execute("planning", &request).unwrap();
         assert!(response.accepted);
@@ -118,9 +146,21 @@ mod tests {
     #[test]
     fn registry_rejects_target_mismatch() {
         let mut registry = AdapterRegistry::default();
-        registry.register("planning", Box::new(PassthroughAdapter::new(IntegrationTarget::Planning))).unwrap();
-        let command = IntegrationCommand::new(IntegrationTarget::Decision, "decide", IntegrationContext::new("test"));
+        registry
+            .register(
+                "planning",
+                Box::new(PassthroughAdapter::new(IntegrationTarget::Planning)),
+            )
+            .unwrap();
+        let command = IntegrationCommand::new(
+            IntegrationTarget::Decision,
+            "decide",
+            IntegrationContext::new("test"),
+        );
         let request = AdapterRequest::from_command(command, Value::Null);
-        assert!(matches!(registry.execute("planning", &request), Err(PlatformError::TargetMismatch { .. })));
+        assert!(matches!(
+            registry.execute("planning", &request),
+            Err(PlatformError::TargetMismatch { .. })
+        ));
     }
 }

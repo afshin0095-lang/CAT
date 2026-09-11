@@ -49,8 +49,12 @@ impl NatsJetStreamTransport {
         subject_for_prefix(&self.subject_prefix, event_type)
     }
 
-    pub fn subject_prefix(&self) -> &str { &self.subject_prefix }
-    pub fn publish_timeout(&self) -> Duration { self.publish_timeout }
+    pub fn subject_prefix(&self) -> &str {
+        &self.subject_prefix
+    }
+    pub fn publish_timeout(&self) -> Duration {
+        self.publish_timeout
+    }
 }
 
 #[async_trait]
@@ -73,7 +77,11 @@ impl AsyncEventTransport for NatsJetStreamTransport {
 
         tokio::time::timeout(self.publish_timeout, publish)
             .await
-            .map_err(|_| EventBusError::TransportUnavailable("JetStream publish acknowledgement timed out".into()))?
+            .map_err(|_| {
+                EventBusError::TransportUnavailable(
+                    "JetStream publish acknowledgement timed out".into(),
+                )
+            })?
             .map_err(|error| EventBusError::TransportUnavailable(error.to_string()))?;
         Ok(())
     }
@@ -81,12 +89,20 @@ impl AsyncEventTransport for NatsJetStreamTransport {
 
 pub fn subject_for_prefix(prefix: &str, event_type: &str) -> EventBusResult<String> {
     validate_subject_fragment(event_type)?;
-    Ok(format!("{}{}", normalize_prefix(prefix.to_owned()), event_type))
+    Ok(format!(
+        "{}{}",
+        normalize_prefix(prefix.to_owned()),
+        event_type
+    ))
 }
 
 fn normalize_prefix(prefix: String) -> String {
     let prefix = prefix.trim().trim_matches('.');
-    if prefix.is_empty() { String::new() } else { format!("{}.", prefix) }
+    if prefix.is_empty() {
+        String::new()
+    } else {
+        format!("{}.", prefix)
+    }
 }
 
 fn validate_subject_fragment(value: &str) -> EventBusResult<()> {
@@ -97,7 +113,9 @@ fn validate_subject_fragment(value: &str) -> EventBusResult<()> {
         || value.contains('*')
         || value.contains('>')
     {
-        return Err(EventBusError::InvalidConfiguration(format!("invalid NATS subject fragment: {value}")));
+        return Err(EventBusError::InvalidConfiguration(format!(
+            "invalid NATS subject fragment: {value}"
+        )));
     }
     Ok(())
 }
@@ -108,19 +126,38 @@ mod tests {
 
     #[test]
     fn subject_prefix_is_normalized_without_double_dots() {
-        assert_eq!(subject_for_prefix("cat.events...", "affiliate.created").unwrap(), "cat.events.affiliate.created");
-        assert_eq!(subject_for_prefix("...", "affiliate.created").unwrap(), "affiliate.created");
+        assert_eq!(
+            subject_for_prefix("cat.events...", "affiliate.created").unwrap(),
+            "cat.events.affiliate.created"
+        );
+        assert_eq!(
+            subject_for_prefix("...", "affiliate.created").unwrap(),
+            "affiliate.created"
+        );
     }
 
     #[test]
     fn subject_rejects_wildcards_and_invalid_fragments() {
-        for invalid in ["", ".affiliate.created", "affiliate.created.", "affiliate created", "affiliate.*", "affiliate.>"] {
-            assert!(matches!(subject_for_prefix("cat", invalid), Err(EventBusError::InvalidConfiguration(_))));
+        for invalid in [
+            "",
+            ".affiliate.created",
+            "affiliate.created.",
+            "affiliate created",
+            "affiliate.*",
+            "affiliate.>",
+        ] {
+            assert!(matches!(
+                subject_for_prefix("cat", invalid),
+                Err(EventBusError::InvalidConfiguration(_))
+            ));
         }
     }
 
     #[test]
     fn subject_preserves_event_version_in_canonical_event_type() {
-        assert_eq!(subject_for_prefix("cat.domain", "affiliate.created.v1").unwrap(), "cat.domain.affiliate.created.v1");
+        assert_eq!(
+            subject_for_prefix("cat.domain", "affiliate.created.v1").unwrap(),
+            "cat.domain.affiliate.created.v1"
+        );
     }
 }

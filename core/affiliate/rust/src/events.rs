@@ -247,7 +247,13 @@ impl OpportunityRevalidationFailed {
         const MAX_DETAIL_CHARS: usize = 512;
         let detail: String = detail
             .chars()
-            .map(|character| if character.is_control() { ' ' } else { character })
+            .map(|character| {
+                if character.is_control() {
+                    ' '
+                } else {
+                    character
+                }
+            })
             .take(MAX_DETAIL_CHARS)
             .collect();
         Self {
@@ -305,9 +311,18 @@ mod tests {
     #[test]
     fn event_contracts_are_versioned_and_named() {
         assert_eq!(AffiliateRegistered::TYPE, "affiliate.partner.registered");
-        assert_eq!(ReferralStateChanged::TYPE, "affiliate.referral.state_changed");
-        assert_eq!(ConversionStateChanged::TYPE, "affiliate.conversion.state_changed");
-        assert_eq!(CommissionObligationCreated::TYPE, "affiliate.commission_obligation.created");
+        assert_eq!(
+            ReferralStateChanged::TYPE,
+            "affiliate.referral.state_changed"
+        );
+        assert_eq!(
+            ConversionStateChanged::TYPE,
+            "affiliate.conversion.state_changed"
+        );
+        assert_eq!(
+            CommissionObligationCreated::TYPE,
+            "affiliate.commission_obligation.created"
+        );
         assert_eq!(OfferCreated::VERSION, 1);
     }
 }

@@ -54,7 +54,11 @@ pub struct TaskSpec {
 }
 
 impl TaskSpec {
-    pub fn new(id: TaskId, name: impl Into<String>, max_attempts: u32) -> Result<Self, TaskSpecError> {
+    pub fn new(
+        id: TaskId,
+        name: impl Into<String>,
+        max_attempts: u32,
+    ) -> Result<Self, TaskSpecError> {
         let name = name.into();
         if name.trim().is_empty() {
             return Err(TaskSpecError::EmptyName);
@@ -62,7 +66,11 @@ impl TaskSpec {
         if max_attempts == 0 {
             return Err(TaskSpecError::ZeroAttempts);
         }
-        Ok(Self { id, name, max_attempts })
+        Ok(Self {
+            id,
+            name,
+            max_attempts,
+        })
     }
 }
 
@@ -110,7 +118,10 @@ impl TaskRegistry {
     }
 
     pub fn start(&mut self, id: &TaskId) -> Result<u32, TaskTransitionError> {
-        let record = self.tasks.get_mut(id).ok_or(TaskTransitionError::UnknownTask)?;
+        let record = self
+            .tasks
+            .get_mut(id)
+            .ok_or(TaskTransitionError::UnknownTask)?;
         if record.state.is_terminal() {
             return Err(TaskTransitionError::TerminalState);
         }
@@ -123,7 +134,10 @@ impl TaskRegistry {
     }
 
     pub fn succeed(&mut self, id: &TaskId) -> Result<(), TaskTransitionError> {
-        let record = self.tasks.get_mut(id).ok_or(TaskTransitionError::UnknownTask)?;
+        let record = self
+            .tasks
+            .get_mut(id)
+            .ok_or(TaskTransitionError::UnknownTask)?;
         if record.state != TaskState::Running {
             return Err(TaskTransitionError::InvalidTransition);
         }
@@ -132,7 +146,10 @@ impl TaskRegistry {
     }
 
     pub fn fail(&mut self, id: &TaskId) -> Result<bool, TaskTransitionError> {
-        let record = self.tasks.get_mut(id).ok_or(TaskTransitionError::UnknownTask)?;
+        let record = self
+            .tasks
+            .get_mut(id)
+            .ok_or(TaskTransitionError::UnknownTask)?;
         if record.state != TaskState::Running {
             return Err(TaskTransitionError::InvalidTransition);
         }
@@ -145,7 +162,10 @@ impl TaskRegistry {
     }
 
     pub fn cancel(&mut self, id: &TaskId) -> Result<(), TaskTransitionError> {
-        let record = self.tasks.get_mut(id).ok_or(TaskTransitionError::UnknownTask)?;
+        let record = self
+            .tasks
+            .get_mut(id)
+            .ok_or(TaskTransitionError::UnknownTask)?;
         if record.state.is_terminal() {
             return Err(TaskTransitionError::TerminalState);
         }

@@ -48,8 +48,7 @@ mod tests {
     #[test]
     fn replay_is_deterministic_and_ordered() {
         let events = vec![event(1, 10), event(2, 20), event(3, -5)];
-        let result = replay(0, events, |state, event| Ok(state + event.payload))
-            .unwrap();
+        let result = replay(0, events, |state, event| Ok(state + event.payload)).unwrap();
         assert_eq!(result, 25);
     }
 

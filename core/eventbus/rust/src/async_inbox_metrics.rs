@@ -1,4 +1,6 @@
-use crate::{AsyncInboxStore, DeliveryState, EventBusMetrics, EventBusMetricsSnapshot, EventBusResult};
+use crate::{
+    AsyncInboxStore, DeliveryState, EventBusMetrics, EventBusMetricsSnapshot, EventBusResult,
+};
 use std::sync::Arc;
 
 /// Snapshot of one metrics-aware asynchronous inbox.
@@ -17,10 +19,7 @@ pub struct MetricsAsyncInboxSnapshot {
 /// boundary while the concrete store remains responsible for canonical state.
 #[async_trait::async_trait]
 pub trait AsyncInboxDiagnostics: Send + Sync {
-    async fn diagnostics(
-        &self,
-        event_id: uuid::Uuid,
-    ) -> EventBusResult<MetricsAsyncInboxSnapshot>;
+    async fn diagnostics(&self, event_id: uuid::Uuid) -> EventBusResult<MetricsAsyncInboxSnapshot>;
 }
 
 /// Metrics-aware inbox decorator with a read-only diagnostics surface.
@@ -84,10 +83,7 @@ impl<I> AsyncInboxDiagnostics for MetricsAsyncInbox<I>
 where
     I: AsyncInboxStore,
 {
-    async fn diagnostics(
-        &self,
-        event_id: uuid::Uuid,
-    ) -> EventBusResult<MetricsAsyncInboxSnapshot> {
+    async fn diagnostics(&self, event_id: uuid::Uuid) -> EventBusResult<MetricsAsyncInboxSnapshot> {
         Ok(MetricsAsyncInboxSnapshot {
             state: self.inner.state(event_id).await?,
             metrics: self.metrics.snapshot(),

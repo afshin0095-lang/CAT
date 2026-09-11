@@ -1,4 +1,4 @@
-use crate::{DeliveryState, EventEnvelope, EventBusResult, RetryPolicy};
+use crate::{DeliveryState, EventBusResult, EventEnvelope, RetryPolicy};
 
 /// Idempotency storage boundary. Implementations may be local, Redis-backed, or database-backed.
 pub trait IdempotencyStore: Send + Sync {
@@ -12,7 +12,12 @@ pub trait OutboxStore: Send + Sync {
     fn enqueue(&mut self, event: EventEnvelope) -> EventBusResult<()>;
     fn next(&mut self) -> EventBusResult<Option<EventEnvelope>>;
     fn acknowledge(&mut self, event_id: uuid::Uuid) -> EventBusResult<()>;
-    fn fail(&mut self, event_id: uuid::Uuid, attempt: u32, policy: &RetryPolicy) -> EventBusResult<DeliveryState>;
+    fn fail(
+        &mut self,
+        event_id: uuid::Uuid,
+        attempt: u32,
+        policy: &RetryPolicy,
+    ) -> EventBusResult<DeliveryState>;
 }
 
 /// Inbox persistence boundary for consumer-side deduplication and replay safety.

@@ -77,7 +77,10 @@ fn envelope_serialization_is_json_object_with_stable_top_level_fields() {
         "subject_id",
         "payload",
     ] {
-        assert!(encoded.get(field).is_some(), "missing envelope field: {field}");
+        assert!(
+            encoded.get(field).is_some(),
+            "missing envelope field: {field}"
+        );
     }
 
     assert_eq!(encoded["event_type"], ContractEvent::TYPE);

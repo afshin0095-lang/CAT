@@ -156,7 +156,10 @@ impl std::fmt::Display for FreshnessPolicyError {
                 formatter.write_str("stale threshold must be earlier than the expiration threshold")
             }
             Self::ThresholdTooLarge => {
-                write!(formatter, "thresholds must not exceed {MAX_THRESHOLD_MS} ms")
+                write!(
+                    formatter,
+                    "thresholds must not exceed {MAX_THRESHOLD_MS} ms"
+                )
             }
             Self::ClockBeforeObservation => {
                 formatter.write_str("evaluation time cannot precede the last observation")
@@ -201,7 +204,10 @@ impl RecordFreshnessEvaluation {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{canonical_key, DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore, OpportunityStore};
+    use crate::{
+        DiscoveryCandidate, DiscoveryOpportunity, InMemoryOpportunityStore, OpportunityStore,
+        canonical_key,
+    };
     use uuid::Uuid;
 
     fn record(observed_at_ms: u64) -> OpportunityRecord {
@@ -222,7 +228,12 @@ mod tests {
             compliance_score: 10_000,
             observed_at_ms,
         };
-        let opportunity = DiscoveryOpportunity { id: Uuid::now_v7(), candidate, score: 8_000, rank: 1 };
+        let opportunity = DiscoveryOpportunity {
+            id: Uuid::now_v7(),
+            candidate,
+            score: 8_000,
+            rank: 1,
+        };
         let mut store = InMemoryOpportunityStore::new();
         store.upsert(opportunity).expect("valid opportunity");
         store.list().into_iter().next().expect("record exists")
@@ -301,7 +312,10 @@ mod tests {
 
     #[test]
     fn state_serialization_uses_snake_case_strings() {
-        assert_eq!(serde_json::to_string(&FreshnessState::Active).unwrap(), "\"active\"");
+        assert_eq!(
+            serde_json::to_string(&FreshnessState::Active).unwrap(),
+            "\"active\""
+        );
         let decoded: FreshnessState = serde_json::from_str("\"expired\"").unwrap();
         assert_eq!(decoded, FreshnessState::Expired);
     }

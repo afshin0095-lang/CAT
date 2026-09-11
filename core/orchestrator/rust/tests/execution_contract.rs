@@ -1,4 +1,7 @@
-use cat_orchestrator::{ExecutionEngine, OrchestratorError, StepState, WorkflowDefinition, WorkflowInstance, WorkflowState, WorkflowStep};
+use cat_orchestrator::{
+    ExecutionEngine, OrchestratorError, StepState, WorkflowDefinition, WorkflowInstance,
+    WorkflowState, WorkflowStep,
+};
 
 fn workflow() -> WorkflowInstance {
     WorkflowInstance::new(WorkflowDefinition {
@@ -49,5 +52,8 @@ fn public_execution_contract_rejects_terminal_cancel() {
     engine.cancel(&mut workflow).unwrap();
 
     let error = engine.cancel(&mut workflow).unwrap_err();
-    assert!(matches!(error, OrchestratorError::InvalidStateTransition { .. }));
+    assert!(matches!(
+        error,
+        OrchestratorError::InvalidStateTransition { .. }
+    ));
 }
