@@ -64,8 +64,9 @@ afterwards and have **never been validated**: every run since is blocked by B1.
 ## 4. Requirement table
 
 Legend — **STATIC-OK** = verified by static audit this session ·
-**BLOCKED** = cannot be executed (B1–B4) · **UNVERIFIED** = never executed ·
-**APPLIED** = committed to the workflow but never run.
+**BLOCKED** = cannot be executed (B1–B6) · **UNVERIFIED** = never executed.
+
+No row in this table is green. Nothing here has been observed passing.
 
 | Requirement | Implementation | Tests | Documentation | Verification |
 |---|---|---|---|---|
