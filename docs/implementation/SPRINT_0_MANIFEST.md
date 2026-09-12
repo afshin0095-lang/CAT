@@ -304,3 +304,45 @@ is still blocked (B1/B6), and landing implementation on `main` before CI
 evidence exists would be premature. **PR #51 must not be used as a
 substitute** — it is documentation/evidence only and contains no
 implementation.
+
+## 11. Reality-alignment audit (repository identity)
+
+A later review raised the possibility that this workspace was a locally
+reconstructed copy of CAT rather than the real repository. **It is not.**
+`/home/user/CAT` is a real clone of `afshin0095-lang/CAT`:
+
+| Check | Result |
+|---|---|
+| Remote | `https://github.com/afshin0095-lang/CAT.git` (fetch + push) |
+| Repository identity (API) | `full_name=afshin0095-lang/CAT`, `private=true`, `default_branch=main` |
+| Local SHAs exist on GitHub | `944d064`, `b88447f`, `fcdc654`, `201c105`, `cda7a28` — **all found** via `GET /repos/.../commits/{sha}` |
+| Byte-identical content | local `HEAD^{tree}` = `439c019525aa2126535b82c91fe6d222f4488f4e`, identical to GitHub's tree for `944d064` |
+| Branch tip known to GitHub | `refs/heads/arena/01a094aa-cat` = `944d064` = local HEAD |
+| Other workspaces on disk | **none** — no second repository and no reconstructed tree exists |
+
+No reconstruction was created in any session. There is therefore nothing to
+quarantine, nothing to compare, and no reconstructed code has been merged.
+
+### Deployed workflow vs. the hardened proposal
+
+Verified through the GitHub Contents API (not from the working tree): on
+`main`, on the Sprint 0 branch `201c105`, and on this branch `944d064`, the
+deployed `.github/workflows/rust-workspace.yml` contains **no** `cargo fmt`,
+**no** `cargo clippy` and **no** PostgreSQL service — it gates only
+`metadata`, the `check` matrix and the `test` matrix. The hardened proposal
+remains unapplied at `docs/ci/rust-workspace-hardened.yml`. No `--locked` is
+used anywhere (the repository tracks no root `Cargo.lock`).
+
+### Coding-standard checkpoints (`context/14_CODING_STANDARD.md`)
+
+| Rule | Sprint 0 status |
+|---|---|
+| Sections 1–20 frozen, append-only | untouched |
+| Monetary values never use binary floating point | compliant — integer/basis-point scoring only |
+| Secrets never in source, logs or fixtures | compliant — secret scan clean |
+| Migrations forward-tested, rollback-aware | compliant — additive, `IF NOT EXISTS`, reversal documented |
+| Retried writes idempotent | compliant — upserts + partial-unique dedup index |
+| Derived data reconstructible | compliant — lifecycle is derived, never persisted |
+| Deterministic core; clock at explicit boundaries | compliant — injectable `SystemClock`/`FixedClock`/`FnClock` |
+| Immutable values, single mutable owner | compliant |
+| AI must not remove tests, weaken validators or invent APIs | compliant — nothing removed or weakened |
