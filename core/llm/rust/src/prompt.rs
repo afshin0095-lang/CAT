@@ -9,7 +9,9 @@ use crate::{LlmError, SafetyClass};
 pub struct PromptId(pub String);
 
 impl PromptId {
-    pub fn new(value: impl Into<String>) -> Self { Self(value.into()) }
+    pub fn new(value: impl Into<String>) -> Self {
+        Self(value.into())
+    }
 }
 
 /// Immutable prompt revision. Prompt behavior must be reproducible from this
@@ -36,15 +38,25 @@ impl PromptTemplate {
     ) -> Result<Self, LlmError> {
         let body = body.into();
         if body.trim().is_empty() {
-            return Err(LlmError::InvalidPrompt("prompt body must not be empty".to_owned()));
+            return Err(LlmError::InvalidPrompt(
+                "prompt body must not be empty".to_owned(),
+            ));
         }
 
         let required_variables: BTreeSet<String> = required_variables.into_iter().collect();
         if required_variables.iter().any(|name| name.trim().is_empty()) {
-            return Err(LlmError::InvalidPrompt("prompt variable names must not be empty".to_owned()));
+            return Err(LlmError::InvalidPrompt(
+                "prompt variable names must not be empty".to_owned(),
+            ));
         }
 
-        Ok(Self { id, version, body, required_variables, safety })
+        Ok(Self {
+            id,
+            version,
+            body,
+            required_variables,
+            safety,
+        })
     }
 
     /// Deterministic template rendering. Variables are explicit and unresolved
@@ -121,8 +133,12 @@ impl PromptRegistry {
             .map(|(_, template)| template)
     }
 
-    pub fn len(&self) -> usize { self.templates.len() }
-    pub fn is_empty(&self) -> bool { self.templates.is_empty() }
+    pub fn len(&self) -> usize {
+        self.templates.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.templates.is_empty()
+    }
 }
 
 fn contains_placeholder(value: &str) -> bool {
@@ -151,14 +167,23 @@ mod tests {
         registry.register(template(2)).unwrap();
 
         assert_eq!(registry.len(), 2);
-        assert_eq!(registry.latest(&PromptId::new("cat.reasoning.summary")).unwrap().version, PromptVersion(2));
+        assert_eq!(
+            registry
+                .latest(&PromptId::new("cat.reasoning.summary"))
+                .unwrap()
+                .version,
+            PromptVersion(2)
+        );
     }
 
     #[test]
     fn rendering_rejects_missing_or_unresolved_variables() {
         let template = template(1);
         let variables = BTreeMap::from([("topic".to_owned(), "CAT".to_owned())]);
-        assert!(matches!(template.render(&variables), Err(LlmError::InvalidPrompt(_))));
+        assert!(matches!(
+            template.render(&variables),
+            Err(LlmError::InvalidPrompt(_))
+        ));
     }
 
     #[test]

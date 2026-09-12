@@ -15,7 +15,17 @@ fn metrics_snapshot_tracks_delivery_lifecycle() {
     metrics.record_retried();
     metrics.record_dead_lettered();
     metrics.record_rejected();
-    assert_eq!(metrics.snapshot(), EventBusMetricsSnapshot { published: 1, delivered: 1, acknowledged: 1, retried: 1, dead_lettered: 1, rejected: 1 });
+    assert_eq!(
+        metrics.snapshot(),
+        EventBusMetricsSnapshot {
+            published: 1,
+            delivered: 1,
+            acknowledged: 1,
+            retried: 1,
+            dead_lettered: 1,
+            rejected: 1
+        }
+    );
 }
 
 #[test]
@@ -24,7 +34,14 @@ fn reset_returns_previous_snapshot_and_clears_counters() {
     metrics.record_published();
     metrics.record_published();
     metrics.record_retried();
-    assert_eq!(metrics.reset(), EventBusMetricsSnapshot { published: 2, retried: 1, ..EventBusMetricsSnapshot::default() });
+    assert_eq!(
+        metrics.reset(),
+        EventBusMetricsSnapshot {
+            published: 2,
+            retried: 1,
+            ..EventBusMetricsSnapshot::default()
+        }
+    );
     assert_eq!(metrics.snapshot(), EventBusMetricsSnapshot::default());
 }
 
@@ -43,7 +60,9 @@ fn metrics_are_safe_for_concurrent_updates() {
             }
         }));
     }
-    for worker in workers { worker.join().expect("metrics worker must finish"); }
+    for worker in workers {
+        worker.join().expect("metrics worker must finish");
+    }
     let snapshot = metrics.snapshot();
     assert_eq!(snapshot.published, 8_000);
     assert_eq!(snapshot.delivered, 8_000);

@@ -13,13 +13,23 @@ pub struct WorkerExecutionInput {
 
 impl WorkerExecutionInput {
     pub fn from_request(execution_id: Uuid, request: &ExecutionRequest) -> Self {
-        Self { execution_id, workflow_id: request.workflow_id, step_id: request.step_id.clone(), attempt: request.attempt }
+        Self {
+            execution_id,
+            workflow_id: request.workflow_id,
+            step_id: request.step_id.clone(),
+            attempt: request.attempt,
+        }
     }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum WorkerExecutionOutcome { Succeeded, Failed, WaitingApproval, Cancelled }
+pub enum WorkerExecutionOutcome {
+    Succeeded,
+    Failed,
+    WaitingApproval,
+    Cancelled,
+}
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct WorkerExecutionResult {
@@ -29,8 +39,20 @@ pub struct WorkerExecutionResult {
 }
 
 impl WorkerExecutionResult {
-    pub fn success(output: serde_json::Value) -> Self { Self { outcome: WorkerExecutionOutcome::Succeeded, output, error_code: None } }
-    pub fn failure(error_code: impl Into<String>, output: serde_json::Value) -> Self { Self { outcome: WorkerExecutionOutcome::Failed, output, error_code: Some(error_code.into()) } }
+    pub fn success(output: serde_json::Value) -> Self {
+        Self {
+            outcome: WorkerExecutionOutcome::Succeeded,
+            output,
+            error_code: None,
+        }
+    }
+    pub fn failure(error_code: impl Into<String>, output: serde_json::Value) -> Self {
+        Self {
+            outcome: WorkerExecutionOutcome::Failed,
+            output,
+            error_code: Some(error_code.into()),
+        }
+    }
 }
 
 /// Boundary for real workers. The orchestrator supplies intent; the worker owns I/O.
@@ -56,7 +78,10 @@ mod tests {
 
     #[test]
     fn result_helpers_are_machine_readable() {
-        assert_eq!(WorkerExecutionResult::success(serde_json::json!({})).outcome, WorkerExecutionOutcome::Succeeded);
+        assert_eq!(
+            WorkerExecutionResult::success(serde_json::json!({})).outcome,
+            WorkerExecutionOutcome::Succeeded
+        );
         let failure = WorkerExecutionResult::failure("timeout", serde_json::json!({}));
         assert_eq!(failure.outcome, WorkerExecutionOutcome::Failed);
         assert_eq!(failure.error_code.as_deref(), Some("timeout"));

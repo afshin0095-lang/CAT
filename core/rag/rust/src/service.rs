@@ -12,7 +12,10 @@ pub struct RetrievalService<E, R> {
 
 impl<E, R> RetrievalService<E, R> {
     pub fn new(embedder: E, retriever: R) -> Self {
-        Self { embedder, retriever }
+        Self {
+            embedder,
+            retriever,
+        }
     }
 
     pub fn embedder(&self) -> &E {

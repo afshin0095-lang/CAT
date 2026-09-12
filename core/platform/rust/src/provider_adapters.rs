@@ -12,15 +12,21 @@ impl ProviderId {
     pub fn new(value: impl Into<String>) -> PlatformResult<Self> {
         let value = value.into();
         if value.trim().is_empty() {
-            return Err(PlatformError::InvalidCommand("provider id cannot be empty".into()));
+            return Err(PlatformError::InvalidCommand(
+                "provider id cannot be empty".into(),
+            ));
         }
         if value.chars().any(|c| c.is_whitespace()) {
-            return Err(PlatformError::InvalidCommand("provider id cannot contain whitespace".into()));
+            return Err(PlatformError::InvalidCommand(
+                "provider id cannot contain whitespace".into(),
+            ));
         }
         Ok(Self(value))
     }
 
-    pub fn as_str(&self) -> &str { &self.0 }
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -80,7 +86,11 @@ impl ProviderAdapterRegistry {
         Ok(())
     }
 
-    pub fn execute(&self, provider: &ProviderId, request: &AdapterRequest) -> PlatformResult<AdapterResponse> {
+    pub fn execute(
+        &self,
+        provider: &ProviderId,
+        request: &AdapterRequest,
+    ) -> PlatformResult<AdapterResponse> {
         let adapter = self
             .adapters
             .get(provider)
@@ -92,10 +102,15 @@ impl ProviderAdapterRegistry {
                 actual: request.target,
             });
         }
-        if !capabilities.operations.iter().any(|operation| operation == &request.operation) {
+        if !capabilities
+            .operations
+            .iter()
+            .any(|operation| operation == &request.operation)
+        {
             return Err(PlatformError::InvalidCommand(format!(
                 "provider {} does not support operation {}",
-                provider.as_str(), request.operation
+                provider.as_str(),
+                request.operation
             )));
         }
         if capabilities.health == ProviderHealth::Unavailable {
@@ -118,16 +133,27 @@ impl ProviderAdapterRegistry {
     pub fn probe_all_health(&self) -> PlatformResult<Vec<(ProviderId, ProviderHealth)>> {
         self.adapters
             .iter()
-            .map(|(provider, adapter)| adapter.probe_health().map(|health| (provider.clone(), health)))
+            .map(|(provider, adapter)| {
+                adapter
+                    .probe_health()
+                    .map(|health| (provider.clone(), health))
+            })
             .collect()
     }
 
     pub fn capabilities(&self) -> Vec<ProviderCapabilities> {
-        self.adapters.values().map(|adapter| adapter.capabilities()).collect()
+        self.adapters
+            .values()
+            .map(|adapter| adapter.capabilities())
+            .collect()
     }
 
-    pub fn len(&self) -> usize { self.adapters.len() }
-    pub fn is_empty(&self) -> bool { self.adapters.is_empty() }
+    pub fn len(&self) -> usize {
+        self.adapters.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.adapters.is_empty()
+    }
 }
 
 /// Deterministic adapter used for local integration tests and provider-contract probes.
@@ -160,7 +186,9 @@ impl ProviderHealthProbe for DeterministicProviderAdapter {
 }
 
 impl ExternalProviderAdapter for DeterministicProviderAdapter {
-    fn capabilities(&self) -> ProviderCapabilities { self.capabilities.clone() }
+    fn capabilities(&self) -> ProviderCapabilities {
+        self.capabilities.clone()
+    }
 
     fn execute(&self, request: &AdapterRequest) -> PlatformResult<AdapterResponse> {
         Ok(AdapterResponse {
@@ -215,7 +243,9 @@ mod tests {
         registry.register(adapter).unwrap();
         let provider = ProviderId::new("retrieval-local").unwrap();
 
-        let response = registry.execute(&provider, &request(IntegrationTarget::Retrieval, "search")).unwrap();
+        let response = registry
+            .execute(&provider, &request(IntegrationTarget::Retrieval, "search"))
+            .unwrap();
         assert!(response.accepted);
         assert_eq!(response.payload["provider"], "retrieval-local");
 
@@ -233,14 +263,24 @@ mod tests {
     fn capabilities_are_exported_deterministically() {
         let mut registry = ProviderAdapterRegistry::default();
         registry
-            .register(Arc::new(DeterministicProviderAdapter::new(
-                "b-provider", IntegrationTarget::Llm, ["generate"],
-            ).unwrap()))
+            .register(Arc::new(
+                DeterministicProviderAdapter::new(
+                    "b-provider",
+                    IntegrationTarget::Llm,
+                    ["generate"],
+                )
+                .unwrap(),
+            ))
             .unwrap();
         registry
-            .register(Arc::new(DeterministicProviderAdapter::new(
-                "a-provider", IntegrationTarget::Llm, ["generate"],
-            ).unwrap()))
+            .register(Arc::new(
+                DeterministicProviderAdapter::new(
+                    "a-provider",
+                    IntegrationTarget::Llm,
+                    ["generate"],
+                )
+                .unwrap(),
+            ))
             .unwrap();
         let capabilities = registry.capabilities();
         assert_eq!(capabilities[0].provider_id.as_str(), "a-provider");
@@ -259,7 +299,9 @@ mod tests {
         let mut request = AdapterRequest::from_command(command, serde_json::json!({"x": 1}));
         request.context.request_id = request_id;
 
-        let adapter = DeterministicProviderAdapter::new("local", IntegrationTarget::Llm, ["generate"]).unwrap();
+        let adapter =
+            DeterministicProviderAdapter::new("local", IntegrationTarget::Llm, ["generate"])
+                .unwrap();
         let response = adapter.execute(&request).unwrap();
         assert_eq!(response.request_id, request_id);
         assert_eq!(response.payload["request_id"], request_id);
@@ -267,19 +309,34 @@ mod tests {
 
     #[test]
     fn deterministic_provider_health_probe_is_ready() {
-        let adapter = DeterministicProviderAdapter::new("local", IntegrationTarget::Llm, ["generate"]).unwrap();
+        let adapter =
+            DeterministicProviderAdapter::new("local", IntegrationTarget::Llm, ["generate"])
+                .unwrap();
         assert_eq!(adapter.probe_health().unwrap(), ProviderHealth::Ready);
     }
 
     #[test]
     fn registry_returns_deterministic_health_order() {
         let mut registry = ProviderAdapterRegistry::default();
-        registry.register(Arc::new(DeterministicProviderAdapter::new("b", IntegrationTarget::Llm, ["generate"]).unwrap())).unwrap();
-        registry.register(Arc::new(DeterministicProviderAdapter::new("a", IntegrationTarget::Llm, ["generate"]).unwrap())).unwrap();
+        registry
+            .register(Arc::new(
+                DeterministicProviderAdapter::new("b", IntegrationTarget::Llm, ["generate"])
+                    .unwrap(),
+            ))
+            .unwrap();
+        registry
+            .register(Arc::new(
+                DeterministicProviderAdapter::new("a", IntegrationTarget::Llm, ["generate"])
+                    .unwrap(),
+            ))
+            .unwrap();
         let health = registry.probe_all_health().unwrap();
-        assert_eq!(health, vec![
-            (ProviderId::new("a").unwrap(), ProviderHealth::Ready),
-            (ProviderId::new("b").unwrap(), ProviderHealth::Ready),
-        ]);
+        assert_eq!(
+            health,
+            vec![
+                (ProviderId::new("a").unwrap(), ProviderHealth::Ready),
+                (ProviderId::new("b").unwrap(), ProviderHealth::Ready),
+            ]
+        );
     }
 }

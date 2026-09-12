@@ -27,18 +27,31 @@ impl ProjectionCheckpoint {
     ) -> KernelResult<Self> {
         let projection_id = projection_id.into();
         if projection_id.trim().is_empty() {
-            return Err(KernelError::InvalidInput("projection_id must not be empty".into()));
+            return Err(KernelError::InvalidInput(
+                "projection_id must not be empty".into(),
+            ));
         }
-        Ok(Self { projection_id, stream_id, sequence, event_id, phase })
+        Ok(Self {
+            projection_id,
+            stream_id,
+            sequence,
+            event_id,
+            phase,
+        })
     }
 
     /// Advances a checkpoint monotonically for one projection and stream.
     pub fn advance(&mut self, next: &Self) -> KernelResult<()> {
         if self.projection_id != next.projection_id || self.stream_id != next.stream_id {
-            return Err(KernelError::InvalidInput("projection checkpoint identity mismatch".into()));
+            return Err(KernelError::InvalidInput(
+                "projection checkpoint identity mismatch".into(),
+            ));
         }
         if next.sequence < self.sequence {
-            return Err(KernelError::SequenceConflict { expected: self.sequence, actual: next.sequence });
+            return Err(KernelError::SequenceConflict {
+                expected: self.sequence,
+                actual: next.sequence,
+            });
         }
         if next.sequence == self.sequence && next.event_id != self.event_id {
             return Err(KernelError::InvalidInput(
@@ -64,11 +77,21 @@ mod tests {
     fn advances_monotonically_and_switches_to_live() {
         let stream = EntityId::new();
         let mut current = ProjectionCheckpoint::new(
-            "affiliate-summary-v1", stream, SequenceNumber::new(1), EventId::new(), ProjectionPhase::Catchup,
-        ).unwrap();
+            "affiliate-summary-v1",
+            stream,
+            SequenceNumber::new(1),
+            EventId::new(),
+            ProjectionPhase::Catchup,
+        )
+        .unwrap();
         let next = ProjectionCheckpoint::new(
-            "affiliate-summary-v1", stream, SequenceNumber::new(2), EventId::new(), ProjectionPhase::Live,
-        ).unwrap();
+            "affiliate-summary-v1",
+            stream,
+            SequenceNumber::new(2),
+            EventId::new(),
+            ProjectionPhase::Live,
+        )
+        .unwrap();
         current.advance(&next).unwrap();
         assert_eq!(current.sequence, SequenceNumber::new(2));
         assert_eq!(current.phase, ProjectionPhase::Live);
@@ -79,11 +102,21 @@ mod tests {
     fn rejects_stale_checkpoint() {
         let stream = EntityId::new();
         let mut current = ProjectionCheckpoint::new(
-            "p", stream, SequenceNumber::new(2), EventId::new(), ProjectionPhase::Live,
-        ).unwrap();
+            "p",
+            stream,
+            SequenceNumber::new(2),
+            EventId::new(),
+            ProjectionPhase::Live,
+        )
+        .unwrap();
         let stale = ProjectionCheckpoint::new(
-            "p", stream, SequenceNumber::new(1), EventId::new(), ProjectionPhase::Catchup,
-        ).unwrap();
+            "p",
+            stream,
+            SequenceNumber::new(1),
+            EventId::new(),
+            ProjectionPhase::Catchup,
+        )
+        .unwrap();
         assert!(current.advance(&stale).is_err());
     }
 
@@ -91,11 +124,21 @@ mod tests {
     fn rejects_projection_identity_mismatch() {
         let stream = EntityId::new();
         let mut current = ProjectionCheckpoint::new(
-            "p1", stream, SequenceNumber::new(1), EventId::new(), ProjectionPhase::Catchup,
-        ).unwrap();
+            "p1",
+            stream,
+            SequenceNumber::new(1),
+            EventId::new(),
+            ProjectionPhase::Catchup,
+        )
+        .unwrap();
         let other = ProjectionCheckpoint::new(
-            "p2", stream, SequenceNumber::new(2), EventId::new(), ProjectionPhase::Live,
-        ).unwrap();
+            "p2",
+            stream,
+            SequenceNumber::new(2),
+            EventId::new(),
+            ProjectionPhase::Live,
+        )
+        .unwrap();
         assert!(current.advance(&other).is_err());
     }
 }

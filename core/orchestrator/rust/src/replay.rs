@@ -45,7 +45,10 @@ pub fn verify_replay(
         .collect();
 
     if actual.len() != expected_order.len()
-        || actual.iter().map(String::as_str).ne(expected_order.into_iter())
+        || actual
+            .iter()
+            .map(String::as_str)
+            .ne(expected_order.into_iter())
     {
         return Err(OrchestratorError::Serialization(
             "workflow replay order does not match snapshot".to_string(),

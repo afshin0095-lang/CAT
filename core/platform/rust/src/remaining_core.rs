@@ -4,11 +4,14 @@ use cat_decision::{DecisionRequest, DeterministicDecisionEngine};
 use cat_llm::{DeterministicProvider, GenerationRequest, LlmProvider};
 use cat_rag::{DocumentChunk, InMemoryIndex, RetrievalQuery, Retriever};
 use cat_reasoning::{DeterministicReasoningEngine, ReasoningRequest};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use tokio::runtime::Builder;
 use uuid::Uuid;
 
-use crate::{CoreCommand, IntegrationTarget, PlatformError, PlatformResult, TypedCoreCommand, TypedCoreResponse};
+use crate::{
+    CoreCommand, IntegrationTarget, PlatformError, PlatformResult, TypedCoreCommand,
+    TypedCoreResponse,
+};
 
 /// Concrete composition boundary for the remaining stateless/stateful AI cores.
 ///
@@ -35,7 +38,9 @@ impl Default for RemainingCoreRuntime {
 }
 
 impl RemainingCoreRuntime {
-    pub fn new() -> Self { Self::default() }
+    pub fn new() -> Self {
+        Self::default()
+    }
 
     pub fn execute(&self, command: TypedCoreCommand) -> PlatformResult<TypedCoreResponse> {
         match command {
@@ -44,7 +49,8 @@ impl RemainingCoreRuntime {
             TypedCoreCommand::Decision(command) => self.execute_decision(command),
             TypedCoreCommand::Retrieval(command) => self.execute_retrieval(command),
             other => Err(PlatformError::AdapterNotFound(format!(
-                "remaining-core runtime does not own {:?}", other.target()
+                "remaining-core runtime does not own {:?}",
+                other.target()
             ))),
         }
     }
@@ -79,17 +85,25 @@ impl RemainingCoreRuntime {
                 "health",
                 json!({"provider": self.llm.id(), "ready": true, "mode": "deterministic"}),
             )),
-            _ => Err(invalid(format!("unsupported LLM operation: {}", command.operation))),
+            _ => Err(invalid(format!(
+                "unsupported LLM operation: {}",
+                command.operation
+            ))),
         }
     }
 
     fn execute_reasoning(&self, command: CoreCommand) -> PlatformResult<TypedCoreResponse> {
         if command.operation != "reason" && command.operation != "explain" {
-            return Err(invalid(format!("unsupported reasoning operation: {}", command.operation)));
+            return Err(invalid(format!(
+                "unsupported reasoning operation: {}",
+                command.operation
+            )));
         }
         let request: ReasoningRequest = serde_json::from_value(command.payload)
             .map_err(|error| invalid(format!("invalid reasoning request: {error}")))?;
-        let result = self.reasoning.reason(&request)
+        let result = self
+            .reasoning
+            .reason(&request)
             .map_err(|error| invalid(format!("reasoning failed: {error}")))?;
         Ok(response(
             command.context.request_id,
@@ -113,11 +127,16 @@ impl RemainingCoreRuntime {
 
     fn execute_decision(&self, command: CoreCommand) -> PlatformResult<TypedCoreResponse> {
         if command.operation != "decide" && command.operation != "evaluate_policy" {
-            return Err(invalid(format!("unsupported decision operation: {}", command.operation)));
+            return Err(invalid(format!(
+                "unsupported decision operation: {}",
+                command.operation
+            )));
         }
         let request: DecisionRequest = serde_json::from_value(command.payload)
             .map_err(|error| invalid(format!("invalid decision request: {error}")))?;
-        let result = self.decision.decide(&request)
+        let result = self
+            .decision
+            .decide(&request)
             .map_err(|error| invalid(format!("decision failed: {error}")))?;
         Ok(response(
             command.context.request_id,
@@ -142,9 +161,12 @@ impl RemainingCoreRuntime {
             "retrieve" | "rank" => {
                 let query: RetrievalQuery = serde_json::from_value(command.payload)
                     .map_err(|error| invalid(format!("invalid retrieval query: {error}")))?;
-                let index = self.retrieval.lock()
+                let index = self
+                    .retrieval
+                    .lock()
                     .map_err(|_| invalid("retrieval index lock poisoned"))?;
-                let hits = index.retrieve(&query)
+                let hits = index
+                    .retrieve(&query)
                     .map_err(|error| invalid(format!("retrieval failed: {error}")))?;
                 Ok(response(
                     command.context.request_id,
@@ -164,9 +186,13 @@ impl RemainingCoreRuntime {
                 let chunk: DocumentChunk = serde_json::from_value(command.payload)
                     .map_err(|error| invalid(format!("invalid document chunk: {error}")))?;
                 let chunk_id = chunk.id;
-                let mut index = self.retrieval.lock()
+                let mut index = self
+                    .retrieval
+                    .lock()
                     .map_err(|_| invalid("retrieval index lock poisoned"))?;
-                index.upsert(chunk).map_err(|error| invalid(format!("retrieval upsert failed: {error}")))?;
+                index
+                    .upsert(chunk)
+                    .map_err(|error| invalid(format!("retrieval upsert failed: {error}")))?;
                 Ok(response(
                     command.context.request_id,
                     IntegrationTarget::Retrieval,
@@ -174,7 +200,10 @@ impl RemainingCoreRuntime {
                     json!({"chunk_id": chunk_id, "index_size": index.len()}),
                 ))
             }
-            _ => Err(invalid(format!("unsupported retrieval operation: {}", command.operation))),
+            _ => Err(invalid(format!(
+                "unsupported retrieval operation: {}",
+                command.operation
+            ))),
         }
     }
 }
@@ -198,7 +227,12 @@ fn invalid(message: impl Into<String>) -> PlatformError {
     PlatformError::InvalidCommand(message.into())
 }
 
-fn response(request_id: Uuid, target: IntegrationTarget, operation: &str, payload: Value) -> TypedCoreResponse {
+fn response(
+    request_id: Uuid,
+    target: IntegrationTarget,
+    operation: &str,
+    payload: Value,
+) -> TypedCoreResponse {
     TypedCoreResponse {
         request_id,
         target,
@@ -220,42 +254,119 @@ mod tests {
     #[test]
     fn llm_generation_is_concretely_wired() {
         let runtime = RemainingCoreRuntime::new();
-        let request = GenerationRequest::new(ModelId::new("local.deterministic"), vec![Message::user("hello CAT")]);
-        let response = runtime.execute(TypedCoreCommand::Llm(CoreCommand::new(
-            Uuid::now_v7(), "generate", IntegrationContext::new("test"), serde_json::to_value(request).unwrap(),
-        ))).unwrap();
+        let request = GenerationRequest::new(
+            ModelId::new("local.deterministic"),
+            vec![Message::user("hello CAT")],
+        );
+        let response = runtime
+            .execute(TypedCoreCommand::Llm(CoreCommand::new(
+                Uuid::now_v7(),
+                "generate",
+                IntegrationContext::new("test"),
+                serde_json::to_value(request).unwrap(),
+            )))
+            .unwrap();
         assert_eq!(response.target, IntegrationTarget::Llm);
-        assert!(response.payload["content"].as_str().unwrap().contains("hello CAT"));
+        assert!(
+            response.payload["content"]
+                .as_str()
+                .unwrap()
+                .contains("hello CAT")
+        );
     }
 
     #[test]
     fn reasoning_is_concretely_wired_and_remains_advisory() {
-        let evidence = Evidence { evidence_id: Uuid::now_v7(), source: "test".into(), statement: "candidate-a is supported".into(), confidence: 0.9, authoritative: true, metadata: json!({}) };
-        let request = ReasoningRequest { request_id: Uuid::now_v7(), objective: "choose".into(), context: json!({}), evidence: vec![evidence], mode: ReasoningMode::Deterministic, max_steps: 4 };
-        let response = RemainingCoreRuntime::new().execute(TypedCoreCommand::Reasoning(CoreCommand::new(
-            Uuid::now_v7(), "reason", IntegrationContext::new("test"), serde_json::to_value(request).unwrap(),
-        ))).unwrap();
+        let evidence = Evidence {
+            evidence_id: Uuid::now_v7(),
+            source: "test".into(),
+            statement: "candidate-a is supported".into(),
+            confidence: 0.9,
+            authoritative: true,
+            metadata: json!({}),
+        };
+        let request = ReasoningRequest {
+            request_id: Uuid::now_v7(),
+            objective: "choose".into(),
+            context: json!({}),
+            evidence: vec![evidence],
+            mode: ReasoningMode::Deterministic,
+            max_steps: 4,
+        };
+        let response = RemainingCoreRuntime::new()
+            .execute(TypedCoreCommand::Reasoning(CoreCommand::new(
+                Uuid::now_v7(),
+                "reason",
+                IntegrationContext::new("test"),
+                serde_json::to_value(request).unwrap(),
+            )))
+            .unwrap();
         assert_eq!(response.payload["advisory_only"], true);
     }
 
     #[test]
     fn decision_is_concretely_wired_and_remains_advisory() {
-        let alternative = Alternative { id: "a".into(), label: "A".into(), rationale: "best".into(), expected_value: 0.9, confidence: 0.9, constraints_satisfied: true, metadata: json!({}) };
-        let request = DecisionRequest { decision_id: Uuid::now_v7(), objective: "choose".into(), alternatives: vec![alternative], required_confidence: 0.7, require_human_approval: false, context: json!({}) };
-        let response = RemainingCoreRuntime::new().execute(TypedCoreCommand::Decision(CoreCommand::new(
-            Uuid::now_v7(), "decide", IntegrationContext::new("test"), serde_json::to_value(request).unwrap(),
-        ))).unwrap();
+        let alternative = Alternative {
+            id: "a".into(),
+            label: "A".into(),
+            rationale: "best".into(),
+            expected_value: 0.9,
+            confidence: 0.9,
+            constraints_satisfied: true,
+            metadata: json!({}),
+        };
+        let request = DecisionRequest {
+            decision_id: Uuid::now_v7(),
+            objective: "choose".into(),
+            alternatives: vec![alternative],
+            required_confidence: 0.7,
+            require_human_approval: false,
+            context: json!({}),
+        };
+        let response = RemainingCoreRuntime::new()
+            .execute(TypedCoreCommand::Decision(CoreCommand::new(
+                Uuid::now_v7(),
+                "decide",
+                IntegrationContext::new("test"),
+                serde_json::to_value(request).unwrap(),
+            )))
+            .unwrap();
         assert_eq!(response.payload["advisory_only"], true);
     }
 
     #[test]
     fn retrieval_is_concretely_wired_and_tenant_scoped() {
         let tenant = Uuid::now_v7();
-        let chunk = DocumentChunk { id: Uuid::now_v7(), document_id: Uuid::now_v7(), tenant_id: tenant, ordinal: 0, text: "affiliate truth".into(), content_hash: "h".into(), metadata: json!({}), embedding: Some(Embedding::new("test", vec![1.0, 0.0])) };
+        let chunk = DocumentChunk {
+            id: Uuid::now_v7(),
+            document_id: Uuid::now_v7(),
+            tenant_id: tenant,
+            ordinal: 0,
+            text: "affiliate truth".into(),
+            content_hash: "h".into(),
+            metadata: json!({}),
+            embedding: Some(Embedding::new("test", vec![1.0, 0.0])),
+        };
         let runtime = RemainingCoreRuntime::new();
-        runtime.execute(TypedCoreCommand::Retrieval(CoreCommand::new(Uuid::now_v7(), "upsert", IntegrationContext::new("test"), serde_json::to_value(chunk).unwrap()))).unwrap();
-        let query = RetrievalQuery::new(tenant, "affiliate").with_embedding(Embedding::new("test", vec![1.0, 0.0])).with_limit(1);
-        let response = runtime.execute(TypedCoreCommand::Retrieval(CoreCommand::new(Uuid::now_v7(), "retrieve", IntegrationContext::new("test"), serde_json::to_value(query).unwrap()))).unwrap();
+        runtime
+            .execute(TypedCoreCommand::Retrieval(CoreCommand::new(
+                Uuid::now_v7(),
+                "upsert",
+                IntegrationContext::new("test"),
+                serde_json::to_value(chunk).unwrap(),
+            )))
+            .unwrap();
+        let query = RetrievalQuery::new(tenant, "affiliate")
+            .with_embedding(Embedding::new("test", vec![1.0, 0.0]))
+            .with_limit(1);
+        let response = runtime
+            .execute(TypedCoreCommand::Retrieval(CoreCommand::new(
+                Uuid::now_v7(),
+                "retrieve",
+                IntegrationContext::new("test"),
+                serde_json::to_value(query).unwrap(),
+            )))
+            .unwrap();
         assert_eq!(response.payload["count"], 1);
     }
 }

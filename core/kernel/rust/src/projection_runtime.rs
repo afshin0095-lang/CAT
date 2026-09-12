@@ -32,17 +32,30 @@ impl<T, S, H: ProjectionHandler<T, S>> ProjectionRuntime<T, S, H> {
             initial_event_id,
             ProjectionPhase::Catchup,
         )?;
-        Ok(Self { state, checkpoint, handler, _event: std::marker::PhantomData })
+        Ok(Self {
+            state,
+            checkpoint,
+            handler,
+            _event: std::marker::PhantomData,
+        })
     }
 
-    pub fn state(&self) -> &S { &self.state }
-    pub fn state_mut(&mut self) -> &mut S { &mut self.state }
-    pub fn checkpoint(&self) -> &ProjectionCheckpoint { &self.checkpoint }
+    pub fn state(&self) -> &S {
+        &self.state
+    }
+    pub fn state_mut(&mut self) -> &mut S {
+        &mut self.state
+    }
+    pub fn checkpoint(&self) -> &ProjectionCheckpoint {
+        &self.checkpoint
+    }
 
     /// Applies one event only when it is the next sequence for this projection.
     pub fn apply(&mut self, event: &StoredEvent<T>) -> KernelResult<()> {
         if event.stream_id != self.checkpoint.stream_id {
-            return Err(crate::KernelError::InvalidInput("projection stream mismatch".into()));
+            return Err(crate::KernelError::InvalidInput(
+                "projection stream mismatch".into(),
+            ));
         }
 
         let sequence = event.envelope.sequence;
@@ -60,7 +73,10 @@ impl<T, S, H: ProjectionHandler<T, S>> ProjectionRuntime<T, S, H> {
 
         let expected = self.checkpoint.sequence.next()?;
         if sequence != expected {
-            return Err(crate::KernelError::SequenceConflict { expected, actual: sequence });
+            return Err(crate::KernelError::SequenceConflict {
+                expected,
+                actual: sequence,
+            });
         }
 
         self.handler.apply(&mut self.state, event)?;
@@ -77,7 +93,9 @@ impl<T, S, H: ProjectionHandler<T, S>> ProjectionRuntime<T, S, H> {
 
     /// Applies an ordered catch-up batch and then marks the projection live.
     pub fn catch_up(&mut self, events: &[StoredEvent<T>]) -> KernelResult<()> {
-        for event in events { self.apply(event)?; }
+        for event in events {
+            self.apply(event)?;
+        }
         self.checkpoint.phase = ProjectionPhase::Live;
         Ok(())
     }
@@ -90,7 +108,9 @@ mod tests {
 
     struct SumProjection;
     impl ProjectionHandler<i64, i64> for SumProjection {
-        fn projection_id(&self) -> &str { "sum-v1" }
+        fn projection_id(&self) -> &str {
+            "sum-v1"
+        }
         fn apply(&mut self, state: &mut i64, event: &StoredEvent<i64>) -> KernelResult<()> {
             *state += event.envelope.payload;
             Ok(())
@@ -98,19 +118,34 @@ mod tests {
     }
 
     fn event(stream: EntityId, sequence: u64, payload: i64) -> StoredEvent<i64> {
-        StoredEvent { stream_id: stream, envelope: EventEnvelope::new(
-            "cat.test.projection", 1, TenantId::new(), CorrelationId::new(),
-            None, EntityId::new(), TimestampMs::new(sequence),
-            SequenceNumber::new(sequence), payload,
-        ).unwrap() }
+        StoredEvent {
+            stream_id: stream,
+            envelope: EventEnvelope::new(
+                "cat.test.projection",
+                1,
+                TenantId::new(),
+                CorrelationId::new(),
+                None,
+                EntityId::new(),
+                TimestampMs::new(sequence),
+                SequenceNumber::new(sequence),
+                payload,
+            )
+            .unwrap(),
+        }
     }
 
     #[test]
     fn catchup_applies_ordered_events_and_enters_live_phase() {
         let stream = EntityId::new();
         let mut runtime = ProjectionRuntime::new(
-            stream, SequenceNumber::ZERO, EventId::new(), 0, SumProjection,
-        ).unwrap();
+            stream,
+            SequenceNumber::ZERO,
+            EventId::new(),
+            0,
+            SumProjection,
+        )
+        .unwrap();
         let first = event(stream, 1, 3);
         let second = event(stream, 2, 4);
         runtime.catch_up(&[first, second]).unwrap();
@@ -123,8 +158,13 @@ mod tests {
     fn duplicate_event_is_idempotent() {
         let stream = EntityId::new();
         let mut runtime = ProjectionRuntime::new(
-            stream, SequenceNumber::ZERO, EventId::new(), 0, SumProjection,
-        ).unwrap();
+            stream,
+            SequenceNumber::ZERO,
+            EventId::new(),
+            0,
+            SumProjection,
+        )
+        .unwrap();
         let first = event(stream, 1, 5);
         runtime.apply(&first).unwrap();
         runtime.apply(&first).unwrap();
@@ -135,9 +175,17 @@ mod tests {
     fn gaps_are_rejected() {
         let stream = EntityId::new();
         let mut runtime = ProjectionRuntime::new(
-            stream, SequenceNumber::ZERO, EventId::new(), 0, SumProjection,
-        ).unwrap();
+            stream,
+            SequenceNumber::ZERO,
+            EventId::new(),
+            0,
+            SumProjection,
+        )
+        .unwrap();
         let gap = event(stream, 2, 5);
-        assert!(matches!(runtime.apply(&gap), Err(crate::KernelError::SequenceConflict { .. })));
+        assert!(matches!(
+            runtime.apply(&gap),
+            Err(crate::KernelError::SequenceConflict { .. })
+        ));
     }
 }

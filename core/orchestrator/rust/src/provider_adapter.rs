@@ -49,7 +49,13 @@ mod tests {
 
     #[test]
     fn key_is_stable_for_same_execution_and_request() {
-        assert_eq!(idempotency_key("exec-1", "hash-a"), idempotency_key("exec-1", "hash-a"));
-        assert_ne!(idempotency_key("exec-1", "hash-a"), idempotency_key("exec-2", "hash-a"));
+        assert_eq!(
+            idempotency_key("exec-1", "hash-a"),
+            idempotency_key("exec-1", "hash-a")
+        );
+        assert_ne!(
+            idempotency_key("exec-1", "hash-a"),
+            idempotency_key("exec-2", "hash-a")
+        );
     }
 }

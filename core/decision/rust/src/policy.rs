@@ -38,23 +38,38 @@ impl DecisionPolicy {
         if !(0.0..=1.0).contains(&self.minimum_confidence) {
             return Err(PolicyError::InvalidConfidence);
         }
-        if self.require_human_approval_above_value.is_some_and(|v| !v.is_finite()) {
+        if self
+            .require_human_approval_above_value
+            .is_some_and(|v| !v.is_finite())
+        {
             return Err(PolicyError::InvalidThreshold);
         }
         Ok(())
     }
 
-    pub fn evaluate(&self, request: &DecisionRequest, alternative: &Alternative) -> PolicyEvaluation {
+    pub fn evaluate(
+        &self,
+        request: &DecisionRequest,
+        alternative: &Alternative,
+    ) -> PolicyEvaluation {
         let mut reasons = Vec::new();
         if alternative.confidence < self.minimum_confidence {
-            reasons.push(format!("confidence {} is below policy minimum {}", alternative.confidence, self.minimum_confidence));
+            reasons.push(format!(
+                "confidence {} is below policy minimum {}",
+                alternative.confidence, self.minimum_confidence
+            ));
         }
         if self.require_constraint_satisfaction && !alternative.constraints_satisfied {
             reasons.push("alternative violates one or more policy constraints".into());
         }
-        let threshold_gate = self.require_human_approval_above_value
+        let threshold_gate = self
+            .require_human_approval_above_value
             .is_some_and(|threshold| alternative.expected_value >= threshold);
         let requires_human_approval = request.require_human_approval || threshold_gate;
-        PolicyEvaluation { allowed: reasons.is_empty(), requires_human_approval, reasons }
+        PolicyEvaluation {
+            allowed: reasons.is_empty(),
+            requires_human_approval,
+            reasons,
+        }
     }
 }

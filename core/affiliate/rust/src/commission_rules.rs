@@ -114,7 +114,9 @@ pub struct CommissionRuleBuilder {
 }
 
 impl CommissionRuleBuilder {
-    pub fn new() -> Self { Self { rules: vec![] } }
+    pub fn new() -> Self {
+        Self { rules: vec![] }
+    }
 
     /// Add a percentage commission on every event.
     pub fn percent_every(mut self, percent: i64) -> Self {
@@ -159,7 +161,12 @@ impl CommissionRuleBuilder {
     }
 
     /// Add a recurring fixed amount for subsequent events.
-    pub fn fixed_subsequent_recurring(mut self, amount_minor: i64, currency: &str, months: Option<u32>) -> Self {
+    pub fn fixed_subsequent_recurring(
+        mut self,
+        amount_minor: i64,
+        currency: &str,
+        months: Option<u32>,
+    ) -> Self {
         self.rules.push(CommissionSubRule {
             trigger: CommissionTrigger::Subsequent,
             event_type: None,
@@ -172,11 +179,15 @@ impl CommissionRuleBuilder {
         self
     }
 
-    pub fn build(self) -> CommissionRule { self.rules }
+    pub fn build(self) -> CommissionRule {
+        self.rules
+    }
 }
 
 impl Default for CommissionRuleBuilder {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[cfg(test)]

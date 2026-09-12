@@ -1,10 +1,10 @@
-mod http;
 pub mod adapters;
 pub mod authorization;
 pub mod error;
-pub mod execution_policy;
 pub mod evaluation;
+pub mod execution_policy;
 pub mod health;
+mod http;
 pub mod model;
 pub mod policy;
 pub mod prompt;
@@ -14,15 +14,29 @@ pub mod stream;
 pub mod tool;
 
 pub use adapters::{AnthropicProvider, OpenAiCompatibleProvider};
-pub use authorization::{safety_allowed as policy_safety_allowed, PolicyDecision, PolicyId, PolicyVersion, PromptToolPolicy, ToolGrant};
+pub use authorization::{
+    PolicyDecision, PolicyId, PolicyVersion, PromptToolPolicy, ToolGrant,
+    safety_allowed as policy_safety_allowed,
+};
 pub use error::LlmError;
-pub use execution_policy::{AuthorizedToolExecution, ExecutionAuthorizationRequest, ExecutionAuthorizationResult, ExecutionPolicyGate};
 pub use evaluation::{NonEmptyOutputEvaluator, PromptEvaluation, PromptEvaluator};
-pub use health::{ProviderHealthConfig, ProviderHealthRegistry, ProviderHealthSnapshot, ProviderHealthState};
-pub use model::{GenerationChunk, GenerationRequest, GenerationResponse, Message, ModelId, ProviderId, Role, SafetyClass, Usage};
+pub use execution_policy::{
+    AuthorizedToolExecution, ExecutionAuthorizationRequest, ExecutionAuthorizationResult,
+    ExecutionPolicyGate,
+};
+pub use health::{
+    ProviderHealthConfig, ProviderHealthRegistry, ProviderHealthSnapshot, ProviderHealthState,
+};
+pub use model::{
+    GenerationChunk, GenerationRequest, GenerationResponse, Message, ModelId, ProviderId, Role,
+    SafetyClass, Usage,
+};
 pub use policy::{LlmRouter, ModelRoute, RoutingPolicy};
 pub use prompt::{PromptId, PromptRegistry, PromptTemplate, PromptVersion, RenderedPrompt};
 pub use provider::{DeterministicProvider, LlmProvider};
 pub use provider_authorization::{ProviderToolAuthorizationRegistry, ProviderToolPolicy};
-pub use stream::{collect_stream, LlmGenerationStream};
-pub use tool::{ToolCall, ToolDefinition, ToolExecution, ToolExecutionStatus, ToolExecutor, ToolExecutorRegistry, ToolId, ToolRegistry, ToolVersion};
+pub use stream::{LlmGenerationStream, collect_stream};
+pub use tool::{
+    ToolCall, ToolDefinition, ToolExecution, ToolExecutionStatus, ToolExecutor,
+    ToolExecutorRegistry, ToolId, ToolRegistry, ToolVersion,
+};

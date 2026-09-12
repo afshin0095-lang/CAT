@@ -2,82 +2,103 @@
 #![deny(clippy::all)]
 
 mod compensation;
+mod dispatch_result;
+mod durable;
 mod error;
 mod events;
 mod execution;
-mod execution_cursor;
-mod execution_event;
-mod execution_state;
-mod execution_request;
-mod execution_dispatch;
-mod dispatch_result;
-mod worker;
-mod lease;
-mod idempotency;
-mod model;
-mod retry;
-mod retry_decision;
-mod replay;
-mod scheduler;
-mod validation;
-mod durable;
-mod execution_coordinator;
-mod fencing;
-mod outbox;
-mod outbox_dispatcher;
-mod postgres_contract;
-mod postgres;
-mod postgres_outbox;
-mod recovery;
 mod execution_attempt;
 mod execution_attempt_store;
-mod provider_result;
-mod reconciliation;
-mod provider_result_store;
-mod provider_adapter;
-mod reconciliation_worker;
-mod provider_registry;
-mod provider_selection;
-pub mod validation_gates;
+mod execution_coordinator;
+mod execution_cursor;
+mod execution_dispatch;
+mod execution_event;
+mod execution_request;
+mod execution_state;
+mod fencing;
 pub mod flywheel;
+mod idempotency;
+mod lease;
+mod model;
 mod monitoring_workflow;
+mod outbox;
+mod outbox_dispatcher;
+mod postgres;
+mod postgres_contract;
+mod postgres_outbox;
+mod provider_adapter;
+mod provider_registry;
+mod provider_result;
+mod provider_result_store;
+mod provider_selection;
+mod reconciliation;
+mod reconciliation_worker;
+mod recovery;
+mod replay;
+mod retry;
+mod retry_decision;
+mod scheduler;
+mod validation;
+pub mod validation_gates;
+mod worker;
 
 pub use compensation::{begin_compensation, compensation_order};
-pub use error::{OrchestratorError, OrchestratorResult};
-pub use events::{WorkflowCompleted, WorkflowEventFactory, WorkflowStarted, WorkflowStepStateChanged};
-pub use execution::ExecutionEngine;
-pub use execution_cursor::{cursor, ExecutionCursor};
-pub use execution_event::{ExecutionEvent, ExecutionEventKind};
-pub use execution_state::{ExecutionState, ExecutionStepState};
-pub use execution_request::ExecutionRequest;
-pub use execution_dispatch::{claim_step, ready_requests};
 pub use dispatch_result::{DispatchAction, DispatchResult};
-pub use worker::{WorkerExecutionInput, WorkerExecutionOutcome, WorkerExecutionResult, WorkerExecutor};
-pub use lease::Lease;
-pub use idempotency::{workflow_key, IdempotencyRegistry};
-pub use model::{StepState, WorkflowDefinition, WorkflowInstance, WorkflowState, WorkflowStep};
-pub use retry::RetryPolicy;
-pub use retry_decision::{decide_retry, RetryDecision};
-pub use replay::{snapshot as replay_snapshot, verify_replay, ReplaySnapshot};
-pub use scheduler::{ScheduleRequest, Scheduler};
-pub use validation::{new_validated_instance, ready_steps, topological_order, validate_definition, workflow_id};
-pub use durable::{DurableWorkflowStore, EventBusExecutionEventSink, ExecutionEventSink, InMemoryDurableWorkflowStore, InMemoryLeaseProvider, LeaseProvider, RecordingExecutionEventSink};
+pub use durable::{
+    DurableWorkflowStore, EventBusExecutionEventSink, ExecutionEventSink,
+    InMemoryDurableWorkflowStore, InMemoryLeaseProvider, LeaseProvider,
+    RecordingExecutionEventSink,
+};
+pub use error::{OrchestratorError, OrchestratorResult};
+pub use events::{
+    WorkflowCompleted, WorkflowEventFactory, WorkflowStarted, WorkflowStepStateChanged,
+};
+pub use execution::ExecutionEngine;
+pub use execution_attempt::{
+    ExecutionAttempt, ExecutionAttemptHealth, ExecutionAttemptKey, ExecutionAttemptStatus,
+};
+pub use execution_attempt_store::ExecutionAttemptStore;
 pub use execution_coordinator::ExecutionCoordinator;
+pub use execution_cursor::{ExecutionCursor, cursor};
+pub use execution_dispatch::{claim_step, ready_requests};
+pub use execution_event::{ExecutionEvent, ExecutionEventKind};
+pub use execution_request::ExecutionRequest;
+pub use execution_state::{ExecutionState, ExecutionStepState};
 pub use fencing::{FencedLease, FencedLeaseProvider, FencingToken, InMemoryFencedLeaseProvider};
+pub use flywheel::{FlywheelNode, FlywheelPlan, FlywheelStage};
+pub use idempotency::{IdempotencyRegistry, workflow_key};
+pub use lease::Lease;
+pub use model::{StepState, WorkflowDefinition, WorkflowInstance, WorkflowState, WorkflowStep};
+pub use monitoring_workflow::{DailyMonitoringRun, MonitoringRunState};
 pub use outbox::{DurableOutboxStore, InMemoryDurableOutbox, OutboxDisposition, OutboxRecord};
 pub use outbox_dispatcher::{OutboxDispatchOutcome, OutboxDispatcher};
-pub use postgres_contract::{PostgresDurableExecutor, PostgresSchemaV1};
 pub use postgres::{AsyncPostgresExecutionStore, PostgresExecutionStore};
+pub use postgres_contract::{PostgresDurableExecutor, PostgresSchemaV1};
 pub use postgres_outbox::{AsyncPostgresOutbox, PostgresOutboxDisposition, PostgresOutboxRecord};
-pub use recovery::{AsyncWorkflowRecovery, RecoveryAction, WorkflowRecoveryReport, WorkflowRecoveryStore};
-pub use execution_attempt::{ExecutionAttempt, ExecutionAttemptHealth, ExecutionAttemptKey, ExecutionAttemptStatus};
-pub use execution_attempt_store::ExecutionAttemptStore;
-pub use provider_result::{ProviderExecutionRecord, ProviderOutcomeState, ReconciliationAction};
-pub use reconciliation::{ExecutionReconciliationStore, ReconciliationReport, WorkflowExecutionReconciler};
-pub use provider_adapter::{idempotency_key as provider_idempotency_key, normalize_provider_outcome, ProviderExecutionAdapter, ProviderExecutionRequest, ProviderExecutionSubmission};
-pub use reconciliation_worker::ReconciliationWorker;
+pub use provider_adapter::{
+    ProviderExecutionAdapter, ProviderExecutionRequest, ProviderExecutionSubmission,
+    idempotency_key as provider_idempotency_key, normalize_provider_outcome,
+};
 pub use provider_registry::{ProviderAdapterRegistry, ProviderCapability, ProviderRegistration};
-pub use provider_selection::{ProviderScore, ProviderSelection, ProviderSelectionEngine, ProviderSelectionRequest};
+pub use provider_result::{ProviderExecutionRecord, ProviderOutcomeState, ReconciliationAction};
+pub use provider_selection::{
+    ProviderScore, ProviderSelection, ProviderSelectionEngine, ProviderSelectionRequest,
+};
+pub use reconciliation::{
+    ExecutionReconciliationStore, ReconciliationReport, WorkflowExecutionReconciler,
+};
+pub use reconciliation_worker::ReconciliationWorker;
+pub use recovery::{
+    AsyncWorkflowRecovery, RecoveryAction, WorkflowRecoveryReport, WorkflowRecoveryStore,
+};
+pub use replay::{ReplaySnapshot, snapshot as replay_snapshot, verify_replay};
+pub use retry::RetryPolicy;
+pub use retry_decision::{RetryDecision, decide_retry};
+pub use scheduler::{ScheduleRequest, Scheduler};
+pub use validation::{
+    new_validated_instance, ready_steps, topological_order, validate_definition, workflow_id,
+};
 pub use validation_gates::{ContentValidator, ValidationGate, ValidationLevel, ValidationResult};
-pub use flywheel::{FlywheelNode, FlywheelPlan, FlywheelStage};
-pub use monitoring_workflow::{DailyMonitoringRun, MonitoringRunState};
+pub use worker::{
+    WorkerExecutionInput, WorkerExecutionOutcome, WorkerExecutionResult, WorkerExecutor,
+};

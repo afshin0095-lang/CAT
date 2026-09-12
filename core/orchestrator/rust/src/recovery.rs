@@ -1,6 +1,8 @@
 use uuid::Uuid;
 
-use crate::{AsyncPostgresExecutionStore, OrchestratorResult, StepState, WorkflowInstance, WorkflowState};
+use crate::{
+    AsyncPostgresExecutionStore, OrchestratorResult, StepState, WorkflowInstance, WorkflowState,
+};
 
 /// Deterministic recovery classification for a durable workflow after process restart.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

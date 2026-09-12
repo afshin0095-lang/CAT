@@ -1,4 +1,4 @@
-use cat_eventbus::{EventEnvelope, EventBusError, EventBusResult, RetryPolicy};
+use cat_eventbus::{EventBusError, EventBusResult, EventEnvelope, RetryPolicy};
 use sqlx::{PgPool, Row};
 use std::time::Duration;
 
@@ -16,10 +16,16 @@ pub struct OutboxRecord {
 }
 
 impl PostgresOutbox {
-    pub fn new(pool: PgPool) -> Self { Self { pool } }
+    pub fn new(pool: PgPool) -> Self {
+        Self { pool }
+    }
 
     pub async fn claim_next(&self) -> EventBusResult<Option<OutboxRecord>> {
-        let mut tx = self.pool.begin().await.map_err(|e| EventBusError::Storage(e.to_string()))?;
+        let mut tx = self
+            .pool
+            .begin()
+            .await
+            .map_err(|e| EventBusError::Storage(e.to_string()))?;
         let row = sqlx::query(
             "SELECT event_id, stream_id, sequence, envelope, attempts
              FROM cat_event_outbox
@@ -27,26 +33,48 @@ impl PostgresOutbox {
              ORDER BY created_at, event_id
              FOR UPDATE SKIP LOCKED LIMIT 1",
         )
-        .fetch_optional(&mut *tx).await.map_err(|e| EventBusError::Storage(e.to_string()))?;
+        .fetch_optional(&mut *tx)
+        .await
+        .map_err(|e| EventBusError::Storage(e.to_string()))?;
 
         let Some(row) = row else {
-            tx.commit().await.map_err(|e| EventBusError::Storage(e.to_string()))?;
+            tx.commit()
+                .await
+                .map_err(|e| EventBusError::Storage(e.to_string()))?;
             return Ok(None);
         };
 
-        let event_id: uuid::Uuid = row.try_get("event_id").map_err(|e| EventBusError::Storage(e.to_string()))?;
-        let stream_id: uuid::Uuid = row.try_get("stream_id").map_err(|e| EventBusError::Storage(e.to_string()))?;
-        let sequence: i64 = row.try_get("sequence").map_err(|e| EventBusError::Storage(e.to_string()))?;
-        let attempts: i32 = row.try_get("attempts").map_err(|e| EventBusError::Storage(e.to_string()))?;
-        let envelope: serde_json::Value = row.try_get("envelope").map_err(|e| EventBusError::Storage(e.to_string()))?;
+        let event_id: uuid::Uuid = row
+            .try_get("event_id")
+            .map_err(|e| EventBusError::Storage(e.to_string()))?;
+        let stream_id: uuid::Uuid = row
+            .try_get("stream_id")
+            .map_err(|e| EventBusError::Storage(e.to_string()))?;
+        let sequence: i64 = row
+            .try_get("sequence")
+            .map_err(|e| EventBusError::Storage(e.to_string()))?;
+        let attempts: i32 = row
+            .try_get("attempts")
+            .map_err(|e| EventBusError::Storage(e.to_string()))?;
+        let envelope: serde_json::Value = row
+            .try_get("envelope")
+            .map_err(|e| EventBusError::Storage(e.to_string()))?;
 
         sqlx::query(
             "UPDATE cat_event_outbox SET state = 'in_flight', attempts = attempts + 1, claimed_at = NOW(), updated_at = NOW() WHERE event_id = $1",
         ).bind(event_id).execute(&mut *tx).await.map_err(|e| EventBusError::Storage(e.to_string()))?;
-        tx.commit().await.map_err(|e| EventBusError::Storage(e.to_string()))?;
+        tx.commit()
+            .await
+            .map_err(|e| EventBusError::Storage(e.to_string()))?;
 
-        let event: EventEnvelope = serde_json::from_value(envelope).map_err(|e| EventBusError::Serialization(e.to_string()))?;
-        Ok(Some(OutboxRecord { event, stream_id, sequence: sequence as u64, attempts: attempts as u32 + 1 }))
+        let event: EventEnvelope = serde_json::from_value(envelope)
+            .map_err(|e| EventBusError::Serialization(e.to_string()))?;
+        Ok(Some(OutboxRecord {
+            event,
+            stream_id,
+            sequence: sequence as u64,
+            attempts: attempts as u32 + 1,
+        }))
     }
 
     pub async fn requeue_stale(&self, stale_after: Duration) -> EventBusResult<u64> {
@@ -67,7 +95,13 @@ impl PostgresOutbox {
         Ok(())
     }
 
-    pub async fn fail(&self, event_id: uuid::Uuid, attempt: u32, policy: &RetryPolicy, error: &str) -> EventBusResult<cat_eventbus::DeliveryState> {
+    pub async fn fail(
+        &self,
+        event_id: uuid::Uuid,
+        attempt: u32,
+        policy: &RetryPolicy,
+        error: &str,
+    ) -> EventBusResult<cat_eventbus::DeliveryState> {
         if policy.exhausted(attempt) {
             sqlx::query("UPDATE cat_event_outbox SET state = 'dead_lettered', claimed_at = NULL, last_error = $2, updated_at = NOW() WHERE event_id = $1")
                 .bind(event_id).bind(error).execute(&self.pool).await.map_err(|e| EventBusError::Storage(e.to_string()))?;

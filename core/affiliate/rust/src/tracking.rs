@@ -63,17 +63,33 @@ pub struct UtmParams {
 
 impl UtmParams {
     pub fn empty() -> Self {
-        Self { source: None, medium: None, campaign: None, term: None, content: None }
+        Self {
+            source: None,
+            medium: None,
+            campaign: None,
+            term: None,
+            content: None,
+        }
     }
 
     /// Build a query string fragment from non-None fields.
     pub fn to_query_pairs(&self) -> Vec<(String, String)> {
         let mut pairs = Vec::new();
-        if let Some(ref v) = self.source { pairs.push(("utm_source".into(), v.clone())); }
-        if let Some(ref v) = self.medium { pairs.push(("utm_medium".into(), v.clone())); }
-        if let Some(ref v) = self.campaign { pairs.push(("utm_campaign".into(), v.clone())); }
-        if let Some(ref v) = self.term { pairs.push(("utm_term".into(), v.clone())); }
-        if let Some(ref v) = self.content { pairs.push(("utm_content".into(), v.clone())); }
+        if let Some(ref v) = self.source {
+            pairs.push(("utm_source".into(), v.clone()));
+        }
+        if let Some(ref v) = self.medium {
+            pairs.push(("utm_medium".into(), v.clone()));
+        }
+        if let Some(ref v) = self.campaign {
+            pairs.push(("utm_campaign".into(), v.clone()));
+        }
+        if let Some(ref v) = self.term {
+            pairs.push(("utm_term".into(), v.clone()));
+        }
+        if let Some(ref v) = self.content {
+            pairs.push(("utm_content".into(), v.clone()));
+        }
         pairs
     }
 }
@@ -147,7 +163,14 @@ impl VelocityChecker {
 
     /// Returns `true` if the IP has exceeded the velocity threshold.
     pub fn check_and_record(&self, ip_hash: &str) -> bool {
-        let mut buckets = self.buckets.lock().unwrap();
+        // A poisoned lock (a previous holder panicked mid-update) must not
+        // panic the caller: recover the inner map and keep serving. The
+        // worst case is a partially-pruned window, which only makes the
+        // check more permissive for one call.
+        let mut buckets = self
+            .buckets
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
         let now = Instant::now();
         let window = std::time::Duration::from_secs(self.window_seconds);
 
@@ -197,7 +220,13 @@ mod tests {
 
     #[test]
     fn utm_link_with_no_existing_params() {
-        let url = build_utm_link("https://example.com/ref/abc", "heygen", "linkedin", "review", None);
+        let url = build_utm_link(
+            "https://example.com/ref/abc",
+            "heygen",
+            "linkedin",
+            "review",
+            None,
+        );
         assert!(url.contains("utm_source=linkedin"));
         assert!(url.contains("utm_campaign=heygen-linkedin"));
         assert!(url.starts_with("https://example.com/ref/abc?"));
@@ -205,7 +234,13 @@ mod tests {
 
     #[test]
     fn utm_link_with_existing_params() {
-        let url = build_utm_link("https://example.com/ref/abc?id=123", "semrush", "twitter", "thread", Some("v2"));
+        let url = build_utm_link(
+            "https://example.com/ref/abc?id=123",
+            "semrush",
+            "twitter",
+            "thread",
+            Some("v2"),
+        );
         assert!(url.contains("&utm_source=twitter"));
         assert!(url.contains("utm_content=thread-v2"));
     }

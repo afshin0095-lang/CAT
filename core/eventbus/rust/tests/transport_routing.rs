@@ -32,7 +32,10 @@ fn router_publishes_to_selected_endpoint() {
         .unwrap();
 
     let mut router = EventRouter::new(registry);
-    router.add_route(TransportRoute::exact_event("affiliate.conversion", id.clone()));
+    router.add_route(TransportRoute::exact_event(
+        "affiliate.conversion",
+        id.clone(),
+    ));
 
     let event = envelope("affiliate.conversion", "affiliate-engine");
     assert_eq!(router.publish(&event).unwrap(), id);

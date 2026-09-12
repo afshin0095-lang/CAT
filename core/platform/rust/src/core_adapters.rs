@@ -1,9 +1,9 @@
 use crate::{
-    AdapterRequest, AdapterResponse, AdapterRegistry, IntegrationContext, IntegrationTarget,
+    AdapterRegistry, AdapterRequest, AdapterResponse, IntegrationContext, IntegrationTarget,
     PlatformAdapter, PlatformError, PlatformResult,
 };
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use uuid::Uuid;
 
 /// A concrete adapter at the platform boundary.
@@ -22,11 +22,17 @@ impl CoreAdapter {
         name: &'static str,
         operations: &'static [&'static str],
     ) -> Self {
-        Self { target, name, operations }
+        Self {
+            target,
+            name,
+            operations,
+        }
     }
 
     fn supports(&self, operation: &str) -> bool {
-        self.operations.iter().any(|candidate| *candidate == operation)
+        self.operations
+            .iter()
+            .any(|candidate| *candidate == operation)
     }
 }
 
@@ -37,10 +43,14 @@ impl PlatformAdapter for CoreAdapter {
 
     fn execute(&self, request: &AdapterRequest) -> PlatformResult<AdapterResponse> {
         if request.context.actor.trim().is_empty() {
-            return Err(PlatformError::InvalidCommand("adapter actor cannot be empty".into()));
+            return Err(PlatformError::InvalidCommand(
+                "adapter actor cannot be empty".into(),
+            ));
         }
         if request.operation.trim().is_empty() {
-            return Err(PlatformError::InvalidCommand("adapter operation cannot be empty".into()));
+            return Err(PlatformError::InvalidCommand(
+                "adapter operation cannot be empty".into(),
+            ));
         }
         if !self.supports(&request.operation) {
             return Err(PlatformError::InvalidCommand(format!(
@@ -101,7 +111,12 @@ impl CoreCommand {
         context: IntegrationContext,
         payload: Value,
     ) -> Self {
-        Self { command_id, operation: operation.into(), context, payload }
+        Self {
+            command_id,
+            operation: operation.into(),
+            context,
+            payload,
+        }
     }
 }
 
@@ -219,11 +234,8 @@ pub const MEMORY_ADAPTER: CoreAdapter = CoreAdapter::new(
     &["store", "recall", "validate", "forget"],
 );
 
-pub const LLM_ADAPTER: CoreAdapter = CoreAdapter::new(
-    IntegrationTarget::Llm,
-    "llm",
-    &["generate", "health"],
-);
+pub const LLM_ADAPTER: CoreAdapter =
+    CoreAdapter::new(IntegrationTarget::Llm, "llm", &["generate", "health"]);
 
 pub const REASONING_ADAPTER: CoreAdapter = CoreAdapter::new(
     IntegrationTarget::Reasoning,

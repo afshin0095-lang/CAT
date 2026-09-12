@@ -142,7 +142,10 @@ mod tests {
             dispatcher.dispatch_one(0).await.unwrap(),
             crate::AsyncDeliveryOutcome::Delivered
         ));
-        assert_eq!(outbox.state_snapshot(id).await, Some(DeliveryState::Succeeded));
+        assert_eq!(
+            outbox.state_snapshot(id).await,
+            Some(DeliveryState::Succeeded)
+        );
         assert_eq!(outbox.pending_len().await, 0);
     }
 }

@@ -3,7 +3,9 @@ use serde::{Deserialize, Serialize};
 use crate::{KernelError, KernelResult};
 
 /// Monotonic position within a durable event stream.
-#[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(
+    Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize,
+)]
 pub struct SequenceNumber(u64);
 
 impl SequenceNumber {

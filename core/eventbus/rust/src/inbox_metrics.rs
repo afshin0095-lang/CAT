@@ -1,8 +1,6 @@
 use std::sync::Arc;
 
-use crate::{
-    DeliveryState, EventBusMetrics, EventBusMetricsSnapshot, EventBusResult, InboxStore,
-};
+use crate::{DeliveryState, EventBusMetrics, EventBusMetricsSnapshot, EventBusResult, InboxStore};
 
 /// Read-only diagnostics snapshot for a synchronous inbox.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

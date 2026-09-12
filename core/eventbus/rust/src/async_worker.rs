@@ -1,4 +1,7 @@
-use crate::{AsyncEventHandler, AsyncInboxStore, AsyncNatsJetStreamConsumer, DeadLetterStore, EventBusResult, InMemoryDeadLetterStore, NatsConsumerConfig};
+use crate::{
+    AsyncEventHandler, AsyncInboxStore, AsyncNatsJetStreamConsumer, DeadLetterStore,
+    EventBusResult, InMemoryDeadLetterStore, NatsConsumerConfig,
+};
 use async_nats::jetstream::Context;
 use std::time::Duration;
 

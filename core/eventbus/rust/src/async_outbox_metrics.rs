@@ -14,10 +14,8 @@ pub struct MetricsAsyncOutboxSnapshot {
 /// Read-only diagnostics facade for an asynchronous outbox.
 #[async_trait::async_trait]
 pub trait AsyncOutboxDiagnostics: Send + Sync {
-    async fn diagnostics(
-        &self,
-        event_id: uuid::Uuid,
-    ) -> EventBusResult<MetricsAsyncOutboxSnapshot>;
+    async fn diagnostics(&self, event_id: uuid::Uuid)
+    -> EventBusResult<MetricsAsyncOutboxSnapshot>;
 }
 
 /// Metrics-aware asynchronous outbox decorator.

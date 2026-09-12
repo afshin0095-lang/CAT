@@ -1,4 +1,4 @@
-use cat_affiliate::{CommissionObligation, CommissionObligationId, ConversionId, AffiliateId};
+use cat_affiliate::{AffiliateId, CommissionObligation, CommissionObligationId, ConversionId};
 use uuid::Uuid;
 
 #[test]
@@ -7,7 +7,8 @@ fn identifiers_are_distinct_and_serializable() {
     let conversion = ConversionId(Uuid::now_v7());
     assert_ne!(affiliate.0, conversion.0);
     let json = serde_json::to_string(&affiliate).expect("affiliate id should serialize");
-    let round_trip: AffiliateId = serde_json::from_str(&json).expect("affiliate id should deserialize");
+    let round_trip: AffiliateId =
+        serde_json::from_str(&json).expect("affiliate id should deserialize");
     assert_eq!(affiliate, round_trip);
 }
 

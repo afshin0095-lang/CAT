@@ -8,7 +8,12 @@ pub struct ValidityWindow {
 }
 
 impl ValidityWindow {
-    pub fn from(start_ms: u64) -> Self { Self { valid_from_ms: start_ms, valid_until_ms: None } }
+    pub fn from(start_ms: u64) -> Self {
+        Self {
+            valid_from_ms: start_ms,
+            valid_until_ms: None,
+        }
+    }
 
     pub fn until(mut self, end_ms: u64) -> Self {
         self.valid_until_ms = Some(end_ms);
@@ -21,7 +26,8 @@ impl ValidityWindow {
     }
 
     pub fn is_well_formed(&self) -> bool {
-        self.valid_until_ms.is_none_or(|end| end > self.valid_from_ms)
+        self.valid_until_ms
+            .is_none_or(|end| end > self.valid_from_ms)
     }
 }
 

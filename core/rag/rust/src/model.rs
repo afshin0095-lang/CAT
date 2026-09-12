@@ -11,7 +11,11 @@ pub struct Embedding {
 impl Embedding {
     pub fn new(model: impl Into<String>, values: Vec<f32>) -> Self {
         let dimensions = values.len() as u32;
-        Self { model: model.into(), dimensions, values }
+        Self {
+            model: model.into(),
+            dimensions,
+            values,
+        }
     }
 
     pub fn validate(&self) -> Result<(), String> {
@@ -54,7 +58,13 @@ pub struct RetrievalQuery {
 
 impl RetrievalQuery {
     pub fn new(tenant_id: Uuid, query: impl Into<String>) -> Self {
-        Self { tenant_id, query: query.into(), embedding: None, limit: 10, min_score: None }
+        Self {
+            tenant_id,
+            query: query.into(),
+            embedding: None,
+            limit: 10,
+            min_score: None,
+        }
     }
 
     pub fn with_embedding(mut self, embedding: Embedding) -> Self {

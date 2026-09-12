@@ -1,5 +1,6 @@
 use cat_eventbus::CatEvent;
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::{
     AffiliateId, AffiliateKind, CommissionObligationId, ConversionId, ConversionState, MerchantId,
@@ -106,6 +107,172 @@ impl CatEvent for CommissionObligationCreated {
     const VERSION: u16 = 1;
 }
 
+// ---------------------------------------------------------------------------
+// Opportunity platform events
+//
+// These are typed FACT contracts for event-producing boundaries. Sprint 0
+// ships the contracts and their serialization guarantees; the emitting
+// boundaries are wired in Sprint 1 (ingestion publication, durable
+// revalidation execution). Read-only derivations must never emit lifecycle
+// events: computing "Expired" in a query is not a domain fact.
+// ---------------------------------------------------------------------------
+
+/// Emitted when an opportunity aggregate is created by ingestion.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct OpportunityDiscovered {
+    pub opportunity_id: Uuid,
+    pub identity: String,
+    pub source: String,
+    pub best_score: u32,
+    pub observed_at_ms: u64,
+    pub revision: u64,
+}
+
+impl CatEvent for OpportunityDiscovered {
+    const TYPE: &'static str = "affiliate.opportunity.discovered";
+    const VERSION: u16 = 1;
+}
+
+/// Emitted when a persisted opportunity's facts change (new observation,
+/// improved best source, category enrichment).
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct OpportunityUpdated {
+    pub opportunity_id: Uuid,
+    pub identity: String,
+    pub source: String,
+    pub best_source: String,
+    pub best_score: u32,
+    pub observed_at_ms: u64,
+    pub revision: u64,
+}
+
+impl CatEvent for OpportunityUpdated {
+    const TYPE: &'static str = "affiliate.opportunity.updated";
+    const VERSION: u16 = 1;
+}
+
+/// Fact contract: an opportunity crossed its staleness threshold and a
+/// detection boundary recorded that fact. Read queries deriving `Stale` MUST
+/// NOT emit this event.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct OpportunityBecameStale {
+    pub opportunity_id: Uuid,
+    pub identity: String,
+    pub last_observed_at_ms: u64,
+    pub stale_threshold_ms: u64,
+    pub detected_at_ms: u64,
+}
+
+impl CatEvent for OpportunityBecameStale {
+    const TYPE: &'static str = "affiliate.opportunity.became_stale";
+    const VERSION: u16 = 1;
+}
+
+/// Fact contract: an opportunity crossed its expiration threshold. Expiration
+/// never deletes provenance; this event signals commercial un-usability.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct OpportunityBecameExpired {
+    pub opportunity_id: Uuid,
+    pub identity: String,
+    pub last_observed_at_ms: u64,
+    pub expiration_threshold_ms: u64,
+    pub detected_at_ms: u64,
+}
+
+impl CatEvent for OpportunityBecameExpired {
+    const TYPE: &'static str = "affiliate.opportunity.became_expired";
+    const VERSION: u16 = 1;
+}
+
+/// Fact: a revalidation request was created for an opportunity.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct OpportunityRevalidationRequested {
+    pub request_id: Uuid,
+    pub opportunity_id: Uuid,
+    pub identity: String,
+    pub source: String,
+    pub reason: crate::RevalidationReason,
+    pub priority: crate::RevalidationPriority,
+    pub requested_at_ms: u64,
+    pub scheduled_for_ms: u64,
+}
+
+impl CatEvent for OpportunityRevalidationRequested {
+    const TYPE: &'static str = "affiliate.opportunity.revalidation_requested";
+    const VERSION: u16 = 1;
+}
+
+/// Fact: a revalidation attempt completed and the opportunity was updated
+/// with fresh observations.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct OpportunityRevalidated {
+    pub request_id: Uuid,
+    pub opportunity_id: Uuid,
+    pub identity: String,
+    pub source: String,
+    pub observed_at_ms: u64,
+    pub revision: u64,
+}
+
+impl CatEvent for OpportunityRevalidated {
+    const TYPE: &'static str = "affiliate.opportunity.revalidated";
+    const VERSION: u16 = 1;
+}
+
+/// Fact: a revalidation attempt failed. `detail` is a bounded, sanitized
+/// operator note — never a raw provider payload, credential, or header.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct OpportunityRevalidationFailed {
+    pub request_id: Uuid,
+    pub opportunity_id: Uuid,
+    pub identity: String,
+    pub source: String,
+    pub reason: crate::RevalidationReason,
+    pub failed_at_ms: u64,
+    pub detail: String,
+}
+
+impl OpportunityRevalidationFailed {
+    /// Bounded constructor: `detail` is truncated to 512 characters on a
+    /// char boundary so oversized diagnostics cannot bloat the event log.
+    pub fn new(
+        request_id: Uuid,
+        opportunity_id: Uuid,
+        identity: String,
+        source: String,
+        reason: crate::RevalidationReason,
+        failed_at_ms: u64,
+        detail: String,
+    ) -> Self {
+        const MAX_DETAIL_CHARS: usize = 512;
+        let detail: String = detail
+            .chars()
+            .map(|character| {
+                if character.is_control() {
+                    ' '
+                } else {
+                    character
+                }
+            })
+            .take(MAX_DETAIL_CHARS)
+            .collect();
+        Self {
+            request_id,
+            opportunity_id,
+            identity,
+            source,
+            reason,
+            failed_at_ms,
+            detail,
+        }
+    }
+}
+
+impl CatEvent for OpportunityRevalidationFailed {
+    const TYPE: &'static str = "affiliate.opportunity.revalidation_failed";
+    const VERSION: u16 = 1;
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -144,9 +311,18 @@ mod tests {
     #[test]
     fn event_contracts_are_versioned_and_named() {
         assert_eq!(AffiliateRegistered::TYPE, "affiliate.partner.registered");
-        assert_eq!(ReferralStateChanged::TYPE, "affiliate.referral.state_changed");
-        assert_eq!(ConversionStateChanged::TYPE, "affiliate.conversion.state_changed");
-        assert_eq!(CommissionObligationCreated::TYPE, "affiliate.commission_obligation.created");
+        assert_eq!(
+            ReferralStateChanged::TYPE,
+            "affiliate.referral.state_changed"
+        );
+        assert_eq!(
+            ConversionStateChanged::TYPE,
+            "affiliate.conversion.state_changed"
+        );
+        assert_eq!(
+            CommissionObligationCreated::TYPE,
+            "affiliate.commission_obligation.created"
+        );
         assert_eq!(OfferCreated::VERSION, 1);
     }
 }

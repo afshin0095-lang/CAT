@@ -51,7 +51,9 @@ impl KnowledgeGraph {
     pub fn restore_from<S: KnowledgeSnapshotStore>(
         store: &S,
     ) -> KnowledgePersistenceResult<Option<Self>> {
-        let Some(snapshot) = store.load()? else { return Ok(None); };
+        let Some(snapshot) = store.load()? else {
+            return Ok(None);
+        };
         snapshot
             .restore()
             .map(Some)
@@ -71,7 +73,9 @@ mod tests {
     fn memory_snapshot_round_trip_preserves_graph_shape() {
         let mut graph = KnowledgeGraph::default();
         let node = KnowledgeNode::new("merchant", "merchant:1").with_evidence(vec![EvidenceRef {
-            source: "fixture".into(), reference: "r1".into(), observed_at_ms: 10,
+            source: "fixture".into(),
+            reference: "r1".into(),
+            observed_at_ms: 10,
         }]);
         graph.insert_node(node).unwrap();
 

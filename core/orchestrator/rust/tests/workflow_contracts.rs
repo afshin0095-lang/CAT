@@ -1,4 +1,7 @@
-use cat_orchestrator::{compensation_order, Lease, RetryPolicy, ScheduleRequest, Scheduler, StepState, WorkflowDefinition, WorkflowInstance, WorkflowState, WorkflowStep};
+use cat_orchestrator::{
+    Lease, RetryPolicy, ScheduleRequest, Scheduler, StepState, WorkflowDefinition,
+    WorkflowInstance, WorkflowState, WorkflowStep, compensation_order,
+};
 use uuid::Uuid;
 
 #[test]
@@ -12,8 +15,16 @@ fn scheduler_is_deterministic_for_ready_work() {
     let mut scheduler = Scheduler::default();
     let first = Uuid::now_v7();
     let second = Uuid::now_v7();
-    scheduler.schedule(ScheduleRequest { workflow_id: second, not_before_ms: 200, priority: 5 });
-    scheduler.schedule(ScheduleRequest { workflow_id: first, not_before_ms: 100, priority: 1 });
+    scheduler.schedule(ScheduleRequest {
+        workflow_id: second,
+        not_before_ms: 200,
+        priority: 5,
+    });
+    scheduler.schedule(ScheduleRequest {
+        workflow_id: first,
+        not_before_ms: 100,
+        priority: 1,
+    });
     assert_eq!(scheduler.pop_ready(100).unwrap().workflow_id, first);
     assert_eq!(scheduler.pop_ready(199), None);
     assert_eq!(scheduler.pop_ready(200).unwrap().workflow_id, second);
@@ -25,9 +36,30 @@ fn compensation_is_reverse_success_order() {
         workflow_type: "commerce.order".into(),
         version: 1,
         steps: vec![
-            WorkflowStep { id: "reserve".into(), dependencies: vec![], state: StepState::Succeeded, attempt: 1, max_attempts: 3, compensation_step: Some("release".into()) },
-            WorkflowStep { id: "charge".into(), dependencies: vec!["reserve".into()], state: StepState::Succeeded, attempt: 1, max_attempts: 3, compensation_step: Some("refund".into()) },
-            WorkflowStep { id: "notify".into(), dependencies: vec!["charge".into()], state: StepState::Failed, attempt: 3, max_attempts: 3, compensation_step: None },
+            WorkflowStep {
+                id: "reserve".into(),
+                dependencies: vec![],
+                state: StepState::Succeeded,
+                attempt: 1,
+                max_attempts: 3,
+                compensation_step: Some("release".into()),
+            },
+            WorkflowStep {
+                id: "charge".into(),
+                dependencies: vec!["reserve".into()],
+                state: StepState::Succeeded,
+                attempt: 1,
+                max_attempts: 3,
+                compensation_step: Some("refund".into()),
+            },
+            WorkflowStep {
+                id: "notify".into(),
+                dependencies: vec!["charge".into()],
+                state: StepState::Failed,
+                attempt: 3,
+                max_attempts: 3,
+                compensation_step: None,
+            },
         ],
     });
     assert_eq!(compensation_order(&workflow), vec!["refund", "release"]);

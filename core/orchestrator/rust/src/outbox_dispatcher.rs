@@ -1,6 +1,8 @@
 use uuid::Uuid;
 
-use crate::{DurableOutboxStore, ExecutionEventSink, OrchestratorResult, RetryPolicy, OutboxDisposition};
+use crate::{
+    DurableOutboxStore, ExecutionEventSink, OrchestratorResult, OutboxDisposition, RetryPolicy,
+};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum OutboxDispatchOutcome {
@@ -34,16 +36,32 @@ where
                 self.outbox.acknowledge(event_id, &self.owner)?;
                 Ok(OutboxDispatchOutcome::Delivered)
             }
-            Err(error) => match self.outbox.fail(event_id, &self.owner, now_ms, self.retry_policy, &error.to_string())? {
-                OutboxDisposition::RetryScheduled { attempt, available_at_ms } => {
-                    Ok(OutboxDispatchOutcome::RetryScheduled { attempt, available_at_ms })
+            Err(error) => match self.outbox.fail(
+                event_id,
+                &self.owner,
+                now_ms,
+                self.retry_policy,
+                &error.to_string(),
+            )? {
+                OutboxDisposition::RetryScheduled {
+                    attempt,
+                    available_at_ms,
+                } => Ok(OutboxDispatchOutcome::RetryScheduled {
+                    attempt,
+                    available_at_ms,
+                }),
+                OutboxDisposition::DeadLettered { attempt } => {
+                    Ok(OutboxDispatchOutcome::DeadLettered { attempt })
                 }
-                OutboxDisposition::DeadLettered { attempt } => Ok(OutboxDispatchOutcome::DeadLettered { attempt }),
             },
         }
     }
 
-    pub fn dispatch_until_idle(&mut self, now_ms: u64, max_events: usize) -> OrchestratorResult<usize> {
+    pub fn dispatch_until_idle(
+        &mut self,
+        now_ms: u64,
+        max_events: usize,
+    ) -> OrchestratorResult<usize> {
         let mut delivered = 0usize;
         for _ in 0..max_events {
             match self.dispatch_one(now_ms)? {
@@ -56,7 +74,9 @@ where
 }
 
 #[allow(dead_code)]
-fn event_id(record: &crate::OutboxRecord) -> Uuid { record.event.event_id }
+fn event_id(record: &crate::OutboxRecord) -> Uuid {
+    record.event.event_id
+}
 
 #[cfg(test)]
 mod tests {
@@ -72,7 +92,9 @@ mod tests {
         fn publish(&mut self, event: cat_eventbus::EventEnvelope) -> crate::OrchestratorResult<()> {
             if self.fail_once {
                 self.fail_once = false;
-                return Err(crate::OrchestratorError::Serialization("temporary transport failure".into()));
+                return Err(crate::OrchestratorError::Serialization(
+                    "temporary transport failure".into(),
+                ));
             }
             self.events.push(event);
             Ok(())
@@ -87,37 +109,80 @@ mod tests {
     fn dispatcher_delivers_and_acknowledges() {
         let mut outbox = InMemoryDurableOutbox::default();
         outbox.enqueue(event()).unwrap();
-        let mut publisher = RecordingPublisher { events: Vec::new(), fail_once: false };
-        let mut dispatcher = OutboxDispatcher { outbox: &mut outbox, publisher: &mut publisher, retry_policy: RetryPolicy::default(), owner: "dispatcher-a".into() };
-        assert_eq!(dispatcher.dispatch_one(100).unwrap(), OutboxDispatchOutcome::Delivered);
+        let mut publisher = RecordingPublisher {
+            events: Vec::new(),
+            fail_once: false,
+        };
+        let mut dispatcher = OutboxDispatcher {
+            outbox: &mut outbox,
+            publisher: &mut publisher,
+            retry_policy: RetryPolicy::default(),
+            owner: "dispatcher-a".into(),
+        };
+        assert_eq!(
+            dispatcher.dispatch_one(100).unwrap(),
+            OutboxDispatchOutcome::Delivered
+        );
         assert_eq!(dispatcher.publisher.events.len(), 1);
         assert_eq!(dispatcher.outbox.pending(), 0);
     }
 
     #[test]
     fn dispatcher_preserves_failed_event_for_retry() {
-        let mut outbox = InMemoryDurableOutbox::default(); outbox.enqueue(event()).unwrap();
-        let mut publisher = RecordingPublisher { events: Vec::new(), fail_once: true };
-        let mut dispatcher = OutboxDispatcher { outbox: &mut outbox, publisher: &mut publisher, retry_policy: RetryPolicy::default(), owner: "dispatcher-a".into() };
-        assert!(matches!(dispatcher.dispatch_one(100).unwrap(), OutboxDispatchOutcome::RetryScheduled { .. }));
+        let mut outbox = InMemoryDurableOutbox::default();
+        outbox.enqueue(event()).unwrap();
+        let mut publisher = RecordingPublisher {
+            events: Vec::new(),
+            fail_once: true,
+        };
+        let mut dispatcher = OutboxDispatcher {
+            outbox: &mut outbox,
+            publisher: &mut publisher,
+            retry_policy: RetryPolicy::default(),
+            owner: "dispatcher-a".into(),
+        };
+        assert!(matches!(
+            dispatcher.dispatch_one(100).unwrap(),
+            OutboxDispatchOutcome::RetryScheduled { .. }
+        ));
         assert_eq!(dispatcher.outbox.pending(), 1);
-        assert!(matches!(dispatcher.dispatch_one(100).unwrap(), OutboxDispatchOutcome::Idle));
-        assert_eq!(dispatcher.dispatch_one(350).unwrap(), OutboxDispatchOutcome::Delivered);
+        assert!(matches!(
+            dispatcher.dispatch_one(100).unwrap(),
+            OutboxDispatchOutcome::Idle
+        ));
+        assert_eq!(
+            dispatcher.dispatch_one(350).unwrap(),
+            OutboxDispatchOutcome::Delivered
+        );
     }
 
     #[test]
     fn dispatcher_drains_to_limit() {
         let mut outbox = InMemoryDurableOutbox::default();
-        outbox.enqueue(event()).unwrap(); outbox.enqueue(event()).unwrap();
-        let mut publisher = RecordingPublisher { events: Vec::new(), fail_once: false };
-        let mut dispatcher = OutboxDispatcher { outbox: &mut outbox, publisher: &mut publisher, retry_policy: RetryPolicy::default(), owner: "dispatcher-a".into() };
+        outbox.enqueue(event()).unwrap();
+        outbox.enqueue(event()).unwrap();
+        let mut publisher = RecordingPublisher {
+            events: Vec::new(),
+            fail_once: false,
+        };
+        let mut dispatcher = OutboxDispatcher {
+            outbox: &mut outbox,
+            publisher: &mut publisher,
+            retry_policy: RetryPolicy::default(),
+            owner: "dispatcher-a".into(),
+        };
         assert_eq!(dispatcher.dispatch_until_idle(100, 1).unwrap(), 1);
         assert_eq!(dispatcher.outbox.pending(), 1);
     }
 
     #[test]
     fn event_id_helper_is_stable() {
-        let record = OutboxRecord { event: event(), attempt: 0, available_at_ms: 0, claimed_by: None };
+        let record = OutboxRecord {
+            event: event(),
+            attempt: 0,
+            available_at_ms: 0,
+            claimed_by: None,
+        };
         assert_eq!(event_id(&record), record.event.event_id);
     }
 }

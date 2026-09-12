@@ -61,21 +61,32 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Decision Core — transactional EventBus publication boundary
+**Current Task:** Sprint 0 — Affiliate Opportunity Platform Foundation
 
-**Document:** `core/decision/rust/src/event_publication.rs` + `core/decision/rust/src/lib.rs` + `core/decision/rust/Cargo.toml`
+**Document:** `core/affiliate/rust/` (opportunity subsystem), `docs/implementation/AFFILIATE_OPPORTUNITY_*.md`
 
-**Status:** Completed in code. The Decision Core now exposes a committed-event publication boundary for immutable decision traces, validates the decision-trace event type, and relies on EventBus duplicate suppression for idempotent delivery. Durable outbox persistence remains the transactional responsibility of the persistence layer.
+**Status:** Implemented on branch `arena/01a08d17-cat` (stacked on `feat/affiliate-opportunity-lifecycle-p0` @ `6791ace`), PR #40. Sprint 0 completes the discovery → source SPI → network adapter → ingestion → dedup → persistence → freshness → lifecycle → projection → revalidation → observability vertical slice: hardened lifecycle via a single canonical freshness engine, injectable clock, monotonic record revisions with optimistic-concurrency upserts, deterministic revalidation planner with durable request persistence (migration 0002, partial-unique dedup), opportunity status projection, persistence-neutral query/ranking/health contracts, source health tracking, neutral observability names + sink, typed opportunity event contracts, and expanded validation (URL/length/identity bounds, ASCII canonical-key limitation documented).
+
+**Validation status: INCOMPLETE — Sprint 0 is NOT closed.**
+- Local `cargo` execution is impossible in the working sandbox (rust-lang.org/crates.io are TLS-blocked by the egress proxy).
+- CI is the authoritative validator. The latest runs on this branch (GitHub Actions runs #157/#159-era, head `79e48b4`/`73816b2`) fail on `Check cat-affiliate` / `Test cat-affiliate`; the compiler output is not retrievable from the sandbox (Actions log hosts blocked), so the remaining defect could not be located despite repeated full static audits plus automated name/field/path resolution checks.
+- The GitHub Actions minutes for this private repository were exhausted during bisect probing; all subsequent runs fail at startup ("workflow file may be broken"). CI must be re-run once minutes are available.
+- CI hardening (fmt + clippy for cat-affiliate, PostgreSQL service job) is preserved at `docs/ci/rust-workspace-hardened.yml` and is NOT committed under `.github/` because the integration lacks the `workflows` permission. See `docs/implementation/CI_HARDENING.md`.
+- Gate to close Sprint 0: `Check cat-affiliate`, `Test cat-affiliate`, fmt, clippy, and the PostgreSQL job must be green on the latest run of PR #40; then record results in `docs/implementation/SPRINT_0_MANIFEST.md`.
 
 # Next Task
 
-Decision Core — transactional EventBus publication boundary added; next: compile/integration verification and durable outbox relay wiring
+Sprint 1 — Opportunity Lifecycle → Orchestrator → Durable Revalidation Execution: wire the revalidation request store into the Orchestrator execution boundary, persist attempts/results, and publish the Sprint 0 event contracts through the EventBus.
 
 # Next Tasks
 
-1. LLM / AI Core — authorized tool execution boundary completed
-2. LLM / AI Core — provider/tool authorization boundary completed
-3. Memory Core — P0 foundation completed
-4. Reasoning Core — P0 foundation completed
-5. Decision Core — approval/human-gate foundation completed\n6. Decision Core — durable PostgreSQL trace persistence adapter completed; next integration verification
-6. Planning Core — P0 foundation
+1. Sprint 0 — Affiliate Opportunity Platform Foundation implemented (this branch); CI closure pending
+2. Sprint 1 — revalidation execution through Orchestrator (durable attempts, reconciliation, event publication)
+3. Post-merge — retarget stacked affiliate PRs (#34→#39 chain) so Sprint 0 lands on main
+4. LLM / AI Core — authorized tool execution boundary completed
+5. Memory Core — P0 foundation completed
+6. Reasoning Core — P0 foundation completed
+7. Decision Core — approval/human-gate foundation completed
+8. Decision Core — durable PostgreSQL trace persistence adapter completed; next integration verification
+9. Planning Core — P0 foundation completed
+

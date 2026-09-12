@@ -10,7 +10,17 @@ pub struct ExecutionRequest {
 }
 
 impl ExecutionRequest {
-    pub fn new(workflow_id: Uuid, step_id: impl Into<String>, attempt: u32, requested_at_ms: u64) -> Self {
-        Self { workflow_id, step_id: step_id.into(), attempt, requested_at_ms }
+    pub fn new(
+        workflow_id: Uuid,
+        step_id: impl Into<String>,
+        attempt: u32,
+        requested_at_ms: u64,
+    ) -> Self {
+        Self {
+            workflow_id,
+            step_id: step_id.into(),
+            attempt,
+            requested_at_ms,
+        }
     }
 }

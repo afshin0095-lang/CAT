@@ -1,4 +1,7 @@
-use crate::{AdapterRequest, AdapterResponse, ExternalProviderAdapter, PlatformError, PlatformResult, ProviderCapabilities};
+use crate::{
+    AdapterRequest, AdapterResponse, ExternalProviderAdapter, PlatformError, PlatformResult,
+    ProviderCapabilities,
+};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
@@ -69,7 +72,10 @@ impl ProviderCircuitBreaker {
     }
 
     pub fn state(&self) -> ProviderCircuitState {
-        self.state.lock().expect("provider circuit mutex poisoned").state
+        self.state
+            .lock()
+            .expect("provider circuit mutex poisoned")
+            .state
     }
 
     pub fn consecutive_failures(&self) -> u32 {
@@ -132,7 +138,9 @@ impl ProviderCircuitBreaker {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{IntegrationCommand, IntegrationContext, IntegrationTarget, ProviderId, ProviderHealth};
+    use crate::{
+        IntegrationCommand, IntegrationContext, IntegrationTarget, ProviderHealth, ProviderId,
+    };
     use serde_json::json;
 
     #[derive(Clone)]
@@ -154,10 +162,14 @@ mod tests {
     }
 
     impl ExternalProviderAdapter for FailingAdapter {
-        fn capabilities(&self) -> ProviderCapabilities { self.capabilities.clone() }
+        fn capabilities(&self) -> ProviderCapabilities {
+            self.capabilities.clone()
+        }
 
         fn execute(&self, _request: &AdapterRequest) -> PlatformResult<AdapterResponse> {
-            Err(PlatformError::TransportUnavailable("synthetic failure".into()))
+            Err(PlatformError::TransportUnavailable(
+                "synthetic failure".into(),
+            ))
         }
     }
 
@@ -186,7 +198,10 @@ mod tests {
         assert!(breaker.execute(&request()).is_err());
         assert_eq!(breaker.state(), ProviderCircuitState::Open);
         assert_eq!(breaker.consecutive_failures(), 1);
-        assert!(matches!(breaker.execute(&request()), Err(PlatformError::TransportUnavailable(_))));
+        assert!(matches!(
+            breaker.execute(&request()),
+            Err(PlatformError::TransportUnavailable(_))
+        ));
     }
 
     #[test]

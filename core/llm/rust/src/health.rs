@@ -89,7 +89,9 @@ impl ProviderHealthRegistry {
 
     pub fn is_available(&self, provider: &ProviderId) -> bool {
         let mut entries = self.entries.lock().expect("provider health mutex poisoned");
-        let entry = entries.entry(provider.clone()).or_insert_with(ProviderHealthEntry::new);
+        let entry = entries
+            .entry(provider.clone())
+            .or_insert_with(ProviderHealthEntry::new);
         match entry.state(self.config.cooldown, Instant::now()) {
             ProviderHealthState::Healthy => true,
             ProviderHealthState::Open => false,
@@ -106,7 +108,9 @@ impl ProviderHealthRegistry {
 
     pub fn record_success(&self, provider: &ProviderId) {
         let mut entries = self.entries.lock().expect("provider health mutex poisoned");
-        let entry = entries.entry(provider.clone()).or_insert_with(ProviderHealthEntry::new);
+        let entry = entries
+            .entry(provider.clone())
+            .or_insert_with(ProviderHealthEntry::new);
         entry.consecutive_failures = 0;
         entry.opened_at = None;
         entry.probe_in_flight = false;
@@ -114,7 +118,9 @@ impl ProviderHealthRegistry {
 
     pub fn record_failure(&self, provider: &ProviderId) {
         let mut entries = self.entries.lock().expect("provider health mutex poisoned");
-        let entry = entries.entry(provider.clone()).or_insert_with(ProviderHealthEntry::new);
+        let entry = entries
+            .entry(provider.clone())
+            .or_insert_with(ProviderHealthEntry::new);
         entry.consecutive_failures = entry.consecutive_failures.saturating_add(1);
         entry.probe_in_flight = false;
         if entry.consecutive_failures >= self.config.failure_threshold {
@@ -124,7 +130,10 @@ impl ProviderHealthRegistry {
 
     pub fn snapshot(&self, provider: &ProviderId) -> ProviderHealthSnapshot {
         let entries = self.entries.lock().expect("provider health mutex poisoned");
-        let entry = entries.get(provider).cloned().unwrap_or_else(ProviderHealthEntry::new);
+        let entry = entries
+            .get(provider)
+            .cloned()
+            .unwrap_or_else(ProviderHealthEntry::new);
         ProviderHealthSnapshot {
             provider: provider.clone(),
             state: entry.state(self.config.cooldown, Instant::now()),

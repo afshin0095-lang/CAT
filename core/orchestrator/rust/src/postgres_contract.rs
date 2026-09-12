@@ -70,8 +70,14 @@ CREATE TABLE IF NOT EXISTS cat_execution_leases (
 "#;
 
     pub fn validate_identifier(value: &str) -> OrchestratorResult<()> {
-        if value.is_empty() || !value.bytes().all(|byte| byte.is_ascii_alphanumeric() || byte == b'_' || byte == b'-' || byte == b'.') {
-            return Err(OrchestratorError::Serialization("invalid PostgreSQL resource identifier".into()));
+        if value.is_empty()
+            || !value.bytes().all(|byte| {
+                byte.is_ascii_alphanumeric() || byte == b'_' || byte == b'-' || byte == b'.'
+            })
+        {
+            return Err(OrchestratorError::Serialization(
+                "invalid PostgreSQL resource identifier".into(),
+            ));
         }
         Ok(())
     }

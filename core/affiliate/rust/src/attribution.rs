@@ -41,7 +41,9 @@ pub enum AttributionModel {
 }
 
 impl Default for AttributionModel {
-    fn default() -> Self { Self::LastClick }
+    fn default() -> Self {
+        Self::LastClick
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -139,8 +141,12 @@ pub fn apply_model(model: AttributionModel, n: usize) -> Vec<f64> {
             vec![1.0 / n as f64; n]
         }
         AttributionModel::Position => {
-            if n == 1 { return vec![1.0]; }
-            if n == 2 { return vec![0.5, 0.5]; }
+            if n == 1 {
+                return vec![1.0];
+            }
+            if n == 2 {
+                return vec![0.5, 0.5];
+            }
             let mut w = vec![0.0; n];
             w[0] = 0.4;
             w[n - 1] = 0.4;

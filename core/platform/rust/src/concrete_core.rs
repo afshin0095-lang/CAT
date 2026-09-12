@@ -3,10 +3,12 @@ use std::sync::{Arc, Mutex};
 use cat_eventbus::{EventBus, EventEnvelope, PublishOutcome};
 use cat_knowledge::{KnowledgeEdge, KnowledgeGraph, KnowledgeNode};
 use cat_memory::{InMemoryMemoryStore, MemoryObject, MemoryStore};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use uuid::Uuid;
 
-use crate::{IntegrationTarget, PlatformError, PlatformResult, TypedCoreCommand, TypedCoreResponse};
+use crate::{
+    IntegrationTarget, PlatformError, PlatformResult, TypedCoreCommand, TypedCoreResponse,
+};
 
 /// Concrete composition boundary for the first three stateful CAT cores.
 ///
@@ -152,8 +154,10 @@ impl ConcreteCoreRuntime {
 
         match command.operation.as_str() {
             "store" => {
-                let object: MemoryObject = serde_json::from_value(command.payload)
-                    .map_err(|error| PlatformError::InvalidCommand(format!("invalid memory object: {error}")))?;
+                let object: MemoryObject =
+                    serde_json::from_value(command.payload).map_err(|error| {
+                        PlatformError::InvalidCommand(format!("invalid memory object: {error}"))
+                    })?;
                 let id = object.id;
                 store.insert(object).map_err(core_error)?;
                 Ok(response(
@@ -164,22 +168,29 @@ impl ConcreteCoreRuntime {
                 ))
             }
             "recall" => {
-                let id: cat_memory::MemoryId = serde_json::from_value(command.payload)
-                    .map_err(|error| PlatformError::InvalidCommand(format!("invalid memory id: {error}")))?;
-                let object = store
-                    .get(id)
-                    .ok_or_else(|| PlatformError::InvalidCommand(format!("memory object not found: {id:?}")))?;
+                let id: cat_memory::MemoryId =
+                    serde_json::from_value(command.payload).map_err(|error| {
+                        PlatformError::InvalidCommand(format!("invalid memory id: {error}"))
+                    })?;
+                let object = store.get(id).ok_or_else(|| {
+                    PlatformError::InvalidCommand(format!("memory object not found: {id:?}"))
+                })?;
                 Ok(response(
                     command.context.request_id,
                     IntegrationTarget::Memory,
                     "recall",
-                    serde_json::to_value(object)
-                        .map_err(|error| PlatformError::InvalidCommand(format!("memory serialization failed: {error}")))?,
+                    serde_json::to_value(object).map_err(|error| {
+                        PlatformError::InvalidCommand(format!(
+                            "memory serialization failed: {error}"
+                        ))
+                    })?,
                 ))
             }
             "forget" => {
-                let id: cat_memory::MemoryId = serde_json::from_value(command.payload)
-                    .map_err(|error| PlatformError::InvalidCommand(format!("invalid memory id: {error}")))?;
+                let id: cat_memory::MemoryId =
+                    serde_json::from_value(command.payload).map_err(|error| {
+                        PlatformError::InvalidCommand(format!("invalid memory id: {error}"))
+                    })?;
                 store.remove(id).map_err(core_error)?;
                 Ok(response(
                     command.context.request_id,

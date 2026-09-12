@@ -1,4 +1,6 @@
-use crate::{DeadLetterStore, EventBusResult, EventEnvelope, EventTransport, OutboxStore, RetryPolicy};
+use crate::{
+    DeadLetterStore, EventBusResult, EventEnvelope, EventTransport, OutboxStore, RetryPolicy,
+};
 use std::time::Duration;
 
 /// Result of one durable outbox delivery attempt.
@@ -43,11 +45,15 @@ where
             }
             Err(_) => {
                 let next_attempt = attempt.saturating_add(1);
-                let state = self.outbox.fail(event_id, next_attempt, &self.retry_policy)?;
+                let state = self
+                    .outbox
+                    .fail(event_id, next_attempt, &self.retry_policy)?;
                 match state {
                     crate::DeliveryState::DeadLettered => {
                         self.dead_letters.park(event, "retry budget exhausted")?;
-                        Ok(DeliveryOutcome::DeadLettered { attempt: next_attempt })
+                        Ok(DeliveryOutcome::DeadLettered {
+                            attempt: next_attempt,
+                        })
                     }
                     _ => Ok(DeliveryOutcome::RetryScheduled {
                         attempt: next_attempt,

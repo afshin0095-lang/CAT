@@ -1,5 +1,5 @@
 use cat_orchestrator::{ScheduleRequest, Scheduler};
-use cat_planning::{validate_plan, Plan, PlanStatus};
+use cat_planning::{Plan, PlanStatus, validate_plan};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -123,7 +123,9 @@ mod tests {
     fn mismatched_workflow_context_is_rejected() {
         let context = IntegrationContext::new("platform-test").with_workflow(Uuid::now_v7());
         let mut runtime = WorkflowRuntime::new();
-        let error = runtime.schedule(&context, Uuid::now_v7(), 100, 1).unwrap_err();
+        let error = runtime
+            .schedule(&context, Uuid::now_v7(), 100, 1)
+            .unwrap_err();
         assert!(matches!(error, PlatformError::InvalidCommand(_)));
     }
 }

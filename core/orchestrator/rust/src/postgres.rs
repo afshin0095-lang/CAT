@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use cat_eventbus::EventEnvelope;
-use sqlx::{migrate::Migrator, postgres::PgPool, Row};
+use sqlx::{Row, migrate::Migrator, postgres::PgPool};
 use uuid::Uuid;
 
 use crate::{FencingToken, OrchestratorError, OrchestratorResult, WorkflowInstance};
@@ -13,24 +13,50 @@ pub struct PostgresExecutionStore {
 }
 
 impl PostgresExecutionStore {
-    pub fn new(pool: PgPool) -> Self { Self { pool } }
-    pub fn pool(&self) -> &PgPool { &self.pool }
+    pub fn new(pool: PgPool) -> Self {
+        Self { pool }
+    }
+    pub fn pool(&self) -> &PgPool {
+        &self.pool
+    }
 
     pub async fn ensure_schema(&self) -> OrchestratorResult<()> {
-        MIGRATOR
-            .run(&self.pool)
-            .await
-            .map_err(|error| OrchestratorError::Serialization(format!("postgresql migration error: {error}")))
+        MIGRATOR.run(&self.pool).await.map_err(|error| {
+            OrchestratorError::Serialization(format!("postgresql migration error: {error}"))
+        })
     }
 }
 
 #[async_trait]
 pub trait AsyncPostgresExecutionStore: Send + Sync {
     async fn load_workflow(&self, workflow_id: Uuid) -> OrchestratorResult<WorkflowInstance>;
-    async fn commit_workflow_and_outbox(&self, workflow: &WorkflowInstance, expected_revision: u64, events: &[EventEnvelope]) -> OrchestratorResult<()>;
-    async fn acquire_fenced_lease(&self, resource: &str, owner: &str, now_ms: u64, ttl_ms: u64) -> OrchestratorResult<FencingToken>;
-    async fn renew_fenced_lease(&self, resource: &str, owner: &str, token: FencingToken, now_ms: u64, ttl_ms: u64) -> OrchestratorResult<()>;
-    async fn validate_fencing_token(&self, resource: &str, token: FencingToken, now_ms: u64) -> OrchestratorResult<()>;
+    async fn commit_workflow_and_outbox(
+        &self,
+        workflow: &WorkflowInstance,
+        expected_revision: u64,
+        events: &[EventEnvelope],
+    ) -> OrchestratorResult<()>;
+    async fn acquire_fenced_lease(
+        &self,
+        resource: &str,
+        owner: &str,
+        now_ms: u64,
+        ttl_ms: u64,
+    ) -> OrchestratorResult<FencingToken>;
+    async fn renew_fenced_lease(
+        &self,
+        resource: &str,
+        owner: &str,
+        token: FencingToken,
+        now_ms: u64,
+        ttl_ms: u64,
+    ) -> OrchestratorResult<()>;
+    async fn validate_fencing_token(
+        &self,
+        resource: &str,
+        token: FencingToken,
+        now_ms: u64,
+    ) -> OrchestratorResult<()>;
 }
 
 #[async_trait]
@@ -49,7 +75,12 @@ impl AsyncPostgresExecutionStore for PostgresExecutionStore {
         Ok(workflow)
     }
 
-    async fn commit_workflow_and_outbox(&self, workflow: &WorkflowInstance, expected_revision: u64, events: &[EventEnvelope]) -> OrchestratorResult<()> {
+    async fn commit_workflow_and_outbox(
+        &self,
+        workflow: &WorkflowInstance,
+        expected_revision: u64,
+        events: &[EventEnvelope],
+    ) -> OrchestratorResult<()> {
         if workflow.revision <= expected_revision {
             return Err(OrchestratorError::InvalidStateTransition {
                 from: format!("revision {expected_revision}"),
@@ -78,7 +109,9 @@ impl AsyncPostgresExecutionStore for PostgresExecutionStore {
                 .map_err(json_error)?
                 .as_str()
                 .map(str::to_owned)
-                .ok_or_else(|| OrchestratorError::Serialization("event kind is not a string".into()))?;
+                .ok_or_else(|| {
+                    OrchestratorError::Serialization("event kind is not a string".into())
+                })?;
             sqlx::query("INSERT INTO cat_workflow_outbox (event_id, workflow_id, event_type, version, event_kind, occurred_at_ms, producer, correlation_id, causation_id, subject_id, payload) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) ON CONFLICT (event_id) DO NOTHING")
                 .bind(event.event_id)
                 .bind(workflow.id)
@@ -99,7 +132,13 @@ impl AsyncPostgresExecutionStore for PostgresExecutionStore {
         Ok(())
     }
 
-    async fn acquire_fenced_lease(&self, resource: &str, owner: &str, now_ms: u64, ttl_ms: u64) -> OrchestratorResult<FencingToken> {
+    async fn acquire_fenced_lease(
+        &self,
+        resource: &str,
+        owner: &str,
+        now_ms: u64,
+        ttl_ms: u64,
+    ) -> OrchestratorResult<FencingToken> {
         let mut tx = self.pool.begin().await.map_err(db_error)?;
         let row = sqlx::query("SELECT owner, fencing_token, EXTRACT(EPOCH FROM expires_at) * 1000 AS expires_at_ms FROM cat_execution_leases WHERE resource = $1 FOR UPDATE")
             .bind(resource)
@@ -112,7 +151,9 @@ impl AsyncPostgresExecutionStore for PostgresExecutionStore {
                 let current_owner: String = row.try_get("owner").map_err(row_error)?;
                 let expires_at_ms: f64 = row.try_get("expires_at_ms").map_err(row_error)?;
                 if expires_at_ms > now_ms as f64 && current_owner != owner {
-                    return Err(OrchestratorError::LeaseUnavailable { resource: resource.to_owned() });
+                    return Err(OrchestratorError::LeaseUnavailable {
+                        resource: resource.to_owned(),
+                    });
                 }
                 let token: i64 = row.try_get("fencing_token").map_err(row_error)?;
                 (token.max(0) as u64).saturating_add(1)
@@ -131,7 +172,14 @@ impl AsyncPostgresExecutionStore for PostgresExecutionStore {
         Ok(FencingToken::from_value(next_token))
     }
 
-    async fn renew_fenced_lease(&self, resource: &str, owner: &str, token: FencingToken, now_ms: u64, ttl_ms: u64) -> OrchestratorResult<()> {
+    async fn renew_fenced_lease(
+        &self,
+        resource: &str,
+        owner: &str,
+        token: FencingToken,
+        now_ms: u64,
+        ttl_ms: u64,
+    ) -> OrchestratorResult<()> {
         let expiry_ms = now_ms.saturating_add(ttl_ms) as f64;
         let result = sqlx::query("UPDATE cat_execution_leases SET expires_at = TO_TIMESTAMP($4 / 1000.0), updated_at = NOW() WHERE resource = $1 AND owner = $2 AND fencing_token = $3 AND expires_at > TO_TIMESTAMP($5 / 1000.0)")
             .bind(resource)
@@ -143,12 +191,19 @@ impl AsyncPostgresExecutionStore for PostgresExecutionStore {
             .await
             .map_err(db_error)?;
         if result.rows_affected() != 1 {
-            return Err(OrchestratorError::LeaseExpired { lease_id: resource.to_owned() });
+            return Err(OrchestratorError::LeaseExpired {
+                lease_id: resource.to_owned(),
+            });
         }
         Ok(())
     }
 
-    async fn validate_fencing_token(&self, resource: &str, token: FencingToken, now_ms: u64) -> OrchestratorResult<()> {
+    async fn validate_fencing_token(
+        &self,
+        resource: &str,
+        token: FencingToken,
+        now_ms: u64,
+    ) -> OrchestratorResult<()> {
         let row = sqlx::query("SELECT fencing_token, EXTRACT(EPOCH FROM expires_at) * 1000 AS expires_at_ms FROM cat_execution_leases WHERE resource = $1")
             .bind(resource)
             .fetch_optional(&self.pool)
@@ -158,15 +213,26 @@ impl AsyncPostgresExecutionStore for PostgresExecutionStore {
         let current_token: i64 = row.try_get("fencing_token").map_err(row_error)?;
         let expires_at_ms: f64 = row.try_get("expires_at_ms").map_err(row_error)?;
         if expires_at_ms <= now_ms as f64 {
-            return Err(OrchestratorError::LeaseExpired { lease_id: resource.to_owned() });
+            return Err(OrchestratorError::LeaseExpired {
+                lease_id: resource.to_owned(),
+            });
         }
         if current_token != token.value() as i64 {
-            return Err(OrchestratorError::LeaseOwnerMismatch { lease_id: resource.to_owned(), owner: format!("fencing token {}", token.value()) });
+            return Err(OrchestratorError::LeaseOwnerMismatch {
+                lease_id: resource.to_owned(),
+                owner: format!("fencing token {}", token.value()),
+            });
         }
         Ok(())
     }
 }
 
-fn db_error(error: sqlx::Error) -> OrchestratorError { OrchestratorError::Serialization(format!("postgresql error: {error}")) }
-fn row_error(error: sqlx::Error) -> OrchestratorError { OrchestratorError::Serialization(format!("postgresql row error: {error}")) }
-fn json_error(error: serde_json::Error) -> OrchestratorError { OrchestratorError::Serialization(format!("workflow serialization error: {error}")) }
+fn db_error(error: sqlx::Error) -> OrchestratorError {
+    OrchestratorError::Serialization(format!("postgresql error: {error}"))
+}
+fn row_error(error: sqlx::Error) -> OrchestratorError {
+    OrchestratorError::Serialization(format!("postgresql row error: {error}"))
+}
+fn json_error(error: serde_json::Error) -> OrchestratorError {
+    OrchestratorError::Serialization(format!("workflow serialization error: {error}"))
+}

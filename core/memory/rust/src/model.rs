@@ -5,7 +5,9 @@ use uuid::Uuid;
 pub struct MemoryId(pub Uuid);
 
 impl MemoryId {
-    pub fn new() -> Self { Self(Uuid::now_v7()) }
+    pub fn new() -> Self {
+        Self(Uuid::now_v7())
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -85,10 +87,18 @@ pub struct MemoryObject {
 
 impl MemoryObject {
     pub fn validate(&self, now_ms: u64) -> Result<(), MemoryValidationError> {
-        if self.namespace.trim().is_empty() { return Err(MemoryValidationError::EmptyNamespace); }
-        if self.version == 0 { return Err(MemoryValidationError::InvalidVersion); }
-        if self.provenance.source.trim().is_empty() { return Err(MemoryValidationError::MissingProvenance); }
-        if self.provenance.captured_by.trim().is_empty() { return Err(MemoryValidationError::MissingProvenance); }
+        if self.namespace.trim().is_empty() {
+            return Err(MemoryValidationError::EmptyNamespace);
+        }
+        if self.version == 0 {
+            return Err(MemoryValidationError::InvalidVersion);
+        }
+        if self.provenance.source.trim().is_empty() {
+            return Err(MemoryValidationError::MissingProvenance);
+        }
+        if self.provenance.captured_by.trim().is_empty() {
+            return Err(MemoryValidationError::MissingProvenance);
+        }
         if self.consent.required && !self.consent.granted {
             return Err(MemoryValidationError::ConsentRequired);
         }
@@ -96,7 +106,10 @@ impl MemoryObject {
             return Err(MemoryValidationError::LegalHoldExpired);
         }
         if let Some(expiry) = self.retention.expires_at_ms {
-            if expiry <= now_ms && self.state == LifecycleState::Active && !self.retention.legal_hold {
+            if expiry <= now_ms
+                && self.state == LifecycleState::Active
+                && !self.retention.legal_hold
+            {
                 return Err(MemoryValidationError::ActiveAfterExpiry);
             }
         }

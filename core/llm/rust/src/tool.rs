@@ -11,7 +11,9 @@ use crate::LlmError;
 pub struct ToolId(pub String);
 
 impl ToolId {
-    pub fn new(value: impl Into<String>) -> Self { Self(value.into()) }
+    pub fn new(value: impl Into<String>) -> Self {
+        Self(value.into())
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
@@ -29,16 +31,28 @@ pub struct ToolDefinition {
 impl ToolDefinition {
     pub fn validate(&self) -> Result<(), LlmError> {
         if self.id.0.trim().is_empty() {
-            return Err(LlmError::InvalidTool("tool id must not be empty".to_owned()));
+            return Err(LlmError::InvalidTool(
+                "tool id must not be empty".to_owned(),
+            ));
         }
         if self.description.trim().is_empty() {
-            return Err(LlmError::InvalidTool("tool description must not be empty".to_owned()));
+            return Err(LlmError::InvalidTool(
+                "tool description must not be empty".to_owned(),
+            ));
         }
         if !self.input_schema.is_object() {
-            return Err(LlmError::InvalidTool("tool input schema must be a JSON object".to_owned()));
+            return Err(LlmError::InvalidTool(
+                "tool input schema must be a JSON object".to_owned(),
+            ));
         }
-        if self.capabilities.iter().any(|value| value.trim().is_empty()) {
-            return Err(LlmError::InvalidTool("tool capability must not be empty".to_owned()));
+        if self
+            .capabilities
+            .iter()
+            .any(|value| value.trim().is_empty())
+        {
+            return Err(LlmError::InvalidTool(
+                "tool capability must not be empty".to_owned(),
+            ));
         }
         Ok(())
     }
@@ -67,7 +81,9 @@ impl ToolRegistry {
         self.definitions.get(&(id.clone(), version))
     }
 
-    pub fn len(&self) -> usize { self.definitions.len() }
+    pub fn len(&self) -> usize {
+        self.definitions.len()
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -81,10 +97,14 @@ pub struct ToolCall {
 impl ToolCall {
     pub fn validate(&self) -> Result<(), LlmError> {
         if self.call_id.trim().is_empty() {
-            return Err(LlmError::InvalidTool("tool call id must not be empty".to_owned()));
+            return Err(LlmError::InvalidTool(
+                "tool call id must not be empty".to_owned(),
+            ));
         }
         if !self.input.is_object() {
-            return Err(LlmError::InvalidTool("tool call input must be a JSON object".to_owned()));
+            return Err(LlmError::InvalidTool(
+                "tool call input must be a JSON object".to_owned(),
+            ));
         }
         Ok(())
     }
@@ -111,17 +131,23 @@ pub struct ToolExecution {
 impl ToolExecution {
     pub fn validate(&self) -> Result<(), LlmError> {
         if self.call_id.trim().is_empty() {
-            return Err(LlmError::InvalidTool("execution call id must not be empty".to_owned()));
+            return Err(LlmError::InvalidTool(
+                "execution call id must not be empty".to_owned(),
+            ));
         }
         match self.status {
-            ToolExecutionStatus::Succeeded if self.error.is_some() => {
-                Err(LlmError::InvalidTool("successful execution must not carry an error".to_owned()))
-            }
-            ToolExecutionStatus::Succeeded if self.output.is_none() => {
-                Err(LlmError::InvalidTool("successful execution must carry output".to_owned()))
-            }
-            ToolExecutionStatus::Rejected | ToolExecutionStatus::Failed if self.error.as_deref().unwrap_or("").trim().is_empty() => {
-                Err(LlmError::InvalidTool("non-success execution must carry an error".to_owned()))
+            ToolExecutionStatus::Succeeded if self.error.is_some() => Err(LlmError::InvalidTool(
+                "successful execution must not carry an error".to_owned(),
+            )),
+            ToolExecutionStatus::Succeeded if self.output.is_none() => Err(LlmError::InvalidTool(
+                "successful execution must carry output".to_owned(),
+            )),
+            ToolExecutionStatus::Rejected | ToolExecutionStatus::Failed
+                if self.error.as_deref().unwrap_or("").trim().is_empty() =>
+            {
+                Err(LlmError::InvalidTool(
+                    "non-success execution must carry an error".to_owned(),
+                ))
             }
             _ => Ok(()),
         }

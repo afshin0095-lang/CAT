@@ -1,4 +1,4 @@
-use crate::{EventEnvelope, EventBusError, EventBusResult};
+use crate::{EventBusError, EventBusResult, EventEnvelope};
 
 /// Serialization boundary. Transport adapters never need to know CAT's concrete event types.
 pub trait EventCodec: Send + Sync {
@@ -15,7 +15,8 @@ impl EventCodec for JsonEventCodec {
     }
 
     fn decode(&self, bytes: &[u8]) -> EventBusResult<EventEnvelope> {
-        serde_json::from_slice(bytes).map_err(|error| EventBusError::Serialization(error.to_string()))
+        serde_json::from_slice(bytes)
+            .map_err(|error| EventBusError::Serialization(error.to_string()))
     }
 }
 
@@ -44,7 +45,10 @@ impl InMemoryDeadLetterStore {
 
 impl DeadLetterStore for InMemoryDeadLetterStore {
     fn park(&mut self, event: EventEnvelope, reason: impl Into<String>) -> EventBusResult<()> {
-        self.entries.push(DeadLetter { event, reason: reason.into() });
+        self.entries.push(DeadLetter {
+            event,
+            reason: reason.into(),
+        });
         Ok(())
     }
 

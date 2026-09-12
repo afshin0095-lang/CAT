@@ -1,6 +1,4 @@
-use crate::{
-    DeliveryState, EventBusResult, EventBusMetricsSnapshot, InboxStore, MetricsInbox,
-};
+use crate::{DeliveryState, EventBusMetricsSnapshot, EventBusResult, InboxStore, MetricsInbox};
 
 /// A read-only health and delivery view over an inbox implementation.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -19,7 +17,9 @@ pub struct InboxDiagnostics<'a, S: InboxStore> {
 }
 
 impl<'a, S: InboxStore> InboxDiagnostics<'a, S> {
-    pub fn new(store: &'a S) -> Self { Self { store } }
+    pub fn new(store: &'a S) -> Self {
+        Self { store }
+    }
 
     pub fn inspect(&self, event_id: uuid::Uuid) -> InboxHealthSnapshot {
         let state = self.store.state(event_id);
@@ -44,7 +44,9 @@ pub struct MetricsInboxHealth<'a, S: InboxStore> {
 }
 
 impl<'a, S: InboxStore> MetricsInboxHealth<'a, S> {
-    pub fn new(inbox: &'a MetricsInbox<S>) -> Self { Self { inbox } }
+    pub fn new(inbox: &'a MetricsInbox<S>) -> Self {
+        Self { inbox }
+    }
 
     pub fn metrics(&self) -> EventBusMetricsSnapshot {
         self.inbox.metrics().snapshot()

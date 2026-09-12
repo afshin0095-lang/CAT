@@ -3,7 +3,7 @@ use cat_kernel::{
     KernelResult, SequenceNumber, TenantId,
 };
 
-use crate::{DecisionError, DecisionReplay, DecisionTrace, DecisionTraceStore, DecisionOutcome};
+use crate::{DecisionError, DecisionOutcome, DecisionReplay, DecisionTrace, DecisionTraceStore};
 
 /// Event-store backed persistence boundary for immutable decision traces.
 ///
