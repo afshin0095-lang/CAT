@@ -237,3 +237,70 @@ Both remaining routes are account-level actions for the repository owner.
 
 Left **OPEN** deliberately. It is an evidence/closure PR and must not be merged
 while verification is blocked.
+
+## 10. Main-landing analysis (branch-graph audit)
+
+**Sprint 0 is NOT on `main`.** PR #40 merged into
+`feat/affiliate-opportunity-lifecycle-p0`, not into `main`.
+
+| Item | Value |
+|---|---|
+| `main` HEAD | `cda7a28` |
+| Sprint 0 branch | `feat/affiliate-opportunity-lifecycle-p0` @ `201c105` |
+| merge-base | `cda7a28` — **identical to `main` HEAD** |
+| Commits ahead of `main` | **71** |
+| Commits behind `main` | **0** |
+| Fast-forward possible | **YES** — `main` is a strict ancestor, so no conflict is possible |
+| Diff `main..201c105` | 295 files changed, +19 131 / −2 022 |
+
+### PR chain topology (#34 → #40)
+
+| PR | State | Base | Head | Contained in `201c105`? |
+|---|---|---|---|---|
+| #34 | OPEN | `main` | `feat/affiliate-discovery-p0` @ `c3fd834` | yes |
+| #35 | **CLOSED** | `main` | `feat/affiliate-discovery-source-p0` @ `c57e621` | **no** — abandoned drafting branch |
+| #36 | OPEN | `feat/affiliate-discovery-p0` | `feat/affiliate-discovery-source-p0-chain` @ `9d32f1a` | yes |
+| #37 | OPEN | `feat/affiliate-discovery-source-p0` ⚠ | `feat/affiliate-network-discovery-adapter-p0` @ `6642a7c` | yes |
+| #38 | OPEN | `feat/affiliate-network-discovery-adapter-p0` | `feat/affiliate-opportunity-persistence-p0` @ `01e0a3a` | yes |
+| #39 | OPEN | `feat/affiliate-opportunity-persistence-p0` | **`feat/affiliate-opportunity-lifecycle-p0` @ `201c105`** | itself |
+| #40 | MERGED | `feat/affiliate-opportunity-lifecycle-p0` | `arena/01a08d17-cat` @ `fcdc654` | yes |
+
+### Irregularity — PR #37's base
+
+PR #37 declares its base as `feat/affiliate-discovery-source-p0`, the branch of
+the **closed** PR #35. Its head (`6642a7c`) does **not** descend from that
+branch — it descends from the `-chain` branch (verified: `9d32f1a` *is* an
+ancestor of `6642a7c`; `c57e621` is *not*). This is a base-configuration defect,
+not a content defect, but merging #37 as configured would merge it into an
+abandoned branch.
+
+### No content is lost
+
+The 7 commits unique to closed PR #35's branch are absent from `201c105` both
+by SHA and by patch-id (all marked `+` by `git cherry`), because PR #36
+deliberately re-created that work on top of #34. Content equivalence was
+verified directly: every identifier introduced by the three commits that had no
+subject match (`9070d13`, `cf7a6c8`, `c57e621`) is present on the Sprint 0
+branch — `DiscoveryCandidate`, `DiscoveryEngine`, `DiscoveryError`,
+`DiscoveryOpportunity`, `DiscoveryRequest`, `DiscoveryResult`,
+`normalize_key_part`, `validate_score` — and `discovery.rs` has grown from 175
+to 482 lines. The `-chain` branch is **100 % contained** in `201c105`
+(0 commits missing).
+
+### Required operation to land Sprint 0 on `main`
+
+**One operation: fast-forward `main` to `201c105`.**
+
+The PR carrying the complete implementation is **#39** — its head *is* the
+lifecycle branch. Retarget **PR #39's base from
+`feat/affiliate-opportunity-persistence-p0` to `main`** and merge it. Because
+`main` is 0 commits behind and 71 commits ahead, this is a pure fast-forward:
+it adds exactly 71 commits, **omits none and duplicates none**. Once it lands,
+#34, #36, #37 and #38 are redundant (their content is already inside `201c105`)
+and can be closed; #37's base defect then becomes moot.
+
+**Not performed.** This audit did not retarget or merge anything. Verification
+is still blocked (B1/B6), and landing implementation on `main` before CI
+evidence exists would be premature. **PR #51 must not be used as a
+substitute** — it is documentation/evidence only and contains no
+implementation.
