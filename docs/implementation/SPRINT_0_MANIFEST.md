@@ -175,3 +175,65 @@ verification is not authorised to do (and B6 blocks the latter outright).
 **Sprint 0 cannot be closed from this environment.** Steps 0–1 of §7 are
 account-level actions (granting the `workflows` scope; settling billing) that
 cannot be performed from the repository or the sandbox.
+
+## 9. Infrastructure-unblock pass (2026-09-12)
+
+Both blockers were re-tested from scratch rather than assumed. **Neither has
+changed.**
+
+### B1 — billing block: STILL ACTIVE
+
+| Item | Value |
+|---|---|
+| Run | `34660702949` |
+| Branch / HEAD | `feat/affiliate-opportunity-lifecycle-p0` @ `201c105` |
+| Created | 2026-09-12T00:10:03Z — five seconds after PR #40 merged (00:09:58Z) |
+| Conclusion | **failure** |
+| Jobs | `Workspace metadata` **failure**; `Check` / `Test` matrices **skipped** |
+| Annotation (verbatim) | *"The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings"* |
+| Re-checked | 2026-09-12T09:39Z — unchanged; still the newest run in the repository |
+
+**Every job is prevented from starting**: the metadata job never runs and both
+matrices are skipped as a consequence. This is not a workflow defect.
+
+### B6 — `workflows` permission: STILL DENIED
+
+Re-probed with an isolated throwaway branch so the closure branch was never at
+risk:
+
+```
+git checkout -b probe/workflow-permission f8405e4
+cp docs/ci/rust-workspace-hardened.yml .github/workflows/rust-workspace.yml
+git push origin probe/workflow-permission
+
+! [remote rejected] probe/workflow-permission -> probe/workflow-permission
+  (refusing to allow a GitHub App to create or update workflow
+   `.github/workflows/rust-workspace.yml` without `workflows` permission)
+```
+
+The scratch branch was deleted; it never existed on the remote. The committed
+workflow is untouched — blob `d0c7023e1a1e3b262b220c6613e85726c1d3b907` at
+`f8405e4`. The credential does have repository `contents: write` (the three
+documentation commits pushed cleanly), so it is specifically the `workflows`
+scope that is missing. No further push attempts were made and no bypass was
+attempted (no renaming, no relocation, no generated stand-ins).
+
+### Trigger design — no change required
+
+The prepared `docs/ci/rust-workspace-hardened.yml` already carries the required
+filters on both `push` and `pull_request`: `**/*.rs`, `**/Cargo.toml`,
+`**/Cargo.lock`, `.github/workflows/rust-workspace.yml`. Because the workflow
+path is itself in the filter, **applying the file would trigger a run** — the
+correct way to obtain a latest-HEAD run, and exactly what B6 prevents.
+
+### Why no run exists for the exact latest HEAD
+
+`f8405e4` changes documentation only, so the committed workflow's paths filter
+excludes it. Producing a run would require either modifying the workflow (B6,
+denied) or changing Rust/Cargo files purely to force a trigger (forbidden).
+Both remaining routes are account-level actions for the repository owner.
+
+### PR #51
+
+Left **OPEN** deliberately. It is an evidence/closure PR and must not be merged
+while verification is blocked.
