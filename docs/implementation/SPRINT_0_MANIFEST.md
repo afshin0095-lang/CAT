@@ -346,3 +346,47 @@ used anywhere (the repository tracks no root `Cargo.lock`).
 | Deterministic core; clock at explicit boundaries | compliant — injectable `SystemClock`/`FixedClock`/`FnClock` |
 | Immutable values, single mutable owner | compliant |
 | AI must not remove tests, weaken validators or invent APIs | compliant — nothing removed or weakened |
+
+## 12. Pre-existing workspace breakage (affects Sprint 0 closure)
+
+Evidence from run `34520559724` — the Sprint 0 chain base `6791ace`
+(`feat/affiliate-opportunity-lifecycle-p0`, 2026-09-10T19:27Z), one of the last
+runs in which jobs actually executed:
+
+| Job | Result at base `6791ace` |
+|---|---|
+| `Check cat-affiliate` | **success** |
+| `Test cat-affiliate` | **success** |
+| `Check cat-platform` | **failure** |
+| `Test cat-decision`, `cat-eventbus`, `cat-eventstore-postgres`, `cat-orchestrator`, `cat-planning`, `cat-platform`, `cat-reasoning` | **failure** (7) |
+| all other check/test jobs | success |
+
+Every failure annotation reads only "Process completed with exit code 101";
+compiler output is unobtainable (log host blocked; check-run `output` fields
+are empty).
+
+### Implications
+
+1. **Sprint 0's own crate was green at the chain base.** `Check`/`Test
+   cat-affiliate` passed at `6791ace`. They were red at `79e48b4` and
+   `73816b2`; commits `1691686`…`fcdc654` (the DDL split, the as-cast fix, the
+   rustfmt passes and the `tokio::test` conversion) have **never been
+   validated**. Whether `cat-affiliate` is green at `fcdc654` is unknown.
+2. **Seven crates fail independently of Sprint 0.** Those failures predate the
+   final Sprint 0 commits and also affect `main`, which has been red since
+   2026-09-07 (run `34166930807` @ `cda7a28`, single `check` job, exit 101).
+3. **They are not caused by the missing database.** DB-gated tests are
+   `#[ignore]`-gated on `CAT_TEST_DATABASE_URL` and skip when it is unset, so
+   they cannot produce these failures; six of the seven failing crates contain
+   no `DATABASE_URL` reference at all.
+4. **Consequence — a third blocker beyond B1 and B6.** Restoring billing and
+   applying the hardened workflow will *not* by itself make the full
+   15-package matrix green. Sprint 0 closure therefore requires one more
+   decision:
+   - **either** repair the pre-existing breakage in those 7 crates and
+     `Check cat-platform` — not diagnosable from here without compiler output,
+     and outside Sprint 0 scope;
+   - **or** explicitly scope the Sprint 0 acceptance gate to `cat-affiliate`
+     plus `fmt`/`metadata`/`clippy`/PostgreSQL, carrying the 7 pre-existing
+     failures as separately tracked debt. The second option is defensible:
+     those failures are demonstrably **not** Sprint 0 regressions.
