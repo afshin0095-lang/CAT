@@ -146,3 +146,31 @@ Verification-level (added this session):
 5. Record results here and in `.ai/PROJECT_STATUS.md`, then close Sprint 0.
 
 Steps 2–5 cannot be started from this sandbox.
+
+## 8. Verification-session record (2026-09-12)
+
+| Item | Value |
+|---|---|
+| Verification branch | `arena/01a094aa-cat` |
+| Sprint 0 implementation HEAD | `fcdc654` (PR #40, **MERGED** into `feat/affiliate-opportunity-lifecycle-p0`) |
+| Evidence commit | `70e9c46` — documentation only; no source or CI-behaviour change |
+| Closure PR | [#51](https://github.com/afshin0095-lang/CAT/pull/51) |
+| Unpushed commits | **none** |
+| GitHub Actions run on the latest HEAD | **none exists** |
+
+**Why no Actions run exists for the latest HEAD.** The committed workflow's
+`pull_request` trigger is filtered to
+`paths: ['**/*.rs', '**/Cargo.toml', '**/Cargo.lock', '.github/workflows/rust-workspace.yml']`
+and its `push` trigger fires only on `main`. PR #51 changes documentation only,
+so the workflow never runs for it — and any run would fail anyway (B1).
+Triggering it would require modifying Rust or workflow files, which this
+verification is not authorised to do (and B6 blocks the latter outright).
+
+**Newest run anywhere in the repository:** `34660702949`
+(`feat/affiliate-opportunity-lifecycle-p0` @ `201c105`, 2026-09-12T00:10Z) —
+**failure**, billing block (B1). The most recent run on Sprint 0 code is
+`34614021525` (head `fcdc654`) — **failure**, same cause.
+
+**Sprint 0 cannot be closed from this environment.** Steps 0–1 of §7 are
+account-level actions (granting the `workflows` scope; settling billing) that
+cannot be performed from the repository or the sandbox.
