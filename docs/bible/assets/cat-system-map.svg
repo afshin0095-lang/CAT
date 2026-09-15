@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+<title id="title">CAT OMNISYSTEM conceptual architecture map</title>
+<desc id="desc">A layered architecture diagram showing human control, intelligence, agents, durable execution, business capabilities, data, providers and observability.</desc>
+<style>
+.box{fill:#111827;stroke:#64748b;stroke-width:2;rx:18}.core{fill:#172554;stroke:#60a5fa;stroke-width:3}.text{fill:#f8fafc;font-family:Inter,Arial,sans-serif}.title{font-size:30px;font-weight:700}.label{font-size:20px;font-weight:600}.small{font-size:15px;fill:#cbd5e1}.line{stroke:#94a3b8;stroke-width:3;fill:none;marker-end:url(#arrow)}
+</style>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/></marker></defs>
+<rect width="1600" height="1000" fill="#020617"/>
+<text x="80" y="65" class="text title">CAT OMNISYSTEM — Conceptual Architecture</text>
+<text x="80" y="95" class="text small">Commerce AI Trinity • architecture map • implementation status must be verified against code and contracts</text>
+
+<rect x="80" y="140" width="1440" height="100" class="box"/>
+<text x="800" y="180" text-anchor="middle" class="text label">HUMAN CONTROL PLANE</text>
+<text x="800" y="212" text-anchor="middle" class="text small">Owner • approvals • policy • configuration • dashboards • audit</text>
+
+<rect x="80" y="290" width="1440" height="120" class="core"/>
+<text x="800" y="335" text-anchor="middle" class="text label">CAT BRAIN / INTELLIGENCE PLANE</text>
+<text x="800" y="367" text-anchor="middle" class="text small">Knowledge • memory • reasoning • decision • planning • model routing • evaluation</text>
+
+<rect x="80" y="460" width="430" height="160" class="box"/>
+<text x="295" y="505" text-anchor="middle" class="text label">AGENT OPERATING SYSTEM</text>
+<text x="295" y="540" text-anchor="middle" class="text small">Executive / supervisors</text>
+<text x="295" y="566" text-anchor="middle" class="text small">Specialists / workers</text>
+<text x="295" y="592" text-anchor="middle" class="text small">Capabilities / tools / budgets</text>
+
+<rect x="585" y="460" width="430" height="160" class="core"/>
+<text x="800" y="505" text-anchor="middle" class="text label">DURABLE EXECUTION</text>
+<text x="800" y="540" text-anchor="middle" class="text small">Workflow state • leases • fencing</text>
+<text x="800" y="566" text-anchor="middle" class="text small">Retries • reconciliation • outbox</text>
+<text x="800" y="592" text-anchor="middle" class="text small">Event-driven coordination</text>
+
+<rect x="1090" y="460" width="430" height="160" class="box"/>
+<text x="1305" y="505" text-anchor="middle" class="text label">EVENT / INTEGRATION PLANE</text>
+<text x="1305" y="540" text-anchor="middle" class="text small">Event bus • APIs • MCP</text>
+<text x="1305" y="566" text-anchor="middle" class="text small">Provider registries / adapters</text>
+<text x="1305" y="592" text-anchor="middle" class="text small">Inbound webhooks</text>
+
+<rect x="80" y="680" width="320" height="150" class="box"/><text x="240" y="725" text-anchor="middle" class="text label">AFFILIATE</text><text x="240" y="760" text-anchor="middle" class="text small">Discovery • offers • links</text><text x="240" y="786" text-anchor="middle" class="text small">Attribution • commission</text>
+<rect x="450" y="680" width="320" height="150" class="box"/><text x="610" y="725" text-anchor="middle" class="text label">CONTENT</text><text x="610" y="760" text-anchor="middle" class="text small">Research • writing • media</text><text x="610" y="786" text-anchor="middle" class="text small">QA • publishing • learning</text>
+<rect x="820" y="680" width="320" height="150" class="box"/><text x="980" y="725" text-anchor="middle" class="text label">ADVERTISING</text><text x="980" y="760" text-anchor="middle" class="text small">Campaigns • budgets</text><text x="980" y="786" text-anchor="middle" class="text small">Experiments • optimization</text>
+<rect x="1190" y="680" width="330" height="150" class="box"/><text x="1355" y="725" text-anchor="middle" class="text label">DATA / KNOWLEDGE</text><text x="1355" y="760" text-anchor="middle" class="text small">PostgreSQL • events</text><text x="1355" y="786" text-anchor="middle" class="text small">RAG • graph • analytics</text>
+
+<rect x="80" y="890" width="1440" height="60" class="box"/>
+<text x="800" y="927" text-anchor="middle" class="text small">External providers • affiliate networks • ad platforms • social channels • data sources • model providers</text>
+
+<path d="M800 240 V290" class="line"/><path d="M800 410 V460" class="line"/>
+<path d="M295 620 V680" class="line"/><path d="M800 620 V680" class="line"/><path d="M1305 620 V680" class="line"/>
+<path d="M240 830 V890" class="line"/><path d="M610 830 V890" class="line"/><path d="M980 830 V890" class="line"/><path d="M1355 830 V890" class="line"/>
+<path d="M510 540 H585" class="line"/><path d="M1015 540 H1090" class="line"/>
+</svg>
