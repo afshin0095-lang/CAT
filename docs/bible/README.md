@@ -77,23 +77,65 @@ CAT OMNISYSTEM BIBLE
 ├── 16 — Persistence & Reliability
 ├── 17 — Governance & Human-in-the-Loop
 ├── 18 — Roadmap & Evolution
-└── 19 — Appendices / Glossary / Research Index
+├── 19 — Agent SDK & Capability Protocol
+├── 20 — Multi-Agent Collaboration & Orchestration
+├── 21 — Tool, Connector & Provider Ecosystem
+├── 22 — Knowledge Graph, RAG & Memory System
+├── 23 — Affiliate Network & Merchant Operating Model
+├── 24 — Content Distribution & Growth Engine
+├── 25 — Decision, Planning & Autonomy Engine
+├── 26 — Observability, Evaluation & Operations
+├── 27 — Database & Domain Model
+├── 28 — Security, Privacy & Threat Model
+├── 29 — API, EventBus & Integration Contracts
+├── 30 — Revenue Attribution & Unit Economics
+├── 31 — Control Plane & Human Operations
+├── 32 — Glossary & Canonical Terminology
+├── 33 — Agent Capability Matrix
+├── 34 — Agent Lifecycle, Health & Operations
+├── 35 — Agent Triggers & Events Matrix
+├── 36 — Agent Evaluation, KPI & Quality Model
+├── 37 — Agent Prompt & Instruction Architecture
+├── 38 — Knowledge, Memory & Data Model
+├── 39 — Agent Contracts & Domain Specs
+├── 40 — Agent Security & Trust Boundaries
+├── 41 — Agent State Machine & Execution Model
+├── 42 — Agent Economics & Resource Governance
+├── 43 — CAT Agent SDK Reference Architecture
+├── 44 — CAT Agent Registry
+├── 45 — CAT Agent Specification Template
+├── 46 — CAT Agent Operating Model
+├── 47 — CAT Capability Registry
+├── 48 — CAT Tool Registry
+├── 49 — CAT Connector Registry
+├── 50 — CAT Provider Registry
+├── 51 — CAT Capability Dependency Matrix
+├── 52 — CAT Capability Lifecycle & Versioning
+├── 53 — CAT Tool Security & Execution Boundary
+└── 54 — CAT Provider Selection & Failover
 ```
 
-### Current chapter files
+### Capability ecosystem
 
-- `00–04`: foundational identity, architecture, agents, capability map, knowledge/memory.
-- `05`: affiliate discovery, offers, tracking, attribution, provider independence, economics.
-- `06`: evidence-backed content and multimedia production pipeline.
-- `07`: paid acquisition, campaigns, budgets, experimentation, optimization.
-- `08`: data planes, lineage, identity, persistence, analytics and lifecycle.
-- `09`: security zones, authorization, agent permissions, secrets, prompt security and audit.
-- `10`: infrastructure topology, scaling, CI/CD, reliability, observability and cost engineering.
-- `11`: APIs, events, connectors, MCP/tool boundaries and integration testing.
-- `12`: autonomy levels, evaluation, simulation and governed self-improvement.
-- `13`: executive, research, affiliate, content, advertising and platform agent taxonomy.
-- `14`: revenue model, attribution economics, treasury boundaries and spend controls.
-- `15`: operator control plane, approvals, dashboards, agent observability and UX principles.
+The canonical runtime relationship is:
+
+```text
+AGENT
+  ↓ invokes
+CAPABILITY
+  ↓ implemented by
+DOMAIN SERVICE
+  ↓ may use
+TOOL
+  ↓ accessed through
+CONNECTOR
+  ↓ supplied by
+PROVIDER
+  ↓ reaches
+EXTERNAL SYSTEM
+```
+
+The capability/tool/provider chapters define this boundary explicitly and preserve provider independence as a first-class architectural invariant.
 
 ---
 
