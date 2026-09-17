@@ -16,6 +16,7 @@ members = [
     "core/rag/rust",
     "core/affiliate/rust",
     "core/content/rust",
+    "core/prompt/rust",
 ]
 
 [workspace.package]
