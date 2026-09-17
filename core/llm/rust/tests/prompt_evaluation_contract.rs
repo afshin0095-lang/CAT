@@ -21,7 +21,10 @@ async fn prompt_registry_and_evaluation_boundary_preserve_versioned_provenance()
     let prompt = registry
         .get(&PromptId::new("cat.integration.answer"), PromptVersion(1))
         .unwrap()
-        .render(&BTreeMap::from([("question".to_owned(), "What is CAT?".to_owned())]))
+        .render(&BTreeMap::from([(
+            "question".to_owned(),
+            "What is CAT?".to_owned(),
+        )]))
         .unwrap();
 
     let evaluation = NonEmptyOutputEvaluator

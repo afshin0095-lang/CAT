@@ -1,4 +1,7 @@
-use cat_knowledge::{validate_edge, validate_node, EvidenceRef, KnowledgeEdge, KnowledgeGraph, KnowledgeNode, KnowledgeStoreError, KnowledgeViolation};
+use cat_knowledge::{
+    EvidenceRef, KnowledgeEdge, KnowledgeGraph, KnowledgeNode, KnowledgeStoreError,
+    KnowledgeViolation, validate_edge, validate_node,
+};
 use serde_json::json;
 
 fn evidence() -> Vec<EvidenceRef> {
@@ -12,8 +15,12 @@ fn evidence() -> Vec<EvidenceRef> {
 #[test]
 fn canonical_identity_is_deduplicated() {
     let mut graph = KnowledgeGraph::default();
-    let a = graph.insert_node(KnowledgeNode::new("merchant", "acme").with_evidence(evidence())).unwrap();
-    let b = graph.insert_node(KnowledgeNode::new("merchant", "acme").with_evidence(evidence())).unwrap();
+    let a = graph
+        .insert_node(KnowledgeNode::new("merchant", "acme").with_evidence(evidence()))
+        .unwrap();
+    let b = graph
+        .insert_node(KnowledgeNode::new("merchant", "acme").with_evidence(evidence()))
+        .unwrap();
 
     assert_eq!(a, b);
     assert_eq!(graph.node_count(), 1);
@@ -22,7 +29,9 @@ fn canonical_identity_is_deduplicated() {
 #[test]
 fn edges_require_existing_endpoints() {
     let mut graph = KnowledgeGraph::default();
-    let a = graph.insert_node(KnowledgeNode::new("merchant", "acme").with_evidence(evidence())).unwrap();
+    let a = graph
+        .insert_node(KnowledgeNode::new("merchant", "acme").with_evidence(evidence()))
+        .unwrap();
     let missing = KnowledgeNode::new("product", "missing").id;
     let edge = KnowledgeEdge::new(a, "offers", missing).with_evidence(evidence());
 
@@ -32,11 +41,25 @@ fn edges_require_existing_endpoints() {
 #[test]
 fn traversal_is_derived_and_relation_scoped() {
     let mut graph = KnowledgeGraph::default();
-    let a = graph.insert_node(KnowledgeNode::new("merchant", "acme").with_evidence(evidence())).unwrap();
-    let b = graph.insert_node(KnowledgeNode::new("product", "phone").with_attributes(json!({"sku":"P1"})).with_evidence(evidence())).unwrap();
-    let c = graph.insert_node(KnowledgeNode::new("category", "electronics").with_evidence(evidence())).unwrap();
-    graph.insert_edge(KnowledgeEdge::new(a, "offers", b).with_evidence(evidence())).unwrap();
-    graph.insert_edge(KnowledgeEdge::new(b, "member_of", c).with_evidence(evidence())).unwrap();
+    let a = graph
+        .insert_node(KnowledgeNode::new("merchant", "acme").with_evidence(evidence()))
+        .unwrap();
+    let b = graph
+        .insert_node(
+            KnowledgeNode::new("product", "phone")
+                .with_attributes(json!({"sku":"P1"}))
+                .with_evidence(evidence()),
+        )
+        .unwrap();
+    let c = graph
+        .insert_node(KnowledgeNode::new("category", "electronics").with_evidence(evidence()))
+        .unwrap();
+    graph
+        .insert_edge(KnowledgeEdge::new(a, "offers", b).with_evidence(evidence()))
+        .unwrap();
+    graph
+        .insert_edge(KnowledgeEdge::new(b, "member_of", c).with_evidence(evidence()))
+        .unwrap();
 
     let result = graph.traverse(a, 2, None);
     assert_eq!(result.depth(c), Some(2));
@@ -83,8 +106,12 @@ fn node_id_collision_is_rejected_without_overwriting_existing_state() {
 #[test]
 fn edge_id_collision_is_rejected_without_replacing_existing_edge() {
     let mut graph = KnowledgeGraph::default();
-    let a = graph.insert_node(KnowledgeNode::new("merchant", "acme").with_evidence(evidence())).unwrap();
-    let b = graph.insert_node(KnowledgeNode::new("product", "phone").with_evidence(evidence())).unwrap();
+    let a = graph
+        .insert_node(KnowledgeNode::new("merchant", "acme").with_evidence(evidence()))
+        .unwrap();
+    let b = graph
+        .insert_node(KnowledgeNode::new("product", "phone").with_evidence(evidence()))
+        .unwrap();
     let first = KnowledgeEdge::new(a, "offers", b).with_evidence(evidence());
     let edge_id = first.id;
     graph.insert_edge(first).unwrap();

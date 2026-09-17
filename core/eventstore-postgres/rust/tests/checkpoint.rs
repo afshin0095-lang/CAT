@@ -91,7 +91,10 @@ async fn checkpoint_store_is_monotonic_and_idempotent() {
         EventId::new(),
         ProjectionPhase::Catchup,
     );
-    store.save(&stale).await.expect("stale write must be ignored");
+    store
+        .save(&stale)
+        .await
+        .expect("stale write must be ignored");
 
     let loaded = store
         .load(&projection_id, stream_id)

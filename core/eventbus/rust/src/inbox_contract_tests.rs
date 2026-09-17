@@ -3,8 +3,8 @@ mod tests {
     use std::sync::Arc;
 
     use crate::{
-        AsyncInboxStore, AsyncInMemoryInbox, DeliveryState, EventBusMetrics, InboxDiagnostics,
-        InboxStore, InMemoryInbox, MetricsAsyncInbox, MetricsInbox,
+        AsyncInMemoryInbox, AsyncInboxStore, DeliveryState, EventBusMetrics, InMemoryInbox,
+        InboxDiagnostics, InboxStore, MetricsAsyncInbox, MetricsInbox,
     };
 
     #[tokio::test]

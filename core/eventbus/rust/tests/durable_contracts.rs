@@ -2,8 +2,8 @@ use std::time::Duration;
 
 use cat_eventbus::{
     Compatibility, DeadLetterStore, EventCodec, EventContract, EventEnvelope, EventKind,
-    EventRegistry, IdempotencyStore, InboxStore, InMemoryDeadLetterStore, InMemoryIdempotency,
-    InMemoryInbox, InMemoryOutbox, JsonEventCodec, OutboxStore, RetryPolicy,
+    EventRegistry, IdempotencyStore, InMemoryDeadLetterStore, InMemoryIdempotency, InMemoryInbox,
+    InMemoryOutbox, InboxStore, JsonEventCodec, OutboxStore, RetryPolicy,
 };
 use serde_json::json;
 use uuid::Uuid;

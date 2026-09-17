@@ -10,10 +10,14 @@ pub struct PostgresAsyncInbox {
 
 impl PostgresAsyncInbox {
     pub fn new(pool: PgPool, consumer_name: impl Into<String>) -> Self {
-        Self { inner: PostgresInbox::new(pool, consumer_name) }
+        Self {
+            inner: PostgresInbox::new(pool, consumer_name),
+        }
     }
 
-    pub fn inner(&self) -> &PostgresInbox { &self.inner }
+    pub fn inner(&self) -> &PostgresInbox {
+        &self.inner
+    }
 }
 
 #[async_trait::async_trait]

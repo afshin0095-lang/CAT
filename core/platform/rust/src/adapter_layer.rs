@@ -1,11 +1,11 @@
 use serde::Deserialize;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use uuid::Uuid;
 
 use crate::{
-    ConcreteCoreRuntime, CoreCommand, IntegrationTarget, PlatformError,
-    PlatformResult, ProviderAdapterRegistry, ProviderId, RemainingCoreRuntime,
-    TypedCoreCommand, TypedCoreResponse, WorkflowRuntime,
+    ConcreteCoreRuntime, CoreCommand, IntegrationTarget, PlatformError, PlatformResult,
+    ProviderAdapterRegistry, ProviderId, RemainingCoreRuntime, TypedCoreCommand, TypedCoreResponse,
+    WorkflowRuntime,
 };
 
 /// Concrete platform adapter layer.
@@ -22,7 +22,9 @@ pub struct PlatformAdapterLayer {
 }
 
 impl PlatformAdapterLayer {
-    pub fn new() -> Self { Self::default() }
+    pub fn new() -> Self {
+        Self::default()
+    }
 
     pub fn execute(&mut self, command: TypedCoreCommand) -> PlatformResult<TypedCoreResponse> {
         match command.target() {
@@ -49,8 +51,12 @@ impl PlatformAdapterLayer {
         self.providers.execute(provider, request)
     }
 
-    pub fn providers(&self) -> &ProviderAdapterRegistry { &self.providers }
-    pub fn providers_mut(&mut self) -> &mut ProviderAdapterRegistry { &mut self.providers }
+    pub fn providers(&self) -> &ProviderAdapterRegistry {
+        &self.providers
+    }
+    pub fn providers_mut(&mut self) -> &mut ProviderAdapterRegistry {
+        &mut self.providers
+    }
 
     fn execute_workflow(&mut self, command: TypedCoreCommand) -> PlatformResult<TypedCoreResponse> {
         let target = command.target();
@@ -68,8 +74,9 @@ impl PlatformAdapterLayer {
                     core.context.request_id,
                     target,
                     "validate_plan",
-                    serde_json::to_value(receipt)
-                        .map_err(|error| invalid(format!("receipt serialization failed: {error}")))?,
+                    serde_json::to_value(receipt).map_err(|error| {
+                        invalid(format!("receipt serialization failed: {error}"))
+                    })?,
                 ))
             }
             (IntegrationTarget::Orchestrator, "schedule") => {
@@ -111,7 +118,9 @@ impl PlatformAdapterLayer {
         }
     }
 
-    pub fn queue_depth(&self) -> usize { self.workflow.queue_depth() }
+    pub fn queue_depth(&self) -> usize {
+        self.workflow.queue_depth()
+    }
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -222,17 +231,23 @@ mod tests {
             IntegrationContext::new("adapter-test"),
             json!({}),
         ));
-        assert!(matches!(layer.execute(command), Err(PlatformError::InvalidCommand(_))));
+        assert!(matches!(
+            layer.execute(command),
+            Err(PlatformError::InvalidCommand(_))
+        ));
     }
 
     #[test]
     fn external_provider_is_checked_before_execution() {
         let mut layer = PlatformAdapterLayer::new();
-        let adapter = Arc::new(crate::DeterministicProviderAdapter::new(
-            "local-llm",
-            IntegrationTarget::Llm,
-            ["generate"],
-        ).unwrap());
+        let adapter = Arc::new(
+            crate::DeterministicProviderAdapter::new(
+                "local-llm",
+                IntegrationTarget::Llm,
+                ["generate"],
+            )
+            .unwrap(),
+        );
         layer.providers_mut().register(adapter).unwrap();
 
         let command = IntegrationCommand::new(

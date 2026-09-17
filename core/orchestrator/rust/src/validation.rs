@@ -222,10 +222,7 @@ mod tests {
             steps: vec![step("a", &[]), step("b", &[]), step("c", &["a"])],
         };
 
-        assert_eq!(
-            topological_order(&definition).unwrap(),
-            vec!["a", "b", "c"]
-        );
+        assert_eq!(topological_order(&definition).unwrap(), vec!["a", "b", "c"]);
     }
 
     #[test]

@@ -1,5 +1,8 @@
 use cat_eventstore_postgres::{PostgresEventStore, PostgresEventStoreError};
-use cat_kernel::{CorrelationId, EntityId, EventEnvelope, ExpectedVersion, IdempotencyKey, SequenceNumber, TenantId, TimestampMs};
+use cat_kernel::{
+    CorrelationId, EntityId, EventEnvelope, ExpectedVersion, IdempotencyKey, SequenceNumber,
+    TenantId, TimestampMs,
+};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -8,7 +11,11 @@ struct TestPayload {
     value: String,
 }
 
-fn envelope(sequence: u64, tenant: TenantId, correlation: CorrelationId) -> EventEnvelope<TestPayload> {
+fn envelope(
+    sequence: u64,
+    tenant: TenantId,
+    correlation: CorrelationId,
+) -> EventEnvelope<TestPayload> {
     EventEnvelope::new(
         "test.event",
         1,
@@ -18,7 +25,9 @@ fn envelope(sequence: u64, tenant: TenantId, correlation: CorrelationId) -> Even
         EntityId::new(),
         TimestampMs::new(sequence),
         SequenceNumber::new(sequence),
-        TestPayload { value: format!("value-{sequence}") },
+        TestPayload {
+            value: format!("value-{sequence}"),
+        },
     )
     .expect("test envelope must be valid")
 }
@@ -38,7 +47,7 @@ async fn append_is_idempotent_and_stream_order_is_preserved() {
     let correlation = CorrelationId::new();
 
     let first = envelope(1, tenant, correlation);
-    let key = IdempotencyKey::new(format!("contract-test-{stream}" )).unwrap();
+    let key = IdempotencyKey::new(format!("contract-test-{stream}")).unwrap();
     let first_receipt = store
         .append(stream, ExpectedVersion::Empty, &key, &first)
         .await
@@ -57,7 +66,12 @@ async fn append_is_idempotent_and_stream_order_is_preserved() {
     let second = envelope(2, tenant, correlation);
     let second_key = IdempotencyKey::new(format!("contract-test-{stream}-2")).unwrap();
     store
-        .append(stream, ExpectedVersion::Exact(SequenceNumber::new(1)), &second_key, &second)
+        .append(
+            stream,
+            ExpectedVersion::Exact(SequenceNumber::new(1)),
+            &second_key,
+            &second,
+        )
         .await
         .unwrap();
 
@@ -70,25 +84,46 @@ async fn append_is_idempotent_and_stream_order_is_preserved() {
 
 #[tokio::test]
 async fn optimistic_concurrency_and_sequence_contracts_are_enforced() {
-    let Some(store) = store().await else { return; };
+    let Some(store) = store().await else {
+        return;
+    };
     let stream = Uuid::now_v7();
     let tenant = TenantId::new();
     let correlation = CorrelationId::new();
     let first = envelope(1, tenant, correlation);
     let key = IdempotencyKey::new(format!("contract-test-{stream}-1")).unwrap();
-    store.append(stream, ExpectedVersion::Empty, &key, &first).await.unwrap();
+    store
+        .append(stream, ExpectedVersion::Empty, &key, &first)
+        .await
+        .unwrap();
 
     let wrong_version = envelope(2, tenant, correlation);
     let wrong_key = IdempotencyKey::new(format!("contract-test-{stream}-wrong-version")).unwrap();
     assert!(matches!(
-        store.append(stream, ExpectedVersion::Empty, &wrong_key, &wrong_version).await,
-        Err(PostgresEventStoreError::ConcurrencyConflict { expected: 0, actual: 1 })
+        store
+            .append(stream, ExpectedVersion::Empty, &wrong_key, &wrong_version)
+            .await,
+        Err(PostgresEventStoreError::ConcurrencyConflict {
+            expected: 0,
+            actual: 1
+        })
     ));
 
     let wrong_sequence = envelope(3, tenant, correlation);
-    let sequence_key = IdempotencyKey::new(format!("contract-test-{stream}-wrong-sequence")).unwrap();
+    let sequence_key =
+        IdempotencyKey::new(format!("contract-test-{stream}-wrong-sequence")).unwrap();
     assert!(matches!(
-        store.append(stream, ExpectedVersion::Exact(SequenceNumber::new(1)), &sequence_key, &wrong_sequence).await,
-        Err(PostgresEventStoreError::SequenceConflict { expected: 2, actual: 3 })
+        store
+            .append(
+                stream,
+                ExpectedVersion::Exact(SequenceNumber::new(1)),
+                &sequence_key,
+                &wrong_sequence
+            )
+            .await,
+        Err(PostgresEventStoreError::SequenceConflict {
+            expected: 2,
+            actual: 3
+        })
     ));
 }

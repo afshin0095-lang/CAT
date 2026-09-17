@@ -21,10 +21,7 @@ impl DecisionTraceEventPublisher {
         Self { bus }
     }
 
-    pub fn publish_committed(
-        &self,
-        envelope: EventEnvelope,
-    ) -> EventBusResult<PublishOutcome> {
+    pub fn publish_committed(&self, envelope: EventEnvelope) -> EventBusResult<PublishOutcome> {
         if envelope.event_type != "cat.decision.trace.recorded" {
             return Err(EventBusError::InvalidConfiguration(
                 "decision trace publisher accepts only cat.decision.trace.recorded events".into(),
@@ -60,9 +57,11 @@ mod tests {
     #[test]
     fn rejects_non_trace_event_types() {
         let publisher = DecisionTraceEventPublisher::new(Arc::new(EventBus::new()));
-        assert!(publisher
-            .publish_committed(envelope("cat.decision.executed"))
-            .is_err());
+        assert!(
+            publisher
+                .publish_committed(envelope("cat.decision.executed"))
+                .is_err()
+        );
     }
 
     #[test]

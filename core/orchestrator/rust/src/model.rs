@@ -59,6 +59,11 @@ pub struct WorkflowInstance {
 
 impl WorkflowInstance {
     pub fn new(definition: WorkflowDefinition) -> Self {
-        Self { id: Uuid::now_v7(), definition, state: WorkflowState::Pending, revision: 0 }
+        Self {
+            id: Uuid::now_v7(),
+            definition,
+            state: WorkflowState::Pending,
+            revision: 0,
+        }
     }
 }

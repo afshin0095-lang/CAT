@@ -1,4 +1,4 @@
-use crate::{DeliveryState, EventEnvelope, EventBusResult, RetryPolicy};
+use crate::{DeliveryState, EventBusResult, EventEnvelope, RetryPolicy};
 use async_trait::async_trait;
 
 /// Asynchronous outbox boundary for durable transactional publication.

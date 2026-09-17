@@ -8,11 +8,17 @@ pub struct InMemoryIndex {
 }
 
 impl InMemoryIndex {
-    pub fn len(&self) -> usize { self.chunks.len() }
-    pub fn is_empty(&self) -> bool { self.chunks.is_empty() }
+    pub fn len(&self) -> usize {
+        self.chunks.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.chunks.is_empty()
+    }
 
     fn cosine(left: &[f32], right: &[f32]) -> Option<f32> {
-        if left.len() != right.len() || left.is_empty() { return None; }
+        if left.len() != right.len() || left.is_empty() {
+            return None;
+        }
         let mut dot = 0.0;
         let mut left_norm = 0.0;
         let mut right_norm = 0.0;
@@ -21,7 +27,9 @@ impl InMemoryIndex {
             left_norm += a * a;
             right_norm += b * b;
         }
-        if left_norm == 0.0 || right_norm == 0.0 { return None; }
+        if left_norm == 0.0 || right_norm == 0.0 {
+            return None;
+        }
         Some(dot / (left_norm.sqrt() * right_norm.sqrt()))
     }
 }
@@ -45,17 +53,28 @@ impl DocumentIndex for InMemoryIndex {
 
 impl Retriever for InMemoryIndex {
     fn retrieve(&self, query: &RetrievalQuery) -> Result<Vec<RetrievalHit>, RagError> {
-        if query.limit == 0 { return Err(RagError::InvalidLimit); }
+        if query.limit == 0 {
+            return Err(RagError::InvalidLimit);
+        }
         let embedding = query.embedding.as_ref().ok_or(RagError::MissingEmbedding)?;
         embedding.validate().map_err(RagError::InvalidEmbedding)?;
 
         let mut hits = Vec::new();
         for chunk in &self.chunks {
-            if chunk.tenant_id != query.tenant_id { continue; }
-            let Some(chunk_embedding) = chunk.embedding.as_ref() else { continue; };
-            let Some(score) = Self::cosine(&embedding.values, &chunk_embedding.values) else { continue; };
+            if chunk.tenant_id != query.tenant_id {
+                continue;
+            }
+            let Some(chunk_embedding) = chunk.embedding.as_ref() else {
+                continue;
+            };
+            let Some(score) = Self::cosine(&embedding.values, &chunk_embedding.values) else {
+                continue;
+            };
             if query.min_score.map(|min| score >= min).unwrap_or(true) {
-                hits.push(RetrievalHit { chunk: chunk.clone(), score });
+                hits.push(RetrievalHit {
+                    chunk: chunk.clone(),
+                    score,
+                });
             }
         }
         hits.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(Ordering::Equal));
@@ -113,6 +132,9 @@ mod tests {
         first.text = "updated".into();
         index.upsert(first).unwrap();
         assert_eq!(index.len(), 1);
-        assert_eq!(index.chunks.iter().find(|item| item.id == id).unwrap().text, "updated");
+        assert_eq!(
+            index.chunks.iter().find(|item| item.id == id).unwrap().text,
+            "updated"
+        );
     }
 }

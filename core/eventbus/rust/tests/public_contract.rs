@@ -8,7 +8,9 @@ use std::time::Duration;
 use uuid::Uuid;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-struct TestEvent { value: String }
+struct TestEvent {
+    value: String,
+}
 
 impl CatEvent for TestEvent {
     const TYPE: &'static str = "test.contract.event";
@@ -16,17 +18,23 @@ impl CatEvent for TestEvent {
 }
 
 fn envelope(id: Uuid) -> EventEnvelope {
-    TestEvent { value: "hello".into() }
-        .into_envelope("public-contract-test")
-        .unwrap()
-        .with_correlation_id(id)
-        .with_causation_id(id)
-        .with_subject_id(cat_kernel::EntityId::new())
+    TestEvent {
+        value: "hello".into(),
+    }
+    .into_envelope("public-contract-test")
+    .unwrap()
+    .with_correlation_id(id)
+    .with_causation_id(id)
+    .with_subject_id(cat_kernel::EntityId::new())
 }
 
 #[test]
 fn typed_event_conversion_preserves_contract_metadata() {
-    let envelope = TestEvent { value: "hello".into() }.into_envelope("producer").unwrap();
+    let envelope = TestEvent {
+        value: "hello".into(),
+    }
+    .into_envelope("producer")
+    .unwrap();
     assert_eq!(envelope.event_type, TestEvent::TYPE);
     assert_eq!(envelope.version, TestEvent::VERSION);
     assert_eq!(envelope.kind, EventKind::Domain);
@@ -47,21 +55,39 @@ fn correlation_causation_and_subject_are_transport_independent() {
 fn registry_requires_exact_contract_version() {
     let bus = EventBus::new();
     let mut registry = EventRegistry::default();
-    registry.register(EventContract::new(
-        TestEvent::TYPE, 1, "schema.test.contract.event.v1", Compatibility::Full,
-    )).unwrap();
-    assert_eq!(bus.publish_registered(envelope(Uuid::now_v7()), &registry).unwrap(), PublishOutcome::Published { handlers_called: 0 });
+    registry
+        .register(EventContract::new(
+            TestEvent::TYPE,
+            1,
+            "schema.test.contract.event.v1",
+            Compatibility::Full,
+        ))
+        .unwrap();
+    assert_eq!(
+        bus.publish_registered(envelope(Uuid::now_v7()), &registry)
+            .unwrap(),
+        PublishOutcome::Published { handlers_called: 0 }
+    );
     let mut wrong_version = envelope(Uuid::now_v7());
     wrong_version.version = 2;
-    assert!(matches!(bus.publish_registered(wrong_version, &registry), Err(EventBusError::UnknownContract { .. })));
+    assert!(matches!(
+        bus.publish_registered(wrong_version, &registry),
+        Err(EventBusError::UnknownContract { .. })
+    ));
 }
 
 #[test]
 fn duplicate_publication_is_suppressed_after_success() {
     let bus = EventBus::new();
     let event = envelope(Uuid::now_v7());
-    assert_eq!(bus.publish(event.clone()).unwrap(), PublishOutcome::Published { handlers_called: 0 });
-    assert_eq!(bus.publish(event).unwrap(), PublishOutcome::DuplicateSuppressed);
+    assert_eq!(
+        bus.publish(event.clone()).unwrap(),
+        PublishOutcome::Published { handlers_called: 0 }
+    );
+    assert_eq!(
+        bus.publish(event).unwrap(),
+        PublishOutcome::DuplicateSuppressed
+    );
 }
 
 #[test]
@@ -96,8 +122,14 @@ fn outbox_enqueue_next_acknowledge_and_bounded_retry_are_public_contracts() {
     outbox.enqueue(event).unwrap();
     assert_eq!(outbox.len(), 1);
     assert_eq!(outbox.next().unwrap().unwrap().event_id, id);
-    assert_eq!(outbox.fail(id, 1, &policy).unwrap(), DeliveryState::RetryScheduled);
-    assert_eq!(outbox.fail(id, 3, &policy).unwrap(), DeliveryState::DeadLettered);
+    assert_eq!(
+        outbox.fail(id, 1, &policy).unwrap(),
+        DeliveryState::RetryScheduled
+    );
+    assert_eq!(
+        outbox.fail(id, 3, &policy).unwrap(),
+        DeliveryState::DeadLettered
+    );
     outbox.acknowledge(id).unwrap();
 }
 

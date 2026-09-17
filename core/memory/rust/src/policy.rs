@@ -29,7 +29,11 @@ impl Default for MemoryPolicy {
 }
 
 impl MemoryPolicy {
-    pub fn authorize(&self, object: &MemoryObject, operation: MemoryOperation) -> Result<(), MemoryValidationError> {
+    pub fn authorize(
+        &self,
+        object: &MemoryObject,
+        operation: MemoryOperation,
+    ) -> Result<(), MemoryValidationError> {
         if object.classification == Classification::Secret && !self.allow_secret {
             return Err(MemoryValidationError::ConsentRequired);
         }

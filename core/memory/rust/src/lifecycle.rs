@@ -1,7 +1,10 @@
 use crate::LifecycleState;
 
 /// Validate a memory lifecycle transition before it is persisted.
-pub fn validate_transition(from: LifecycleState, to: LifecycleState) -> Result<(), LifecycleTransitionError> {
+pub fn validate_transition(
+    from: LifecycleState,
+    to: LifecycleState,
+) -> Result<(), LifecycleTransitionError> {
     use LifecycleState::*;
     let allowed = matches!(
         (from, to),
@@ -15,7 +18,11 @@ pub fn validate_transition(from: LifecycleState, to: LifecycleState) -> Result<(
             | (Superseded, Revoked)
             | (Retained, Revoked)
     );
-    if allowed { Ok(()) } else { Err(LifecycleTransitionError { from, to }) }
+    if allowed {
+        Ok(())
+    } else {
+        Err(LifecycleTransitionError { from, to })
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, thiserror::Error)]

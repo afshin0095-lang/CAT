@@ -6,11 +6,24 @@ pub struct ContentId(pub Uuid);
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum ContentKind { Article, ProductDescription, LandingPage, Email, Social, AgentBrief }
+pub enum ContentKind {
+    Article,
+    ProductDescription,
+    LandingPage,
+    Email,
+    Social,
+    AgentBrief,
+}
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum ContentStatus { Draft, Review, Approved, Published, Archived }
+pub enum ContentStatus {
+    Draft,
+    Review,
+    Approved,
+    Published,
+    Archived,
+}
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ContentVersion {
@@ -37,7 +50,10 @@ impl ContentRecord {
             title,
             body,
             status: ContentStatus::Draft,
-            version: ContentVersion { version, source_version: None },
+            version: ContentVersion {
+                version,
+                source_version: None,
+            },
             canonical: true,
         }
     }

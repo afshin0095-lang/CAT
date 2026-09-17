@@ -1,4 +1,6 @@
-use cat_llm::{collect_stream, DeterministicProvider, GenerationRequest, LlmProvider, Message, ModelId};
+use cat_llm::{
+    DeterministicProvider, GenerationRequest, LlmProvider, Message, ModelId, collect_stream,
+};
 
 #[tokio::test]
 async fn deterministic_provider_emits_non_empty_delta_chunks_and_one_terminal_chunk() {
@@ -17,9 +19,19 @@ async fn deterministic_provider_emits_non_empty_delta_chunks_and_one_terminal_ch
 
     assert!(!chunks.is_empty());
     assert!(chunks.iter().all(|chunk| !chunk.delta.is_empty()));
-    assert_eq!(chunks.iter().filter(|chunk| chunk.finish_reason.is_some()).count(), 1);
+    assert_eq!(
+        chunks
+            .iter()
+            .filter(|chunk| chunk.finish_reason.is_some())
+            .count(),
+        1
+    );
     assert!(chunks.last().unwrap().usage.is_some());
-    assert!(chunks.iter().all(|chunk| chunk.request_id == request.request_id));
+    assert!(
+        chunks
+            .iter()
+            .all(|chunk| chunk.request_id == request.request_id)
+    );
 }
 
 #[tokio::test]

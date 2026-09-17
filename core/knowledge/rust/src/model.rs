@@ -6,25 +6,39 @@ use uuid::Uuid;
 pub struct KnowledgeNodeId(Uuid);
 
 impl KnowledgeNodeId {
-    pub fn new() -> Self { Self(Uuid::now_v7()) }
-    pub fn from_uuid(id: Uuid) -> Self { Self(id) }
-    pub fn as_uuid(&self) -> Uuid { self.0 }
+    pub fn new() -> Self {
+        Self(Uuid::now_v7())
+    }
+    pub fn from_uuid(id: Uuid) -> Self {
+        Self(id)
+    }
+    pub fn as_uuid(&self) -> Uuid {
+        self.0
+    }
 }
 
 impl Default for KnowledgeNodeId {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct KnowledgeEdgeId(Uuid);
 
 impl KnowledgeEdgeId {
-    pub fn new() -> Self { Self(Uuid::now_v7()) }
-    pub fn as_uuid(&self) -> Uuid { self.0 }
+    pub fn new() -> Self {
+        Self(Uuid::now_v7())
+    }
+    pub fn as_uuid(&self) -> Uuid {
+        self.0
+    }
 }
 
 impl Default for KnowledgeEdgeId {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]

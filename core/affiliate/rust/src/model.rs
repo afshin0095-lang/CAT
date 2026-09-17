@@ -8,7 +8,9 @@ pub struct AffiliateId(pub Uuid);
 pub struct MerchantId(pub Uuid);
 
 impl MerchantId {
-    pub const fn nil() -> Self { Self(Uuid::nil()) }
+    pub const fn nil() -> Self {
+        Self(Uuid::nil())
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
@@ -37,7 +39,10 @@ pub struct VersionedName {
 
 impl VersionedName {
     pub fn new(value: impl Into<String>, version: u32) -> Self {
-        Self { value: value.into(), version }
+        Self {
+            value: value.into(),
+            version,
+        }
     }
 }
 

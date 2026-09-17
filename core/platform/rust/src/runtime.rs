@@ -2,7 +2,7 @@ use cat_decision::{DecisionError, DecisionOutcome, DecisionRequest, Deterministi
 use cat_orchestrator::{ScheduleRequest, Scheduler};
 use cat_planning::{Plan, PlanValidationReport, validate_plan};
 
-use crate::{IntegrationCommand, PlatformError, PlatformResult, PlatformHealthSnapshot};
+use crate::{IntegrationCommand, PlatformError, PlatformHealthSnapshot, PlatformResult};
 
 #[derive(Debug)]
 pub struct ReadyWork {
@@ -18,7 +18,10 @@ pub struct PlatformRuntime {
 
 impl PlatformRuntime {
     pub fn new(decision: DeterministicDecisionEngine) -> Self {
-        Self { decision, scheduler: Scheduler::default() }
+        Self {
+            decision,
+            scheduler: Scheduler::default(),
+        }
     }
 
     pub fn validate_plan(&self, plan: &Plan) -> PlanValidationReport {
@@ -42,7 +45,9 @@ impl PlatformRuntime {
 
     pub fn accept_command(&self, command: &IntegrationCommand) -> PlatformResult<()> {
         if command.operation.trim().is_empty() || command.context.actor.trim().is_empty() {
-            return Err(PlatformError::InvalidCommand("operation and actor are required".into()));
+            return Err(PlatformError::InvalidCommand(
+                "operation and actor are required".into(),
+            ));
         }
         Ok(())
     }

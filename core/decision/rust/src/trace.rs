@@ -39,7 +39,11 @@ pub struct DecisionTraceStore {
 
 impl DecisionTrace {
     pub fn new(decision_id: Uuid) -> Self {
-        Self { trace_id: Uuid::now_v7(), decision_id, steps: Vec::new() }
+        Self {
+            trace_id: Uuid::now_v7(),
+            decision_id,
+            steps: Vec::new(),
+        }
     }
 
     pub fn push(&mut self, stage: impl Into<String>, description: impl Into<String>) {
@@ -54,11 +58,16 @@ impl DecisionTrace {
 
     /// Traces are append-only after recording. This method communicates the
     /// contract to callers; mutation is intentionally kept behind ownership.
-    pub fn is_immutable_view(&self) -> bool { true }
+    pub fn is_immutable_view(&self) -> bool {
+        true
+    }
 
     /// Returns a deterministic, serializable replay summary without granting
     /// the replay path authority to execute the selected alternative.
-    pub fn replay_summary(&self, outcome: &DecisionOutcome) -> Result<DecisionReplay, DecisionError> {
+    pub fn replay_summary(
+        &self,
+        outcome: &DecisionOutcome,
+    ) -> Result<DecisionReplay, DecisionError> {
         self.replay(outcome)
     }
 
@@ -72,7 +81,10 @@ impl DecisionTrace {
         Ok(DecisionReplay {
             decision_id: outcome.decision_id,
             trace_id: self.trace_id,
-            selected_id: outcome.selected.as_ref().map(|alternative| alternative.id.clone()),
+            selected_id: outcome
+                .selected
+                .as_ref()
+                .map(|alternative| alternative.id.clone()),
             status: outcome.status.clone(),
             confidence: outcome.confidence,
             advisory_only: outcome.advisory_only,
@@ -85,7 +97,9 @@ impl DecisionTrace {
 impl DecisionTraceStore {
     pub fn record(&mut self, trace: DecisionTrace) -> Result<(), DecisionError> {
         if self.traces.contains_key(&trace.trace_id) {
-            return Err(DecisionError::InvalidRequest("trace_id already recorded".into()));
+            return Err(DecisionError::InvalidRequest(
+                "trace_id already recorded".into(),
+            ));
         }
         self.traces.insert(trace.trace_id, trace);
         Ok(())

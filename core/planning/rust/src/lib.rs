@@ -1,11 +1,13 @@
 mod model;
 mod schedule;
-mod trace;
-mod validation;
 #[cfg(test)]
 mod tests;
+mod trace;
+mod validation;
 
-pub use model::{Plan, PlanBuilder, PlanId, PlanStatus, PlanStep, StepId, StepKind, StepDependency};
-pub use schedule::{schedule_plan, PlanSchedule, PlanScheduleError};
+pub use model::{
+    Plan, PlanBuilder, PlanId, PlanStatus, PlanStep, StepDependency, StepId, StepKind,
+};
+pub use schedule::{PlanSchedule, PlanScheduleError, schedule_plan};
 pub use trace::{PlanTrace, PlanTraceEntry, PlanTraceKind};
 pub use validation::{PlanValidationError, PlanValidationReport, validate_plan};

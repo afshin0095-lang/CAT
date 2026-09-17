@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::{AsyncInboxStore, AsyncInMemoryInbox, DeliveryState};
+    use crate::{AsyncInMemoryInbox, AsyncInboxStore, DeliveryState};
     use uuid::Uuid;
 
     #[test]
@@ -16,13 +16,22 @@ mod tests {
 
             assert!(inbox.accept(event_id).await.unwrap());
             assert!(!inbox.accept(event_id).await.unwrap());
-            assert_eq!(inbox.state(event_id).await.unwrap(), Some(DeliveryState::InFlight));
+            assert_eq!(
+                inbox.state(event_id).await.unwrap(),
+                Some(DeliveryState::InFlight)
+            );
 
             inbox.mark_failed(event_id).await.unwrap();
-            assert_eq!(inbox.state(event_id).await.unwrap(), Some(DeliveryState::RetryScheduled));
+            assert_eq!(
+                inbox.state(event_id).await.unwrap(),
+                Some(DeliveryState::RetryScheduled)
+            );
 
             inbox.mark_succeeded(event_id).await.unwrap();
-            assert_eq!(inbox.state(event_id).await.unwrap(), Some(DeliveryState::Succeeded));
+            assert_eq!(
+                inbox.state(event_id).await.unwrap(),
+                Some(DeliveryState::Succeeded)
+            );
             assert!(!inbox.accept(event_id).await.unwrap());
         });
     }

@@ -10,7 +10,10 @@ pub struct PostgresInbox {
 
 impl PostgresInbox {
     pub fn new(pool: PgPool, consumer_name: impl Into<String>) -> Self {
-        Self { pool, consumer_name: consumer_name.into() }
+        Self {
+            pool,
+            consumer_name: consumer_name.into(),
+        }
     }
 
     /// Claims an event for this consumer. Failed claims are re-entered as a new
@@ -99,10 +102,16 @@ impl PostgresInbox {
         .await
         .map_err(|e| EventBusError::Storage(e.to_string()))?;
 
-        Ok(row.map(|row| match row.try_get::<String, _>("state").unwrap_or_default().as_str() {
-            "succeeded" => DeliveryState::Succeeded,
-            "failed" => DeliveryState::RetryScheduled,
-            _ => DeliveryState::InFlight,
+        Ok(row.map(|row| {
+            match row
+                .try_get::<String, _>("state")
+                .unwrap_or_default()
+                .as_str()
+            {
+                "succeeded" => DeliveryState::Succeeded,
+                "failed" => DeliveryState::RetryScheduled,
+                _ => DeliveryState::InFlight,
+            }
         }))
     }
 }

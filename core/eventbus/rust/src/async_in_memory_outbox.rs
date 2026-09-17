@@ -1,4 +1,6 @@
-use crate::{AsyncOutboxStore, DeliveryState, EventBusError, EventBusResult, EventEnvelope, RetryPolicy};
+use crate::{
+    AsyncOutboxStore, DeliveryState, EventBusError, EventBusResult, EventEnvelope, RetryPolicy,
+};
 use async_trait::async_trait;
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, Mutex};
@@ -27,19 +29,36 @@ impl AsyncInMemoryOutbox {
     }
 
     pub fn pending_len(&self) -> usize {
-        self.inner.lock().expect("async outbox mutex poisoned").pending.len()
+        self.inner
+            .lock()
+            .expect("async outbox mutex poisoned")
+            .pending
+            .len()
     }
 
     pub fn in_flight_len(&self) -> usize {
-        self.inner.lock().expect("async outbox mutex poisoned").in_flight.len()
+        self.inner
+            .lock()
+            .expect("async outbox mutex poisoned")
+            .in_flight
+            .len()
     }
 
     pub fn state(&self, event_id: uuid::Uuid) -> Option<DeliveryState> {
-        self.inner.lock().expect("async outbox mutex poisoned").states.get(&event_id).copied()
+        self.inner
+            .lock()
+            .expect("async outbox mutex poisoned")
+            .states
+            .get(&event_id)
+            .copied()
     }
 
     pub fn dead_letters(&self) -> Vec<EventEnvelope> {
-        self.inner.lock().expect("async outbox mutex poisoned").dead_letters.clone()
+        self.inner
+            .lock()
+            .expect("async outbox mutex poisoned")
+            .dead_letters
+            .clone()
     }
 }
 
@@ -141,7 +160,10 @@ mod tests {
         assert_eq!(outbox.claim_next().await.unwrap().unwrap().event_id, id);
 
         assert_eq!(
-            outbox.fail(id, 1, &RetryPolicy::default(), "temporary").await.unwrap(),
+            outbox
+                .fail(id, 1, &RetryPolicy::default(), "temporary")
+                .await
+                .unwrap(),
             DeliveryState::RetryScheduled
         );
         assert_eq!(outbox.state(id), Some(DeliveryState::RetryScheduled));

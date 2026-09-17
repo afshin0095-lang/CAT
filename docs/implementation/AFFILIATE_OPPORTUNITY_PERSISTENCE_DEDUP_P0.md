@@ -27,6 +27,19 @@ This prevents deduplication from discarding network-specific execution data need
 - Existing category is preserved; a missing category may be filled by a later observation.
 - Invalid candidates are rejected before persistence.
 
+## Revisions (Sprint 0 hardening)
+
+Every `OpportunityRecord` carries an `OpportunityRevision` (persisted as the `version` column, 1-based, monotonic):
+
+- creation starts at revision 1;
+- every persisted **change** performs a checked increment — overflow is an explicit error, never a silent wrap;
+- unchanged re-observations leave the revision untouched;
+- `OpportunityUpsertResult.revision` returns the post-write revision;
+- `AsyncVersionedOpportunityStore::upsert_if_revision` provides optimistic concurrency: it locks the row, compares the stored version with the caller's expected revision, and fails with `RevisionConflict { identity, expected, actual }` on mismatch (reload and re-plan; never blindly retry);
+- decoders reject out-of-domain stored values (negative scores/commissions, version `0`) with `CorruptRecord` instead of wrapping them silently.
+
+All SQL is parameterized; the aggregate update and the observation upsert commit or roll back together in one transaction.
+
 ## Persistence boundary
 
 `OpportunityStore` is storage-neutral. P0 provides an in-memory implementation for deterministic unit/integration coverage. PostgreSQL persistence is intentionally a later adapter so the affiliate domain does not become coupled to SQLx.

@@ -12,12 +12,20 @@ impl ProviderTelemetry {
         *self.counts.entry(class).or_default() += 1;
     }
 
-    pub fn count(&self, class: ProviderFailureClass) -> u64 { self.counts.get(&class).copied().unwrap_or(0) }
+    pub fn count(&self, class: ProviderFailureClass) -> u64 {
+        self.counts.get(&class).copied().unwrap_or(0)
+    }
 
-    pub fn snapshot(&self) -> BTreeMap<ProviderFailureClass, u64> { self.counts.clone() }
+    pub fn snapshot(&self) -> BTreeMap<ProviderFailureClass, u64> {
+        self.counts.clone()
+    }
 
     pub fn retryable_failures(&self) -> u64 {
-        self.counts.iter().filter(|(class, _)| class.retryable()).map(|(_, count)| *count).sum()
+        self.counts
+            .iter()
+            .filter(|(class, _)| class.retryable())
+            .map(|(_, count)| *count)
+            .sum()
     }
 }
 

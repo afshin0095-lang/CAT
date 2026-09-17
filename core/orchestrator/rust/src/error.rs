@@ -11,7 +11,11 @@ pub enum OrchestratorError {
     #[error("invalid workflow transition from {from} to {to}")]
     InvalidStateTransition { from: String, to: String },
     #[error("invalid step {step_id} transition from {from} to {to}")]
-    InvalidStepTransition { step_id: String, from: String, to: String },
+    InvalidStepTransition {
+        step_id: String,
+        from: String,
+        to: String,
+    },
     #[error("lease {lease_id} is not owned by {owner}")]
     LeaseOwnerMismatch { lease_id: String, owner: String },
     #[error("lease {lease_id} has expired")]
@@ -23,7 +27,11 @@ pub enum OrchestratorError {
     #[error("workflow dependency cycle detected")]
     DependencyCycle,
     #[error("workflow {workflow_id} revision conflict: expected {expected}, actual {actual}")]
-    RevisionConflict { workflow_id: String, expected: u64, actual: u64 },
+    RevisionConflict {
+        workflow_id: String,
+        expected: u64,
+        actual: u64,
+    },
     #[error("workflow serialization failed: {0}")]
     Serialization(String),
 }

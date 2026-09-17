@@ -1,4 +1,7 @@
-use crate::{DeliveryOutcome, EventBusResult, EventTransport, OutboxDispatcher, OutboxStore, DeadLetterStore, RetryPolicy};
+use crate::{
+    DeadLetterStore, DeliveryOutcome, EventBusResult, EventTransport, OutboxDispatcher,
+    OutboxStore, RetryPolicy,
+};
 use std::time::Duration;
 
 /// Runtime policy for a durable delivery worker.
@@ -10,7 +13,10 @@ pub struct DeliveryWorkerConfig {
 
 impl Default for DeliveryWorkerConfig {
     fn default() -> Self {
-        Self { max_attempts_per_run: 1024, idle_poll_delay: Duration::from_millis(250) }
+        Self {
+            max_attempts_per_run: 1024,
+            idle_poll_delay: Duration::from_millis(250),
+        }
     }
 }
 
@@ -21,9 +27,21 @@ pub struct DeliveryWorker<O, T, D> {
 }
 
 impl<O, T, D> DeliveryWorker<O, T, D>
-where O: OutboxStore, T: EventTransport, D: DeadLetterStore {
+where
+    O: OutboxStore,
+    T: EventTransport,
+    D: DeadLetterStore,
+{
     pub fn new(outbox: O, transport: T, dead_letters: D, retry_policy: RetryPolicy) -> Self {
-        Self { dispatcher: OutboxDispatcher { outbox, transport, dead_letters, retry_policy }, config: DeliveryWorkerConfig::default() }
+        Self {
+            dispatcher: OutboxDispatcher {
+                outbox,
+                transport,
+                dead_letters,
+                retry_policy,
+            },
+            config: DeliveryWorkerConfig::default(),
+        }
     }
 
     pub fn tick(&mut self, attempt: u32) -> EventBusResult<DeliveryOutcome> {
@@ -36,7 +54,9 @@ where O: OutboxStore, T: EventTransport, D: DeadLetterStore {
             let outcome = self.tick(attempt)?;
             let idle = matches!(outcome, DeliveryOutcome::Idle);
             outcomes.push(outcome);
-            if idle { break; }
+            if idle {
+                break;
+            }
         }
         Ok(outcomes)
     }
@@ -49,8 +69,16 @@ mod tests {
 
     #[test]
     fn worker_stops_when_outbox_is_idle() {
-        let mut worker = DeliveryWorker::new(InMemoryOutbox::default(), RecordingTransport::default(), InMemoryDeadLetterStore::default(), RetryPolicy::default());
-        assert_eq!(worker.run_until_idle().unwrap(), vec![DeliveryOutcome::Idle]);
+        let mut worker = DeliveryWorker::new(
+            InMemoryOutbox::default(),
+            RecordingTransport::default(),
+            InMemoryDeadLetterStore::default(),
+            RetryPolicy::default(),
+        );
+        assert_eq!(
+            worker.run_until_idle().unwrap(),
+            vec![DeliveryOutcome::Idle]
+        );
     }
 
     #[test]

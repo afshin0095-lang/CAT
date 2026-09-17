@@ -4,10 +4,19 @@ use crate::{RetryDecision, WorkerExecutionResult};
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum DispatchAction { Complete, Retry { delay_ms: u64 }, WaitForApproval, Cancel, Fail }
+pub enum DispatchAction {
+    Complete,
+    Retry { delay_ms: u64 },
+    WaitForApproval,
+    Cancel,
+    Fail,
+}
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct DispatchResult { pub action: DispatchAction, pub result: WorkerExecutionResult }
+pub struct DispatchResult {
+    pub action: DispatchAction,
+    pub result: WorkerExecutionResult,
+}
 
 impl DispatchResult {
     pub fn from_worker(result: WorkerExecutionResult, retry: Option<RetryDecision>) -> Self {
@@ -31,7 +40,8 @@ mod tests {
     #[test]
     fn failed_result_can_become_retry() {
         let result = WorkerExecutionResult::failure("timeout", serde_json::json!({}));
-        let dispatch = DispatchResult::from_worker(result, Some(RetryDecision::Retry { delay_ms: 500 }));
+        let dispatch =
+            DispatchResult::from_worker(result, Some(RetryDecision::Retry { delay_ms: 500 }));
         assert_eq!(dispatch.action, DispatchAction::Retry { delay_ms: 500 });
     }
 

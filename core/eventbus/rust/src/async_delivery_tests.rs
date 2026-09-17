@@ -2,8 +2,8 @@
 mod tests {
     use crate::{
         AsyncDeliveryOutcome, AsyncInMemoryOutbox, AsyncOutboxDispatcher, AsyncOutboxStore,
-        DeliveryState, EventBusError, EventBusResult, EventEnvelope, EventKind, RecordingAsyncTransport,
-        RetryPolicy,
+        DeliveryState, EventBusError, EventBusResult, EventEnvelope, EventKind,
+        RecordingAsyncTransport, RetryPolicy,
     };
     use async_trait::async_trait;
 
@@ -28,7 +28,9 @@ mod tests {
     #[async_trait]
     impl crate::AsyncEventTransport for RejectingTransport {
         async fn publish(&self, _event: &EventEnvelope) -> EventBusResult<()> {
-            Err(EventBusError::TransportUnavailable("simulated outage".to_owned()))
+            Err(EventBusError::TransportUnavailable(
+                "simulated outage".to_owned(),
+            ))
         }
     }
 

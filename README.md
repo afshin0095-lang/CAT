@@ -21,16 +21,11 @@ CAT is an AI-native platform designed to automate the complete affiliate commerc
 - Infrastructure: Docker, Kubernetes-ready, Prometheus, Grafana, OpenTelemetry
 
 ## Repository Status
-**Current Phase:** Foundation & Documentation
+**Current Phase:** Implementation — Core Rust Platform
 
-The repository is currently focused on:
-1. Project Bible
-2. Knowledge Base
-3. Architecture Decision Records
-4. System Design
-5. Repository Structure
+The Rust workspace implements the CAT kernel and domain cores (Kernel, EventBus, EventStore, Runtime, Knowledge, Memory, LLM, Reasoning, Decision, Planning, Orchestrator, Platform, RAG, Affiliate, Content). The Affiliate Opportunity platform now covers the full Sprint 0 vertical slice: Discovery → Source SPI → Network Adapter → Ingestion → Deduplication → Persistence → Freshness → Lifecycle → Projection → Revalidation → Observability (see `docs/implementation/`).
 
-Implementation will begin after the documentation foundation is complete.
+Authoritative project status: `.ai/PROJECT_STATUS.md`.
 
 ---
 

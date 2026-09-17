@@ -1,4 +1,7 @@
-use cat_llm::{AnthropicProvider, GenerationRequest, LlmProvider, Message, ModelId, OpenAiCompatibleProvider, ProviderId, Role};
+use cat_llm::{
+    AnthropicProvider, GenerationRequest, LlmProvider, Message, ModelId, OpenAiCompatibleProvider,
+    ProviderId, Role,
+};
 
 #[test]
 fn provider_ids_are_stable() {
@@ -18,7 +21,11 @@ fn provider_construction_rejects_empty_credentials() {
 fn generation_request_preserves_message_roles() {
     let request = GenerationRequest::new(
         ModelId::new("example-model"),
-        vec![Message::system("policy"), Message::user("question"), Message::assistant("answer")],
+        vec![
+            Message::system("policy"),
+            Message::user("question"),
+            Message::assistant("answer"),
+        ],
     );
     assert_eq!(request.messages[0].role, Role::System);
     assert_eq!(request.messages[1].role, Role::User);

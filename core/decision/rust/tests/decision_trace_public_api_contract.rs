@@ -1,6 +1,6 @@
 use cat_decision::{
-    trace_from_request, Alternative, DecisionOutcome, DecisionRequest, DecisionStatus,
-    DecisionTraceStore,
+    Alternative, DecisionOutcome, DecisionRequest, DecisionStatus, DecisionTraceStore,
+    trace_from_request,
 };
 use serde_json::json;
 use uuid::Uuid;

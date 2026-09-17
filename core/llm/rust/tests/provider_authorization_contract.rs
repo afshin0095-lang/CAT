@@ -1,6 +1,4 @@
-use cat_llm::{
-    ProviderId, ProviderToolAuthorizationRegistry, ToolCall, ToolId, ToolVersion,
-};
+use cat_llm::{ProviderId, ProviderToolAuthorizationRegistry, ToolCall, ToolId, ToolVersion};
 
 #[test]
 fn provider_authorization_contract_requires_an_explicit_exact_grant() {

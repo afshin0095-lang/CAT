@@ -3,7 +3,7 @@ mod tests {
     use std::sync::Arc;
 
     use crate::{
-        AsyncInboxStore, AsyncInMemoryInbox, EventBusMetrics, EventBusMetricsSnapshot,
+        AsyncInMemoryInbox, AsyncInboxStore, EventBusMetrics, EventBusMetricsSnapshot,
         MetricsAsyncInbox,
     };
 

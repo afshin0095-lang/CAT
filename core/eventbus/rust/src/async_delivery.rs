@@ -1,5 +1,6 @@
 use crate::{
-    AsyncEventTransport, AsyncOutboxStore, DeliveryState, EventBusResult, EventEnvelope, RetryPolicy,
+    AsyncEventTransport, AsyncOutboxStore, DeliveryState, EventBusResult, EventEnvelope,
+    RetryPolicy,
 };
 use std::time::Duration;
 
@@ -43,12 +44,17 @@ where
                 let next_attempt = attempt.saturating_add(1);
                 match self
                     .outbox
-                    .fail(event_id, next_attempt, &self.retry_policy, &error.to_string())
+                    .fail(
+                        event_id,
+                        next_attempt,
+                        &self.retry_policy,
+                        &error.to_string(),
+                    )
                     .await?
                 {
-                    DeliveryState::DeadLettered => {
-                        Ok(AsyncDeliveryOutcome::DeadLettered { attempt: next_attempt })
-                    }
+                    DeliveryState::DeadLettered => Ok(AsyncDeliveryOutcome::DeadLettered {
+                        attempt: next_attempt,
+                    }),
                     _ => Ok(AsyncDeliveryOutcome::RetryScheduled {
                         attempt: next_attempt,
                         delay: self.retry_policy.delay_for(next_attempt),

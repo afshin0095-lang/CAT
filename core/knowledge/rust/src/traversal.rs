@@ -50,7 +50,10 @@ impl KnowledgeGraph {
             }
         }
 
-        TraversalResult { nodes, depth_by_node }
+        TraversalResult {
+            nodes,
+            depth_by_node,
+        }
     }
 
     pub fn neighbors(&self, node: KnowledgeNodeId) -> BTreeSet<KnowledgeNodeId> {

@@ -34,7 +34,10 @@ fn approval_is_idempotent_and_terminal() {
 
     let approved = gate.approve(outcome.decision_id, "human-reviewer").unwrap();
     assert_eq!(approved.state, ApprovalState::Approved);
-    assert!(gate.approve(outcome.decision_id, "another-reviewer").is_err());
+    assert!(
+        gate.approve(outcome.decision_id, "another-reviewer")
+            .is_err()
+    );
 }
 
 #[test]

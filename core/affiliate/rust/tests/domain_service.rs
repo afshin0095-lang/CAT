@@ -1,4 +1,6 @@
-use cat_affiliate::{AffiliateDomain, AffiliateDomainError, AffiliateKind, OfferStatus, ProgramStatus, ReferralState};
+use cat_affiliate::{
+    AffiliateDomain, AffiliateDomainError, AffiliateKind, OfferStatus, ProgramStatus, ReferralState,
+};
 
 #[test]
 fn lifecycle_preserves_domain_boundaries() {
@@ -24,13 +26,8 @@ fn lifecycle_preserves_domain_boundaries() {
 
     let mut conversion = AffiliateDomain::conversion(&referral, 10_000, 9_000, 8_500).unwrap();
     AffiliateDomain::verify_conversion(&mut conversion);
-    let obligation = AffiliateDomain::commission_obligation(
-        &conversion,
-        &affiliate,
-        1_250,
-        "EUR",
-    )
-    .unwrap();
+    let obligation =
+        AffiliateDomain::commission_obligation(&conversion, &affiliate, 1_250, "EUR").unwrap();
 
     assert!(obligation.is_valid());
     assert_eq!(obligation.amount_minor, 1_250);

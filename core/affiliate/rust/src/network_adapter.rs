@@ -128,14 +128,17 @@ pub struct NetworkRegistry {
 }
 
 impl NetworkRegistry {
-    pub fn new() -> Self { Self { adapters: vec![] } }
+    pub fn new() -> Self {
+        Self { adapters: vec![] }
+    }
 
     pub fn register(&mut self, adapter: Box<dyn NetworkAdapter>) {
         self.adapters.push(adapter);
     }
 
     pub fn get(&self, network_id: &NetworkId) -> Option<&dyn NetworkAdapter> {
-        self.adapters.iter()
+        self.adapters
+            .iter()
             .find(|a| a.info().id == *network_id)
             .map(|a| a.as_ref())
     }
@@ -150,5 +153,7 @@ impl NetworkRegistry {
 }
 
 impl Default for NetworkRegistry {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }

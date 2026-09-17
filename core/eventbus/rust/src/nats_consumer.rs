@@ -1,13 +1,8 @@
 use crate::{
-    DeadLetterStore,
-    DeliveryState,
-    EventBusError,
-    EventBusResult,
-    EventEnvelope,
-    InboxStore,
-    InMemoryDeadLetterStore,
+    DeadLetterStore, DeliveryState, EventBusError, EventBusResult, EventEnvelope,
+    InMemoryDeadLetterStore, InboxStore,
 };
-use async_nats::jetstream::{consumer, AckKind, Context};
+use async_nats::jetstream::{AckKind, Context, consumer};
 use async_trait::async_trait;
 use futures_util::StreamExt;
 use std::time::Duration;
@@ -149,14 +144,29 @@ where
         }
     }
 
-    pub fn inbox(&self) -> &I { &self.inbox }
-    pub fn inbox_mut(&mut self) -> &mut I { &mut self.inbox }
-    pub fn dead_letters(&self) -> &D { &self.dead_letters }
-    pub fn dead_letters_mut(&mut self) -> &mut D { &mut self.dead_letters }
-    pub fn stats(&self) -> NatsConsumerStats { self.stats }
+    pub fn inbox(&self) -> &I {
+        &self.inbox
+    }
+    pub fn inbox_mut(&mut self) -> &mut I {
+        &mut self.inbox
+    }
+    pub fn dead_letters(&self) -> &D {
+        &self.dead_letters
+    }
+    pub fn dead_letters_mut(&mut self) -> &mut D {
+        &mut self.dead_letters
+    }
+    pub fn stats(&self) -> NatsConsumerStats {
+        self.stats
+    }
 
-    pub async fn ensure_consumer(&self) -> EventBusResult<consumer::Consumer<consumer::pull::Config>> {
-        let stream = self.context.get_stream(&self.stream_name).await
+    pub async fn ensure_consumer(
+        &self,
+    ) -> EventBusResult<consumer::Consumer<consumer::pull::Config>> {
+        let stream = self
+            .context
+            .get_stream(&self.stream_name)
+            .await
             .map_err(|error| EventBusError::TransportUnavailable(error.to_string()))?;
         let config = consumer::pull::Config {
             durable_name: Some(self.config.durable_name.clone()),
@@ -166,7 +176,9 @@ where
             max_ack_pending: self.config.max_ack_pending,
             ..Default::default()
         };
-        stream.get_or_create_consumer(&self.config.durable_name, config).await
+        stream
+            .get_or_create_consumer(&self.config.durable_name, config)
+            .await
             .map_err(|error| EventBusError::TransportUnavailable(error.to_string()))
     }
 
@@ -175,19 +187,26 @@ where
         H: AsyncEventHandler,
     {
         let consumer = self.ensure_consumer().await?;
-        let mut messages = consumer.fetch().max_messages(self.config.batch_size).messages().await
+        let mut messages = consumer
+            .fetch()
+            .max_messages(self.config.batch_size)
+            .messages()
+            .await
             .map_err(|error| EventBusError::TransportUnavailable(error.to_string()))?;
         let mut processed = 0usize;
 
         while let Some(message) = messages.next().await {
-            let message = message.map_err(|error| EventBusError::TransportUnavailable(error.to_string()))?;
+            let message =
+                message.map_err(|error| EventBusError::TransportUnavailable(error.to_string()))?;
             self.stats.received += 1;
             let delivered = message.info().map(|info| info.delivered).unwrap_or(1);
             let event: EventEnvelope = match serde_json::from_slice(&message.payload) {
                 Ok(event) => event,
                 Err(error) => {
                     self.stats.malformed += 1;
-                    message.ack_with(AckKind::Term).await
+                    message
+                        .ack_with(AckKind::Term)
+                        .await
                         .map_err(|ack| EventBusError::TransportUnavailable(ack.to_string()))?;
                     return Err(EventBusError::Serialization(error.to_string()));
                 }
@@ -197,15 +216,20 @@ where
                 match self.inbox.state(event.event_id) {
                     Some(DeliveryState::Succeeded) | Some(DeliveryState::DeadLettered) | None => {
                         self.stats.duplicates += 1;
-                        message.ack().await
-                            .map_err(|error| EventBusError::TransportUnavailable(error.to_string()))?;
+                        message.ack().await.map_err(|error| {
+                            EventBusError::TransportUnavailable(error.to_string())
+                        })?;
                         processed += 1;
                     }
                     Some(DeliveryState::InFlight)
                     | Some(DeliveryState::RetryScheduled)
                     | Some(DeliveryState::Pending) => {
-                        message.ack_with(AckKind::Nak(Some(self.config.retry.delay_for(delivered)))).await
-                            .map_err(|error| EventBusError::TransportUnavailable(error.to_string()))?;
+                        message
+                            .ack_with(AckKind::Nak(Some(self.config.retry.delay_for(delivered))))
+                            .await
+                            .map_err(|error| {
+                                EventBusError::TransportUnavailable(error.to_string())
+                            })?;
                         self.stats.retried += 1;
                     }
                 }
@@ -215,7 +239,9 @@ where
             match handler.handle(&event).await {
                 Ok(()) => {
                     self.inbox.mark_succeeded(event.event_id)?;
-                    message.double_ack().await
+                    message
+                        .double_ack()
+                        .await
                         .map_err(|error| EventBusError::TransportUnavailable(error.to_string()))?;
                     self.stats.succeeded += 1;
                     processed += 1;
@@ -223,19 +249,29 @@ where
                 Err(error) => {
                     self.stats.handler_failures += 1;
                     self.inbox.mark_failed(event.event_id)?;
-                    if self.config.retry.exhausted(delivered, self.config.max_deliver) {
+                    if self
+                        .config
+                        .retry
+                        .exhausted(delivered, self.config.max_deliver)
+                    {
                         if self.config.retry.dead_letter_on_exhaustion {
                             self.dead_letters.park(
                                 event.clone(),
-                                format!("handler failure after {delivered} delivery attempts: {error}"),
+                                format!(
+                                    "handler failure after {delivered} delivery attempts: {error}"
+                                ),
                             )?;
                         }
-                        message.ack_with(AckKind::Term).await
+                        message
+                            .ack_with(AckKind::Term)
+                            .await
                             .map_err(|ack| EventBusError::TransportUnavailable(ack.to_string()))?;
                         self.stats.dead_lettered += 1;
                         processed += 1;
                     } else {
-                        message.ack_with(AckKind::Nak(Some(self.config.retry.delay_for(delivered)))).await
+                        message
+                            .ack_with(AckKind::Nak(Some(self.config.retry.delay_for(delivered))))
+                            .await
                             .map_err(|ack| EventBusError::TransportUnavailable(ack.to_string()))?;
                         self.stats.retried += 1;
                     }

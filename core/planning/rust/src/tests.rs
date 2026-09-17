@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use crate::{schedule_plan, validate_plan, PlanBuilder, PlanStatus, PlanTrace, PlanTraceKind, StepKind};
+    use crate::{
+        PlanBuilder, PlanStatus, PlanTrace, PlanTraceKind, StepKind, schedule_plan, validate_plan,
+    };
     use serde_json::json;
 
     #[test]
@@ -11,7 +13,11 @@ mod tests {
         let builder = builder.depends_on(approve, ingest, true);
         let plan = builder.build();
         let report = validate_plan(&plan);
-        assert!(report.is_valid(), "unexpected validation errors: {:?}", report.errors);
+        assert!(
+            report.is_valid(),
+            "unexpected validation errors: {:?}",
+            report.errors
+        );
     }
 
     #[test]
@@ -30,7 +36,9 @@ mod tests {
         let discover = builder.step("discover", StepKind::Action);
         let enrich = builder.step("enrich", StepKind::Action);
         let review = builder.step("review", StepKind::Approval);
-        builder = builder.depends_on(review, discover, true).depends_on(review, enrich, true);
+        builder = builder
+            .depends_on(review, discover, true)
+            .depends_on(review, enrich, true);
 
         let plan = builder.build();
         let schedule = schedule_plan(&plan).expect("plan should schedule");
@@ -48,14 +56,24 @@ mod tests {
         let plan = builder.build();
         let schedule = schedule_plan(&plan).expect("plan should schedule");
         assert_eq!(schedule.plan_id(), plan.id);
-        assert_eq!(schedule.execution_order().collect::<Vec<_>>(), vec![observe]);
+        assert_eq!(
+            schedule.execution_order().collect::<Vec<_>>(),
+            vec![observe]
+        );
     }
 
     #[test]
     fn trace_is_append_only_and_preserves_plan_identity() {
-        let plan = PlanBuilder::new("observe").metadata("source", json!("decision-engine")).build();
+        let plan = PlanBuilder::new("observe")
+            .metadata("source", json!("decision-engine"))
+            .build();
         let mut trace = PlanTrace::default();
-        trace.append(&plan, PlanTraceKind::Created, None, json!({"reason":"test"}));
+        trace.append(
+            &plan,
+            PlanTraceKind::Created,
+            None,
+            json!({"reason":"test"}),
+        );
         assert_eq!(trace.entries().len(), 1);
         assert_eq!(trace.last().unwrap().plan_id, plan.id);
         assert_eq!(trace.last().unwrap().status, PlanStatus::Draft);

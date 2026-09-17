@@ -35,5 +35,5 @@ pub use replay::replay;
 pub use result::{KernelError, KernelResult};
 pub use sequence::SequenceNumber;
 pub use time::TimestampMs;
-pub use validation::{parse_uuid, require_non_nil};
 pub use uuid::Uuid;
+pub use validation::{parse_uuid, require_non_nil};

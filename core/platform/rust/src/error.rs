@@ -8,7 +8,10 @@ pub enum PlatformError {
     #[error("platform adapter not found: {0}")]
     AdapterNotFound(String),
     #[error("adapter target mismatch: expected {expected:?}, got {actual:?}")]
-    TargetMismatch { expected: IntegrationTarget, actual: IntegrationTarget },
+    TargetMismatch {
+        expected: IntegrationTarget,
+        actual: IntegrationTarget,
+    },
     #[error("provider failure: {0}")]
     ProviderFailure(#[from] ProviderFailure),
     #[error("provider response serialization failed: {0}")]

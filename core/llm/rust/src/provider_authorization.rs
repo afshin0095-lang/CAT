@@ -33,7 +33,10 @@ impl ProviderToolPolicy {
                 self.provider_id.0
             )));
         }
-        if !self.allowed_tools.contains(&(call.tool_id.clone(), call.tool_version)) {
+        if !self
+            .allowed_tools
+            .contains(&(call.tool_id.clone(), call.tool_version))
+        {
             return Err(LlmError::ProviderPolicyDenied(format!(
                 "provider {} is not authorized for tool {} version {}",
                 self.provider_id.0, call.tool_id.0, call.tool_version.0

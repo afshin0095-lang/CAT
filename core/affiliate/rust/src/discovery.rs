@@ -3,6 +3,16 @@ use uuid::Uuid;
 
 const SCORE_SCALE: u32 = 10_000;
 
+/// Validation bounds. These bound storage and downstream serialization
+/// exposure; they are intentionally generous and are *not* business rules.
+pub const MAX_SOURCE_LEN: usize = 128;
+pub const MAX_EXTERNAL_ID_LEN: usize = 256;
+pub const MAX_NAME_LEN: usize = 256;
+pub const MAX_CANONICAL_KEY_LEN: usize = 512;
+pub const MAX_CATEGORY_LEN: usize = 128;
+pub const MAX_CURRENCY_LEN: usize = 16;
+pub const MAX_DESTINATION_URL_LEN: usize = 2_048;
+
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct DiscoveryCandidate {
     pub source: String,
@@ -24,27 +34,26 @@ pub struct DiscoveryCandidate {
 
 impl DiscoveryCandidate {
     pub fn validate(&self) -> Result<(), DiscoveryError> {
-        if self.source.trim().is_empty() {
-            return Err(DiscoveryError::MissingField("source"));
-        }
-        if self.external_id.trim().is_empty() {
-            return Err(DiscoveryError::MissingField("external_id"));
-        }
-        if self.merchant_name.trim().is_empty() {
-            return Err(DiscoveryError::MissingField("merchant_name"));
-        }
-        if self.product_name.trim().is_empty() {
-            return Err(DiscoveryError::MissingField("product_name"));
-        }
-        if self.canonical_key.trim().is_empty() {
+        validate_bounded("source", &self.source, MAX_SOURCE_LEN)?;
+        validate_bounded("external_id", &self.external_id, MAX_EXTERNAL_ID_LEN)?;
+        validate_bounded("merchant_name", &self.merchant_name, MAX_NAME_LEN)?;
+        validate_bounded("product_name", &self.product_name, MAX_NAME_LEN)?;
+        validate_bounded("canonical_key", &self.canonical_key, MAX_CANONICAL_KEY_LEN)?;
+        // Degenerate identity guard (see `canonical_key` internationalization
+        // notes): a fully non-ASCII name normalizes to the bare separator,
+        // which would collide across unrelated products. Fail closed instead.
+        if !self
+            .canonical_key
+            .chars()
+            .any(|character| character.is_ascii_alphanumeric())
+        {
             return Err(DiscoveryError::MissingField("canonical_key"));
         }
-        if self.destination_url.trim().is_empty() {
-            return Err(DiscoveryError::MissingField("destination_url"));
+        if let Some(category) = &self.category {
+            validate_bounded("category", category, MAX_CATEGORY_LEN)?;
         }
-        if self.currency.trim().is_empty() {
-            return Err(DiscoveryError::MissingField("currency"));
-        }
+        validate_bounded("currency", &self.currency, MAX_CURRENCY_LEN)?;
+        validate_destination_url(&self.destination_url)?;
         validate_score(self.demand_score, "demand_score")?;
         validate_score(self.competition_score, "competition_score")?;
         validate_score(self.freshness_score, "freshness_score")?;
@@ -68,6 +77,67 @@ impl DiscoveryCandidate {
             + self.compliance_score as u64 * 10;
         (weighted / 100).min(SCORE_SCALE as u64) as u32
     }
+}
+
+fn validate_bounded(
+    field: &'static str,
+    value: &str,
+    max_len: usize,
+) -> Result<(), DiscoveryError> {
+    if value.trim().is_empty() {
+        return Err(DiscoveryError::MissingField(field));
+    }
+    if value.chars().count() > max_len {
+        return Err(DiscoveryError::TooLong {
+            field,
+            max: max_len,
+        });
+    }
+    if value.chars().any(|character| character.is_control()) {
+        return Err(DiscoveryError::InvalidCharacters(field));
+    }
+    Ok(())
+}
+
+/// Syntactic URL validation (no network I/O, no normalization that could
+/// change identity). Requirements: `http`/`https` scheme (case-insensitive),
+/// non-empty host, no whitespace or control characters, bounded length.
+fn validate_destination_url(url: &str) -> Result<(), DiscoveryError> {
+    if url.trim().is_empty() {
+        return Err(DiscoveryError::MissingField("destination_url"));
+    }
+    if url.len() > MAX_DESTINATION_URL_LEN {
+        return Err(DiscoveryError::TooLong {
+            field: "destination_url",
+            max: MAX_DESTINATION_URL_LEN,
+        });
+    }
+    let Some((scheme, remainder)) = url.split_once("://") else {
+        return Err(DiscoveryError::InvalidUrl("missing scheme separator"));
+    };
+    if !scheme.eq_ignore_ascii_case("http") && !scheme.eq_ignore_ascii_case("https") {
+        return Err(DiscoveryError::InvalidUrl(
+            "only http and https schemes are accepted",
+        ));
+    }
+    let host = remainder.split(['/', '?', '#']).next().unwrap_or_default();
+    if host.is_empty() {
+        return Err(DiscoveryError::InvalidUrl("missing host"));
+    }
+    if host
+        .chars()
+        .any(|character| character.is_whitespace() || character.is_control())
+    {
+        return Err(DiscoveryError::InvalidUrl(
+            "host must not contain whitespace or control characters",
+        ));
+    }
+    if url.chars().any(|character| character.is_control()) {
+        return Err(DiscoveryError::InvalidUrl(
+            "control characters are not allowed",
+        ));
+    }
+    Ok(())
 }
 
 fn validate_score(value: u32, field: &'static str) -> Result<(), DiscoveryError> {
@@ -114,15 +184,27 @@ pub enum DiscoveryError {
     NegativeValue(&'static str),
     OutOfRange(&'static str),
     InvalidLimit,
+    TooLong { field: &'static str, max: usize },
+    InvalidCharacters(&'static str),
+    InvalidUrl(&'static str),
 }
 
 impl std::fmt::Display for DiscoveryError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::MissingField(field) => write!(formatter, "missing required field: {field}"),
-            Self::NegativeValue(field) => write!(formatter, "negative value is not allowed: {field}"),
+            Self::NegativeValue(field) => {
+                write!(formatter, "negative value is not allowed: {field}")
+            }
             Self::OutOfRange(field) => write!(formatter, "value is out of range: {field}"),
             Self::InvalidLimit => formatter.write_str("discovery limit must be greater than zero"),
+            Self::TooLong { field, max } => {
+                write!(formatter, "field {field} exceeds {max} characters")
+            }
+            Self::InvalidCharacters(field) => {
+                write!(formatter, "field {field} contains forbidden characters")
+            }
+            Self::InvalidUrl(reason) => write!(formatter, "destination_url is invalid: {reason}"),
         }
     }
 }
@@ -172,10 +254,32 @@ impl DiscoveryEngine {
             })
             .collect();
 
-        Ok(DiscoveryResult { opportunities, rejected })
+        Ok(DiscoveryResult {
+            opportunities,
+            rejected,
+        })
     }
 }
 
+/// Deterministic canonical identity for a merchant/product pair.
+///
+/// # Internationalization limitation (documented, deliberate)
+///
+/// The current normalization is **ASCII-oriented**: lowercase mapping applies
+/// to Unicode, but only ASCII alphanumerics and whitespace survive — every
+/// other character is dropped. Consequences:
+///
+/// - `"Café"` normalizes to `"caf"`; `"北京"` normalizes to `""`;
+/// - a fully non-ASCII name collapses toward `":"`, which candidate
+///   validation then rejects (fail closed) — non-ASCII merchants cannot be
+///   ingested today instead of being silently merged with unrelated products.
+///
+/// This preserves compatibility with every stored identity: changing the
+/// normalization would rewrite canonical keys and break deduplication for
+/// existing data. International-merchant support must arrive as a
+/// deliberate, versioned identity scheme (e.g. a `canonical_key_v2` with
+/// Unicode normalization and an explicit migration), never as a silent
+/// change to this function.
 pub fn canonical_key(merchant_name: &str, product_name: &str) -> String {
     format!(
         "{}:{}",
@@ -184,6 +288,8 @@ pub fn canonical_key(merchant_name: &str, product_name: &str) -> String {
     )
 }
 
+/// ASCII-oriented normalization: see [`canonical_key`] for the documented
+/// internationalization limitation.
 fn normalize_key_part(value: &str) -> String {
     value
         .trim()
@@ -222,7 +328,100 @@ mod tests {
 
     #[test]
     fn canonical_key_is_deterministic_and_normalized() {
-        assert_eq!(canonical_key(" ACME ", "Noise Cancelling Headphones!"), "acme:noise-cancelling-headphones");
+        assert_eq!(
+            canonical_key(" ACME ", "Noise Cancelling Headphones!"),
+            "acme:noise-cancelling-headphones"
+        );
+    }
+
+    #[test]
+    fn canonical_key_ascii_limitation_is_documented_and_fail_closed() {
+        // Documented limitation: non-ASCII letters are dropped today.
+        assert_eq!(canonical_key("Café", "Crème"), "caf:crm");
+        // Fully non-ASCII names collapse to the bare separator...
+        assert_eq!(canonical_key("北京", "产品"), ":");
+        // ...and candidate validation then rejects the blank identity
+        // (fail closed) instead of merging unrelated products.
+        let mut candidate = candidate("non-ascii", 5_000);
+        candidate.canonical_key = canonical_key("北京", "产品");
+        assert!(matches!(
+            candidate.validate(),
+            Err(DiscoveryError::MissingField("canonical_key"))
+        ));
+    }
+
+    #[test]
+    fn destination_urls_must_be_absolute_http_or_https() {
+        let mut candidate = candidate("url-check", 5_000);
+
+        candidate.destination_url = "ftp://example.test/file".into();
+        assert!(matches!(
+            candidate.validate(),
+            Err(DiscoveryError::InvalidUrl(_))
+        ));
+
+        candidate.destination_url = "example.test/product".into();
+        assert!(matches!(
+            candidate.validate(),
+            Err(DiscoveryError::InvalidUrl(_))
+        ));
+
+        candidate.destination_url = "https:///no-host".into();
+        assert!(matches!(
+            candidate.validate(),
+            Err(DiscoveryError::InvalidUrl(_))
+        ));
+
+        candidate.destination_url = "https://exa mple.test/product".into();
+        assert!(matches!(
+            candidate.validate(),
+            Err(DiscoveryError::InvalidUrl(_))
+        ));
+
+        candidate.destination_url = format!(
+            "https://example.test/{}",
+            "a".repeat(MAX_DESTINATION_URL_LEN)
+        );
+        assert!(matches!(
+            candidate.validate(),
+            Err(DiscoveryError::TooLong { .. })
+        ));
+
+        candidate.destination_url = "HTTPS://Example.Test/Product".into();
+        assert!(
+            candidate.validate().is_ok(),
+            "scheme case is accepted without normalization"
+        );
+    }
+
+    #[test]
+    fn oversized_and_control_character_values_are_rejected() {
+        let mut candidate = candidate("bounds", 5_000);
+        candidate.source = "s".repeat(MAX_SOURCE_LEN + 1);
+        assert!(matches!(
+            candidate.validate(),
+            Err(DiscoveryError::TooLong {
+                field: "source",
+                ..
+            })
+        ));
+
+        let mut candidate = candidate("bounds", 5_000);
+        candidate.external_id = "id\u{7f}ent".into();
+        assert!(matches!(
+            candidate.validate(),
+            Err(DiscoveryError::InvalidCharacters("external_id"))
+        ));
+
+        let mut candidate = candidate("bounds", 5_000);
+        candidate.currency = "EURURURURURURURUR".into(); // 17 characters
+        assert!(matches!(
+            candidate.validate(),
+            Err(DiscoveryError::TooLong {
+                field: "currency",
+                ..
+            })
+        ));
     }
 
     #[test]
