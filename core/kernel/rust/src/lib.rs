@@ -3,6 +3,7 @@
 
 pub mod clock;
 pub mod context;
+pub mod contracts;
 pub mod envelope;
 pub mod event_store;
 pub mod idempotency;
@@ -18,6 +19,7 @@ pub mod validation;
 
 pub use clock::{Clock, FixedClock, SystemClock};
 pub use context::ExecutionContext;
+pub use contracts::{ContractVersion, InvocationStatus, OutcomeStatus, SideEffectClass};
 pub use envelope::EventEnvelope;
 pub use event_store::{AppendReceipt, EventStore, ExpectedVersion, StoredEvent};
 pub use idempotency::{IdempotencyKey, IdempotencyLedger, IdempotencyReceipt};
