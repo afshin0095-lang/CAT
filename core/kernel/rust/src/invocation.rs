@@ -244,7 +244,7 @@ mod tests {
             TenantId::new(),
             CorrelationId::new(),
             EntityId::new(),
-            TimestampMs::new(1_000).unwrap(),
+            TimestampMs::new(1_000),
         )
     }
 
@@ -257,7 +257,7 @@ mod tests {
             IdempotencyKey::new("request-1").unwrap(),
             serde_json::json!({}),
             SideEffectClass::S0,
-            TimestampMs::new(1_000).unwrap(),
+            TimestampMs::new(1_000),
         );
         assert!(result.is_err());
     }
@@ -271,7 +271,7 @@ mod tests {
             IdempotencyKey::new("request-1").unwrap(),
             serde_json::json!({"query":"laptop"}),
             SideEffectClass::S0,
-            TimestampMs::new(1_000).unwrap(),
+            TimestampMs::new(1_000),
         )
         .unwrap();
         let json = serde_json::to_string(&request).unwrap();
@@ -284,7 +284,7 @@ mod tests {
     fn unknown_outcome_is_not_a_failed_outcome() {
         let outcome = InvocationOutcome::unknown(
             InvocationId::new(),
-            TimestampMs::new(2_000).unwrap(),
+            TimestampMs::new(2_000),
         );
         assert_eq!(outcome.status, OutcomeStatus::Unknown);
         assert!(outcome.validate().is_ok());
@@ -295,7 +295,7 @@ mod tests {
         let mut outcome = InvocationOutcome::succeeded(
             InvocationId::new(),
             serde_json::json!({"ok":true}),
-            TimestampMs::new(2_000).unwrap(),
+            TimestampMs::new(2_000),
         );
         outcome.lifecycle_status = InvocationStatus::Failed;
         assert!(outcome.validate().is_err());
