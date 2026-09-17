@@ -2,7 +2,7 @@
 
 > Canonical project-level knowledge system for CAT — Commerce AI Trinity.
 
-**Status:** Foundation — actively expanding  
+**Status:** Foundation + domain architecture actively expanding  
 **Audience:** Human owner, architects, developers, AI coding agents, AI research agents, operators, future maintainers  
 **Repository:** `afshin0095-lang/CAT`  
 **Canonical implementation context:** `/context`  
@@ -13,17 +13,15 @@
 
 ## 1. Purpose
 
-The CAT Bible is the long-lived semantic specification of the system. It explains **what CAT is, why it exists, how it thinks, what capabilities it owns, how its agents cooperate, how the technical architecture is organized, and how future changes must remain compatible with the original mission**.
+The CAT Bible is the long-lived semantic specification of the system. It explains what CAT is, why it exists, how it thinks, what capabilities it owns, how its agents cooperate, how the technical architecture is organized, and how future changes must remain compatible with the original mission.
 
-The Bible is intentionally broader than API documentation or source-code comments. Source code explains implementation; contracts explain enforceable behavior; ADRs explain individual decisions; the Bible explains the **whole organism**.
+The Bible is broader than API documentation or source-code comments. Source code explains implementation; contracts define enforceable behavior; ADRs explain individual decisions; the Bible explains the whole organism.
 
 An AI agent joining the repository should be able to read the Bible first and acquire enough context to avoid treating CAT as an ordinary affiliate script or CRUD application.
 
 ---
 
 ## 2. Source-of-truth hierarchy
-
-When documents disagree, agents must use the following precedence:
 
 | Priority | Source | Role |
 |---:|---|---|
@@ -34,43 +32,28 @@ When documents disagree, agents must use the following precedence:
 | 5 | CAT Bible | System intent, architecture, capabilities and long-range design |
 | 6 | Research notes / proposals | Candidate future ideas |
 
-The Bible **must not silently rewrite implemented reality**. When a target capability is not implemented, it is described as `PLANNED`, `TARGET`, or `VISION`, never as completed functionality.
+The Bible must never silently rewrite implemented reality. When a target capability is not implemented, it is labeled `PLANNED`, `TARGET`, `EXPERIMENTAL`, or `VISION` rather than described as complete.
 
 ---
 
-## 3. Documentation operating rules
+## 3. AI-readable documentation rules
 
-### 3.1 Every major subsystem gets four views
+Every major subsystem should eventually have four views:
 
-For important domains, documentation should eventually provide:
+1. **Conceptual** — meaning and purpose.
+2. **Architectural** — components and dependencies.
+3. **Behavioral** — workflows, state transitions and failure modes.
+4. **Contract** — schemas, invariants, interfaces and compatibility rules.
 
-1. **Conceptual view** — what the subsystem means.
-2. **Architectural view** — where it lives and what it depends on.
-3. **Behavioral view** — workflows, state transitions and failure modes.
-4. **Contract view** — schemas, invariants, interfaces and compatibility rules.
+Documentation should use stable terminology, identifiers, tables, Mermaid diagrams, state machines, examples, implementation links, and explicit maturity labels.
 
-### 3.2 AI-readable documentation
+### No accidental invention
 
-Documents should prefer:
-
-- explicit terminology;
-- stable identifiers;
-- tables for responsibilities and invariants;
-- Mermaid diagrams for relationships and flows;
-- state machines for lifecycle-heavy components;
-- examples that distinguish valid and invalid behavior;
-- links to implementation contracts;
-- clear `Implemented / Planned / Experimental / Deprecated` labels.
-
-### 3.3 No accidental invention
-
-If a capability is proposed but not yet implemented, the document must say so. Research material may inspire the target architecture, but it does not automatically become a CAT commitment.
+Research can influence the target architecture, but research does not become implementation merely by appearing in the Bible. AI agents must inspect the real repository before coding.
 
 ---
 
 ## 4. Bible map
-
-The Bible will grow in controlled stages. The initial map is:
 
 ```text
 CAT OMNISYSTEM BIBLE
@@ -79,80 +62,124 @@ CAT OMNISYSTEM BIBLE
 ├── 01 — System Architecture
 ├── 02 — Agent Operating System
 ├── 03 — Capability Map
-├── 04 — Knowledge & Memory
+├── 04 — Knowledge, Memory & Learning
 ├── 05 — Affiliate Intelligence Engine
 ├── 06 — Content Factory
 ├── 07 — Advertising Operating System
 ├── 08 — Data Architecture
-├── 09 — UI / UX / Control Plane
-├── 10 — Security & Trust
-├── 11 — Infrastructure & DevOps
-├── 12 — APIs, Events & Integration
-├── 13 — Persistence & Reliability
-├── 14 — Evaluation, Learning & Optimization
-├── 15 — Governance & Human-in-the-Loop
-├── 16 — Roadmap & Evolution
-└── 17 — Appendices / Glossary / Research Index
+├── 09 — Security, Trust & Governance
+├── 10 — Infrastructure, DevOps & Scaling
+├── 11 — APIs, Events & Integrations
+├── 12 — Autonomy, Learning & Evaluation
+├── 13 — Complete Agent Catalog
+├── 14 — Revenue, Treasury & Economics
+├── 15 — Control Plane, UI/UX & Human Operations
+├── 16 — Persistence & Reliability
+├── 17 — Governance & Human-in-the-Loop
+├── 18 — Roadmap & Evolution
+├── 19 — Agent SDK & Capability Protocol
+├── 20 — Multi-Agent Collaboration & Orchestration
+├── 21 — Tool, Connector & Provider Ecosystem
+├── 22 — Knowledge Graph, RAG & Memory System
+├── 23 — Affiliate Network & Merchant Operating Model
+├── 24 — Content Distribution & Growth Engine
+├── 25 — Decision, Planning & Autonomy Engine
+├── 26 — Observability, Evaluation & Operations
+├── 27 — Database & Domain Model
+├── 28 — Security, Privacy & Threat Model
+├── 29 — API, EventBus & Integration Contracts
+├── 30 — Revenue Attribution & Unit Economics
+├── 31 — Control Plane & Human Operations
+├── 32 — Glossary & Canonical Terminology
+├── 33 — Agent Capability Matrix
+├── 34 — Agent Lifecycle, Health & Operations
+├── 35 — Agent Triggers & Events Matrix
+├── 36 — Agent Evaluation, KPI & Quality Model
+├── 37 — Agent Prompt & Instruction Architecture
+├── 38 — Knowledge, Memory & Data Model
+├── 39 — Agent Contracts & Domain Specs
+├── 40 — Agent Security & Trust Boundaries
+├── 41 — Agent State Machine & Execution Model
+├── 42 — Agent Economics & Resource Governance
+├── 43 — CAT Agent SDK Reference Architecture
+├── 44 — CAT Agent Registry
+├── 45 — CAT Agent Specification Template
+├── 46 — CAT Agent Operating Model
+├── 47 — CAT Capability Registry
+├── 48 — CAT Tool Registry
+├── 49 — CAT Connector Registry
+├── 50 — CAT Provider Registry
+├── 51 — CAT Capability Dependency Matrix
+├── 52 — CAT Capability Lifecycle & Versioning
+├── 53 — CAT Tool Security & Execution Boundary
+└── 54 — CAT Provider Selection & Failover
 ```
 
-The structure is deliberately compatible with the earlier CAT research package, which proposed dedicated sections for vision, architecture, AI agents, knowledge brain, affiliate engine, content factory, advertising OS, data architecture, UI/UX, security, DevOps, roadmap, investor material and appendices. fileciteturn1047file0L1-L1
+### Capability ecosystem
+
+The canonical runtime relationship is:
+
+```text
+AGENT
+  ↓ invokes
+CAPABILITY
+  ↓ implemented by
+DOMAIN SERVICE
+  ↓ may use
+TOOL
+  ↓ accessed through
+CONNECTOR
+  ↓ supplied by
+PROVIDER
+  ↓ reaches
+EXTERNAL SYSTEM
+```
+
+The capability/tool/provider chapters define this boundary explicitly and preserve provider independence as a first-class architectural invariant.
 
 ---
 
-## 5. Relationship to `/context`
-
-The repository already contains a more implementation-oriented context system. The Bible does not replace it.
+## 5. Architecture relationship
 
 ```mermaid
 flowchart TB
-    B[CAT Bible\nMeaning + Target Architecture]
-    C[Repository Context\nOperational Engineering Rules]
-    K[Coding Standard\nEnforceable Code Rules]
-    A[ADRs\nDecision Rationale]
-    X[Implementation Contracts\nBehavior + Invariants]
-    S[Source Code + Tests\nExecutable Reality]
-
+    B[CAT Bible\nSystem meaning + target architecture]
+    C[Repository Context\nOperational engineering rules]
+    K[Coding Standard\nEnforceable implementation rules]
+    A[ADRs\nDecision rationale]
+    X[Implementation Contracts\nBehavior + invariants]
+    S[Source Code + Tests + Migrations\nExecutable reality]
     B --> C
     C --> K
     C --> A
     C --> X
-    X --> S
     K --> S
     A --> S
+    X --> S
 ```
 
-The existing repository README already defines CAT as an autonomous AI commerce and affiliate operating system and lists the core principles of AI-first architecture, human approval for critical actions, modular agents, knowledge-driven improvement, security by design and cloud-native scalability. fileciteturn1046file0L2-L2
+The current Rust workspace defines fifteen core packages: kernel, eventbus, eventstore-postgres, runtime, knowledge, memory, llm, reasoning, decision, planning, orchestrator, platform, rag, affiliate, and content. The Bible treats these as the current implementation substrate and marks additional capabilities as targets until implemented.
 
 ---
 
-## 6. Current implementation boundary
+## 6. Reading protocol for AI agents
 
-The Rust workspace currently declares fifteen core packages spanning kernel, event bus, PostgreSQL event store, runtime, knowledge, memory, LLM, reasoning, decision, planning, orchestrator, platform, RAG, affiliate and content. fileciteturn1045file0L2-L2
-
-This Bible therefore treats those packages as the **current architectural substrate**, while describing additional business capabilities as staged targets until their implementation exists.
-
----
-
-## 7. Reading protocol for AI agents
-
-Before modifying CAT, an AI agent should:
+Before modifying CAT:
 
 1. Read this index.
 2. Read the relevant Bible chapter.
 3. Read the matching `/context` document.
 4. Read the relevant implementation contract.
-5. Inspect actual source code and tests.
-6. Identify whether the requested capability is implemented, partially implemented, or planned.
+5. Inspect actual source code, tests and migrations.
+6. Determine implementation maturity.
 7. Preserve existing invariants unless an explicit architectural change is approved.
-8. Add or update documentation when a new contract or architectural decision is introduced.
+8. Update documentation whenever a new contract or architectural decision is introduced.
 
-### AI comprehension rule
-
-**Never infer permission from directory names, placeholders, examples, diagrams, or future architecture.** The repository's executable behavior and explicit contracts remain authoritative.
+**AI comprehension rule:** Never infer permission from directory names, placeholders, diagrams, examples, or future architecture. Executable behavior and explicit contracts remain authoritative.
 
 ---
 
-## 8. Documentation maturity model
+## 7. Documentation maturity model
 
 | Level | Meaning |
 |---|---|
@@ -165,14 +192,20 @@ Before modifying CAT, an AI agent should:
 | L6 | Operationally observed |
 | L7 | Continuously optimized |
 
-A capability should not be described as production-complete merely because its Bible chapter exists.
+A chapter existing in this directory is never evidence by itself that the corresponding feature is production-complete.
 
 ---
 
-## 9. Long-term objective
+## 8. Long-term objective
 
 CAT is designed to become a durable AI-native commerce organization in software form: a system capable of discovering economic opportunities, evaluating them, planning actions, generating and distributing content, managing affiliate relationships and advertising channels, measuring outcomes, learning from evidence, and continuously reallocating effort toward better outcomes.
 
-The research foundation describes this as an autonomous affiliate business OS rather than a simple affiliate bot, with a long-term closed loop from discovery and content to advertising, analytics and revenue optimization. fileciteturn1047file0L1-L1
+The implementation strategy is incremental: **build the smallest trustworthy kernel first, then add capabilities without breaking durability, security, observability, provider independence, or economic governance.**
 
-The implementation strategy is intentionally incremental: **build the smallest trustworthy kernel first, then add capabilities without breaking the kernel's durability, security, observability or provider independence.**
+---
+
+## 9. Visual architecture
+
+![CAT conceptual architecture](assets/cat-system-map.svg)
+
+The SVG is intentionally text-rich and machine-readable so it can be rendered by documentation systems while remaining useful to multimodal AI systems.
