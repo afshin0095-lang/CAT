@@ -7,6 +7,7 @@ pub mod events;
 pub mod memory_repository;
 pub mod model;
 pub mod network_adapter;
+pub mod network_discovery_adapter;
 pub mod repository;
 pub mod scoring;
 pub mod service;
@@ -25,6 +26,7 @@ pub use commission_rules::{compute_commission, recurring_cap_exceeded, Commissio
 pub use discovery::{canonical_key, DiscoveryCandidate, DiscoveryEngine, DiscoveryError, DiscoveryOpportunity, DiscoveryRequest, DiscoveryResult};
 pub use discovery_source::{DiscoveryIngestion, DiscoverySource, DiscoverySourceBatch, DiscoverySourceCapability, DiscoverySourceError, DiscoverySourceFuture, DiscoverySourceId, DiscoverySourceInfo, DiscoverySourceKind, DiscoverySourceRegistry, DiscoverySourceRequest};
 pub use network_adapter::{NetworkAdapter, NetworkConversion, NetworkId, NetworkInfo, NetworkProgram, NetworkRegistry};
+pub use network_discovery_adapter::NetworkDiscoveryAdapter;
 pub use scoring::{rank_programs, score_content_potential, score_earning_potential, ProgramScore, ProgramVerdict};
 pub use tracking::{build_utm_link, Click, ClickFraudFlag, ClickId, ExternalUserId, Identity, IdentityId, Link, LinkId, UtmParams, VelocityChecker};
 pub use smart_router::{LinkHealth, RouteCandidate, RouteRequest, SmartRouter};
