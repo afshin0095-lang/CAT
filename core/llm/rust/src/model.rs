@@ -8,7 +8,7 @@ impl ModelId {
     pub fn new(value: impl Into<String>) -> Self { Self(value.into()) }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize)]
 pub struct ProviderId(pub String);
 
 impl ProviderId {
@@ -48,30 +48,14 @@ pub struct GenerationRequest {
 
 impl GenerationRequest {
     pub fn new(model: ModelId, messages: Vec<Message>) -> Self {
-        Self {
-            request_id: Uuid::now_v7(),
-            model,
-            messages,
-            temperature: 0.0,
-            max_output_tokens: 1024,
-            safety: SafetyClass::Standard,
-            correlation_id: None,
-        }
+        Self { request_id: Uuid::now_v7(), model, messages, temperature: 0.0, max_output_tokens: 1024, safety: SafetyClass::Standard, correlation_id: None }
     }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Usage {
-    pub input_tokens: u64,
-    pub output_tokens: u64,
-    pub total_tokens: u64,
-}
+pub struct Usage { pub input_tokens: u64, pub output_tokens: u64, pub total_tokens: u64 }
 
 /// A provider-neutral incremental generation unit.
-///
-/// `delta` is derived model output. `finish_reason` is populated only when the
-/// provider emits terminal metadata for this chunk. Usage may be omitted on
-/// intermediate chunks and supplied on the terminal chunk.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GenerationChunk {
     pub request_id: Uuid,
@@ -83,26 +67,11 @@ pub struct GenerationChunk {
 }
 
 impl GenerationChunk {
-    pub fn delta(
-        request_id: Uuid,
-        provider: ProviderId,
-        model: ModelId,
-        delta: impl Into<String>,
-    ) -> Self {
-        Self {
-            request_id,
-            provider,
-            model,
-            delta: delta.into(),
-            usage: None,
-            finish_reason: None,
-        }
+    pub fn delta(request_id: Uuid, provider: ProviderId, model: ModelId, delta: impl Into<String>) -> Self {
+        Self { request_id, provider, model, delta: delta.into(), usage: None, finish_reason: None }
     }
-
     pub fn terminal(mut self, usage: Usage, finish_reason: impl Into<String>) -> Self {
-        self.usage = Some(usage);
-        self.finish_reason = Some(finish_reason.into());
-        self
+        self.usage = Some(usage); self.finish_reason = Some(finish_reason.into()); self
     }
 }
 

@@ -1,4 +1,4 @@
-use cat_content::{ContentDomain, ContentDomainError, ContentKind, ContentStatus, InMemoryContentRepository};
+use cat_content::{ContentDomain, ContentDomainError, ContentKind, ContentRepository, ContentStatus, InMemoryContentRepository};
 
 #[test]
 fn revision_creates_new_identity_and_preserves_source_version() {
@@ -21,14 +21,8 @@ fn revision_rejects_non_monotonic_versions() {
     let mut repo = InMemoryContentRepository::default();
     let original = ContentDomain::create(&mut repo, ContentKind::Article, "v1", "body", 3).unwrap();
 
-    assert_eq!(
-        ContentDomain::revise(&mut repo, original.id, "bad", "body", 3),
-        Err(ContentDomainError::InvalidVersion)
-    );
-    assert_eq!(
-        ContentDomain::revise(&mut repo, original.id, "bad", "body", 2),
-        Err(ContentDomainError::InvalidVersion)
-    );
+    assert_eq!(ContentDomain::revise(&mut repo, original.id, "bad", "body", 3), Err(ContentDomainError::InvalidVersion));
+    assert_eq!(ContentDomain::revise(&mut repo, original.id, "bad", "body", 2), Err(ContentDomainError::InvalidVersion));
 }
 
 #[test]
@@ -36,13 +30,7 @@ fn revision_rejects_empty_payloads_without_mutating_source() {
     let mut repo = InMemoryContentRepository::default();
     let original = ContentDomain::create(&mut repo, ContentKind::Article, "stable", "body", 1).unwrap();
 
-    assert_eq!(
-        ContentDomain::revise(&mut repo, original.id, " ", "next", 2),
-        Err(ContentDomainError::EmptyTitle)
-    );
-    assert_eq!(
-        ContentDomain::revise(&mut repo, original.id, "next", " ", 2),
-        Err(ContentDomainError::EmptyBody)
-    );
+    assert_eq!(ContentDomain::revise(&mut repo, original.id, " ", "next", 2), Err(ContentDomainError::EmptyTitle));
+    assert_eq!(ContentDomain::revise(&mut repo, original.id, "next", " ", 2), Err(ContentDomainError::EmptyBody));
     assert_eq!(repo.get(original.id).unwrap().version.version, 1);
 }

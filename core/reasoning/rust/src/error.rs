@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-pub type ReasoningResult<T> = Result<T, ReasoningError>;
+pub type ReasoningOutcome<T> = Result<T, ReasoningError>;
 
 #[derive(Debug, Error)]
 pub enum ReasoningError {

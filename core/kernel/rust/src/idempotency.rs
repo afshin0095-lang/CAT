@@ -84,11 +84,11 @@ mod tests {
         let key = IdempotencyKey::new("command-1").unwrap();
         let first = IdempotencyReceipt {
             event_id: EventId::new(),
-            sequence: SequenceNumber::new(1).unwrap(),
+            sequence: SequenceNumber::new(1),
         };
         let second = IdempotencyReceipt {
             event_id: EventId::new(),
-            sequence: SequenceNumber::new(2).unwrap(),
+            sequence: SequenceNumber::new(2),
         };
 
         assert_eq!(ledger.record(key.clone(), first).unwrap(), first);

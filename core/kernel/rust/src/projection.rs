@@ -70,9 +70,9 @@ mod tests {
             "affiliate-summary-v1", stream, SequenceNumber::new(2), EventId::new(), ProjectionPhase::Live,
         ).unwrap();
         current.advance(&next).unwrap();
-        assert_eq!(current.sequence, SequenceNumber::new(2).unwrap());
+        assert_eq!(current.sequence, SequenceNumber::new(2));
         assert_eq!(current.phase, ProjectionPhase::Live);
-        assert!(current.is_caught_up(SequenceNumber::new(2).unwrap()));
+        assert!(current.is_caught_up(SequenceNumber::new(2)));
     }
 
     #[test]

@@ -18,22 +18,108 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: cat-rust-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_NET_RETRY: 3
+
 jobs:
-  check:
+  metadata:
+    name: Workspace metadata
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-
+        uses: actions/checkout@v5
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+      - name: Validate Cargo metadata
+        run: cargo metadata --no-deps --format-version 1
 
+  check:
+    name: Check ${{ matrix.package }}
+    needs: metadata
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - cat-kernel
+          - cat-eventbus
+          - cat-eventstore-postgres
+          - cat-runtime
+          - cat-knowledge
+          - cat-memory
+          - cat-llm
+          - cat-reasoning
+          - cat-decision
+          - cat-planning
+          - cat-orchestrator
+          - cat-platform
+          - cat-rag
+          - cat-affiliate
+          - cat-content
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
       - name: Cache Cargo
         uses: Swatinem/rust-cache@v2
+      - name: Check package
+        run: cargo check -p ${{ matrix.package }} --all-targets
 
-      - name: Check workspace
-        run: cargo check --workspace --all-targets
+  test:
+    name: Test ${{ matrix.package }}
+    needs: metadata
+    if: ${{ always() && needs.metadata.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - cat-kernel
+          - cat-eventbus
+          - cat-eventstore-postgres
+          - cat-runtime
+          - cat-knowledge
+          - cat-memory
+          - cat-llm
+          - cat-reasoning
+          - cat-decision
+          - cat-planning
+          - cat-orchestrator
+          - cat-platform
+          - cat-rag
+          - cat-affiliate
+          - cat-content
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+      - name: Run package tests
+        run: cargo test -p ${{ matrix.package }} --all-targets
 
-      - name: Run tests
-        run: cargo test --workspace --all-targets
+  workspace-summary:
+    name: Workspace summary
+    needs: [check, test]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report results
+        run: |
+          echo "check=${{ needs.check.result }}"
+          echo "test=${{ needs.test.result }}"
+          if [ "${{ needs.check.result }}" != "success" ] || [ "${{ needs.test.result }}" != "success" ]; then
+            echo "CAT Rust validation failed. Inspect the failing package matrix jobs above."
+            exit 1
+          fi
+          echo "CAT Rust workspace validation passed."
