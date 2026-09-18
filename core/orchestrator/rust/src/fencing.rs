@@ -78,10 +78,9 @@ impl FencedLeaseProvider for InMemoryFencedLeaseProvider {
             && existing.lease.expires_at_ms > now_ms
             && existing.lease.owner != owner
         {
-                return Err(OrchestratorError::LeaseUnavailable {
-                    resource: resource.to_owned(),
-                });
-            }
+            return Err(OrchestratorError::LeaseUnavailable {
+                resource: resource.to_owned(),
+            });
         }
 
         let next = self.next_tokens.entry(resource.to_owned()).or_insert(0);

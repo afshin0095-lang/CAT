@@ -35,6 +35,8 @@ jobs:
             status=${PIPESTATUS[0]}
             sed -E 's/\x1B\[[0-9;]*[[:alpha:]]//g' "/tmp/$name.log" > "/tmp/$name.clean.log"
             if [ "$status" -ne 0 ]; then
+              summary=$(tail -n 80 "/tmp/$name.clean.log" | tr '\n' ' ' | tr '\r' ' ')
+              echo "::error title=$name summary::$summary"
               while IFS= read -r line; do
                 [ -n "$line" ] && echo "::error title=$name::$line"
               done < <(grep -E '(error|warning| --> | = (help|note):|FAILED|panicked)' "/tmp/$name.clean.log" | tail -100)

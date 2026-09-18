@@ -128,10 +128,9 @@ impl LeaseProvider for InMemoryLeaseProvider {
             && existing.expires_at_ms > now_ms
             && existing.owner != owner
         {
-                return Err(OrchestratorError::LeaseUnavailable {
-                    resource: resource.to_owned(),
-                });
-            }
+            return Err(OrchestratorError::LeaseUnavailable {
+                resource: resource.to_owned(),
+            });
         }
         let lease = Lease::acquire(resource, owner, now_ms, ttl_ms);
         self.leases.insert(resource.to_owned(), lease.clone());

@@ -41,17 +41,16 @@ where
         if let Some(remote) = observed
             && let (Some(outcome), Some(observed_at_ms)) = (remote.outcome, remote.observed_at_ms)
         {
-                self.store
-                    .record_provider_result(
-                        execution_id,
-                        &existing.provider_execution_id,
-                        outcome,
-                        observed_at_ms,
-                        remote.result.clone(),
-                        remote.error.as_deref(),
-                    )
-                    .await?;
-            }
+            self.store
+                .record_provider_result(
+                    execution_id,
+                    &existing.provider_execution_id,
+                    outcome,
+                    observed_at_ms,
+                    remote.result.clone(),
+                    remote.error.as_deref(),
+                )
+                .await?;
         }
 
         reconciler.reconcile(execution_id).await
