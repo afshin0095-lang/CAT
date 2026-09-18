@@ -423,24 +423,30 @@ mod tests {
 
     #[test]
     fn invalid_filter_bounds_are_rejected() {
-        let mut filter = OpportunityFilter::default();
-        filter.observed_after_ms = Some(100);
-        filter.observed_before_ms = Some(50);
+        let filter = OpportunityFilter {
+            observed_after_ms: Some(100),
+            observed_before_ms: Some(50),
+            ..Default::default()
+        };
         assert!(matches!(
             OpportunityQuery::new(filter).validate(),
             Err(OpportunityQueryError::InvalidFilter(_))
         ));
 
-        let mut filter = OpportunityFilter::default();
-        filter.commission_min_bps = Some(700);
-        filter.commission_max_bps = Some(300);
+        let filter = OpportunityFilter {
+            commission_min_bps: Some(700),
+            commission_max_bps: Some(300),
+            ..Default::default()
+        };
         assert!(matches!(
             OpportunityQuery::new(filter).validate(),
             Err(OpportunityQueryError::InvalidFilter(_))
         ));
 
-        let mut filter = OpportunityFilter::default();
-        filter.min_score = Some(10_001);
+        let filter = OpportunityFilter {
+            min_score: Some(10_001),
+            ..Default::default()
+        };
         assert!(matches!(
             OpportunityQuery::new(filter).validate(),
             Err(OpportunityQueryError::InvalidFilter(_))
@@ -456,9 +462,11 @@ mod tests {
             build_record("Beta", "Doohickey", 5_000, 10_000),
         ];
 
-        let mut filter = OpportunityFilter::default();
-        filter.merchant = Some("Beta".into());
-        filter.min_score = Some(6_000);
+        let filter = OpportunityFilter {
+            merchant: Some("Beta".into()),
+            min_score: Some(6_000),
+            ..Default::default()
+        };
         let query = OpportunityQuery::new(filter).with_limit(10);
         let result = service
             .execute(&records, &query, 10_500)
@@ -466,8 +474,10 @@ mod tests {
         assert_eq!(result.total_matched, 1);
         assert_eq!(result.items[0].product_name, "Gadget");
 
-        let mut filter = OpportunityFilter::default();
-        filter.lifecycle_state = Some(FreshnessState::Active);
+        let filter = OpportunityFilter {
+            lifecycle_state: Some(FreshnessState::Active),
+            ..Default::default()
+        };
         let query = OpportunityQuery::new(filter).with_limit(10);
         let result = service
             .execute(&records, &query, 10_500)
@@ -524,25 +534,31 @@ mod tests {
             .expect("valid opportunity");
         let stored = store.list().into_iter().next().expect("record exists");
 
-        let mut filter = OpportunityFilter::default();
-        filter.currency = Some("USD".into());
+        let filter = OpportunityFilter {
+            currency: Some("USD".into()),
+            ..Default::default()
+        };
         let query = OpportunityQuery::new(filter).with_limit(10);
         let result = service
             .execute(std::slice::from_ref(&stored), &query, 10_500)
             .expect("valid query");
         assert_eq!(result.total_matched, 1);
 
-        let mut filter = OpportunityFilter::default();
-        filter.commission_min_bps = Some(500);
-        filter.commission_max_bps = Some(700);
+        let filter = OpportunityFilter {
+            commission_min_bps: Some(500),
+            commission_max_bps: Some(700),
+            ..Default::default()
+        };
         let query = OpportunityQuery::new(filter).with_limit(10);
         let result = service
             .execute(std::slice::from_ref(&stored), &query, 10_500)
             .expect("valid query");
         assert_eq!(result.total_matched, 1, "network-a observation has 600 bps");
 
-        let mut filter = OpportunityFilter::default();
-        filter.price_min_minor = Some(15_000);
+        let filter = OpportunityFilter {
+            price_min_minor: Some(15_000),
+            ..Default::default()
+        };
         let query = OpportunityQuery::new(filter).with_limit(10);
         let result = service
             .execute(std::slice::from_ref(&stored), &query, 10_500)
