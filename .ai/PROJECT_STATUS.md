@@ -61,7 +61,7 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Sprint 0 — Affiliate Opportunity Platform Foundation
+**Current Task:** Sprint 1 — Durable Revalidation Execution Coordinator
 
 **Document:** `core/affiliate/rust/` (opportunity subsystem), `docs/implementation/AFFILIATE_OPPORTUNITY_*.md`
 
@@ -76,12 +76,12 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Next Task
 
-Sprint 1 — Opportunity Lifecycle → Orchestrator → Durable Revalidation Execution: wire the revalidation request store into the Orchestrator execution boundary, persist attempts/results, and publish the Sprint 0 event contracts through the EventBus.
+Sprint 1 — Opportunity Lifecycle → Orchestrator → Durable Revalidation Execution: execution coordinator implemented; request claims map to source-scoped Orchestrator ExecutionRequest identities, durable status transitions persist attempts, and success/failure events publish through EventBus.
 
 # Next Tasks
 
-1. Sprint 0 — Affiliate Opportunity Platform Foundation implemented (this branch); CI closure pending
-2. Sprint 1 — revalidation execution through Orchestrator (durable attempts, reconciliation, event publication)
+1. Sprint 1 — revalidation execution coordinator implemented; CI/integration verification pending
+2. Sprint 1 hardening — durable attempt/result persistence and end-to-end PostgreSQL/EventBus verification
 3. Post-merge — retarget stacked affiliate PRs (#34→#39 chain) so Sprint 0 lands on main
 4. LLM / AI Core — authorized tool execution boundary completed
 5. Memory Core — P0 foundation completed

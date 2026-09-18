@@ -21,6 +21,7 @@ pub mod opportunity_projection;
 pub mod opportunity_query;
 pub mod opportunity_ranking;
 pub mod opportunity_revalidation;
+pub mod revalidation_execution;
 pub mod opportunity_store;
 pub mod opportunity_version;
 pub mod repository;
@@ -109,6 +110,10 @@ pub use opportunity_ranking::{
     DEFAULT_FRESHNESS_WEIGHT_BPS, DEFAULT_SOURCE_RELIABILITY_WEIGHT_BPS, OpportunityRanker,
     OpportunityRankingError, OpportunityRankingProfile, RankedOpportunity, RankingFactors,
     UNKNOWN_SOURCE_RELIABILITY_BPS, WEIGHT_SCALE,
+};
+pub use revalidation_execution::{
+    RevalidationExecutionCoordinator, RevalidationExecutionError, RevalidationExecutionReport,
+    RevalidationExecutionResult, RevalidationExecutor, execution_request_for,
 };
 pub use opportunity_revalidation::{
     InMemoryRevalidationRequestStore, REVALIDATION_DEDUP_WINDOW_MS, RevalidationBlockReason,
