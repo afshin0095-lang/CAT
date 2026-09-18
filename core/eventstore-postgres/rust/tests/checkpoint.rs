@@ -40,7 +40,7 @@ async fn checkpoint_store_is_monotonic_and_idempotent() {
 
     let store = PostgresProjectionCheckpointStore::new(pool.clone());
     let stream_id = EntityId::new();
-    let projection_id = format!("checkpoint-contract-{stream_id}");
+    let projection_id = format!("checkpoint-contract-{}", stream_id.as_uuid());
     let first_event = EventId::new();
     let second_event = EventId::new();
     let conflicting_event = EventId::new();

@@ -27,6 +27,15 @@ jobs:
         uses: actions/checkout@v5
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+      - name: Expose rustfmt diff
+        shell: bash
+        run: |
+          cargo fmt --all
+          if ! git diff --quiet; then
+            while IFS= read -r line; do
+              [ -n "$line" ] && echo "::error title=rustfmt::$line"
+            done < <(git diff --no-color | head -120)
+          fi
       - name: Compile affected packages and expose errors
         shell: bash
         run: |
@@ -41,9 +50,10 @@ jobs:
               overall=1
               summary=$(tail -n 30 "/tmp/$package.check.log" | tr '\n' ' ' | tr '\r' ' ')
               echo "::error title=$package check status::$summary"
+              sed -E 's/\x1B\[[0-9;]*[[:alpha:]]//g' "/tmp/$package.check.log" > "/tmp/$package.check.clean.log"
               while IFS= read -r line; do
                 [ -n "$line" ] && echo "::error title=$package check::$line"
-              done < <(grep -E '^(error(\[[A-Z0-9]+\])?:|[[:space:]]*--> |[[:space:]]*= (help|note):)' "/tmp/$package.check.log" | head -80)
+              done < <(grep -E '^(error(\[[A-Z0-9]+\])?:|[[:space:]]*--> |[[:space:]]*= (help|note):)' "/tmp/$package.check.clean.log" | head -80)
             fi
           done
           exit "$overall"
@@ -62,9 +72,10 @@ jobs:
               overall=1
               summary=$(tail -n 30 "/tmp/$package.test.log" | tr '\n' ' ' | tr '\r' ' ')
               echo "::error title=$package test status::$summary"
+              sed -E 's/\x1B\[[0-9;]*[[:alpha:]]//g' "/tmp/$package.test.log" > "/tmp/$package.test.clean.log"
               while IFS= read -r line; do
                 [ -n "$line" ] && echo "::error title=$package test::$line"
-              done < <(grep -E '^(error(\[[A-Z0-9]+\])?:|[[:space:]]*--> |[[:space:]]*= (help|note):|[[:space:]]*----)' "/tmp/$package.test.log" | head -100)
+              done < <(grep -E '^(error(\[[A-Z0-9]+\])?:|[[:space:]]*--> |[[:space:]]*= (help|note):|[[:space:]]*----)' "/tmp/$package.test.clean.log" | head -100)
             fi
           done
           exit "$overall"

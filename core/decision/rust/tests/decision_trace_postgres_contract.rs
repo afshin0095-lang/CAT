@@ -47,7 +47,7 @@ async fn durable_trace_round_trip_preserves_advisory_replay() {
     trace.push("policy", "evaluated policy constraints");
 
     let adapter = DurableDecisionTraceEventStore::new(EntityId::new(), events);
-    let clock = FixedClock::new(TimestampMs::new(1).unwrap());
+    let clock = FixedClock::new(TimestampMs::new(1));
 
     adapter
         .persist(
@@ -79,7 +79,7 @@ async fn durable_trace_rejects_stale_version() {
         steps: Vec::new(),
     };
     let adapter = DurableDecisionTraceEventStore::new(EntityId::new(), events);
-    let clock = FixedClock::new(TimestampMs::new(1).unwrap());
+    let clock = FixedClock::new(TimestampMs::new(1));
 
     adapter
         .persist(

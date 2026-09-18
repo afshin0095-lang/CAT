@@ -60,7 +60,7 @@ fn missing_variable_is_explicit() {
     document.push_block(PromptBlock::new(PromptRole::User, "request", "{{missing}}"));
     assert!(
         matches!(PromptRenderer::render(&document, &PromptPolicy::new(std::iter::empty::<&str>())),
-        Err(cat_prompt::PromptError::ForbiddenVariable(name)) if name == "missing")
+        Err(cat_prompt::PromptError::MissingVariable(name)) if name == "missing")
     );
 }
 

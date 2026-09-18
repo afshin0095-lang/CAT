@@ -501,7 +501,7 @@ mod tests {
         };
         let opportunity = DiscoveryOpportunity {
             id: stored.id,
-            candidate,
+            candidate: candidate.clone(),
             score: 9_500,
             rank: 1,
         };
