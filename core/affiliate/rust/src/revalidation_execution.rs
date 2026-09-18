@@ -45,7 +45,11 @@ where
     E: RevalidationExecutor,
 {
     pub fn new(store: S, executor: E, event_bus: EventBus) -> Self {
-        Self { store, executor, event_bus }
+        Self {
+            store,
+            executor,
+            event_bus,
+        }
     }
 
     pub fn store(&self) -> &S {
@@ -74,7 +78,12 @@ where
     ) -> Result<RevalidationExecutionReport, RevalidationExecutionError> {
         let running = self
             .store
-            .transition(request.request.request_id, RevalidationStatus::Running, now_ms, None)
+            .transition(
+                request.request.request_id,
+                RevalidationStatus::Running,
+                now_ms,
+                None,
+            )
             .await?;
 
         let execution = execution_request_for(&running, now_ms);
@@ -152,8 +161,15 @@ pub fn execution_request_for(
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum RevalidationExecutionReport {
-    Succeeded { request_id: Uuid, attempt: u32, revision: u64 },
-    Failed { request_id: Uuid, attempt: u32 },
+    Succeeded {
+        request_id: Uuid,
+        attempt: u32,
+        revision: u64,
+    },
+    Failed {
+        request_id: Uuid,
+        attempt: u32,
+    },
 }
 
 fn publish_event<T: cat_eventbus::CatEvent>(
@@ -172,7 +188,9 @@ fn publish_event<T: cat_eventbus::CatEvent>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{RevalidationPriority, RevalidationReason, RevalidationRequest, RevalidationTarget};
+    use crate::{
+        RevalidationPriority, RevalidationReason, RevalidationRequest, RevalidationTarget,
+    };
 
     fn record() -> RevalidationRequestRecord {
         RevalidationRequestRecord {

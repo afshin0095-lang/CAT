@@ -1,9 +1,8 @@
 use crate::{
     ContentDomainError, ContentDomainResult, ContentKind, ContentRecord, ContentRepository,
-    ContentStatus,
+    ContentStatus, PublicationReceipt, PublicationReceiptRepository,
     policy::PublicationPolicy,
     versioning::{RevisionPlan, build_revision},
-    PublicationReceipt, PublicationReceiptRepository,
 };
 
 pub struct ContentDomain;
@@ -102,16 +101,24 @@ impl ContentDomain {
     ) -> ContentDomainResult<PublicationReceipt> {
         let content = repo.get(receipt.content_id)?;
         if receipt.revision_id != content.id {
-            return Err(ContentDomainError::InvalidState("publication receipt revision mismatch"));
+            return Err(ContentDomainError::InvalidState(
+                "publication receipt revision mismatch",
+            ));
         }
         if receipt.destination.trim().is_empty() {
-            return Err(ContentDomainError::InvalidState("publication receipt destination is empty"));
+            return Err(ContentDomainError::InvalidState(
+                "publication receipt destination is empty",
+            ));
         }
         if receipt.policy_version.trim().is_empty() {
-            return Err(ContentDomainError::InvalidState("publication receipt policy version is empty"));
+            return Err(ContentDomainError::InvalidState(
+                "publication receipt policy version is empty",
+            ));
         }
         if receipt.content_hash.trim().is_empty() {
-            return Err(ContentDomainError::InvalidState("publication receipt content hash is empty"));
+            return Err(ContentDomainError::InvalidState(
+                "publication receipt content hash is empty",
+            ));
         }
         receipts.append(receipt.clone())?;
         Ok(receipt)

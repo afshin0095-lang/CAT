@@ -36,7 +36,6 @@ impl TimestampMs {
     }
 }
 
-
 /// Returns the current wall-clock Unix time in milliseconds.
 ///
 /// This function is an infrastructure-facing convenience; deterministic domain

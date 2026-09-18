@@ -282,10 +282,7 @@ mod tests {
 
     #[test]
     fn unknown_outcome_is_not_a_failed_outcome() {
-        let outcome = InvocationOutcome::unknown(
-            InvocationId::new(),
-            TimestampMs::new(2_000),
-        );
+        let outcome = InvocationOutcome::unknown(InvocationId::new(), TimestampMs::new(2_000));
         assert_eq!(outcome.status, OutcomeStatus::Unknown);
         assert!(outcome.validate().is_ok());
     }

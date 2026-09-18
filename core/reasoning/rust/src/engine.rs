@@ -35,7 +35,9 @@ impl DeterministicReasoningEngine {
             entry.2.push(evidence.evidence_id);
             entry.3 |= evidence.authoritative;
         }
-        for (statement, (support, contradiction, evidence_ids, _authoritative)) in support_by_statement {
+        for (statement, (support, contradiction, evidence_ids, _authoritative)) in
+            support_by_statement
+        {
             let confidence = if support + contradiction > 0.0 {
                 support / (support + contradiction)
             } else {
@@ -62,17 +64,18 @@ impl DeterministicReasoningEngine {
                 "reasoning step budget exceeded".into(),
             ));
         }
-        let authoritative_statements: BTreeMap<_, _> = request
-            .evidence
-            .iter()
-            .fold(BTreeMap::new(), |mut statements, evidence| {
-                let key = evidence.statement.trim().to_lowercase();
-                statements
-                    .entry(key)
-                    .and_modify(|authoritative| *authoritative |= evidence.authoritative)
-                    .or_insert(evidence.authoritative);
-                statements
-            });
+        let authoritative_statements: BTreeMap<_, _> =
+            request
+                .evidence
+                .iter()
+                .fold(BTreeMap::new(), |mut statements, evidence| {
+                    let key = evidence.statement.trim().to_lowercase();
+                    statements
+                        .entry(key)
+                        .and_modify(|authoritative| *authoritative |= evidence.authoritative)
+                        .or_insert(evidence.authoritative);
+                    statements
+                });
         hypotheses.sort_by(|a, b| {
             let ca = a.support / (a.support + a.contradiction).max(f32::EPSILON);
             let cb = b.support / (b.support + b.contradiction).max(f32::EPSILON);

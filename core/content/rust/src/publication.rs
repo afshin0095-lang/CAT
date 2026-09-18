@@ -1,11 +1,16 @@
+use crate::ContentId;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
-use crate::ContentId;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum PublicationOutcome { Published, Rejected, Failed, RolledBack }
+pub enum PublicationOutcome {
+    Published,
+    Rejected,
+    Failed,
+    RolledBack,
+}
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PublicationReceipt {

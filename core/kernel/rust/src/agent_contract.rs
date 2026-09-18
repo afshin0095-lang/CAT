@@ -7,13 +7,21 @@ use crate::{ContractVersion, EntityId, KernelError, KernelResult, SideEffectClas
 pub struct AgentId(EntityId);
 
 impl AgentId {
-    pub fn new() -> Self { Self(EntityId::new()) }
-    pub const fn from_entity_id(value: EntityId) -> Self { Self(value) }
-    pub const fn as_entity_id(self) -> EntityId { self.0 }
+    pub fn new() -> Self {
+        Self(EntityId::new())
+    }
+    pub const fn from_entity_id(value: EntityId) -> Self {
+        Self(value)
+    }
+    pub const fn as_entity_id(self) -> EntityId {
+        self.0
+    }
 }
 
 impl Default for AgentId {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 /// Canonical v1 contract describing an agent's executable boundary.
@@ -80,7 +88,8 @@ impl AgentContract {
     }
 
     pub fn with_knowledge_scope(mut self, scope: impl Into<String>) -> KernelResult<Self> {
-        self.knowledge_scope = push_non_empty(self.knowledge_scope, scope.into(), "knowledge scope")?;
+        self.knowledge_scope =
+            push_non_empty(self.knowledge_scope, scope.into(), "knowledge scope")?;
         Ok(self)
     }
 
@@ -120,9 +129,15 @@ impl AgentContract {
     }
 }
 
-fn push_non_empty(mut values: Vec<String>, value: String, field: &str) -> KernelResult<Vec<String>> {
+fn push_non_empty(
+    mut values: Vec<String>,
+    value: String,
+    field: &str,
+) -> KernelResult<Vec<String>> {
     if value.trim().is_empty() {
-        return Err(KernelError::InvalidInput(format!("{field} must not be empty")));
+        return Err(KernelError::InvalidInput(format!(
+            "{field} must not be empty"
+        )));
     }
     if !values.iter().any(|existing| existing == &value) {
         values.push(value);
@@ -136,7 +151,12 @@ mod tests {
 
     #[test]
     fn new_agent_is_disabled_and_pure_by_default() {
-        let contract = AgentContract::new(AgentId::new(), "affiliate.discovery", "Discover affiliate opportunities").unwrap();
+        let contract = AgentContract::new(
+            AgentId::new(),
+            "affiliate.discovery",
+            "Discover affiliate opportunities",
+        )
+        .unwrap();
         assert!(!contract.enabled);
         assert_eq!(contract.allowed_side_effect, SideEffectClass::S0);
         assert!(contract.validate().is_ok());
@@ -144,7 +164,9 @@ mod tests {
 
     #[test]
     fn enabled_agent_requires_a_capability() {
-        let contract = AgentContract::new(AgentId::new(), "test", "test mission").unwrap().enable();
+        let contract = AgentContract::new(AgentId::new(), "test", "test mission")
+            .unwrap()
+            .enable();
         assert!(contract.validate().is_err());
     }
 

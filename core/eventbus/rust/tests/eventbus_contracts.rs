@@ -1,4 +1,7 @@
-use std::{sync::{Arc, Mutex}, time::Duration};
+use std::{
+    sync::{Arc, Mutex},
+    time::Duration,
+};
 
 use cat_eventbus::{CatEvent, EventBus, EventEnvelope, EventKind, PublishOutcome};
 use serde::{Deserialize, Serialize};
