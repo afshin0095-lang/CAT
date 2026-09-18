@@ -94,6 +94,7 @@ jobs:
           - cat-rag
           - cat-affiliate
           - cat-content
+          - cat-prompt
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -145,6 +146,7 @@ jobs:
           - cat-rag
           - cat-affiliate
           - cat-content
+          - cat-prompt
     steps:
       - name: Checkout
         uses: actions/checkout@v5
