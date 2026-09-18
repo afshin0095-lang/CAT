@@ -1,0 +1,66 @@
+name: CAT Rust Diagnostic
+
+on:
+  push:
+    paths:
+      - '**/*.rs'
+      - '**/Cargo.toml'
+      - '**/Cargo.lock'
+      - '.github/workflows/rust-diagnostic.yml'
+  pull_request:
+    paths:
+      - '**/*.rs'
+      - '**/Cargo.toml'
+      - '**/Cargo.lock'
+      - '.github/workflows/rust-diagnostic.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    name: Diagnostic compiler output
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Compile affected packages and expose errors
+        shell: bash
+        run: |
+          set +e
+          packages=(cat-eventstore-postgres cat-decision cat-affiliate cat-content cat-orchestrator cat-platform cat-prompt)
+          overall=0
+          for package in "${packages[@]}"; do
+            echo "=== CHECK $package ==="
+            cargo check -p "$package" --all-targets 2>&1 | tee "/tmp/$package.check.log"
+            status=${PIPESTATUS[0]}
+            if [ "$status" -ne 0 ]; then
+              overall=1
+              while IFS= read -r line; do
+                [ -n "$line" ] && echo "::error title=$package check::$line"
+              done < <(grep -E '^(error(\[[A-Z0-9]+\])?:|[[:space:]]*--> |[[:space:]]*= (help|note):)' "/tmp/$package.check.log" | head -80)
+            fi
+          done
+          exit "$overall"
+      - name: Run affected package tests and expose errors
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set +e
+          packages=(cat-eventstore-postgres cat-decision cat-affiliate cat-content cat-orchestrator cat-platform cat-prompt)
+          overall=0
+          for package in "${packages[@]}"; do
+            echo "=== TEST $package ==="
+            cargo test -p "$package" --all-targets 2>&1 | tee "/tmp/$package.test.log"
+            status=${PIPESTATUS[0]}
+            if [ "$status" -ne 0 ]; then
+              overall=1
+              while IFS= read -r line; do
+                [ -n "$line" ] && echo "::error title=$package test::$line"
+              done < <(grep -E '^(error(\[[A-Z0-9]+\])?:|[[:space:]]*--> |[[:space:]]*= (help|note):|[[:space:]]*----)' "/tmp/$package.test.log" | head -100)
+            fi
+          done
+          exit "$overall"
