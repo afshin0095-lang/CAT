@@ -64,24 +64,23 @@ impl OpportunityFilter {
         {
             return false;
         }
-        if let Some(before) = self.observed_before_ms {
-            if record.last_observed_at_ms >= before {
-                return false;
-            }
+        if let Some(before) = self.observed_before_ms
+            && record.last_observed_at_ms >= before
+        {
+            return false;
         }
-        if let Some(source) = &self.source {
-            if !record.observations.contains_key(source.as_str()) {
-                return false;
-            }
+        if let Some(source) = &self.source
+            && !record.observations.contains_key(source.as_str())
+        {
+            return false;
         }
-        if let Some(currency) = &self.currency {
-            if !record
+        if let Some(currency) = &self.currency
+            && !record
                 .observations
                 .values()
                 .any(|observation| observation.currency == *currency)
-            {
-                return false;
-            }
+        {
+            return false;
         }
         self.matches_ranges(record)
     }
@@ -110,33 +109,33 @@ impl OpportunityFilter {
     }
 
     pub fn validate(&self) -> Result<(), OpportunityQueryError> {
-        if let (Some(after), Some(before)) = (self.observed_after_ms, self.observed_before_ms) {
-            if after > before {
-                return Err(OpportunityQueryError::InvalidFilter(
-                    "observed_after_ms must not exceed observed_before_ms".into(),
-                ));
-            }
+        if let (Some(after), Some(before)) = (self.observed_after_ms, self.observed_before_ms)
+            && after > before
+        {
+            return Err(OpportunityQueryError::InvalidFilter(
+                "observed_after_ms must not exceed observed_before_ms".into(),
+            ));
         }
-        if let (Some(min), Some(max)) = (self.price_min_minor, self.price_max_minor) {
-            if min > max {
-                return Err(OpportunityQueryError::InvalidFilter(
-                    "price_min_minor must not exceed price_max_minor".into(),
-                ));
-            }
+        if let (Some(min), Some(max)) = (self.price_min_minor, self.price_max_minor)
+            && min > max
+        {
+            return Err(OpportunityQueryError::InvalidFilter(
+                "price_min_minor must not exceed price_max_minor".into(),
+            ));
         }
-        if let (Some(min), Some(max)) = (self.commission_min_bps, self.commission_max_bps) {
-            if min > max {
-                return Err(OpportunityQueryError::InvalidFilter(
-                    "commission_min_bps must not exceed commission_max_bps".into(),
-                ));
-            }
+        if let (Some(min), Some(max)) = (self.commission_min_bps, self.commission_max_bps)
+            && min > max
+        {
+            return Err(OpportunityQueryError::InvalidFilter(
+                "commission_min_bps must not exceed commission_max_bps".into(),
+            ));
         }
-        if let Some(min_score) = self.min_score {
-            if min_score > 10_000 {
-                return Err(OpportunityQueryError::InvalidFilter(
-                    "min_score must be within 0..=10000".into(),
-                ));
-            }
+        if let Some(min_score) = self.min_score
+            && min_score > 10_000
+        {
+            return Err(OpportunityQueryError::InvalidFilter(
+                "min_score must be within 0..=10000".into(),
+            ));
         }
         Ok(())
     }

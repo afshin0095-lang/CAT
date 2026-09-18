@@ -9,6 +9,7 @@
 //! - a **request** is the intent to refresh (this module);
 //! - an **attempt** is one execution of a request (Sprint 1 / Orchestrator);
 //! - a **result** is the observed outcome merged back into opportunity facts.
+//!
 //! These are never conflated.
 
 use serde::{Deserialize, Serialize};
@@ -471,12 +472,12 @@ impl RevalidationRequestStore for InMemoryRevalidationRequestStore {
                 "revalidation target requires an identity and a source".into(),
             ));
         }
-        if let Some(existing) = self.find_by_dedup_key(&request.dedup_key) {
-            if !existing.status.is_terminal() {
-                return Err(RevalidationStoreError::DuplicateRequest {
-                    dedup_key: request.dedup_key,
-                });
-            }
+        if let Some(existing) = self.find_by_dedup_key(&request.dedup_key)
+            && !existing.status.is_terminal()
+        {
+            return Err(RevalidationStoreError::DuplicateRequest {
+                dedup_key: request.dedup_key,
+            });
         }
         let record = RevalidationRequestRecord {
             status: RevalidationStatus::Pending,

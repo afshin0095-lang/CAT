@@ -209,7 +209,7 @@ fn versioned_name(value: impl Into<String>, version: u32) -> AffiliateDomainResu
     Ok(VersionedName::new(value, version))
 }
 
-#[allow(dead_code)]
+#[allow(dead_code, clippy::too_many_arguments)]
 fn _type_markers(
     _: MerchantId,
     _: ProgramId,
