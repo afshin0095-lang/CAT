@@ -45,8 +45,9 @@ pub fn validate_definition(definition: &WorkflowDefinition) -> OrchestratorResul
                 });
             }
         }
-        if let Some(compensation) = &step.compensation_step {
-            if !indexes.contains_key(compensation.as_str()) {
+        if let Some(compensation) = &step.compensation_step
+            && !indexes.contains_key(compensation.as_str())
+        {
                 return Err(OrchestratorError::UnknownStep {
                     step_id: compensation.clone(),
                 });

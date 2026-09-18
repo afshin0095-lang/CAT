@@ -38,8 +38,9 @@ where
         }
 
         let observed = self.adapter.lookup(&existing.provider_execution_id).await?;
-        if let Some(remote) = observed {
-            if let (Some(outcome), Some(observed_at_ms)) = (remote.outcome, remote.observed_at_ms) {
+        if let Some(remote) = observed
+            && let (Some(outcome), Some(observed_at_ms)) = (remote.outcome, remote.observed_at_ms)
+        {
                 self.store
                     .record_provider_result(
                         execution_id,

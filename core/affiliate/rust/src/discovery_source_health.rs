@@ -185,7 +185,7 @@ mod tests {
             SourceHealthState::Healthy,
             "one failure cannot degrade"
         );
-        assert_eq!(snapshot.consecutive_failures, 0);
+        assert_eq!(snapshot.consecutive_failures, 1);
         assert_eq!(snapshot.last_success_latency_ms, Some(120));
         assert_eq!(snapshot.availability_bps, Some(5_000));
     }

@@ -17,6 +17,7 @@ pub trait ExecutionAttemptStore: Send + Sync {
         token: FencingToken,
         now_ms: u64,
     ) -> OrchestratorResult<()>;
+    #[allow(clippy::too_many_arguments)]
     async fn complete_execution(
         &self,
         execution_id: Uuid,

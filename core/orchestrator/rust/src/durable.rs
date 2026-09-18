@@ -124,8 +124,10 @@ impl LeaseProvider for InMemoryLeaseProvider {
         now_ms: u64,
         ttl_ms: u64,
     ) -> OrchestratorResult<Lease> {
-        if let Some(existing) = self.leases.get(resource) {
-            if existing.expires_at_ms > now_ms && existing.owner != owner {
+        if let Some(existing) = self.leases.get(resource)
+            && existing.expires_at_ms > now_ms
+            && existing.owner != owner
+        {
                 return Err(OrchestratorError::LeaseUnavailable {
                     resource: resource.to_owned(),
                 });

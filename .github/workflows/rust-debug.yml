@@ -59,5 +59,7 @@ jobs:
               print(f"::error file={span.get('file_name','')} line={span.get('line_start',1)} title=affiliate-clippy::{message.get('message','').replace('\n', ' ').strip()}")
           PY
           run_one affiliate-test cargo test -p cat-affiliate --all-targets || true
+          run_one affiliate-source cargo test -p cat-affiliate --lib discovery_source_health::tests::successes_keep_sources_healthy -- --nocapture || true
+          run_one affiliate-canonical cargo test -p cat-affiliate --lib discovery::tests::canonical_key_ascii_limitation_is_documented_and_fail_closed -- --nocapture || true
           run_one platform-check cargo check -p cat-platform --all-targets || true
           run_one platform-test cargo test -p cat-platform --all-targets || true

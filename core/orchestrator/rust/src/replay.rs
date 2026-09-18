@@ -62,7 +62,7 @@ pub fn verify_replay(
         || actual
             .iter()
             .map(String::as_str)
-            .ne(expected_order.into_iter())
+            .ne(expected_order)
     {
         return Err(OrchestratorError::Serialization(
             "workflow replay order does not match snapshot".to_string(),
