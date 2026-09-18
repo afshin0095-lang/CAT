@@ -24,6 +24,9 @@ impl EventCodec for JsonEventCodec {
 pub trait DeadLetterStore: Send + Sync {
     fn park(&mut self, event: EventEnvelope, reason: impl Into<String>) -> EventBusResult<()>;
     fn len(&self) -> usize;
+    fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

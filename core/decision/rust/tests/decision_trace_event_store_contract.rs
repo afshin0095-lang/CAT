@@ -38,7 +38,7 @@ fn persisted_trace_hydrates_and_replays_without_execution_authority() {
     trace.push("policy", "evaluated policy constraints");
 
     let mut store = DecisionTraceEventStore::default();
-    let clock = FixedClock::new(TimestampMs::new(1).unwrap());
+    let clock = FixedClock::new(TimestampMs::new(1));
 
     store
         .persist(
@@ -68,7 +68,7 @@ fn stale_expected_version_fails_closed() {
         steps: Vec::new(),
     };
     let mut store = DecisionTraceEventStore::default();
-    let clock = FixedClock::new(TimestampMs::new(1).unwrap());
+    let clock = FixedClock::new(TimestampMs::new(1));
 
     store
         .persist(

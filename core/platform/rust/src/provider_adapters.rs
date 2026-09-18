@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::BTreeMap;
 use std::sync::Arc;
-use uuid::Uuid;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
 pub struct ProviderId(String);
@@ -214,6 +213,7 @@ impl ExternalProviderAdapter for DeterministicProviderAdapter {
 mod tests {
     use super::*;
     use crate::{AdapterRequest, IntegrationCommand, IntegrationContext};
+    use uuid::Uuid;
 
     fn request(target: IntegrationTarget, operation: &str) -> AdapterRequest {
         AdapterRequest::from_command(

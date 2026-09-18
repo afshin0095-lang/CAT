@@ -74,7 +74,7 @@ pub use envelope::{EventEnvelope, EventKind};
 pub use error::{EventBusError, EventBusResult};
 pub use event_id::EventId;
 pub use in_memory::{InMemoryIdempotency, InMemoryInbox, InMemoryOutbox};
-pub use inbox_health::{InboxHealthSnapshot, MetricsInboxHealth};
+pub use inbox_health::{InboxHealthDiagnostics, InboxHealthSnapshot, MetricsInboxHealth};
 pub use inbox_metrics::{InboxDiagnostics, MetricsInbox, MetricsInboxSnapshot};
 pub use metrics::{EventBusMetrics, EventBusMetricsSnapshot};
 pub use nats::{AsyncEventTransport, NatsJetStreamTransport, subject_for_prefix};

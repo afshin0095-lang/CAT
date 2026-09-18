@@ -27,6 +27,7 @@ mod tests {
                 Some(DeliveryState::RetryScheduled)
             );
 
+            assert!(inbox.accept(event_id).await.unwrap());
             inbox.mark_succeeded(event_id).await.unwrap();
             assert_eq!(
                 inbox.state(event_id).await.unwrap(),
