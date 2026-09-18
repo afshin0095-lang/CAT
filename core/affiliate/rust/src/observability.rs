@@ -227,12 +227,14 @@ mod tests {
 
     #[test]
     fn ingestion_report_converts_into_all_discovery_metrics() {
-        let mut report = OpportunityIngestionReport::default();
-        report.candidates_received = 10;
-        report.candidates_rejected = 2;
-        report.opportunities_created = 5;
-        report.opportunities_changed = 3;
-        report.sources_failed = 1;
+        let report = OpportunityIngestionReport {
+            candidates_received: 10,
+            candidates_rejected: 2,
+            opportunities_created: 5,
+            opportunities_changed: 3,
+            sources_failed: 1,
+            ..Default::default()
+        };
         let samples = ingestion_report_metrics(&report);
         assert_eq!(samples.len(), 5);
         assert!(samples.iter().all(|sample| {
