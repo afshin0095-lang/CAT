@@ -65,3 +65,14 @@ jobs:
           run_one affiliate-canonical cargo test -p cat-affiliate --lib discovery::tests::canonical_key_ascii_limitation_is_documented_and_fail_closed -- --nocapture || true
           run_one platform-check cargo check -p cat-platform --all-targets || true
           run_one platform-test cargo test -p cat-platform --all-targets || true
+          # Preserve the formatter's exact rewrite so a failed workspace fmt
+          # gate can be repaired without relying on unavailable local Rust.
+          cargo fmt --all
+          git diff --no-color > /tmp/rustfmt.patch
+      - name: Upload formatter patch
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustfmt-patch
+          path: /tmp/rustfmt.patch
+          if-no-files-found: ignore
