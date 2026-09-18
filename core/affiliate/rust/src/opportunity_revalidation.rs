@@ -636,12 +636,21 @@ mod tests {
         scheduled_for_ms: u64,
         priority: RevalidationPriority,
     ) -> RevalidationRequest {
+        request_with_times(source, 1_000, scheduled_for_ms, priority)
+    }
+
+    fn request_with_times(
+        source: &str,
+        requested_at_ms: u64,
+        scheduled_for_ms: u64,
+        priority: RevalidationPriority,
+    ) -> RevalidationRequest {
         RevalidationRequest::new(
             Uuid::now_v7(),
             RevalidationTarget::new("acme:widget", source),
             RevalidationReason::Stale,
             priority,
-            1_000,
+            requested_at_ms,
             scheduled_for_ms,
         )
     }
@@ -948,12 +957,18 @@ mod tests {
     #[test]
     fn list_is_ordered_by_creation_time_then_id() {
         let mut store = InMemoryRevalidationRequestStore::new();
-        let mut later = request_for_source("network-a", 5_000, RevalidationPriority::Low);
-        later.requested_at_ms = 5_000;
-        let later = store.insert(later).expect("insert");
+        let later = store
+            .insert(request_with_times(
+                "network-a",
+                5_000,
+                5_000,
+                RevalidationPriority::Low,
+            ))
+            .expect("insert");
         let earlier = store
-            .insert(request_for_source(
+            .insert(request_with_times(
                 "network-b",
+                1_000,
                 1_000,
                 RevalidationPriority::Low,
             ))
