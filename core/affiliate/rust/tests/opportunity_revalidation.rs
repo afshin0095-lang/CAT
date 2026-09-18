@@ -56,8 +56,9 @@ fn store_semantics_match_the_documented_contract() {
     let mut store = InMemoryRevalidationRequestStore::new();
 
     // Insert -> Pending, dedup-visible, gettable.
-    let request = request("acme:widget", "network-a", RevalidationReason::Stale, 1_000);
-    let inserted = store.insert(request).expect("insert");
+    let inserted_request =
+        request("acme:widget", "network-a", RevalidationReason::Stale, 1_000);
+    let inserted = store.insert(inserted_request).expect("insert");
     assert_eq!(inserted.status, RevalidationStatus::Pending);
     assert_eq!(
         store.get(inserted.request.request_id).expect("get").request,

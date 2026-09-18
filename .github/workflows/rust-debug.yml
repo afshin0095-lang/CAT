@@ -43,7 +43,21 @@ jobs:
           }
           run_one fmt cargo fmt --all -- --check || true
           run_one affiliate-check cargo check -p cat-affiliate --all-targets || true
-          run_one affiliate-clippy cargo clippy -p cat-affiliate --all-targets --all-features -- -D warnings || true
+          cargo clippy -p cat-affiliate --all-targets --all-features --message-format=json -- -D warnings > /tmp/affiliate-clippy.json 2>&1
+          python3 - <<'PY'
+          import json
+          for line in open('/tmp/affiliate-clippy.json', errors='replace'):
+              try:
+                  item = json.loads(line)
+              except json.JSONDecodeError:
+                  continue
+              message = item.get('message', {})
+              if message.get('level') not in {'warning', 'error'}:
+                  continue
+              spans = message.get('spans') or [{}]
+              span = next((span for span in spans if span.get('is_primary')), spans[0])
+              print(f"::error file={span.get('file_name','')} line={span.get('line_start',1)} title=affiliate-clippy::{message.get('message','').replace('\n', ' ').strip()}")
+          PY
           run_one affiliate-test cargo test -p cat-affiliate --all-targets || true
           run_one platform-check cargo check -p cat-platform --all-targets || true
           run_one platform-test cargo test -p cat-platform --all-targets || true
