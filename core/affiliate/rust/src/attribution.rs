@@ -32,18 +32,12 @@ pub struct ConversionEventId(pub Uuid);
 // Attribution model enum
 // ---------------------------------------------------------------------------
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub enum AttributionModel {
     LastClick,
     FirstClick,
     Linear,
     Position,
-}
-
-impl Default for AttributionModel {
-    fn default() -> Self {
-        Self::LastClick
-    }
 }
 
 // ---------------------------------------------------------------------------
@@ -151,8 +145,8 @@ pub fn apply_model(model: AttributionModel, n: usize) -> Vec<f64> {
             w[0] = 0.4;
             w[n - 1] = 0.4;
             let middle_weight = 0.2 / (n - 2) as f64;
-            for i in 1..n - 1 {
-                w[i] = middle_weight;
+            for weight in &mut w[1..n - 1] {
+                *weight = middle_weight;
             }
             w
         }
@@ -226,7 +220,7 @@ mod tests {
     #[test]
     fn click_within_window_normal() {
         let click = 1000;
-        let event = 1000 + 3600_000;
+        let event = 1000 + 3_600_000;
         assert!(click_within_window(click, event, 30));
     }
 

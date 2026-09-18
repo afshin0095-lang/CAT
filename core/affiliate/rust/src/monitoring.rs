@@ -87,11 +87,21 @@ pub fn build_daily_report(input: &MonitoringInput) -> DailyMonitoringReport {
                 .into(),
         });
     }
-    if let (Some(previous), Some(current)) = (input.previous_revenue, input.revenue) {
-        if previous > 0.0 && current < previous * 0.7 {
-            findings.push(MonitoringFinding { code: "revenue_drop".into(), severity: FindingSeverity::Critical, message: "Revenue dropped more than 30% versus the previous snapshot".into(), evidence: format!("previous={previous}, current={current}"), recommended_action: "Check ingestion, attribution, provider health, and routing before changing strategy".into() });
-        }
+    if let (Some(previous), Some(current)) = (input.previous_revenue, input.revenue)
+        && previous > 0.0
+        && current < previous * 0.7
+    {
+        findings.push(MonitoringFinding {
+            code: "revenue_drop".into(),
+            severity: FindingSeverity::Critical,
+            message: "Revenue dropped more than 30% versus the previous snapshot".into(),
+            evidence: format!("previous={previous}, current={current}"),
+            recommended_action:
+                "Check ingestion, attribution, provider health, and routing before changing strategy"
+                    .into(),
+        });
     }
+
     let status = if findings
         .iter()
         .any(|f| f.severity == FindingSeverity::Critical)

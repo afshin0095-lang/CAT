@@ -155,7 +155,10 @@ fn resilient_adapter_preserves_provider_contract_after_recovery() {
     .unwrap();
 
     assert!(resilient.execute(&request()).unwrap().accepted);
-    assert_eq!(ProviderHealthProbe::probe_health(&resilient).unwrap(), ProviderHealth::Ready);
+    assert_eq!(
+        ProviderHealthProbe::probe_health(&resilient).unwrap(),
+        ProviderHealth::Ready
+    );
     assert_eq!(resilient.capabilities().target, IntegrationTarget::Llm);
 }
 

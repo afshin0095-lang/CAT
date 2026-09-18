@@ -39,30 +39,30 @@ pub struct OpportunityFilter {
 
 impl OpportunityFilter {
     pub fn matches(&self, record: &OpportunityRecord, lifecycle_state: FreshnessState) -> bool {
-        if let Some(merchant) = &self.merchant {
-            if record.merchant_name != *merchant {
-                return false;
-            }
+        if let Some(merchant) = &self.merchant
+            && record.merchant_name != *merchant
+        {
+            return false;
         }
-        if let Some(category) = &self.category {
-            if record.category.as_deref() != Some(category.as_str()) {
-                return false;
-            }
+        if let Some(category) = &self.category
+            && record.category.as_deref() != Some(category.as_str())
+        {
+            return false;
         }
-        if let Some(min_score) = self.min_score {
-            if record.best_score < min_score {
-                return false;
-            }
+        if let Some(min_score) = self.min_score
+            && record.best_score < min_score
+        {
+            return false;
         }
-        if let Some(expected) = self.lifecycle_state {
-            if lifecycle_state != expected {
-                return false;
-            }
+        if let Some(expected) = self.lifecycle_state
+            && lifecycle_state != expected
+        {
+            return false;
         }
-        if let Some(after) = self.observed_after_ms {
-            if record.last_observed_at_ms <= after {
-                return false;
-            }
+        if let Some(after) = self.observed_after_ms
+            && record.last_observed_at_ms <= after
+        {
+            return false;
         }
         if let Some(before) = self.observed_before_ms {
             if record.last_observed_at_ms >= before {

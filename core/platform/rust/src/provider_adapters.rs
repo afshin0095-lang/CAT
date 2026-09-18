@@ -312,7 +312,10 @@ mod tests {
         let adapter =
             DeterministicProviderAdapter::new("local", IntegrationTarget::Llm, ["generate"])
                 .unwrap();
-        assert_eq!(ExternalProviderAdapter::probe_health(&adapter).unwrap(), ProviderHealth::Ready);
+        assert_eq!(
+            ExternalProviderAdapter::probe_health(&adapter).unwrap(),
+            ProviderHealth::Ready
+        );
     }
 
     #[test]
