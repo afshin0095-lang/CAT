@@ -1,6 +1,6 @@
 use cat_platform::{
     AdapterRequest, ExternalProviderAdapter, HttpJsonProviderAdapter, IntegrationCommand,
-    IntegrationContext, IntegrationTarget, PlatformError, PlatformResult, ProviderCircuitConfig,
+    IntegrationContext, IntegrationTarget, PlatformError, ProviderCircuitConfig,
     ProviderHealth, ProviderHealthProbe, ProviderRetryConfig, ResilientProviderAdapter,
 };
 use serde_json::json;

@@ -304,7 +304,7 @@ mod tests {
                 .unwrap();
         let response = adapter.execute(&request).unwrap();
         assert_eq!(response.request_id, request_id);
-        assert_eq!(response.payload["request_id"], request_id);
+        assert_eq!(response.payload["request_id"], serde_json::json!(request_id));
     }
 
     #[test]

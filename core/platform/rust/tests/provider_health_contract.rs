@@ -146,6 +146,7 @@ fn resilient_adapter_preserves_provider_contract_after_recovery() {
         ProviderRetryConfig {
             max_attempts: 2,
             retry_delay: Duration::ZERO,
+            max_retry_delay: Duration::ZERO,
         },
         ProviderCircuitConfig {
             failure_threshold: 3,

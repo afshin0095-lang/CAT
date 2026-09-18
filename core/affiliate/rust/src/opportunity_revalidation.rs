@@ -863,16 +863,32 @@ mod tests {
     fn claim_due_is_deterministic_and_marks_claimed() {
         let mut store = InMemoryRevalidationRequestStore::new();
         let low = store
-            .insert(request_for_source("network-a", 1_000, RevalidationPriority::Low))
+            .insert(request_for_source(
+                "network-a",
+                1_000,
+                RevalidationPriority::Low,
+            ))
             .expect("insert low");
         let critical = store
-            .insert(request_for_source("network-b", 500, RevalidationPriority::Critical))
+            .insert(request_for_source(
+                "network-b",
+                500,
+                RevalidationPriority::Critical,
+            ))
             .expect("insert critical");
         let high_later = store
-            .insert(request_for_source("network-c", 2_000, RevalidationPriority::High))
+            .insert(request_for_source(
+                "network-c",
+                2_000,
+                RevalidationPriority::High,
+            ))
             .expect("insert high");
         let not_due = store
-            .insert(request_for_source("network-d", 9_999, RevalidationPriority::Critical))
+            .insert(request_for_source(
+                "network-d",
+                9_999,
+                RevalidationPriority::Critical,
+            ))
             .expect("insert future");
 
         let claimed = store.claim_due(2_000, 10);
@@ -932,11 +948,15 @@ mod tests {
     #[test]
     fn list_is_ordered_by_creation_time_then_id() {
         let mut store = InMemoryRevalidationRequestStore::new();
-        let later = store
-            .insert(request_for_source("network-a", 5_000, RevalidationPriority::Low))
-            .expect("insert");
+        let mut later = request_for_source("network-a", 5_000, RevalidationPriority::Low);
+        later.requested_at_ms = 5_000;
+        let later = store.insert(later).expect("insert");
         let earlier = store
-            .insert(request_for_source("network-b", 1_000, RevalidationPriority::Low))
+            .insert(request_for_source(
+                "network-b",
+                1_000,
+                RevalidationPriority::Low,
+            ))
             .expect("insert");
         let records = store.list();
         assert_eq!(records[0].request.request_id, earlier.request.request_id);
