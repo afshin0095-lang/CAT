@@ -43,12 +43,12 @@ jobs:
       - name: Format workspace
         run: cargo fmt --all || true
       - name: Package formatted Rust sources
-        run: tar -czf rustfmt-export.tgz core --exclude='core/**/target'
+        run: zip -qr rustfmt-export.zip core -x '*/target/*'
       - name: Upload formatted sources
         uses: actions/upload-artifact@v4
         with:
           name: rustfmt-export
-          path: rustfmt-export.tgz
+          path: rustfmt-export.zip
 
   fmt:
     name: Formatting
