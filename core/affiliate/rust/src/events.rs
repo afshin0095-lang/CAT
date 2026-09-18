@@ -276,7 +276,6 @@ impl CatEvent for OpportunityRevalidationFailed {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use cat_eventbus::EventEnvelope;
     use uuid::Uuid;
 
     #[test]

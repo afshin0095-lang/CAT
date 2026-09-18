@@ -396,10 +396,10 @@ mod tests {
 
     #[test]
     fn oversized_and_control_character_values_are_rejected() {
-        let mut candidate = candidate("bounds", 5_000);
-        candidate.source = "s".repeat(MAX_SOURCE_LEN + 1);
+        let mut oversized = candidate("bounds", 5_000);
+        oversized.source = "s".repeat(MAX_SOURCE_LEN + 1);
         assert!(matches!(
-            candidate.validate(),
+            oversized.validate(),
             Err(DiscoveryError::TooLong {
                 field: "source",
                 ..

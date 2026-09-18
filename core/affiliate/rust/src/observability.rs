@@ -197,7 +197,7 @@ pub fn revalidation_status_metrics(status: RevalidationStatus, count: u64) -> Ve
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::opportunity_freshness::{FreshnessPolicy, FreshnessState};
+    use crate::opportunity_freshness::FreshnessState;
     use crate::opportunity_lifecycle::{
         LifecycleEvaluation, LifecycleStateCounts, OpportunityLifecyclePolicy,
         OpportunityLifecycleSnapshot,

@@ -216,7 +216,10 @@ mod tests {
             resilient.circuit_state(),
             crate::ProviderCircuitState::Closed
         );
-        assert_eq!(ProviderHealthProbe::probe_health(&resilient).unwrap(), ProviderHealth::Ready);
+        assert_eq!(
+            ProviderHealthProbe::probe_health(&resilient).unwrap(),
+            ProviderHealth::Ready
+        );
     }
 
     #[test]
