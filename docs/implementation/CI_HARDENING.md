@@ -1,49 +1,64 @@
-# CI Hardening — Sprint 0 (prepared, NOT committed to `.github/`)
+# CI Validation — Current State
 
 ## Status
 
-**NOT APPLIED.** The sandbox GitHub App (`arena-ai-coding-agent[bot]`) cannot
-create or update files under `.github/workflows/`:
+The active Rust workflow is `.github/workflows/rust-workspace.yml`. It runs:
 
-```
-! [remote rejected] ... (refusing to allow a GitHub App to create or update
-workflow `.github/workflows/rust-workspace.yml` without `workflows` permission)
-```
+- `cargo fmt --all -- --check`;
+- workspace metadata validation;
+- `cargo clippy -p cat-affiliate --all-targets --all-features -- -D warnings`;
+- `cargo check --all-targets` for the Rust package matrix;
+- `cargo test --all-targets` for the Rust package matrix;
+- a PostgreSQL 16 service for integration tests;
+- a fail-closed workspace summary.
 
-(the same change through the Contents API fails with
-`Resource not accessible by integration`, HTTP 403).
+The current Rust matrices contain 15 packages and **omit `cat-prompt`**, even
+though `cat-prompt` is a member of the 16-package Cargo workspace. The Go
+Gateway currently has no committed CI workflow. These are the first CI coverage
+gaps to correct when workflow-file write permission is available.
 
-Additionally, at the time of writing the repository's GitHub Actions minutes
-were exhausted (private repository), so even existing workflow runs fail at
-startup; CI could not validate the applied gates either way.
+## Latest observed run
 
-## What to apply
+The latest run on commit `cbed531` is
+[GitHub Actions run 35332655214](https://github.com/afshin0095-lang/CAT/actions/runs/35332655214).
+It completed with **20 failed jobs and 14 successful jobs**. The metadata job
+passed, but formatting, the affiliate clippy gate, and multiple package check
+and test jobs failed. The detailed runner log is currently unavailable from the
+sandbox because GitHub's log host is blocked by the egress proxy; the check
+annotations expose only the process exit codes.
 
-Replace `.github/workflows/rust-workspace.yml` with the file in this
-directory (`rust-workspace-hardened.yml`). It is additive on top of the
-committed workflow:
+This means Sprint 0 remains **unverified and open**. A green workflow run is a
+release gate, not an optional follow-up.
 
-- everything already in place is preserved: `pull_request`/`push` triggers,
-  path filters, `permissions`, concurrency group, `fail-fast: false`,
-  `timeout-minutes`, the 15-package check/test matrices, the metadata job,
-  and the fail-closed workspace summary;
-- new quality gates: `cargo fmt --all -- --check` and
-  `cargo clippy -p cat-affiliate --all-targets -- -D warnings`;
-- new PostgreSQL job: a real `postgres:16` service container running the
-  env-gated integration suites (`tests/opportunity_postgres.rs`) via
-  `CAT_TEST_DATABASE_URL`;
-- the summary job additionally requires `fmt`, `clippy`, and `database`.
+## Proposed coverage patch
 
-No `--locked` is used (no `Cargo.lock` is tracked at the repository root).
+The next CI change should:
 
-## Exact manual steps
+1. add `cat-prompt` to both Rust check and test matrices;
+2. add a Go Gateway workflow for `go test ./...` and `go vet ./...`;
+3. keep all existing PostgreSQL and fail-closed summary behavior;
+4. commit the workflow changes through a GitHub identity with permission to
+   modify `.github/workflows/`.
+
+The Arena GitHub App rejected the attempted workflow update with GitHub's
+`workflows` permission restriction, so this patch has not been pushed.
+
+## Local validation requirement
+
+Before closing Sprint 0, run the following from an environment with Rust,
+PostgreSQL 16, and Go installed:
 
 ```bash
-cp docs/ci/rust-workspace-hardened.yml .github/workflows/rust-workspace.yml
-git add .github/workflows/rust-workspace.yml
-git commit -m "ci: harden affiliate workspace validation (fmt, clippy, postgres)"
-git push
+cargo fmt --all -- --check
+cargo metadata --no-deps --format-version 1
+cargo check --workspace --all-targets
+cargo test --workspace --all-targets
+cargo clippy -p cat-affiliate --all-targets --all-features -- -D warnings
+
+cd backend/gateway/go
+go test ./...
+go vet ./...
 ```
 
-Then re-run CI on PR #40 and record the results in
-`docs/implementation/SPRINT_0_MANIFEST.md` before marking Sprint 0 complete.
+The current Arena sandbox does not contain `cargo`, `rustc`, or `go`, so no
+local execution result is claimed here.

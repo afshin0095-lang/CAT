@@ -1,36 +1,39 @@
 # Sprint 0 Manifest — Affiliate Opportunity Platform Foundation
 
-**PR:** [#40](https://github.com/afshin0095-lang/CAT/pull/40) · **Branch:** `arena/01a08d17-cat` (stacked on `feat/affiliate-opportunity-lifecycle-p0` @ `6791ace`)
+**Implementation base:** merged through `main` and extended by the Sprint 1
+revalidation coordinator in `cbed531`.
 
 ## VERDICT: INCOMPLETE — Sprint 0 is NOT closed
 
-> **2026-09-18 CI hardening update:** The active workflow now includes the
-> `fmt`, `metadata`, `clippy`, `check`, and PostgreSQL-backed `test` gates.
-> `workspace-summary` is configured to fail unless all five gates succeed.
-> PR execution remains pending because this checkout has no authenticated GitHub
-> CLI session; see [CI hardening run record](#ci-hardening-run-record).
+The Affiliate Opportunity implementation covers the intended P0 domain surface,
+but it has not passed the verification gate. The active CI workflow checks
+formatting, metadata, Clippy, the 15-package Rust matrix, PostgreSQL-backed tests,
+and a fail-closed summary. It currently omits the workspace member `cat-prompt`;
+Go Gateway validation is not yet part of CI. The latest run is
+[35332655214](https://github.com/afshin0095-lang/CAT/actions/runs/35332655214)
+on `cbed531` and finished with 20 failed jobs and 14 successful jobs.
 
-The implementation scope exists and has passed repeated static audits, but the
-**latest GitHub Actions run on this branch fails on `Check cat-affiliate` /
-`Test cat-affiliate`**, and the failure could not be diagnosed or verified
-fixed:
+The sandbox cannot retrieve the detailed Actions runner log because the GitHub
+log host is blocked by the egress proxy. It also has no `cargo`, `rustc`, or
+`go`, so local execution is not claimed. The next verification must run from
+a machine or runner with the toolchains and accessible logs.
 
-| Blocker | Detail |
+Current gates:
+
+| Gate | Current status |
 |---|---|
-| Unresolved compile failure | Runs on `79e48b4` and `73816b2` fail at `cargo check/test -p cat-affiliate`. Compiler output is not retrievable from the sandbox (Actions log hosts are blocked at the egress proxy; check-run annotations carry only `exit code 101`). Four full manual audits plus automated struct-field, name-resolution, use-path, and brace-balance checks found no defect; the probes proved the failure is real and located in the code that became live when `lib.rs` gained the Sprint 0 module declarations (commit `b86a9fd` and later). |
-| CI minutes exhausted | The repository is **private**; the Actions minutes quota ran out during parallel bisect probing. Every run created afterwards fails at startup ("workflow file may be broken", zero steps) — including on previously working branches. CI validation cannot resume until quota resets. |
-| Workflow write permission | **Resolved in this change:** the hardened configuration from `docs/ci/rust-workspace-hardened.yml` is merged into the active `.github/workflows/rust-workspace.yml`. |
-| Local toolchain | Available in this checkout for the recorded local validation; the previous proxy limitation no longer blocks Cargo. |
-
-**Path to closure:** run the active hardened workflow on the PR → read the first
-`cargo check -p cat-affiliate` error from the log if it fails → fix → iterate
-until the FINAL GATE in the Sprint 0 directive is met.
+| Rust formatting | FAILED in latest run |
+| Workspace metadata | PASSED in latest run |
+| Affiliate Clippy | FAILED in latest run |
+| Rust package checks | MIXED; multiple failures |
+| Rust package tests | MIXED; multiple failures |
+| PostgreSQL-backed tests | FAILED in latest run |
+| Sprint 0 closure | BLOCKED until a clean run |
 
 ## Requirement table
 
 CI column legend — **PROVEN** = observed green in GitHub Actions on this PR chain ·
-**FAILED** = observed red · **UNVERIFIED** = could not be observed (log access blocked /
-quota exhausted before a clean run) · **STATIC** = verified by manual + automated static audit only.
+**FAILED** = observed red · **UNVERIFIED** = not yet proven by a clean run (the latest run is red) · **STATIC** = verified by manual + automated static audit only.
 
 | Requirement | Implementation | Tests | Documentation | CI |
 |---|---|---|---|---|
@@ -39,7 +42,7 @@ quota exhausted before a clean run) · **STATIC** = verified by manual + automat
 | Injectable clock, no hidden system time, no sleeps | `src/clock.rs` (`SystemClock`/`FixedClock`/`FnClock`) | `tests/clock.rs`, `src/clock.rs` tests | module docs | UNVERIFIED |
 | Monotonic revisions, checked arithmetic, no wraparound | `src/opportunity_version.rs` | `src/opportunity_version.rs` tests, `tests/opportunity_store.rs` | `docs/implementation/AFFILIATE_OPPORTUNITY_PERSISTENCE_DEDUP_P0.md` | UNVERIFIED |
 | Revision on records/results, idempotent re-observation | `src/opportunity_store.rs` | `tests/opportunity_store.rs`, in-crate tests | same doc | UNVERIFIED |
-| Transactional upserts + CAS (`FOR UPDATE`), checked conversions, corrupt-row fail-closed | `src/opportunity_postgres.rs` | `tests/opportunity_postgres.rs` (env-gated) | same doc | UNVERIFIED (requires DB; job prepared, not committed) |
+| Transactional upserts + CAS (`FOR UPDATE`), checked conversions, corrupt-row fail-closed | `src/opportunity_postgres.rs` | `tests/opportunity_postgres.rs` (env-gated) | same doc | UNVERIFIED (requires a clean PostgreSQL-backed run) |
 | Migration 0002 additive, facts only, no lifecycle persisted | `core/affiliate/rust/migrations/0002_opportunity_revalidation.sql` | covered by `tests/opportunity_postgres.rs` | header SQL reversal + same doc | UNVERIFIED |
 | ensure_schema single-statement prepared DDL (idempotent) | `src/opportunity_postgres.rs` (`ensure_schema`, `ensure_revalidation_schema`) | same postgres tests | inline comment | UNVERIFIED |
 | Revalidation REQUEST ≠ ATTEMPT ≠ RESULT; dedup identity; transition matrix | `src/opportunity_revalidation.rs` | `tests/opportunity_revalidation.rs`, in-crate tests | `docs/implementation/AFFILIATE_OPPORTUNITY_REVALIDATION_P0.md` | UNVERIFIED |
@@ -57,32 +60,31 @@ quota exhausted before a clean run) · **STATIC** = verified by manual + automat
 | Error classification (category/retryability) without API breakage | `src/error.rs` | used by adapter/network tests | doc comments | UNVERIFIED |
 | Error classification for Postgres store errors | `src/opportunity_postgres.rs` (`PostgresOpportunityStoreError`) | in-crate tests | doc comments | UNVERIFIED |
 | Parameterized SQL only; no secrets; no wildcard exports; idempotency | all `src/opportunity_postgres.rs` queries, `src/lib.rs` | — | `docs/implementation/CI_HARDENING.md` | STATIC |
-| CI: fmt/clippy/postgres gates added | Active `.github/workflows/rust-workspace.yml`: `fmt`, `clippy -D warnings` for `cat-affiliate`, and PostgreSQL service with `CAT_TEST_DATABASE_URL` | — | `docs/implementation/CI_HARDENING.md` | PR RUN PENDING (unauthenticated checkout) |
-| Existing workspace matrix intact | `.github/workflows/rust-workspace.yml` retains the package check/test matrices and adds the hardening gates | — | — | PR RUN PENDING (unauthenticated checkout) |
-| `cargo fmt --all -- --check` | Active workflow `fmt` gate | — | — | Local result recorded below; PR RUN PENDING |
-| `cargo clippy -p cat-affiliate --all-targets --all-features -- -D warnings` | Active workflow `clippy` gate | — | — | Local result recorded below; PR RUN PENDING |
-| `cargo check -p cat-affiliate` / `cargo test -p cat-affiliate` | committed CI runs them | — | — | **FAILED** on `79e48b4`, `73816b2` (unresolved compile error) |
+| CI: fmt/clippy/postgres gates added | Active `.github/workflows/rust-workspace.yml`: `fmt`, `clippy -D warnings` for `cat-affiliate`, and PostgreSQL service with `CAT_TEST_DATABASE_URL` | — | `docs/implementation/CI_HARDENING.md` | FAILED in latest run 35332655214 |
+| Existing workspace matrix intact | `.github/workflows/rust-workspace.yml` retains the package check/test matrices and adds the hardening gates | — | — | FAILED in latest run 35332655214 |
+| `cargo fmt --all -- --check` | Active workflow `fmt` gate | — | — | local execution not available; latest workflow failed |
+| `cargo clippy -p cat-affiliate --all-targets --all-features -- -D warnings` | Active workflow `clippy` gate | — | — | local execution not available; latest workflow failed |
+| `cargo check -p cat-affiliate` / `cargo test -p cat-affiliate` | committed CI runs them | — | — | **FAILED** in latest workflow run 35332655214; detailed compiler log unavailable from the sandbox |
 
 ## Run evidence
 
 | Item | Value |
 |---|---|
-| Final implementation HEAD | `73816b2096ff2eb9519ae1a94de07a41102aabe9` |
-| PR | #40 (`feat(affiliate): Sprint 0 opportunity platform foundation`) |
-| Runs on this branch | #157 (`79e48b4`) FAILED, #159-era run on `73816b2` FAILED — both at `Check/Test cat-affiliate` (exit 101); pre-existing failures in `cat-eventbus`, `cat-eventstore-postgres`, `cat-decision`, `cat-planning`, `cat-orchestrator`, `cat-platform`, `Test cat-reasoning` exist on base `6791ace` as well (PROVEN via PR #39 rollup) and are NOT Sprint 0 regressions |
-| Post-fix probes | c1–c6 bisect probes (PRs #41–#46, closed+deleted): all red — c1–c5 explained by `lib.rs` declarations lagging in the same commit; c6 (`b86a9fd`) red with a genuine `cargo check` failure — the defect sits in the Sprint 0 surface, unlocated |
-| Successful required jobs | On base: `Check/Test cat-affiliate` PROVEN green (PR #39). On Sprint 0 heads: none beyond `Workspace metadata`/individual matrix jobs that completed before failures |
-| Workflow hardening committed | **YES** — merged into `.github/workflows/rust-workspace.yml` in this change. |
-| Local cargo validation | Available in this checkout. The local `cat-affiliate` clippy gate passed; workspace formatting currently reports pre-existing differences outside this change. |
+| Current implementation HEAD | `cbed531e7633d7749ee140f7543e989b717aa8e5` |
+| Latest workflow | [Run 35332655214](https://github.com/afshin0095-lang/CAT/actions/runs/35332655214) |
+| Latest workflow result | 20 failed jobs, 14 successful jobs |
+| Log availability | Detailed runner log unavailable from the sandbox; annotations expose only exit codes |
+| Local toolchain | Not installed in the Arena sandbox (`cargo`, `rustc`, and `go` unavailable) |
+| Closure status | INCOMPLETE; requires a clean active workflow run |
 
 ## CI hardening run record
 
 | Gate / action | Result | Evidence |
 |---|---|---|
-| Active workflow integration | PASS | `.github/workflows/rust-workspace.yml` now contains the hardened `fmt`, `clippy`, PostgreSQL service, and five-gate summary configuration. |
-| Local formatting gate | FAILED | `cargo fmt --all -- --check` reports pre-existing formatting differences outside this CI-hardening change (notably `core/content`, `core/kernel`, `core/prompt`, and `core/runtime`). |
-| Local clippy gate | PASSED | `cargo clippy -p cat-affiliate --all-targets --all-features -- -D warnings` completed successfully. |
-| PR workflow dispatch | BLOCKED | Attempted from this checkout on 2026-09-18, but `gh auth status` reports no authenticated GitHub host. No PR workflow can be dispatched or observed until credentials are available. |
+| Active workflow integration | PARTIAL | `.github/workflows/rust-workspace.yml` contains the hardened `fmt`, `clippy`, PostgreSQL service, and fail-closed summary, but its matrices omit `cat-prompt` and it has no Go Gateway job. |
+| Local formatting gate | NOT RUN | No Rust toolchain is installed in the current sandbox. |
+| Local clippy gate | NOT RUN | No Rust toolchain is installed in the current sandbox. |
+| Workflow log retrieval | BLOCKED | GitHub Actions log host is unreachable from the current sandbox; the latest run itself completed and is recorded above. |
 
 Once the PR exists in GitHub, inspect the `Workspace summary` job. It is the
 required status gate and fails when any of `fmt`, `metadata`, `clippy`, `check`,

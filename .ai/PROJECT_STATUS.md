@@ -61,32 +61,53 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Sprint 1 — Durable Revalidation Execution Coordinator
+**Current Task:** Stage 1 — Workspace validation and baseline recovery
 
-**Document:** `core/affiliate/rust/` (opportunity subsystem), `docs/implementation/AFFILIATE_OPPORTUNITY_*.md`
+**Repository head:** `cbed531` on `main` (`feat(affiliate): add durable revalidation execution coordinator`)
 
-**Status:** Implemented on branch `arena/01a08d17-cat` (stacked on `feat/affiliate-opportunity-lifecycle-p0` @ `6791ace`), PR #40. Sprint 0 completes the discovery → source SPI → network adapter → ingestion → dedup → persistence → freshness → lifecycle → projection → revalidation → observability vertical slice: hardened lifecycle via a single canonical freshness engine, injectable clock, monotonic record revisions with optimistic-concurrency upserts, deterministic revalidation planner with durable request persistence (migration 0002, partial-unique dedup), opportunity status projection, persistence-neutral query/ranking/health contracts, source health tracking, neutral observability names + sink, typed opportunity event contracts, and expanded validation (URL/length/identity bounds, ASCII canonical-key limitation documented).
+**Status:** The Affiliate Opportunity foundation and the first Sprint 1 execution
+coordinator are present in the Rust workspace. The coordinator is not yet
+verified end-to-end: it still requires green package checks, PostgreSQL
+integration, EventBus/outbox verification, and reconciliation tests.
 
-**Validation status: INCOMPLETE — Sprint 0 is NOT closed.**
-- Local `cargo` execution is impossible in the working sandbox (rust-lang.org/crates.io are TLS-blocked by the egress proxy).
-- CI is the authoritative validator. The latest runs on this branch (GitHub Actions runs #157/#159-era, head `79e48b4`/`73816b2`) fail on `Check cat-affiliate` / `Test cat-affiliate`; the compiler output is not retrievable from the sandbox (Actions log hosts blocked), so the remaining defect could not be located despite repeated full static audits plus automated name/field/path resolution checks.
-- The GitHub Actions minutes for this private repository were exhausted during bisect probing; all subsequent runs fail at startup ("workflow file may be broken"). CI must be re-run once minutes are available.
-- CI hardening (fmt + clippy for cat-affiliate, PostgreSQL service job) is preserved at `docs/ci/rust-workspace-hardened.yml` and is NOT committed under `.github/` because the integration lacks the `workflows` permission. See `docs/implementation/CI_HARDENING.md`.
-- Gate to close Sprint 0: `Check cat-affiliate`, `Test cat-affiliate`, fmt, clippy, and the PostgreSQL job must be green on the latest run of PR #40; then record results in `docs/implementation/SPRINT_0_MANIFEST.md`.
+**Stage 1 findings:**
+- The active Rust CI matrices cover 15 packages and omit the workspace member
+  `cat-prompt`.
+- The Go Gateway has no committed CI workflow yet.
+- An attempted workflow-coverage patch was rejected by GitHub because the
+  Arena GitHub App lacks permission to modify `.github/workflows/`.
+- CI documentation has been synchronized with the active workflow and the
+  current validation limitations.
+
+**Validation status: BLOCKED / RED — Sprint 0 is NOT closed.**
+- The latest GitHub Actions run is
+  [35332655214](https://github.com/afshin0095-lang/CAT/actions/runs/35332655214)
+  on `cbed531`; 20 jobs failed and 14 succeeded.
+- Formatting, Affiliate Clippy, and multiple Rust package check/test jobs are
+  failing. Detailed runner logs are not available from the sandbox because the
+  GitHub Actions log host is blocked by the egress proxy.
+- The local sandbox has no `cargo`, `rustc`, or `go`, so no local execution
+  result is claimed.
+- Sprint 0 can close only after a clean formatting, metadata, Clippy, package
+  check, package test, PostgreSQL, and summary run.
 
 # Next Task
 
-Sprint 1 — Opportunity Lifecycle → Orchestrator → Durable Revalidation Execution: execution coordinator implemented; request claims map to source-scoped Orchestrator ExecutionRequest identities, durable status transitions persist attempts, and success/failure events publish through EventBus.
+Stage 2 — Diagnose and repair the Rust workspace baseline from an environment
+with an available Rust toolchain and accessible CI logs. Do not add another
+large product feature until the baseline is green.
 
 # Next Tasks
 
-1. Sprint 1 — revalidation execution coordinator implemented; CI/integration verification pending
-2. Sprint 1 hardening — durable attempt/result persistence and end-to-end PostgreSQL/EventBus verification
-3. Post-merge — retarget stacked affiliate PRs (#34→#39 chain) so Sprint 0 lands on main
-4. LLM / AI Core — authorized tool execution boundary completed
-5. Memory Core — P0 foundation completed
-6. Reasoning Core — P0 foundation completed
-7. Decision Core — approval/human-gate foundation completed
-8. Decision Core — durable PostgreSQL trace persistence adapter completed; next integration verification
-9. Planning Core — P0 foundation completed
-
+1. Retrieve the first compiler/test failures from the latest workflow.
+2. Repair formatting and dependency-order failures, starting with EventBus and
+   EventStore, then Orchestrator, Decision/Planning, Platform, Affiliate, and
+   Content.
+3. Run all workspace and PostgreSQL-backed tests.
+4. Complete Sprint 1 revalidation execution tests: claim, attempt, retry,
+   reconciliation, idempotency, outbox publication, and recovery.
+5. Build the first API-only Affiliate vertical slice before beginning the
+   frontend.
+6. Use the attached CAT dashboard mockup as the visual reference once the API
+   and frontend implementation stage begins; it is not treated as evidence of
+   current implementation.
