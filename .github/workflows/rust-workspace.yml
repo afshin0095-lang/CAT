@@ -14,6 +14,7 @@ on:
       - '**/Cargo.toml'
       - '**/Cargo.lock'
       - '.github/workflows/rust-workspace.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -27,6 +28,28 @@ env:
   CARGO_NET_RETRY: 3
 
 jobs:
+  rustfmt-export:
+    name: Export formatted Rust sources
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: Format workspace
+        run: cargo fmt --all || true
+      - name: Package formatted Rust sources
+        run: tar -czf rustfmt-export.tgz core --exclude='core/**/target'
+      - name: Upload formatted sources
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustfmt-export
+          path: rustfmt-export.tgz
+
   fmt:
     name: Formatting
     runs-on: ubuntu-latest
