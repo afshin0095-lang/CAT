@@ -339,7 +339,6 @@ impl OpportunityQueryService {
         sort: OpportunitySort,
     ) -> std::cmp::Ordering {
         use OpportunitySortField::*;
-        use std::cmp::Ordering;
         let primary = match sort.field {
             Score => left.best_score.cmp(&right.best_score),
             LastObservedAt => left.last_observed_at_ms.cmp(&right.last_observed_at_ms),

@@ -1,6 +1,5 @@
 use async_trait::async_trait;
 use cat_eventbus::EventEnvelope;
-use cat_kernel::EntityId;
 use sqlx::{Row, migrate::Migrator, postgres::PgPool};
 use uuid::Uuid;
 

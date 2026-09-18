@@ -15,7 +15,7 @@
 
 use std::collections::BTreeMap;
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 use crate::opportunity_ingestion::OpportunityIngestionReport;
 use crate::opportunity_lifecycle::LifecycleEvaluationBatch;

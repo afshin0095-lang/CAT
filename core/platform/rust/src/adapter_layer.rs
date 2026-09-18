@@ -3,9 +3,8 @@ use serde_json::{Value, json};
 use uuid::Uuid;
 
 use crate::{
-    ConcreteCoreRuntime, IntegrationTarget, PlatformError, PlatformResult,
-    ProviderAdapterRegistry, ProviderId, RemainingCoreRuntime, TypedCoreCommand, TypedCoreResponse,
-    WorkflowRuntime,
+    ConcreteCoreRuntime, IntegrationTarget, PlatformError, PlatformResult, ProviderAdapterRegistry,
+    ProviderId, RemainingCoreRuntime, TypedCoreCommand, TypedCoreResponse, WorkflowRuntime,
 };
 
 /// Concrete platform adapter layer.

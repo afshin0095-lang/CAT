@@ -233,8 +233,8 @@ mod tests {
         let mut store = InMemorySourceHealthStore::new();
         store.record_success("zeta", 1, 1);
         store.record_success("alpha", 1, 1);
-        let sources: Vec<&str> = store
-            .all_snapshots()
+        let snapshots = store.all_snapshots();
+        let sources: Vec<&str> = snapshots
             .iter()
             .map(|snapshot| snapshot.source.as_str())
             .collect();

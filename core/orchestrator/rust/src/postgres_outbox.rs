@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use cat_eventbus::{EventEnvelope, EventKind};
 use cat_kernel::EntityId;
-use sqlx::{Row, postgres::PgPool};
+use sqlx::Row;
 use uuid::Uuid;
 
 use crate::{OrchestratorError, OrchestratorResult, RetryPolicy};
@@ -90,7 +90,6 @@ impl AsyncPostgresOutbox for super::PostgresExecutionStore {
         let Some(row) = row else {
             return Ok(None);
         };
-        let workflow_id: Uuid = row.try_get("workflow_id").map_err(row_error)?;
         let event_kind_raw: String = row.try_get("event_kind").map_err(row_error)?;
         let event_kind: EventKind = serde_json::from_str(&format!("\"{event_kind_raw}\""))
             .map_err(|error| {
