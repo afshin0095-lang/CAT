@@ -10,7 +10,7 @@ use crate::{KernelError, KernelResult};
 /// and replayable. Wall-clock acquisition belongs to infrastructure adapters.
 #[derive(
     Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize,
-)
+)]
 pub struct TimestampMs(u64);
 
 impl TimestampMs {
