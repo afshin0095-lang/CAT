@@ -39,6 +39,8 @@ jobs:
             status=${PIPESTATUS[0]}
             if [ "$status" -ne 0 ]; then
               overall=1
+              summary=$(tail -n 30 "/tmp/$package.check.log" | tr '\n' ' ' | tr '\r' ' ')
+              echo "::error title=$package check status::$summary"
               while IFS= read -r line; do
                 [ -n "$line" ] && echo "::error title=$package check::$line"
               done < <(grep -E '^(error(\[[A-Z0-9]+\])?:|[[:space:]]*--> |[[:space:]]*= (help|note):)' "/tmp/$package.check.log" | head -80)
@@ -58,6 +60,8 @@ jobs:
             status=${PIPESTATUS[0]}
             if [ "$status" -ne 0 ]; then
               overall=1
+              summary=$(tail -n 30 "/tmp/$package.test.log" | tr '\n' ' ' | tr '\r' ' ')
+              echo "::error title=$package test status::$summary"
               while IFS= read -r line; do
                 [ -n "$line" ] && echo "::error title=$package test::$line"
               done < <(grep -E '^(error(\[[A-Z0-9]+\])?:|[[:space:]]*--> |[[:space:]]*= (help|note):|[[:space:]]*----)' "/tmp/$package.test.log" | head -100)
