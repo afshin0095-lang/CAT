@@ -213,7 +213,7 @@ mod tests {
                 "x",
                 IntegrationTarget::Llm,
                 "https://example.test",
-                [],
+                std::iter::empty::<&str>(),
                 "/health",
                 Duration::from_secs(1)
             )

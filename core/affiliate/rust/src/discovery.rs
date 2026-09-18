@@ -406,10 +406,10 @@ mod tests {
             })
         ));
 
-        let mut candidate = candidate("bounds", 5_000);
-        candidate.external_id = "id\u{7f}ent".into();
+        let mut invalid_characters = candidate("bounds", 5_000);
+        invalid_characters.external_id = "id\u{7f}ent".into();
         assert!(matches!(
-            candidate.validate(),
+            invalid_characters.validate(),
             Err(DiscoveryError::InvalidCharacters("external_id"))
         ));
 
