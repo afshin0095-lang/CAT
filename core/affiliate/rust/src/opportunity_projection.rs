@@ -124,7 +124,12 @@ impl OpportunityStatusProjector {
         record: &OpportunityRecord,
         now_ms: u64,
     ) -> Result<OpportunityStatusView, OpportunityProjectionError> {
-        self.project_with_availability(record, now_ms, &[])
+        // The convenience method promises the optimistic view that all
+        // sources already persisted on the record are reachable. Callers that
+        // have an explicit health snapshot must use
+        // `project_with_availability` instead.
+        let available_sources: Vec<String> = record.observations.keys().cloned().collect();
+        self.project_with_availability(record, now_ms, &available_sources)
     }
 
     /// Projects a record with explicit source availability. Sources absent
@@ -267,7 +272,7 @@ mod tests {
         let projector = projector();
         let stored = record(10_000);
         let view = projector
-            .project(&stored, 13_000)
+            .project(&stored, 16_000)
             .expect("valid projection");
         assert_eq!(view.lifecycle_state, FreshnessState::Stale);
         assert!(view.needs_revalidation);

@@ -310,7 +310,7 @@ mod tests {
         );
         let zeta = record(10_000, "Zeta");
         let alpha = record(10_000, "Alpha");
-        let stale_one = record(4_000, "Beta");
+        let stale_one = record(6_000, "Beta");
 
         let batch = evaluate_records_batch(&[zeta, alpha, stale_one], evaluator, 10_500)
             .expect("valid batch");

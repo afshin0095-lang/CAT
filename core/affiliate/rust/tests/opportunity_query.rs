@@ -56,8 +56,10 @@ fn end_to_end_filter_sort_and_paginate() {
         FreshnessPolicy::new(1_000, 5_000, 9_000).expect("valid policy"),
     );
 
-    let mut filter = OpportunityFilter::default();
-    filter.merchant = Some("Beta".into());
+    let filter = OpportunityFilter {
+        merchant: Some("Beta".into()),
+        ..Default::default()
+    };
     let query = OpportunityQuery::new(filter).with_limit(1);
     let page = service
         .execute(&records, &query, 12_500)
@@ -68,8 +70,10 @@ fn end_to_end_filter_sort_and_paginate() {
     // Score tie between Beta/Gamma resolved by identity ascending.
     assert_eq!(page.items[0].identity, "beta:beta");
 
-    let mut filter = OpportunityFilter::default();
-    filter.merchant = Some("Beta".into());
+    let filter = OpportunityFilter {
+        merchant: Some("Beta".into()),
+        ..Default::default()
+    };
     let query = OpportunityQuery::new(filter)
         .with_limit(1)
         .with_offset(1)
@@ -98,8 +102,10 @@ fn lifecycle_filter_uses_the_derived_state_not_storage() {
 
     // At 15_500: "Fresh" is 3_500ms old (Active), "Old" is 5_500ms old
     // (past the 5_000ms stale threshold).
-    let mut filter = OpportunityFilter::default();
-    filter.lifecycle_state = Some(FreshnessState::Stale);
+    let filter = OpportunityFilter {
+        lifecycle_state: Some(FreshnessState::Stale),
+        ..Default::default()
+    };
     let query = OpportunityQuery::new(filter).with_limit(10);
     let result = service
         .execute(&records, &query, 15_500)
@@ -117,8 +123,10 @@ fn empty_result_sets_are_stable() {
     let service = OpportunityQueryService::new(
         FreshnessPolicy::new(1_000, 5_000, 9_000).expect("valid policy"),
     );
-    let mut filter = OpportunityFilter::default();
-    filter.merchant = Some("Nobody".into());
+    let filter = OpportunityFilter {
+        merchant: Some("Nobody".into()),
+        ..Default::default()
+    };
     let query = OpportunityQuery::new(filter).with_limit(10);
     let result = service
         .execute(&records, &query, 10_500)

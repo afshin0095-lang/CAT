@@ -337,7 +337,7 @@ mod tests {
     #[test]
     fn canonical_key_ascii_limitation_is_documented_and_fail_closed() {
         // Documented limitation: non-ASCII letters are dropped today.
-        assert_eq!(canonical_key("Café", "Crème"), "caf:crm");
+        assert_eq!(canonical_key("Café", "Crème"), "caf:crme");
         // Fully non-ASCII names collapse to the bare separator...
         assert_eq!(canonical_key("北京", "产品"), ":");
         // ...and candidate validation then rejects the blank identity

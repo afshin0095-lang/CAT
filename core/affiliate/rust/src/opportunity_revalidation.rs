@@ -531,8 +531,14 @@ impl RevalidationRequestStore for InMemoryRevalidationRequestStore {
                 record.started_at_ms = Some(at_ms);
             }
         }
-        if to.is_terminal() {
+        // A failed execution completed its current attempt even though the
+        // request remains retryable. Terminal transitions also complete the
+        // request; retrying clears that attempt completion marker until the
+        // next outcome is known.
+        if to == RevalidationStatus::Failed || to.is_terminal() {
             record.completed_at_ms = Some(at_ms);
+        } else if to == RevalidationStatus::Pending {
+            record.completed_at_ms = None;
         }
         record.status = to;
         if let Some(text) = error {
@@ -622,9 +628,17 @@ mod tests {
     use super::*;
 
     fn request(scheduled_for_ms: u64, priority: RevalidationPriority) -> RevalidationRequest {
+        request_for_source("network-a", scheduled_for_ms, priority)
+    }
+
+    fn request_for_source(
+        source: &str,
+        scheduled_for_ms: u64,
+        priority: RevalidationPriority,
+    ) -> RevalidationRequest {
         RevalidationRequest::new(
             Uuid::now_v7(),
-            RevalidationTarget::new("acme:widget", "network-a"),
+            RevalidationTarget::new("acme:widget", source),
             RevalidationReason::Stale,
             priority,
             1_000,
@@ -849,16 +863,16 @@ mod tests {
     fn claim_due_is_deterministic_and_marks_claimed() {
         let mut store = InMemoryRevalidationRequestStore::new();
         let low = store
-            .insert(request(1_000, RevalidationPriority::Low))
+            .insert(request_for_source("network-a", 1_000, RevalidationPriority::Low))
             .expect("insert low");
         let critical = store
-            .insert(request(500, RevalidationPriority::Critical))
+            .insert(request_for_source("network-b", 500, RevalidationPriority::Critical))
             .expect("insert critical");
         let high_later = store
-            .insert(request(2_000, RevalidationPriority::High))
+            .insert(request_for_source("network-c", 2_000, RevalidationPriority::High))
             .expect("insert high");
         let not_due = store
-            .insert(request(9_999, RevalidationPriority::Critical))
+            .insert(request_for_source("network-d", 9_999, RevalidationPriority::Critical))
             .expect("insert future");
 
         let claimed = store.claim_due(2_000, 10);
@@ -919,10 +933,10 @@ mod tests {
     fn list_is_ordered_by_creation_time_then_id() {
         let mut store = InMemoryRevalidationRequestStore::new();
         let later = store
-            .insert(request(5_000, RevalidationPriority::Low))
+            .insert(request_for_source("network-a", 5_000, RevalidationPriority::Low))
             .expect("insert");
         let earlier = store
-            .insert(request(1_000, RevalidationPriority::Low))
+            .insert(request_for_source("network-b", 1_000, RevalidationPriority::Low))
             .expect("insert");
         let records = store.list();
         assert_eq!(records[0].request.request_id, earlier.request.request_id);
