@@ -64,3 +64,11 @@ jobs:
             fi
           done
           exit "$overall"
+      - name: Upload diagnostic logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-diagnostic-logs
+          path: /tmp/*.log
+          if-no-files-found: error
+          retention-days: 1
