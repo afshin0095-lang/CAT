@@ -34,6 +34,7 @@ pub struct ConversionEventId(pub Uuid);
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub enum AttributionModel {
+    #[default]
     LastClick,
     FirstClick,
     Linear,
