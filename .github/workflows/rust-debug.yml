@@ -1,0 +1,49 @@
+name: CAT Rust Debug
+
+on:
+  push:
+    paths:
+      - '**/*.rs'
+      - '**/Cargo.toml'
+      - '.github/workflows/rust-debug.yml'
+  pull_request:
+    paths:
+      - '**/*.rs'
+      - '**/Cargo.toml'
+      - '.github/workflows/rust-debug.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - name: Run targeted diagnostics
+        shell: bash
+        run: |
+          set +e
+          run_one() {
+            name="$1"; shift
+            echo "=== $name ==="
+            "$@" 2>&1 | tee "/tmp/$name.log"
+            status=${PIPESTATUS[0]}
+            sed -E 's/\x1B\[[0-9;]*[[:alpha:]]//g' "/tmp/$name.log" > "/tmp/$name.clean.log"
+            if [ "$status" -ne 0 ]; then
+              while IFS= read -r line; do
+                [ -n "$line" ] && echo "::error title=$name::$line"
+              done < <(grep -E '(error|warning| --> | = (help|note):|FAILED|panicked)' "/tmp/$name.clean.log" | tail -100)
+            fi
+            return "$status"
+          }
+          run_one fmt cargo fmt --all -- --check || true
+          run_one affiliate-check cargo check -p cat-affiliate --all-targets || true
+          run_one affiliate-clippy cargo clippy -p cat-affiliate --all-targets --all-features -- -D warnings || true
+          run_one affiliate-test cargo test -p cat-affiliate --all-targets || true
+          run_one platform-check cargo check -p cat-platform --all-targets || true
+          run_one platform-test cargo test -p cat-platform --all-targets || true

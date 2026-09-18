@@ -16,7 +16,9 @@ pub const UNAVAILABLE_AFTER_CONSECUTIVE_FAILURES: u32 = 5;
 /// Consecutive failures after which a source is considered degraded.
 pub const DEGRADED_AFTER_CONSECUTIVE_FAILURES: u32 = 2;
 
-#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[derive(
+    Clone, Copy, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize,
+)]
 #[serde(rename_all = "snake_case")]
 pub enum SourceHealthState {
     /// No success or failure has been observed yet.
