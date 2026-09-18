@@ -2,7 +2,7 @@ name: CAT Rust Workspace
 
 on:
   push:
-    branches: [main]
+    branches: [main, arena/01a0b5b7-cat]
     paths:
       - '**/*.rs'
       - '**/Cargo.toml'
@@ -30,7 +30,7 @@ env:
 jobs:
   rustfmt-export:
     name: Export formatted Rust sources
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
