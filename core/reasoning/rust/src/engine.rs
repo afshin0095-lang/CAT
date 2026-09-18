@@ -19,12 +19,13 @@ impl DeterministicReasoningEngine {
         self.policy.validate(request)?;
         let mut steps = Vec::new();
         let mut hypotheses = Vec::new();
-        let mut support_by_statement: BTreeMap<String, (f32, f32, Vec<Uuid>)> = BTreeMap::new();
+        let mut support_by_statement: BTreeMap<String, (f32, f32, Vec<Uuid>, bool)> =
+            BTreeMap::new();
         for evidence in &request.evidence {
             let key = evidence.statement.trim().to_lowercase();
             let entry = support_by_statement
                 .entry(key)
-                .or_insert((0.0, 0.0, Vec::new()));
+                .or_insert((0.0, 0.0, Vec::new(), false));
             entry.0 += if evidence.authoritative {
                 evidence.confidence
             } else {
@@ -32,8 +33,9 @@ impl DeterministicReasoningEngine {
             };
             entry.1 += 1.0 - evidence.confidence;
             entry.2.push(evidence.evidence_id);
+            entry.3 |= evidence.authoritative;
         }
-        for (statement, (support, contradiction, evidence_ids)) in support_by_statement {
+        for (statement, (support, contradiction, evidence_ids, _authoritative)) in support_by_statement {
             let confidence = if support + contradiction > 0.0 {
                 support / (support + contradiction)
             } else {
@@ -60,10 +62,24 @@ impl DeterministicReasoningEngine {
                 "reasoning step budget exceeded".into(),
             ));
         }
+        let authoritative_statements: BTreeMap<_, _> = request
+            .evidence
+            .iter()
+            .fold(BTreeMap::new(), |mut statements, evidence| {
+                let key = evidence.statement.trim().to_lowercase();
+                statements
+                    .entry(key)
+                    .and_modify(|authoritative| *authoritative |= evidence.authoritative)
+                    .or_insert(evidence.authoritative);
+                statements
+            });
         hypotheses.sort_by(|a, b| {
             let ca = a.support / (a.support + a.contradiction).max(f32::EPSILON);
             let cb = b.support / (b.support + b.contradiction).max(f32::EPSILON);
-            cb.total_cmp(&ca)
+            authoritative_statements
+                .get(&b.statement)
+                .cmp(&authoritative_statements.get(&a.statement))
+                .then_with(|| cb.total_cmp(&ca))
                 .then_with(|| a.statement.cmp(&b.statement))
         });
         let top = hypotheses.first().ok_or(ReasoningError::EmptyEvidence)?;

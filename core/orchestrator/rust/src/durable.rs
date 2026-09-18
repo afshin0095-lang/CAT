@@ -177,7 +177,7 @@ mod tests {
             producer: "test".into(),
             correlation_id: None,
             causation_id: None,
-            subject_id: Some(id),
+            subject_id: Some(cat_kernel::EntityId::from_uuid(id)),
             payload: serde_json::json!({}),
         };
         let mut committed = workflow;

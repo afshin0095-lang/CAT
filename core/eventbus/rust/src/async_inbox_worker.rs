@@ -72,7 +72,10 @@ mod tests {
     #[async_trait]
     impl AsyncEventHandler for Fails {
         async fn handle(&self, _event: &EventEnvelope) -> EventBusResult<()> {
-            Err(EventBusError::Transport("handler failed".to_owned()))
+            Err(EventBusError::HandlerFailure {
+                event_type: "cat.event.inbox.v1".to_owned(),
+                message: "handler failed".to_owned(),
+            })
         }
     }
 

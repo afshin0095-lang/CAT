@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use cat_eventbus::{EventEnvelope, EventKind};
+use cat_kernel::EntityId;
 use sqlx::{Row, postgres::PgPool};
 use uuid::Uuid;
 
@@ -59,7 +60,7 @@ impl super::PostgresExecutionStore {
             .bind(&event.producer)
             .bind(event.correlation_id)
             .bind(event.causation_id)
-            .bind(event.subject_id)
+            .bind(event.subject_id.map(|id| id.as_uuid()))
             .bind(&event.payload)
             .execute(self.pool())
             .await
@@ -109,7 +110,10 @@ impl AsyncPostgresOutbox for super::PostgresExecutionStore {
             producer: row.try_get("producer").map_err(row_error)?,
             correlation_id: row.try_get("correlation_id").map_err(row_error)?,
             causation_id: row.try_get("causation_id").map_err(row_error)?,
-            subject_id: row.try_get("subject_id").map_err(row_error)?,
+            subject_id: row
+                .try_get::<Option<Uuid>, _>("subject_id")
+                .map_err(row_error)?
+                .map(EntityId::from_uuid),
             payload: row.try_get("payload").map_err(row_error)?,
         };
         Ok(Some(PostgresOutboxRecord {

@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use cat_eventbus::EventEnvelope;
+use cat_kernel::EntityId;
 use sqlx::{Row, migrate::Migrator, postgres::PgPool};
 use uuid::Uuid;
 
@@ -122,7 +123,7 @@ impl AsyncPostgresExecutionStore for PostgresExecutionStore {
                 .bind(&event.producer)
                 .bind(event.correlation_id)
                 .bind(event.causation_id)
-                .bind(event.subject_id)
+                .bind(event.subject_id.map(|id| id.as_uuid()))
                 .bind(&event.payload)
                 .execute(&mut *tx)
                 .await

@@ -53,7 +53,7 @@ pub fn validate_plan(plan: &Plan) -> PlanValidationReport {
         }
         order.insert(step.id, step.order);
     }
-    let mut expected: Vec<u32> = (0..plan.steps.len() as u32).collect();
+    let expected: Vec<u32> = (0..plan.steps.len() as u32).collect();
     let mut actual: Vec<u32> = plan.steps.iter().map(|s| s.order).collect();
     actual.sort_unstable();
     if actual != expected {

@@ -55,6 +55,10 @@ impl ProjectionRegistry {
     pub fn len(&self) -> usize {
         self.descriptors.len()
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.descriptors.is_empty()
+    }
 }
 
 #[cfg(test)]

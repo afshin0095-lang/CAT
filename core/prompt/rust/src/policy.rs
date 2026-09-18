@@ -1,4 +1,5 @@
 use std::collections::BTreeSet;
+
 use crate::{PromptDocument, PromptVariable};
 
 #[derive(Clone, Debug, Default)]
@@ -26,7 +27,7 @@ impl PromptPolicy {
         self
     }
     pub fn evaluate(&self, document: &PromptDocument) -> PromptPolicyDecision {
-        let blocked_variables = document.variables.values()
+        let blocked_variables: Vec<String> = document.variables.values()
             .filter(|variable| !self.allowed_variables.contains(&variable.name)
                 || (self.forbidden_sensitive_variables && variable.sensitive))
             .map(|variable| variable.name.clone()).collect();

@@ -40,6 +40,12 @@ pub struct ExecutionAttempt {
     pub error: Option<String>,
 }
 
+impl ExecutionAttemptStatus {
+    pub const fn terminal(self) -> bool {
+        matches!(self, Self::Succeeded | Self::Failed | Self::Cancelled)
+    }
+}
+
 impl ExecutionAttempt {
     pub fn key(&self) -> ExecutionAttemptKey {
         ExecutionAttemptKey {

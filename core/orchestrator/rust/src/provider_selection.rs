@@ -53,9 +53,12 @@ impl ProviderSelectionEngine {
                     .unwrap_or(std::cmp::Ordering::Equal)
                     .then_with(|| right.provider.cmp(&left.provider))
             })
-            .map(|winner| ProviderSelection {
-                provider: winner.provider,
-                score: winner.total(),
+            .map(|winner| {
+                let score = winner.total();
+                ProviderSelection {
+                    provider: winner.provider,
+                    score,
+                }
             })
     }
 }

@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::{sync::{Arc, Mutex}, time::Duration};
 
 use cat_eventbus::{CatEvent, EventBus, EventEnvelope, EventKind, PublishOutcome};
 use serde::{Deserialize, Serialize};
@@ -298,7 +298,7 @@ fn outbox_retry_policy_transitions_to_dead_letter() {
     cat_eventbus::OutboxStore::enqueue(&mut outbox, envelope(id, "order.created", 1)).unwrap();
     assert_eq!(outbox.len(), 1);
 
-    let policy = cat_eventbus::RetryPolicy::new(2, 0);
+    let policy = cat_eventbus::RetryPolicy::new(2, Duration::ZERO, Duration::ZERO);
     assert!(matches!(
         cat_eventbus::OutboxStore::fail(&mut outbox, id, 1, &policy).unwrap(),
         cat_eventbus::DeliveryState::RetryScheduled

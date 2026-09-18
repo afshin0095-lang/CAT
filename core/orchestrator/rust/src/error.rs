@@ -22,6 +22,14 @@ pub enum OrchestratorError {
     LeaseExpired { lease_id: String },
     #[error("lease is unavailable for resource {resource}")]
     LeaseUnavailable { resource: String },
+    #[error("fencing token mismatch for {resource}: expected {expected}, actual {actual}")]
+    FencingTokenMismatch {
+        resource: String,
+        expected: u64,
+        actual: u64,
+    },
+    #[error("event bus operation failed: {0}")]
+    EventBus(#[from] cat_eventbus::EventBusError),
     #[error("workflow {workflow_id} is not in a runnable state")]
     InvalidState { workflow_id: String },
     #[error("workflow dependency cycle detected")]

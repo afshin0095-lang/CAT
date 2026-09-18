@@ -24,6 +24,7 @@ pub struct EventEnvelope<T> {
 }
 
 impl<T> EventEnvelope<T> {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         event_type: impl Into<String>,
         event_version: u16,
