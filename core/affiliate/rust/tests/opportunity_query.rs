@@ -85,8 +85,9 @@ fn end_to_end_filter_sort_and_paginate() {
         .execute(&records, &query, 12_500)
         .expect("valid query");
     assert_eq!(
-        page.items[0].identity, "beta:gamma",
-        "most recently observed first"
+        page.items[0].identity,
+        "beta:beta",
+        "offset 1 selects the second item after the most recently observed first"
     );
 }
 

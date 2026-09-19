@@ -1,7 +1,8 @@
 use cat_platform::{
     AdapterRequest, ExternalProviderAdapter, HttpJsonProviderAdapter, IntegrationCommand,
-    IntegrationContext, IntegrationTarget, PlatformError, ProviderCircuitConfig, ProviderHealth,
-    ProviderHealthProbe, ProviderRetryConfig, ResilientProviderAdapter,
+    IntegrationContext, IntegrationTarget, PlatformError, ProviderCircuitConfig,
+    ProviderFailureClass, ProviderHealth, ProviderHealthProbe, ProviderRetryConfig,
+    ResilientProviderAdapter,
 };
 use serde_json::json;
 use std::io::{Read, Write};
@@ -158,7 +159,7 @@ fn http_provider_success_and_health_are_verified_against_local_fixture() {
 }
 
 #[test]
-fn http_provider_classifies_non_2xx_as_transport_failure() {
+fn http_provider_classifies_non_2xx_as_provider_failure() {
     let server = FixtureServer::start(0, false, false);
     let adapter = HttpJsonProviderAdapter::new(
         "fixture",
@@ -170,9 +171,12 @@ fn http_provider_classifies_non_2xx_as_transport_failure() {
     )
     .unwrap();
     let error = adapter.execute(&request("fail")).unwrap_err();
-    assert!(
-        matches!(error, PlatformError::TransportUnavailable(message) if message.contains("503"))
-    );
+    assert!(matches!(
+        error,
+        PlatformError::ProviderFailure(failure)
+            if failure.status_code == Some(503)
+                && failure.class == ProviderFailureClass::Server
+    ));
 }
 
 #[test]
@@ -189,7 +193,11 @@ fn http_provider_timeout_is_bounded() {
     .unwrap();
     let started = std::time::Instant::now();
     let error = adapter.execute(&request("slow")).unwrap_err();
-    assert!(matches!(error, PlatformError::TransportUnavailable(_)));
+    assert!(matches!(
+        error,
+        PlatformError::ProviderFailure(failure)
+            if failure.class == ProviderFailureClass::Timeout
+    ));
     assert!(started.elapsed() < Duration::from_millis(120));
 }
 
