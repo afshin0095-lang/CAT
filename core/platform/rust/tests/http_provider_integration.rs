@@ -160,7 +160,7 @@ fn http_provider_success_and_health_are_verified_against_local_fixture() {
 
 #[test]
 fn http_provider_classifies_non_2xx_as_provider_failure() {
-    let server = FixtureServer::start(0, false, false);
+    let server = FixtureServer::start(1, false, false);
     let adapter = HttpJsonProviderAdapter::new(
         "fixture",
         IntegrationTarget::Llm,

@@ -143,7 +143,10 @@ fn batch_planning_is_stable_and_reports_global_counts() {
             assert_eq!(left_request.reason, right_request.reason);
             assert_eq!(left_request.priority, right_request.priority);
             assert_eq!(left_request.requested_at_ms, right_request.requested_at_ms);
-            assert_eq!(left_request.scheduled_for_ms, right_request.scheduled_for_ms);
+            assert_eq!(
+                left_request.scheduled_for_ms,
+                right_request.scheduled_for_ms
+            );
             assert_eq!(left_request.dedup_key, right_request.dedup_key);
         }
     }
