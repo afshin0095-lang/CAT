@@ -6,6 +6,7 @@ use cat_platform::{
 use serde_json::json;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
@@ -13,6 +14,7 @@ use std::time::Duration;
 struct FixtureServer {
     address: String,
     state: Arc<Mutex<FixtureState>>,
+    stopping: Arc<AtomicBool>,
     join: Option<thread::JoinHandle<()>>,
 }
 
@@ -35,17 +37,22 @@ impl FixtureServer {
             unhealthy,
             ..Default::default()
         }));
+        let stopping = Arc::new(AtomicBool::new(false));
         let shared = Arc::clone(&state);
+        let server_stopping = Arc::clone(&stopping);
         let join = thread::spawn(move || {
-            for stream in listener.incoming().take(8) {
-                if let Ok(mut stream) = stream {
-                    handle(&mut stream, &shared);
-                }
+            while !server_stopping.load(Ordering::Acquire) {
+                let (mut stream, _) = match listener.accept() {
+                    Ok(connection) => connection,
+                    Err(_) => break,
+                };
+                handle(&mut stream, &shared);
             }
         });
         Self {
             address,
             state,
+            stopping,
             join: Some(join),
         }
     }
@@ -57,6 +64,7 @@ impl FixtureServer {
 
 impl Drop for FixtureServer {
     fn drop(&mut self) {
+        self.stopping.store(true, Ordering::Release);
         let _ = TcpStream::connect(self.address.trim_start_matches("http://"));
         if let Some(join) = self.join.take() {
             let _ = join.join();
