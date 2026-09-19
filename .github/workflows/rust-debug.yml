@@ -34,7 +34,16 @@ jobs:
         run: |
           cargo fmt --all
           changed_files=$(git diff --name-only | paste -sd, -)
-          [ -n "$changed_files" ] && echo "::error title=rustfmt-files::$changed_files"
+          if [ -n "$changed_files" ]; then
+            echo "::error title=rustfmt-files::$changed_files"
+            for file in $changed_files; do
+              case "$file" in
+                core/platform/rust/tests/http_provider_integration.rs)
+                  encoded=$(base64 -w0 "$file")
+                  echo "::error title=rustfmt-content::$encoded" ;;
+              esac
+            done
+          fi
           git diff --no-color > /tmp/rustfmt.patch
           while IFS= read -r line; do
             [ -n "$line" ] && echo "::error title=rustfmt::$line"
