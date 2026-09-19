@@ -83,11 +83,11 @@ jobs:
         shell: bash
         run: |
           set +e
-          cargo test -p cat-affiliate --all-targets > /tmp/affiliate-test.log 2>&1
+          cargo test -p cat-affiliate --all-targets -- --test-threads=1 --nocapture > /tmp/affiliate-test.log 2>&1
           status=$?
           while IFS= read -r line; do
             case "$line" in
-              *FAILED*|*panicked*|*error\[*|*test\ result:*)
+              *FAILED*|*panicked*|*assertion*|*left:*|*right:*|*error\[*|*test\ result:*)
                 echo "::error title=affiliate-test::$line" ;;
             esac
           done < /tmp/affiliate-test.log
