@@ -1,7 +1,7 @@
 use cat_platform::{
     AdapterRequest, ExternalProviderAdapter, HttpJsonProviderAdapter, IntegrationCommand,
-    IntegrationContext, IntegrationTarget, PlatformError, ProviderCircuitConfig,
-    ProviderHealth, ProviderHealthProbe, ProviderRetryConfig, ResilientProviderAdapter,
+    IntegrationContext, IntegrationTarget, PlatformError, ProviderCircuitConfig, ProviderHealth,
+    ProviderHealthProbe, ProviderRetryConfig, ResilientProviderAdapter,
 };
 use serde_json::json;
 use std::io::{Read, Write};
