@@ -34,6 +34,9 @@ jobs:
         run: |
           cargo fmt --all
           git diff --no-color > /tmp/rustfmt.patch
+          while IFS= read -r line; do
+            [ -n "$line" ] && echo "::error title=rustfmt::$line"
+          done < /tmp/rustfmt.patch
       - name: Upload formatter patch
         if: always()
         uses: actions/upload-artifact@v4
@@ -41,6 +44,27 @@ jobs:
           name: rustfmt-patch
           path: /tmp/rustfmt.patch
           if-no-files-found: ignore
+
+  affiliate-test-diagnostic:
+    name: Affiliate test diagnostic
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run affiliate tests with annotations
+        shell: bash
+        run: |
+          set +e
+          cargo test -p cat-affiliate --all-targets -- --test-threads=1 > /tmp/affiliate-test.log 2>&1
+          status=$?
+          while IFS= read -r line; do
+            case "$line" in
+              *FAILED*|*panicked*|*error\[*|*test\ result:*)
+                echo "::error title=affiliate-test::$line" ;;
+            esac
+          done < /tmp/affiliate-test.log
+          exit 0
 
   debug:
     runs-on: ubuntu-latest
