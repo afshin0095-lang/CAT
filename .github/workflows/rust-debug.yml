@@ -15,7 +15,33 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: cat-rust-debug-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  fmt-diagnostic:
+    name: Capture rustfmt rewrite
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: Generate formatter patch
+        shell: bash
+        run: |
+          cargo fmt --all
+          git diff --no-color > /tmp/rustfmt.patch
+      - name: Upload formatter patch
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustfmt-patch
+          path: /tmp/rustfmt.patch
+          if-no-files-found: ignore
+
   debug:
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -68,11 +94,11 @@ jobs:
           # Preserve the formatter's exact rewrite so a failed workspace fmt
           # gate can be repaired without relying on unavailable local Rust.
           cargo fmt --all
-          git diff --no-color > /tmp/rustfmt.patch
-      - name: Upload formatter patch
+          git diff --no-color > /tmp/rustfmt-debug.patch
+      - name: Upload debug formatter patch
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: rustfmt-patch
-          path: /tmp/rustfmt.patch
+          name: rustfmt-debug-patch
+          path: /tmp/rustfmt-debug.patch
           if-no-files-found: ignore
