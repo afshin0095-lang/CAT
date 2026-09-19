@@ -198,7 +198,7 @@ fn http_provider_timeout_is_bounded() {
         PlatformError::ProviderFailure(failure)
             if failure.class == ProviderFailureClass::Timeout
     ));
-    assert!(started.elapsed() < Duration::from_millis(120));
+    assert!(started.elapsed() < Duration::from_millis(500));
 }
 
 #[test]

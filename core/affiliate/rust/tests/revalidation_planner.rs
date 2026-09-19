@@ -119,7 +119,9 @@ fn batch_planning_is_stable_and_reports_global_counts() {
     assert_eq!(outcome.blocked, 0);
     assert_eq!(outcome.unique_requests().len(), 2);
 
-    // Input order never changes the output order.
+    // Input order never changes the output order. Request IDs are unique per
+    // construction, so compare the deterministic decision/request fields and
+    // intentionally exclude those runtime identifiers.
     let flipped = cat_affiliate::RevalidationPlanningOutcome::plan_batch(
         &planner,
         &[first, second],
@@ -127,7 +129,24 @@ fn batch_planning_is_stable_and_reports_global_counts() {
         &availability,
     )
     .expect("valid batch");
-    assert_eq!(outcome.decisions, flipped.decisions);
+    assert_eq!(outcome.decisions.len(), flipped.decisions.len());
+    for (left, right) in outcome.decisions.iter().zip(&flipped.decisions) {
+        assert_eq!(left.identity, right.identity);
+        assert_eq!(left.opportunity_id, right.opportunity_id);
+        assert_eq!(left.evaluated_at_ms, right.evaluated_at_ms);
+        assert_eq!(left.skipped, right.skipped);
+        assert_eq!(left.blocked, right.blocked);
+        assert_eq!(left.requests.len(), right.requests.len());
+        for (left_request, right_request) in left.requests.iter().zip(&right.requests) {
+            assert_eq!(left_request.opportunity_id, right_request.opportunity_id);
+            assert_eq!(left_request.target, right_request.target);
+            assert_eq!(left_request.reason, right_request.reason);
+            assert_eq!(left_request.priority, right_request.priority);
+            assert_eq!(left_request.requested_at_ms, right_request.requested_at_ms);
+            assert_eq!(left_request.scheduled_for_ms, right_request.scheduled_for_ms);
+            assert_eq!(left_request.dedup_key, right_request.dedup_key);
+        }
+    }
 }
 
 #[test]
