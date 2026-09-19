@@ -33,6 +33,8 @@ jobs:
         shell: bash
         run: |
           cargo fmt --all
+          changed_files=$(git diff --name-only | paste -sd, -)
+          [ -n "$changed_files" ] && echo "::error title=rustfmt-files::$changed_files"
           git diff --no-color > /tmp/rustfmt.patch
           while IFS= read -r line; do
             [ -n "$line" ] && echo "::error title=rustfmt::$line"
@@ -56,7 +58,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          cargo test -p cat-affiliate --all-targets -- --test-threads=1 > /tmp/affiliate-test.log 2>&1
+          cargo test -p cat-affiliate --all-targets > /tmp/affiliate-test.log 2>&1
           status=$?
           while IFS= read -r line; do
             case "$line" in
