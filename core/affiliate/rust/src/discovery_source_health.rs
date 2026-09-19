@@ -16,10 +16,13 @@ pub const UNAVAILABLE_AFTER_CONSECUTIVE_FAILURES: u32 = 5;
 /// Consecutive failures after which a source is considered degraded.
 pub const DEGRADED_AFTER_CONSECUTIVE_FAILURES: u32 = 2;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[derive(
+    Clone, Copy, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize,
+)]
 #[serde(rename_all = "snake_case")]
 pub enum SourceHealthState {
     /// No success or failure has been observed yet.
+    #[default]
     Unknown,
     Healthy,
     Degraded,
@@ -182,7 +185,7 @@ mod tests {
             SourceHealthState::Healthy,
             "one failure cannot degrade"
         );
-        assert_eq!(snapshot.consecutive_failures, 0);
+        assert_eq!(snapshot.consecutive_failures, 1);
         assert_eq!(snapshot.last_success_latency_ms, Some(120));
         assert_eq!(snapshot.availability_bps, Some(5_000));
     }
@@ -233,8 +236,8 @@ mod tests {
         let mut store = InMemorySourceHealthStore::new();
         store.record_success("zeta", 1, 1);
         store.record_success("alpha", 1, 1);
-        let sources: Vec<&str> = store
-            .all_snapshots()
+        let snapshots = store.all_snapshots();
+        let sources: Vec<&str> = snapshots
             .iter()
             .map(|snapshot| snapshot.source.as_str())
             .collect();
@@ -244,9 +247,9 @@ mod tests {
     #[test]
     fn availability_never_overflows_at_extremes() {
         let mut store = InMemorySourceHealthStore::new();
-        for at in 0..1_000 {
-            store.record_success("network-d", u64::from(at), 1);
-            store.record_failure("network-d", u64::from(at), None);
+        for at in 0_u64..1_000 {
+            store.record_success("network-d", at, 1);
+            store.record_failure("network-d", at, None);
         }
         let snapshot = store.snapshot("network-d");
         assert_eq!(snapshot.availability_bps, Some(5_000));

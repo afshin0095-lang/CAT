@@ -21,10 +21,10 @@ pub mod opportunity_projection;
 pub mod opportunity_query;
 pub mod opportunity_ranking;
 pub mod opportunity_revalidation;
-pub mod revalidation_execution;
 pub mod opportunity_store;
 pub mod opportunity_version;
 pub mod repository;
+pub mod revalidation_execution;
 pub mod revalidation_planner;
 pub mod scoring;
 pub mod service;
@@ -111,10 +111,6 @@ pub use opportunity_ranking::{
     OpportunityRankingError, OpportunityRankingProfile, RankedOpportunity, RankingFactors,
     UNKNOWN_SOURCE_RELIABILITY_BPS, WEIGHT_SCALE,
 };
-pub use revalidation_execution::{
-    RevalidationExecutionCoordinator, RevalidationExecutionError, RevalidationExecutionReport,
-    RevalidationExecutionResult, RevalidationExecutor, execution_request_for,
-};
 pub use opportunity_revalidation::{
     InMemoryRevalidationRequestStore, REVALIDATION_DEDUP_WINDOW_MS, RevalidationBlockReason,
     RevalidationDecision, RevalidationPriority, RevalidationReason, RevalidationRequest,
@@ -127,6 +123,10 @@ pub use opportunity_store::{
 };
 pub use opportunity_version::{OpportunityRevision, OpportunityRevisionError};
 pub use repository::AffiliateRepository;
+pub use revalidation_execution::{
+    RevalidationExecutionCoordinator, RevalidationExecutionError, RevalidationExecutionReport,
+    RevalidationExecutionResult, RevalidationExecutor, execution_request_for,
+};
 pub use revalidation_planner::{RevalidationPlanner, RevalidationPlanningOutcome};
 pub use scoring::{
     ProgramScore, ProgramVerdict, rank_programs, score_content_potential, score_earning_potential,

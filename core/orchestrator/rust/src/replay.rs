@@ -8,11 +8,24 @@ pub struct ReplaySnapshot {
     pub revision: u64,
     pub workflow_state: WorkflowState,
     pub ordered_steps: Vec<(String, StepState, u32)>,
+    pub ordered_dependencies: Vec<(String, Vec<String>)>,
 }
 
 pub fn snapshot(instance: &WorkflowInstance) -> OrchestratorResult<ReplaySnapshot> {
     let order = topological_order(&instance.definition)?;
     let ordered_steps = order
+        .iter()
+        .map(|id| {
+            let step = instance
+                .definition
+                .steps
+                .iter()
+                .find(|step| step.id == *id)
+                .expect("validated definition must contain every ordered step");
+            (step.id.clone(), step.state, step.attempt)
+        })
+        .collect();
+    let ordered_dependencies = order
         .into_iter()
         .map(|id| {
             let step = instance
@@ -21,7 +34,7 @@ pub fn snapshot(instance: &WorkflowInstance) -> OrchestratorResult<ReplaySnapsho
                 .iter()
                 .find(|step| step.id == id)
                 .expect("validated definition must contain every ordered step");
-            (step.id.clone(), step.state, step.attempt)
+            (step.id.clone(), step.dependencies.clone())
         })
         .collect();
 
@@ -30,6 +43,7 @@ pub fn snapshot(instance: &WorkflowInstance) -> OrchestratorResult<ReplaySnapsho
         revision: instance.revision,
         workflow_state: instance.state,
         ordered_steps,
+        ordered_dependencies,
     })
 }
 
@@ -44,14 +58,27 @@ pub fn verify_replay(
         .map(|(id, _, _)| id.as_str())
         .collect();
 
-    if actual.len() != expected_order.len()
-        || actual
-            .iter()
-            .map(String::as_str)
-            .ne(expected_order.into_iter())
+    if actual.len() != expected_order.len() || actual.iter().map(String::as_str).ne(expected_order)
     {
         return Err(OrchestratorError::Serialization(
             "workflow replay order does not match snapshot".to_string(),
+        ));
+    }
+
+    let actual_dependencies: Vec<(String, Vec<String>)> = actual
+        .iter()
+        .map(|id| {
+            let step = definition
+                .steps
+                .iter()
+                .find(|step| step.id == *id)
+                .expect("validated definition must contain every ordered step");
+            (step.id.clone(), step.dependencies.clone())
+        })
+        .collect();
+    if actual_dependencies != expected.ordered_dependencies {
+        return Err(OrchestratorError::Serialization(
+            "workflow replay graph does not match snapshot".to_string(),
         ));
     }
 

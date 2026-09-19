@@ -74,12 +74,13 @@ impl FencedLeaseProvider for InMemoryFencedLeaseProvider {
         now_ms: u64,
         ttl_ms: u64,
     ) -> OrchestratorResult<FencedLease> {
-        if let Some(existing) = self.leases.get(resource) {
-            if existing.lease.expires_at_ms > now_ms && existing.lease.owner != owner {
-                return Err(OrchestratorError::LeaseUnavailable {
-                    resource: resource.to_owned(),
-                });
-            }
+        if let Some(existing) = self.leases.get(resource)
+            && existing.lease.expires_at_ms > now_ms
+            && existing.lease.owner != owner
+        {
+            return Err(OrchestratorError::LeaseUnavailable {
+                resource: resource.to_owned(),
+            });
         }
 
         let next = self.next_tokens.entry(resource.to_owned()).or_insert(0);

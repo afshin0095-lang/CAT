@@ -1,0 +1,155 @@
+name: CAT Rust Debug
+
+on:
+  push:
+    paths:
+      - '**/*.rs'
+      - '**/Cargo.toml'
+      - '.github/workflows/rust-debug.yml'
+  pull_request:
+    paths:
+      - '**/*.rs'
+      - '**/Cargo.toml'
+      - '.github/workflows/rust-debug.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cat-rust-debug-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fmt-diagnostic:
+    name: Capture rustfmt rewrite
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: Generate formatter patch
+        shell: bash
+        run: |
+          cargo fmt --all
+          changed_files=$(git diff --name-only | paste -sd, -)
+          if [ -n "$changed_files" ]; then
+            echo "::error title=rustfmt-files::$changed_files"
+            for file in $changed_files; do
+              case "$file" in
+                core/platform/rust/tests/http_provider_integration.rs)
+                  encoded=$(base64 -w0 "$file")
+                  echo "::error title=rustfmt-content::$encoded" ;;
+              esac
+            done
+          fi
+          git diff --no-color > /tmp/rustfmt.patch
+          while IFS= read -r line; do
+            [ -n "$line" ] && echo "::error title=rustfmt::$line"
+          done < /tmp/rustfmt.patch
+      - name: Upload formatter patch
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustfmt-patch
+          path: /tmp/rustfmt.patch
+          if-no-files-found: ignore
+
+  affiliate-test-diagnostic:
+    name: Affiliate test diagnostic
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: cat_test
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      CAT_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:55432/cat_test
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run affiliate tests with annotations
+        shell: bash
+        run: |
+          set +e
+          cargo test -p cat-affiliate --all-targets -- --test-threads=1 --nocapture > /tmp/affiliate-test.log 2>&1
+          status=$?
+          while IFS= read -r line; do
+            case "$line" in
+              *FAILED*|*panicked*|*assertion*|*left:*|*right:*|*error\[*|*test\ result:*)
+                echo "::error title=affiliate-test::$line" ;;
+            esac
+          done < /tmp/affiliate-test.log
+          exit 0
+
+  debug:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - name: Run targeted diagnostics
+        shell: bash
+        run: |
+          set +e
+          run_one() {
+            name="$1"; shift
+            echo "=== $name ==="
+            "$@" 2>&1 | tee "/tmp/$name.log"
+            status=${PIPESTATUS[0]}
+            sed -E 's/\x1B\[[0-9;]*[[:alpha:]]//g' "/tmp/$name.log" > "/tmp/$name.clean.log"
+            if [ "$status" -ne 0 ]; then
+              summary=$(tail -n 80 "/tmp/$name.clean.log" | tr '\n' ' ' | tr '\r' ' ')
+              echo "::error title=$name summary::$summary"
+              while IFS= read -r line; do
+                [ -n "$line" ] && echo "::error title=$name::$line"
+              done < <(grep -E '(error|warning| --> | = (help|note):|FAILED|panicked)' "/tmp/$name.clean.log" | tail -100)
+            fi
+            return "$status"
+          }
+          run_one fmt cargo fmt --all -- --check || true
+          run_one affiliate-check cargo check -p cat-affiliate --all-targets || true
+          cargo clippy -p cat-affiliate --all-targets --all-features --message-format=json -- -D warnings > /tmp/affiliate-clippy.json 2>&1
+          python3 - <<'PY'
+          import json
+          for line in open('/tmp/affiliate-clippy.json', errors='replace'):
+              try:
+                  item = json.loads(line)
+              except json.JSONDecodeError:
+                  continue
+              message = item.get('message', {})
+              if message.get('level') not in {'warning', 'error'}:
+                  continue
+              spans = message.get('spans') or [{}]
+              span = next((span for span in spans if span.get('is_primary')), spans[0])
+              print(f"::error file={span.get('file_name','')} line={span.get('line_start',1)} title=affiliate-clippy::{message.get('message','').replace('\n', ' ').strip()}")
+          PY
+          run_one affiliate-test cargo test -p cat-affiliate --all-targets || true
+          run_one affiliate-source cargo test -p cat-affiliate --lib discovery_source_health::tests::successes_keep_sources_healthy -- --nocapture || true
+          run_one affiliate-canonical cargo test -p cat-affiliate --lib discovery::tests::canonical_key_ascii_limitation_is_documented_and_fail_closed -- --nocapture || true
+          run_one platform-check cargo check -p cat-platform --all-targets || true
+          run_one platform-test cargo test -p cat-platform --all-targets || true
+          # Preserve the formatter's exact rewrite so a failed workspace fmt
+          # gate can be repaired without relying on unavailable local Rust.
+          cargo fmt --all
+          git diff --no-color > /tmp/rustfmt-debug.patch
+      - name: Upload debug formatter patch
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustfmt-debug-patch
+          path: /tmp/rustfmt-debug.patch
+          if-no-files-found: ignore

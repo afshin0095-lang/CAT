@@ -81,12 +81,14 @@ fn a_full_ingestion_to_metrics_round_trip() {
     assert_eq!(result.opportunities.len(), 2);
 
     // 2. Persistence produces the deterministic report shape.
-    let mut report = OpportunityIngestionReport::default();
-    report.candidates_received = 3;
-    report.candidates_rejected = 1;
-    report.opportunities_discovered = 2;
-    report.opportunities_created = 1;
-    report.opportunities_changed = 2;
+    let report = OpportunityIngestionReport {
+        candidates_received: 3,
+        candidates_rejected: 1,
+        opportunities_discovered: 2,
+        opportunities_created: 1,
+        opportunities_changed: 2,
+        ..Default::default()
+    };
 
     // 3. The neutral sink aggregates everything by name.
     let mut sink = InMemoryMetricSink::new();

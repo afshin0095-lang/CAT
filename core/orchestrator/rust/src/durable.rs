@@ -124,12 +124,13 @@ impl LeaseProvider for InMemoryLeaseProvider {
         now_ms: u64,
         ttl_ms: u64,
     ) -> OrchestratorResult<Lease> {
-        if let Some(existing) = self.leases.get(resource) {
-            if existing.expires_at_ms > now_ms && existing.owner != owner {
-                return Err(OrchestratorError::LeaseUnavailable {
-                    resource: resource.to_owned(),
-                });
-            }
+        if let Some(existing) = self.leases.get(resource)
+            && existing.expires_at_ms > now_ms
+            && existing.owner != owner
+        {
+            return Err(OrchestratorError::LeaseUnavailable {
+                resource: resource.to_owned(),
+            });
         }
         let lease = Lease::acquire(resource, owner, now_ms, ttl_ms);
         self.leases.insert(resource.to_owned(), lease.clone());
@@ -177,7 +178,7 @@ mod tests {
             producer: "test".into(),
             correlation_id: None,
             causation_id: None,
-            subject_id: Some(id),
+            subject_id: Some(cat_kernel::EntityId::from_uuid(id)),
             payload: serde_json::json!({}),
         };
         let mut committed = workflow;

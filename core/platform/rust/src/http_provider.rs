@@ -213,7 +213,7 @@ mod tests {
                 "x",
                 IntegrationTarget::Llm,
                 "https://example.test",
-                [],
+                std::iter::empty::<&str>(),
                 "/health",
                 Duration::from_secs(1)
             )
@@ -270,7 +270,9 @@ mod tests {
             Duration::from_secs(1),
         )
         .unwrap();
-        assert!(adapter.with_header("authorization", "Bearer test").is_ok());
+        let adapter = adapter
+            .with_header("authorization", "Bearer test")
+            .expect("valid authorization header");
         assert!(adapter.with_header("not a header", "x").is_err());
     }
 }

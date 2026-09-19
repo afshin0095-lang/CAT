@@ -1,11 +1,23 @@
-use std::time::Duration;
 use crate::{CancellationToken, TaskId, TaskLease};
+use std::time::Duration;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum ExecutionState { Ready, Running, Completed, Cancelled, TimedOut }
+pub enum ExecutionState {
+    Ready,
+    Running,
+    Completed,
+    Cancelled,
+    TimedOut,
+}
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub enum ExecutionError { AlreadyFinished, Cancelled, TimedOut, LeaseExpired, NotOwner }
+pub enum ExecutionError {
+    AlreadyFinished,
+    Cancelled,
+    TimedOut,
+    LeaseExpired,
+    NotOwner,
+}
 
 #[derive(Clone, Debug)]
 pub struct ExecutionContext {
@@ -18,16 +30,35 @@ pub struct ExecutionContext {
 }
 
 impl ExecutionContext {
-    pub fn start(task_id: TaskId, attempt: u32, lease: &TaskLease, now_ms: u64, timeout: Option<Duration>) -> Result<Self, ExecutionError> {
-        if lease.is_expired_at(now_ms) { return Err(ExecutionError::LeaseExpired); }
+    pub fn start(
+        task_id: TaskId,
+        attempt: u32,
+        lease: &TaskLease,
+        now_ms: u64,
+        timeout: Option<Duration>,
+    ) -> Result<Self, ExecutionError> {
+        if lease.is_expired_at(now_ms) {
+            return Err(ExecutionError::LeaseExpired);
+        }
         let deadline_ms = timeout.map(|d| now_ms.saturating_add(d.as_millis() as u64));
-        Ok(Self { task_id, attempt, owner: lease.owner.clone(), deadline_ms, state: ExecutionState::Running, cancellation: CancellationToken::new() })
+        Ok(Self {
+            task_id,
+            attempt,
+            owner: lease.owner.clone(),
+            deadline_ms,
+            state: ExecutionState::Running,
+            cancellation: CancellationToken::new(),
+        })
     }
 
-    pub fn token(&self) -> CancellationToken { self.cancellation.child() }
+    pub fn token(&self) -> CancellationToken {
+        self.cancellation.child()
+    }
 
     pub fn cancel(&mut self) -> Result<(), ExecutionError> {
-        if self.is_terminal() { return Err(ExecutionError::AlreadyFinished); }
+        if self.is_terminal() {
+            return Err(ExecutionError::AlreadyFinished);
+        }
         self.cancellation.cancel();
         self.state = ExecutionState::Cancelled;
         Ok(())
@@ -52,6 +83,9 @@ impl ExecutionContext {
     }
 
     pub fn is_terminal(&self) -> bool {
-        matches!(self.state, ExecutionState::Completed | ExecutionState::Cancelled | ExecutionState::TimedOut)
+        matches!(
+            self.state,
+            ExecutionState::Completed | ExecutionState::Cancelled | ExecutionState::TimedOut
+        )
     }
 }

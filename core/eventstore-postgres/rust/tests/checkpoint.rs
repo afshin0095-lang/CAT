@@ -16,7 +16,7 @@ fn checkpoint(
     ProjectionCheckpoint::new(
         projection_id,
         stream_id,
-        SequenceNumber::new(sequence).expect("sequence must be positive"),
+        SequenceNumber::new(sequence),
         event_id,
         phase,
     )
@@ -40,7 +40,7 @@ async fn checkpoint_store_is_monotonic_and_idempotent() {
 
     let store = PostgresProjectionCheckpointStore::new(pool.clone());
     let stream_id = EntityId::new();
-    let projection_id = format!("checkpoint-contract-{stream_id}");
+    let projection_id = format!("checkpoint-contract-{}", stream_id.as_uuid());
     let first_event = EventId::new();
     let second_event = EventId::new();
     let conflicting_event = EventId::new();
@@ -102,7 +102,7 @@ async fn checkpoint_store_is_monotonic_and_idempotent() {
         .expect("load checkpoint")
         .expect("checkpoint should exist");
 
-    assert_eq!(loaded.sequence, SequenceNumber::new(11).unwrap());
+    assert_eq!(loaded.sequence, SequenceNumber::new(11));
     assert_eq!(loaded.event_id, second_event);
     assert_eq!(loaded.phase, ProjectionPhase::Live);
 
@@ -134,8 +134,8 @@ async fn checkpoint_store_supports_independent_projection_stream_pairs() {
     let store = PostgresProjectionCheckpointStore::new(pool.clone());
     let stream_a = EntityId::new();
     let stream_b = EntityId::new();
-    let projection_a = format!("projection-a-{stream_a}");
-    let projection_b = format!("projection-b-{stream_b}");
+    let projection_a = format!("projection-a-{}", stream_a.as_uuid());
+    let projection_b = format!("projection-b-{}", stream_b.as_uuid());
 
     let checkpoint_a = checkpoint(
         &projection_a,
@@ -166,8 +166,8 @@ async fn checkpoint_store_supports_independent_projection_stream_pairs() {
         .expect("load projection B")
         .expect("projection B exists");
 
-    assert_eq!(loaded_a.sequence, SequenceNumber::new(3).unwrap());
-    assert_eq!(loaded_b.sequence, SequenceNumber::new(7).unwrap());
+    assert_eq!(loaded_a.sequence, SequenceNumber::new(3));
+    assert_eq!(loaded_b.sequence, SequenceNumber::new(7));
     assert_ne!(loaded_a.stream_id, loaded_b.stream_id);
     assert_ne!(loaded_a.projection_id, loaded_b.projection_id);
 

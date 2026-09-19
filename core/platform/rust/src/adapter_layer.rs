@@ -3,9 +3,8 @@ use serde_json::{Value, json};
 use uuid::Uuid;
 
 use crate::{
-    ConcreteCoreRuntime, CoreCommand, IntegrationTarget, PlatformError, PlatformResult,
-    ProviderAdapterRegistry, ProviderId, RemainingCoreRuntime, TypedCoreCommand, TypedCoreResponse,
-    WorkflowRuntime,
+    ConcreteCoreRuntime, IntegrationTarget, PlatformError, PlatformResult, ProviderAdapterRegistry,
+    ProviderId, RemainingCoreRuntime, TypedCoreCommand, TypedCoreResponse, WorkflowRuntime,
 };
 
 /// Concrete platform adapter layer.
@@ -152,7 +151,7 @@ fn response(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{AdapterRequest, IntegrationCommand, IntegrationContext};
+    use crate::{AdapterRequest, CoreCommand, IntegrationCommand, IntegrationContext};
     use cat_planning::{PlanBuilder, StepKind};
     use std::sync::Arc;
 

@@ -112,31 +112,35 @@ impl DurableOutboxStore for InMemoryDurableOutbox {
             .iter()
             .position(|record| record.event.event_id == event_id)
             .ok_or_else(|| OrchestratorError::Serialization("outbox event not found".into()))?;
-        let record = self
-            .records
-            .get_mut(position)
-            .expect("position was produced from the same queue");
-        if record.claimed_by.as_deref() != Some(owner) {
-            return Err(OrchestratorError::LeaseOwnerMismatch {
-                lease_id: event_id.to_string(),
-                owner: owner.to_owned(),
-            });
-        }
-        record.attempt = record.attempt.saturating_add(1);
-        record.claimed_by = None;
-        if policy.retryable(record.attempt) {
-            let delay = policy.delay_ms(record.attempt);
-            record.available_at_ms = now_ms.saturating_add(delay);
+        let (attempt, available_at_ms, retryable) = {
+            let record = self
+                .records
+                .get_mut(position)
+                .expect("position was produced from the same queue");
+            if record.claimed_by.as_deref() != Some(owner) {
+                return Err(OrchestratorError::LeaseOwnerMismatch {
+                    lease_id: event_id.to_string(),
+                    owner: owner.to_owned(),
+                });
+            }
+            record.attempt = record.attempt.saturating_add(1);
+            record.claimed_by = None;
+            let retryable = policy.retryable(record.attempt);
+            if retryable {
+                let delay = policy.delay_ms(record.attempt);
+                record.available_at_ms = now_ms.saturating_add(delay);
+            }
+            (record.attempt, record.available_at_ms, retryable)
+        };
+        if retryable {
             Ok(OutboxDisposition::RetryScheduled {
-                attempt: record.attempt,
-                available_at_ms: record.available_at_ms,
+                attempt,
+                available_at_ms,
             })
         } else {
             let _ = error;
             self.records.remove(position);
-            Ok(OutboxDisposition::DeadLettered {
-                attempt: record.attempt,
-            })
+            Ok(OutboxDisposition::DeadLettered { attempt })
         }
     }
 }

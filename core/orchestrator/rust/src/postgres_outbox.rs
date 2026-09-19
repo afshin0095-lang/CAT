@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use cat_eventbus::{EventEnvelope, EventKind};
-use sqlx::{Row, postgres::PgPool};
+use cat_kernel::EntityId;
+use sqlx::Row;
 use uuid::Uuid;
 
 use crate::{OrchestratorError, OrchestratorResult, RetryPolicy};
@@ -59,7 +60,7 @@ impl super::PostgresExecutionStore {
             .bind(&event.producer)
             .bind(event.correlation_id)
             .bind(event.causation_id)
-            .bind(event.subject_id)
+            .bind(event.subject_id.map(|id| id.as_uuid()))
             .bind(&event.payload)
             .execute(self.pool())
             .await
@@ -89,7 +90,6 @@ impl AsyncPostgresOutbox for super::PostgresExecutionStore {
         let Some(row) = row else {
             return Ok(None);
         };
-        let workflow_id: Uuid = row.try_get("workflow_id").map_err(row_error)?;
         let event_kind_raw: String = row.try_get("event_kind").map_err(row_error)?;
         let event_kind: EventKind = serde_json::from_str(&format!("\"{event_kind_raw}\""))
             .map_err(|error| {
@@ -109,7 +109,10 @@ impl AsyncPostgresOutbox for super::PostgresExecutionStore {
             producer: row.try_get("producer").map_err(row_error)?,
             correlation_id: row.try_get("correlation_id").map_err(row_error)?,
             causation_id: row.try_get("causation_id").map_err(row_error)?,
-            subject_id: row.try_get("subject_id").map_err(row_error)?,
+            subject_id: row
+                .try_get::<Option<Uuid>, _>("subject_id")
+                .map_err(row_error)?
+                .map(EntityId::from_uuid),
             payload: row.try_get("payload").map_err(row_error)?,
         };
         Ok(Some(PostgresOutboxRecord {

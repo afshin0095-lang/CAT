@@ -41,8 +41,8 @@ fn multiple_sources_are_tracked_independently() {
     assert_eq!(store.snapshot("alpha").state, SourceHealthState::Healthy);
     assert_eq!(store.snapshot("beta").state, SourceHealthState::Unavailable);
 
-    let sources: Vec<&str> = store
-        .all_snapshots()
+    let snapshots = store.all_snapshots();
+    let sources: Vec<&str> = snapshots
         .iter()
         .map(|snapshot| snapshot.source.as_str())
         .collect();

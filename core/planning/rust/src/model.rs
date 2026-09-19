@@ -80,7 +80,7 @@ impl PlanBuilder {
         self
     }
 
-    pub fn step(mut self, name: impl Into<String>, kind: StepKind) -> StepId {
+    pub fn step(&mut self, name: impl Into<String>, kind: StepKind) -> StepId {
         let id = StepId(Uuid::now_v7());
         let order = self.plan.steps.len() as u32;
         self.plan.steps.push(PlanStep {

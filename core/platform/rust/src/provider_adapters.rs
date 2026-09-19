@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::BTreeMap;
 use std::sync::Arc;
-use uuid::Uuid;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
 pub struct ProviderId(String);
@@ -214,6 +213,7 @@ impl ExternalProviderAdapter for DeterministicProviderAdapter {
 mod tests {
     use super::*;
     use crate::{AdapterRequest, IntegrationCommand, IntegrationContext};
+    use uuid::Uuid;
 
     fn request(target: IntegrationTarget, operation: &str) -> AdapterRequest {
         AdapterRequest::from_command(
@@ -304,7 +304,10 @@ mod tests {
                 .unwrap();
         let response = adapter.execute(&request).unwrap();
         assert_eq!(response.request_id, request_id);
-        assert_eq!(response.payload["request_id"], request_id);
+        assert_eq!(
+            response.payload["request_id"],
+            serde_json::json!(request_id)
+        );
     }
 
     #[test]
@@ -312,7 +315,10 @@ mod tests {
         let adapter =
             DeterministicProviderAdapter::new("local", IntegrationTarget::Llm, ["generate"])
                 .unwrap();
-        assert_eq!(adapter.probe_health().unwrap(), ProviderHealth::Ready);
+        assert_eq!(
+            ExternalProviderAdapter::probe_health(&adapter).unwrap(),
+            ProviderHealth::Ready
+        );
     }
 
     #[test]

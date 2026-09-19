@@ -12,11 +12,11 @@ pub struct InboxHealthSnapshot {
 /// Diagnostic adapter that makes consumer-side idempotency observable without
 /// coupling callers to a concrete inbox implementation.
 #[derive(Debug)]
-pub struct InboxDiagnostics<'a, S: InboxStore> {
+pub struct InboxHealthDiagnostics<'a, S: InboxStore> {
     store: &'a S,
 }
 
-impl<'a, S: InboxStore> InboxDiagnostics<'a, S> {
+impl<'a, S: InboxStore> InboxHealthDiagnostics<'a, S> {
     pub fn new(store: &'a S) -> Self {
         Self { store }
     }
@@ -79,7 +79,7 @@ mod tests {
         let id = uuid::Uuid::now_v7();
         inbox.accept(id).unwrap();
         inbox.mark_failed(id).unwrap();
-        let snapshot = InboxDiagnostics::new(&inbox).inspect(id);
+        let snapshot = InboxHealthDiagnostics::new(&inbox).inspect(id);
         assert_eq!(snapshot.state, Some(DeliveryState::RetryScheduled));
         assert!(!snapshot.duplicate_suppressed);
         assert!(!snapshot.terminal);
@@ -91,7 +91,7 @@ mod tests {
         let id = uuid::Uuid::now_v7();
         inbox.accept(id).unwrap();
         inbox.mark_succeeded(id).unwrap();
-        let snapshot = InboxDiagnostics::new(&inbox).inspect(id);
+        let snapshot = InboxHealthDiagnostics::new(&inbox).inspect(id);
         assert!(snapshot.duplicate_suppressed);
         assert!(snapshot.terminal);
     }

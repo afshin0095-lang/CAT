@@ -26,7 +26,7 @@ use uuid::Uuid;
 
 use crate::OpportunityRecord;
 use crate::discovery_source_health::SourceHealthSnapshot;
-use crate::opportunity_freshness::{FreshnessPolicy, FreshnessPolicyError, FreshnessState};
+use crate::opportunity_freshness::{FreshnessPolicy, FreshnessState};
 
 pub const WEIGHT_SCALE: u32 = 10_000;
 

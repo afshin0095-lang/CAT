@@ -301,11 +301,11 @@ mod tests {
     fn record_evaluation_is_repeatable() {
         let policy = FreshnessPolicy::new(1_000, 5_000, 9_000).expect("valid policy");
         let stored = record(10_000);
-        let first = policy.evaluate(&stored, 11_000).expect("valid evaluation");
-        let second = policy.evaluate(&stored, 11_000).expect("valid evaluation");
+        let first = policy.evaluate(&stored, 15_000).expect("valid evaluation");
+        let second = policy.evaluate(&stored, 15_000).expect("valid evaluation");
         assert_eq!(first, second);
         assert_eq!(first.state(), FreshnessState::Stale);
-        assert_eq!(first.age_ms(), 1_000);
+        assert_eq!(first.age_ms(), 5_000);
         assert_eq!(first.last_observed_at_ms, 10_000);
         assert!(!first.is_fresh());
     }

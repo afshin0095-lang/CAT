@@ -1,5 +1,5 @@
-use std::time::Duration;
 use cat_runtime::{ExecutionContext, ExecutionError, ExecutionState, TaskId, TaskLease};
+use std::time::Duration;
 
 #[test]
 fn execution_context_rejects_expired_lease() {
@@ -21,7 +21,9 @@ fn execution_context_cancels_and_propagates_to_child_token() {
 #[test]
 fn execution_context_times_out_at_deadline() {
     let lease = TaskLease::acquire("worker-a", 1, Duration::from_secs(10)).unwrap();
-    let mut context = ExecutionContext::start(TaskId(1), 1, &lease, 100, Some(Duration::from_millis(50))).unwrap();
+    let mut context =
+        ExecutionContext::start(TaskId(1), 1, &lease, 100, Some(Duration::from_millis(50)))
+            .unwrap();
     assert_eq!(context.checkpoint(149), Ok(()));
     assert_eq!(context.checkpoint(150), Err(ExecutionError::TimedOut));
     assert_eq!(context.state, ExecutionState::TimedOut);

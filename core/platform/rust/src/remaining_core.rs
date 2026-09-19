@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use cat_decision::{DecisionRequest, DeterministicDecisionEngine};
 use cat_llm::{DeterministicProvider, GenerationRequest, LlmProvider};
-use cat_rag::{DocumentChunk, InMemoryIndex, RetrievalQuery, Retriever};
+use cat_rag::{DocumentChunk, DocumentIndex, InMemoryIndex, RetrievalQuery, Retriever};
 use cat_reasoning::{DeterministicReasoningEngine, ReasoningRequest};
 use serde_json::{Value, json};
 use tokio::runtime::Builder;
@@ -61,19 +61,19 @@ impl RemainingCoreRuntime {
                 let request: GenerationRequest = serde_json::from_value(command.payload)
                     .map_err(|error| invalid(format!("invalid generation request: {error}")))?;
                 let provider = self.llm.clone();
-                let response = run_llm(provider, request)
+                let generation = run_llm(provider, request)
                     .map_err(|error| invalid(format!("LLM provider failed: {error}")))?;
                 Ok(response(
                     command.context.request_id,
                     IntegrationTarget::Llm,
                     "generate",
                     json!({
-                        "request_id": response.request_id,
-                        "provider": response.provider,
-                        "model": response.model,
-                        "content": response.content,
-                        "usage": response.usage,
-                        "finish_reason": response.finish_reason,
+                        "request_id": generation.request_id,
+                        "provider": generation.provider,
+                        "model": generation.model,
+                        "content": generation.content,
+                        "usage": generation.usage,
+                        "finish_reason": generation.finish_reason,
                         "correlation_id": command.context.correlation_id,
                         "causation_id": command.context.causation_id,
                     }),
@@ -245,6 +245,7 @@ fn response(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::IntegrationContext;
     use cat_decision::Alternative;
     use cat_llm::{GenerationRequest, Message, ModelId};
     use cat_rag::{DocumentChunk, Embedding, RetrievalQuery};

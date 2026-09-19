@@ -8,7 +8,9 @@ use crate::{KernelError, KernelResult};
 ///
 /// The kernel stores timestamps explicitly so domain operations can be deterministic
 /// and replayable. Wall-clock acquisition belongs to infrastructure adapters.
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(
+    Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize,
+)]
 pub struct TimestampMs(u64);
 
 impl TimestampMs {
@@ -31,12 +33,6 @@ impl TimestampMs {
             ));
         }
         Ok(self)
-    }
-}
-
-impl Default for TimestampMs {
-    fn default() -> Self {
-        Self(0)
     }
 }
 

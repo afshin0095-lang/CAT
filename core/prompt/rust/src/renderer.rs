@@ -5,7 +5,9 @@ pub struct PromptRenderer;
 
 impl PromptRenderer {
     pub fn render(document: &PromptDocument, policy: &PromptPolicy) -> PromptResult<String> {
-        if document.blocks.is_empty() { return Err(PromptError::EmptyDocument); }
+        if document.blocks.is_empty() {
+            return Err(PromptError::EmptyDocument);
+        }
         let decision = policy.evaluate(document);
         if let Some(variable) = decision.blocked_variables.first() {
             return Err(PromptError::ForbiddenVariable(variable.clone()));
@@ -15,7 +17,12 @@ impl PromptRenderer {
             if block.content.trim().is_empty() {
                 return Err(PromptError::EmptyBlock(block.name.clone()));
             }
-            output.push_str(&format!("[{}:{}]\n{}\n", role_name(block.role), block.name, Self::substitute(&block.content, document)?));
+            output.push_str(&format!(
+                "[{}:{}]\n{}\n",
+                role_name(block.role),
+                block.name,
+                Self::substitute(&block.content, document)?
+            ));
         }
         Ok(output)
     }

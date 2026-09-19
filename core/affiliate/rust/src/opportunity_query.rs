@@ -39,49 +39,48 @@ pub struct OpportunityFilter {
 
 impl OpportunityFilter {
     pub fn matches(&self, record: &OpportunityRecord, lifecycle_state: FreshnessState) -> bool {
-        if let Some(merchant) = &self.merchant {
-            if record.merchant_name != *merchant {
-                return false;
-            }
+        if let Some(merchant) = &self.merchant
+            && record.merchant_name != *merchant
+        {
+            return false;
         }
-        if let Some(category) = &self.category {
-            if record.category.as_deref() != Some(category.as_str()) {
-                return false;
-            }
+        if let Some(category) = &self.category
+            && record.category.as_deref() != Some(category.as_str())
+        {
+            return false;
         }
-        if let Some(min_score) = self.min_score {
-            if record.best_score < min_score {
-                return false;
-            }
+        if let Some(min_score) = self.min_score
+            && record.best_score < min_score
+        {
+            return false;
         }
-        if let Some(expected) = self.lifecycle_state {
-            if lifecycle_state != expected {
-                return false;
-            }
+        if let Some(expected) = self.lifecycle_state
+            && lifecycle_state != expected
+        {
+            return false;
         }
-        if let Some(after) = self.observed_after_ms {
-            if record.last_observed_at_ms <= after {
-                return false;
-            }
+        if let Some(after) = self.observed_after_ms
+            && record.last_observed_at_ms <= after
+        {
+            return false;
         }
-        if let Some(before) = self.observed_before_ms {
-            if record.last_observed_at_ms >= before {
-                return false;
-            }
+        if let Some(before) = self.observed_before_ms
+            && record.last_observed_at_ms >= before
+        {
+            return false;
         }
-        if let Some(source) = &self.source {
-            if !record.observations.contains_key(source.as_str()) {
-                return false;
-            }
+        if let Some(source) = &self.source
+            && !record.observations.contains_key(source.as_str())
+        {
+            return false;
         }
-        if let Some(currency) = &self.currency {
-            if !record
+        if let Some(currency) = &self.currency
+            && !record
                 .observations
                 .values()
                 .any(|observation| observation.currency == *currency)
-            {
-                return false;
-            }
+        {
+            return false;
         }
         self.matches_ranges(record)
     }
@@ -110,33 +109,33 @@ impl OpportunityFilter {
     }
 
     pub fn validate(&self) -> Result<(), OpportunityQueryError> {
-        if let (Some(after), Some(before)) = (self.observed_after_ms, self.observed_before_ms) {
-            if after > before {
-                return Err(OpportunityQueryError::InvalidFilter(
-                    "observed_after_ms must not exceed observed_before_ms".into(),
-                ));
-            }
+        if let (Some(after), Some(before)) = (self.observed_after_ms, self.observed_before_ms)
+            && after > before
+        {
+            return Err(OpportunityQueryError::InvalidFilter(
+                "observed_after_ms must not exceed observed_before_ms".into(),
+            ));
         }
-        if let (Some(min), Some(max)) = (self.price_min_minor, self.price_max_minor) {
-            if min > max {
-                return Err(OpportunityQueryError::InvalidFilter(
-                    "price_min_minor must not exceed price_max_minor".into(),
-                ));
-            }
+        if let (Some(min), Some(max)) = (self.price_min_minor, self.price_max_minor)
+            && min > max
+        {
+            return Err(OpportunityQueryError::InvalidFilter(
+                "price_min_minor must not exceed price_max_minor".into(),
+            ));
         }
-        if let (Some(min), Some(max)) = (self.commission_min_bps, self.commission_max_bps) {
-            if min > max {
-                return Err(OpportunityQueryError::InvalidFilter(
-                    "commission_min_bps must not exceed commission_max_bps".into(),
-                ));
-            }
+        if let (Some(min), Some(max)) = (self.commission_min_bps, self.commission_max_bps)
+            && min > max
+        {
+            return Err(OpportunityQueryError::InvalidFilter(
+                "commission_min_bps must not exceed commission_max_bps".into(),
+            ));
         }
-        if let Some(min_score) = self.min_score {
-            if min_score > 10_000 {
-                return Err(OpportunityQueryError::InvalidFilter(
-                    "min_score must be within 0..=10000".into(),
-                ));
-            }
+        if let Some(min_score) = self.min_score
+            && min_score > 10_000
+        {
+            return Err(OpportunityQueryError::InvalidFilter(
+                "min_score must be within 0..=10000".into(),
+            ));
         }
         Ok(())
     }
@@ -339,7 +338,6 @@ impl OpportunityQueryService {
         sort: OpportunitySort,
     ) -> std::cmp::Ordering {
         use OpportunitySortField::*;
-        use std::cmp::Ordering;
         let primary = match sort.field {
             Score => left.best_score.cmp(&right.best_score),
             LastObservedAt => left.last_observed_at_ms.cmp(&right.last_observed_at_ms),
@@ -425,24 +423,30 @@ mod tests {
 
     #[test]
     fn invalid_filter_bounds_are_rejected() {
-        let mut filter = OpportunityFilter::default();
-        filter.observed_after_ms = Some(100);
-        filter.observed_before_ms = Some(50);
+        let filter = OpportunityFilter {
+            observed_after_ms: Some(100),
+            observed_before_ms: Some(50),
+            ..Default::default()
+        };
         assert!(matches!(
             OpportunityQuery::new(filter).validate(),
             Err(OpportunityQueryError::InvalidFilter(_))
         ));
 
-        let mut filter = OpportunityFilter::default();
-        filter.commission_min_bps = Some(700);
-        filter.commission_max_bps = Some(300);
+        let filter = OpportunityFilter {
+            commission_min_bps: Some(700),
+            commission_max_bps: Some(300),
+            ..Default::default()
+        };
         assert!(matches!(
             OpportunityQuery::new(filter).validate(),
             Err(OpportunityQueryError::InvalidFilter(_))
         ));
 
-        let mut filter = OpportunityFilter::default();
-        filter.min_score = Some(10_001);
+        let filter = OpportunityFilter {
+            min_score: Some(10_001),
+            ..Default::default()
+        };
         assert!(matches!(
             OpportunityQuery::new(filter).validate(),
             Err(OpportunityQueryError::InvalidFilter(_))
@@ -458,9 +462,11 @@ mod tests {
             build_record("Beta", "Doohickey", 5_000, 10_000),
         ];
 
-        let mut filter = OpportunityFilter::default();
-        filter.merchant = Some("Beta".into());
-        filter.min_score = Some(6_000);
+        let filter = OpportunityFilter {
+            merchant: Some("Beta".into()),
+            min_score: Some(6_000),
+            ..Default::default()
+        };
         let query = OpportunityQuery::new(filter).with_limit(10);
         let result = service
             .execute(&records, &query, 10_500)
@@ -468,8 +474,10 @@ mod tests {
         assert_eq!(result.total_matched, 1);
         assert_eq!(result.items[0].product_name, "Gadget");
 
-        let mut filter = OpportunityFilter::default();
-        filter.lifecycle_state = Some(FreshnessState::Active);
+        let filter = OpportunityFilter {
+            lifecycle_state: Some(FreshnessState::Active),
+            ..Default::default()
+        };
         let query = OpportunityQuery::new(filter).with_limit(10);
         let result = service
             .execute(&records, &query, 10_500)
@@ -501,7 +509,7 @@ mod tests {
         };
         let opportunity = DiscoveryOpportunity {
             id: stored.id,
-            candidate,
+            candidate: candidate.clone(),
             score: 9_500,
             rank: 1,
         };
@@ -526,25 +534,31 @@ mod tests {
             .expect("valid opportunity");
         let stored = store.list().into_iter().next().expect("record exists");
 
-        let mut filter = OpportunityFilter::default();
-        filter.currency = Some("USD".into());
+        let filter = OpportunityFilter {
+            currency: Some("USD".into()),
+            ..Default::default()
+        };
         let query = OpportunityQuery::new(filter).with_limit(10);
         let result = service
             .execute(std::slice::from_ref(&stored), &query, 10_500)
             .expect("valid query");
         assert_eq!(result.total_matched, 1);
 
-        let mut filter = OpportunityFilter::default();
-        filter.commission_min_bps = Some(500);
-        filter.commission_max_bps = Some(700);
+        let filter = OpportunityFilter {
+            commission_min_bps: Some(500),
+            commission_max_bps: Some(700),
+            ..Default::default()
+        };
         let query = OpportunityQuery::new(filter).with_limit(10);
         let result = service
             .execute(std::slice::from_ref(&stored), &query, 10_500)
             .expect("valid query");
         assert_eq!(result.total_matched, 1, "network-a observation has 600 bps");
 
-        let mut filter = OpportunityFilter::default();
-        filter.price_min_minor = Some(15_000);
+        let filter = OpportunityFilter {
+            price_min_minor: Some(15_000),
+            ..Default::default()
+        };
         let query = OpportunityQuery::new(filter).with_limit(10);
         let result = service
             .execute(std::slice::from_ref(&stored), &query, 10_500)

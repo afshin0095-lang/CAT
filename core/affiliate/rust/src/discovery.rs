@@ -337,7 +337,7 @@ mod tests {
     #[test]
     fn canonical_key_ascii_limitation_is_documented_and_fail_closed() {
         // Documented limitation: non-ASCII letters are dropped today.
-        assert_eq!(canonical_key("Café", "Crème"), "caf:crm");
+        assert_eq!(canonical_key("Café", "Crème"), "caf:crme");
         // Fully non-ASCII names collapse to the bare separator...
         assert_eq!(canonical_key("北京", "产品"), ":");
         // ...and candidate validation then rejects the blank identity
@@ -396,20 +396,20 @@ mod tests {
 
     #[test]
     fn oversized_and_control_character_values_are_rejected() {
-        let mut candidate = candidate("bounds", 5_000);
-        candidate.source = "s".repeat(MAX_SOURCE_LEN + 1);
+        let mut oversized = candidate("bounds", 5_000);
+        oversized.source = "s".repeat(MAX_SOURCE_LEN + 1);
         assert!(matches!(
-            candidate.validate(),
+            oversized.validate(),
             Err(DiscoveryError::TooLong {
                 field: "source",
                 ..
             })
         ));
 
-        let mut candidate = candidate("bounds", 5_000);
-        candidate.external_id = "id\u{7f}ent".into();
+        let mut invalid_characters = candidate("bounds", 5_000);
+        invalid_characters.external_id = "id\u{7f}ent".into();
         assert!(matches!(
-            candidate.validate(),
+            invalid_characters.validate(),
             Err(DiscoveryError::InvalidCharacters("external_id"))
         ));
 

@@ -1,0 +1,40 @@
+name: CAT Go Gateway
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/gateway/go/**'
+      - '.github/workflows/go-gateway.yml'
+  pull_request:
+    paths:
+      - 'backend/gateway/go/**'
+      - '.github/workflows/go-gateway.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cat-go-gateway-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test Go gateway
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend/gateway/go
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/gateway/go/go.mod
+          cache-dependency-path: backend/gateway/go/go.mod
+      - name: Run tests
+        run: go test ./...
+      - name: Run vet
+        run: go vet ./...

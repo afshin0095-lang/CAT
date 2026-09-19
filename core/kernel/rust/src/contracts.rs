@@ -10,14 +10,20 @@ pub struct ContractVersion {
 
 impl ContractVersion {
     pub const fn new(major: u16, minor: u16, patch: u16) -> Self {
-        Self { major, minor, patch }
+        Self {
+            major,
+            minor,
+            patch,
+        }
     }
 
     pub const V1: Self = Self::new(1, 0, 0);
 }
 
 impl Default for ContractVersion {
-    fn default() -> Self { Self::V1 }
+    fn default() -> Self {
+        Self::V1
+    }
 }
 
 /// Declares the maximum side-effect boundary an invocation may cross.
@@ -57,7 +63,10 @@ pub enum InvocationStatus {
 
 impl InvocationStatus {
     pub const fn is_terminal(self) -> bool {
-        matches!(self, Self::Succeeded | Self::Failed | Self::Cancelled | Self::Unknown)
+        matches!(
+            self,
+            Self::Succeeded | Self::Failed | Self::Cancelled | Self::Unknown
+        )
     }
 
     pub const fn is_success(self) -> bool {

@@ -110,6 +110,7 @@ fn resilient_adapter_can_be_registered_and_reports_circuit_health() {
             ProviderRetryConfig {
                 max_attempts: 2,
                 retry_delay: Duration::ZERO,
+                max_retry_delay: Duration::ZERO,
             },
             ProviderCircuitConfig {
                 failure_threshold: 1,
@@ -145,6 +146,7 @@ fn resilient_adapter_preserves_provider_contract_after_recovery() {
         ProviderRetryConfig {
             max_attempts: 2,
             retry_delay: Duration::ZERO,
+            max_retry_delay: Duration::ZERO,
         },
         ProviderCircuitConfig {
             failure_threshold: 3,
@@ -154,7 +156,10 @@ fn resilient_adapter_preserves_provider_contract_after_recovery() {
     .unwrap();
 
     assert!(resilient.execute(&request()).unwrap().accepted);
-    assert_eq!(resilient.probe_health().unwrap(), ProviderHealth::Ready);
+    assert_eq!(
+        ProviderHealthProbe::probe_health(&resilient).unwrap(),
+        ProviderHealth::Ready
+    );
     assert_eq!(resilient.capabilities().target, IntegrationTarget::Llm);
 }
 

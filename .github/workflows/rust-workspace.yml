@@ -94,6 +94,7 @@ jobs:
           - cat-rag
           - cat-affiliate
           - cat-content
+          - cat-prompt
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -145,6 +146,7 @@ jobs:
           - cat-rag
           - cat-affiliate
           - cat-content
+          - cat-prompt
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -153,7 +155,25 @@ jobs:
       - name: Cache Cargo
         uses: Swatinem/rust-cache@v2
       - name: Run package tests
-        run: cargo test -p ${{ matrix.package }} --all-targets
+        run: |
+          if [ "${{ matrix.package }}" = "cat-affiliate" ]; then
+            # The PostgreSQL integration tests share one service database while
+            # bootstrapping schemas; keep that package's test binaries deterministic.
+            set +e
+            cargo test -p ${{ matrix.package }} --all-targets -- --test-threads=1 2>&1 | tee /tmp/cat-affiliate-tests.log
+            status=${PIPESTATUS[0]}
+            if [ "$status" -ne 0 ]; then
+              while IFS= read -r line; do
+                case "$line" in
+                  *FAILED*|*panicked*|*assertion*|*left:*|*right:*|*error:*)
+                    echo "::error title=cat-affiliate-test::$line" ;;
+                esac
+              done < /tmp/cat-affiliate-tests.log
+            fi
+            exit "$status"
+          else
+            cargo test -p ${{ matrix.package }} --all-targets
+          fi
 
   workspace-summary:
     name: Workspace summary
