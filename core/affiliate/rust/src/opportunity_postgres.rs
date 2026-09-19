@@ -166,6 +166,7 @@ impl PostgresOpportunityStore {
             r#"
             CREATE TABLE IF NOT EXISTS cat_affiliate_revalidation_requests (
                 request_id UUID PRIMARY KEY,
+                opportunity_id UUID NOT NULL,
                 identity TEXT NOT NULL,
                 source TEXT NOT NULL,
                 reason TEXT NOT NULL,
