@@ -155,7 +155,14 @@ jobs:
       - name: Cache Cargo
         uses: Swatinem/rust-cache@v2
       - name: Run package tests
-        run: cargo test -p ${{ matrix.package }} --all-targets
+        run: |
+          if [ "${{ matrix.package }}" = "cat-affiliate" ]; then
+            # The PostgreSQL integration tests share one service database while
+            # bootstrapping schemas; keep that package's test binaries deterministic.
+            cargo test -p ${{ matrix.package }} --all-targets -- --test-threads=1
+          else
+            cargo test -p ${{ matrix.package }} --all-targets
+          fi
 
   workspace-summary:
     name: Workspace summary
