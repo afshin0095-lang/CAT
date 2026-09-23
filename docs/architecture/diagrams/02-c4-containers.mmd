@@ -1,0 +1,24 @@
+flowchart TB
+    UI[Control Plane]
+    API[API Boundary]
+    K[Kernel]
+    AR[Agent Runtime]
+    INT[Intelligence: Knowledge / Memory / RAG / LLM / Reasoning]
+    CTRL[Control: Decision / Planning / Orchestration]
+    EVT[Event Bus + Event Store]
+    CAP[Business Capabilities]
+    PROV[Provider Adapters]
+    DATA[(Durable Data)]
+    OBS[Observability]
+
+    UI --> API --> K
+    K --> AR
+    AR --> INT
+    INT --> CTRL
+    CTRL --> EVT
+    EVT --> CAP
+    CAP --> PROV
+    K --> DATA
+    EVT --> DATA
+    AR --> OBS
+    CTRL --> OBS
