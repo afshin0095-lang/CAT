@@ -1,0 +1,29 @@
+flowchart TB
+    KNOW[Knowledge]
+    MEM[Memory]
+    REA[Reasoning]
+    DEC[Decision]
+    PLN[Planning]
+    ORC[Orchestration]
+    AG[Agent Runtime]
+    CAP[Capability Gateway]
+    AFF[Affiliate]
+    CONT[Content]
+    ADS[Advertising]
+    DIST[Distribution]
+    ATTR[Attribution]
+    REV[Revenue Intelligence]
+    EVT[Eventing]
+    DATA[(Durable Data)]
+
+    KNOW --> REA --> DEC --> PLN --> ORC --> AG --> CAP
+    MEM --> REA
+    CAP --> AFF
+    CAP --> CONT
+    CAP --> ADS
+    CAP --> DIST
+    AFF --> ATTR
+    CONT --> DIST
+    ADS --> ATTR
+    ATTR --> REV
+    ORC --> EVT --> DATA
