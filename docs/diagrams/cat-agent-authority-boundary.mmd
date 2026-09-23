@@ -1,0 +1,16 @@
+flowchart LR
+    Input[External / Internal Input] --> Validate[Validation]
+    Validate --> Agent[Agent]
+    Agent --> Capability[Capability]
+    Capability --> Policy[Policy + Authorization]
+    Policy --> Risk[Risk Classification]
+    Risk --> Approval{Human Approval?}
+    Approval -->|No| Tool[Tool Contract]
+    Approval -->|Yes| Human[Human Approval]
+    Human --> Tool
+    Tool --> Connector[Connector]
+    Connector --> Provider[Provider]
+    Provider --> External[External System]
+    External --> Observe[Observation]
+    Observe --> Result[Validated Result]
+    Result --> Audit[Audit / Provenance]
