@@ -1,0 +1,13 @@
+flowchart LR
+    Z0[Public / Untrusted]
+    Z1[Authenticated Control Plane]
+    Z2[CAT Core]
+    Z3[Agent / Tool Execution]
+    Z4[Durable Data]
+    Z5[Secret Management]
+    Z6[External Providers]
+
+    Z0 --> Z1 --> Z2 --> Z3
+    Z3 --> Z4
+    Z3 --> Z5
+    Z3 --> Z6
