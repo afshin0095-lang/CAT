@@ -1,0 +1,27 @@
+flowchart TB
+    Human[Human Owner / Operator] --> Control[Control Plane]
+    Control --> Gateway[API / Gateway]
+    Gateway --> Kernel[Kernel + Runtime]
+    Kernel --> Orchestrator[Orchestrator]
+    Orchestrator --> Planning[Planning]
+    Orchestrator --> Decision[Decision]
+    Orchestrator --> Platform[Platform / Adapters]
+    Platform --> Providers[External Providers]
+    Decision --> Knowledge[Knowledge]
+    Decision --> Memory[Memory]
+    Knowledge --> RAG[RAG]
+    Orchestrator --> Affiliate[Affiliate Intelligence]
+    Orchestrator --> Content[Content]
+    Orchestrator --> Advertising[Advertising]
+    Decision --> Treasury[Treasury]
+    Affiliate --> EventBus[EventBus]
+    Content --> EventBus
+    Advertising --> EventBus
+    Treasury --> EventBus
+    EventBus --> EventStore[EventStore / Postgres]
+    EventStore --> Projections[Read Models / Projections]
+    Projections --> Control
+    Providers --> Evidence[Observations / Results]
+    Evidence --> Knowledge
+    Evidence --> Evaluation[Evaluation + Learning]
+    Evaluation --> Decision
