@@ -1,0 +1,18 @@
+flowchart LR
+    H[Human Owner / Operator]
+    CAT[CAT Omnisystem]
+    NET[Affiliate Networks]
+    MER[Merchants / Product Sources]
+    PUB[Publishing / Social Platforms]
+    ADS[Advertising Platforms]
+    DATA[Research / Market Data]
+    FIN[Financial Systems]
+
+    H -->|goals, policy, approvals| CAT
+    CAT -->|reports, alerts, approvals| H
+    CAT --> NET
+    CAT --> MER
+    CAT --> PUB
+    CAT --> ADS
+    DATA --> CAT
+    CAT --> FIN
