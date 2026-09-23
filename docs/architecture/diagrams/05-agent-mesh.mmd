@@ -1,0 +1,30 @@
+flowchart TB
+    GOAL[Goal]
+    GOV[Policy]
+    SUP[Supervisor]
+    R[Agent Registry]
+    A1[Research Agent]
+    A2[Affiliate Agent]
+    A3[Content Agent]
+    A4[Growth Agent]
+    CAP[Capability Gateway]
+    TOOL[Tools / Connectors]
+    PROV[Providers]
+    EVAL[Evaluator]
+    AUD[Audit]
+
+    GOAL --> GOV --> R --> SUP
+    SUP --> A1
+    SUP --> A2
+    SUP --> A3
+    SUP --> A4
+    A1 --> CAP
+    A2 --> CAP
+    A3 --> CAP
+    A4 --> CAP
+    CAP --> TOOL --> PROV
+    SUP --> EVAL
+    A1 --> AUD
+    A2 --> AUD
+    A3 --> AUD
+    A4 --> AUD
