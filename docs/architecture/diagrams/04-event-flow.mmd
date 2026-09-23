@@ -1,0 +1,10 @@
+flowchart LR
+    CMD[Command / Trigger] --> TX[Validate + Transaction]
+    TX --> OUT[Durable Outbox]
+    OUT --> BUS[Event Bus]
+    BUS --> C1[Consumer]
+    BUS --> C2[Projection]
+    BUS --> C3[Execution]
+    C1 --> NEXT[New Command]
+    C2 --> READ[Read Model]
+    C3 --> TX
