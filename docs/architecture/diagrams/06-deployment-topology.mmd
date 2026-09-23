@@ -1,0 +1,25 @@
+flowchart TB
+    U[Operator]
+    EDGE[Edge / TLS]
+    API[API / Control Plane]
+    ORC[Orchestrator Workers]
+    BUS[(Event Bus)]
+    AG[Agent Workers]
+    PG[(PostgreSQL)]
+    CACHE[(Cache)]
+    OBJ[(Object Storage)]
+    OBS[Observability]
+    EXT[External Providers]
+
+    U --> EDGE --> API
+    API --> ORC
+    ORC --> BUS --> AG
+    API --> PG
+    ORC --> PG
+    AG --> PG
+    AG --> CACHE
+    AG --> OBJ
+    AG --> EXT
+    API --> OBS
+    ORC --> OBS
+    AG --> OBS
