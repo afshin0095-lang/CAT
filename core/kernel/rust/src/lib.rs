@@ -2,6 +2,8 @@
 #![deny(clippy::all)]
 
 pub mod agent_contract;
+pub mod capability;
+pub mod capability_registry;
 pub mod clock;
 pub mod context;
 pub mod contracts;
@@ -20,6 +22,10 @@ pub mod time;
 pub mod validation;
 
 pub use agent_contract::{AgentContract, AgentId};
+pub use capability::{
+    CapabilityContract, CapabilityId, CapabilityLifecycle, IdempotencyPolicy,
+};
+pub use capability_registry::CapabilityRegistry;
 pub use clock::{Clock, FixedClock, SystemClock};
 pub use context::ExecutionContext;
 pub use contracts::{ContractVersion, InvocationStatus, OutcomeStatus, SideEffectClass};
