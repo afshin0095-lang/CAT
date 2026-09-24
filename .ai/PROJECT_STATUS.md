@@ -19,8 +19,6 @@
 | Repository | GitHub |
 | Main Branch | main |
 
----
-
 # Current Phase
 
 ## Phase B
@@ -29,64 +27,29 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 **Status:** Active Development
 
-# Documentation Progress
-
-| File | Status | Progress |
-|------|--------|----------|
-| 00_PROJECT_CONTEXT.md | Completed | 100% |
-| 01_PROJECT_OVERVIEW.md | Completed | 100% |
-| 02_PROJECT_RULES.md | Completed | 100% |
-| 03_TECH_STACK.md | Completed | 100% |
-| 04_ARCHITECTURE.md | Completed | 100% |
-| 05_AGENTS.md | Completed | 100% |
-| 06_KNOWLEDGE_ENGINE.md | Completed | 100% |
-| 07_MEMORY_SYSTEM.md | Completed | 100% |
-| 08_EVENTS_SYSTEM.md | Completed | 100% |
-| 09_REASONING_ENGINE.md | Completed | 100% |
-| 10_DECISION_ENGINE.md | Completed | 100% |
-| 11_PLANNING_ENGINE.md | Completed | 100% |
-| 07_TREASURY_CORE.md | Completed | 100% |
-| 08_AFFILIATE_ENGINE.md | Completed | 100% |
-| 09_CONTENT_ENGINE.md | Completed | 100% |
-| 10_UI_UX.md | Not Started | 0% |
-| 11_DESIGN_LANGUAGE.md | Not Started | 0% |
-| 12_DECISIONS.md | Not Started | 0% |
-| 13_TERMINOLOGY.md | Part 1 Completed | 25% |
-| 14_CODING_STANDARD.md | Part 3 Prepared | 75% |
-| 15_DIRECTORY_STRUCTURE.md | Not Started | 0% |
-| 16_DEPLOYMENT.md | Not Started | 0% |
-| 17_SECURITY.md | Not Started | 0% |
-| 18_PROMPTING.md | Not Started | 0% |
-| 19_DEVELOPMENT_GUIDE.md | Not Started | 0% |
-
 # Active Task
 
-**Current Task:** Sprint 1 — Production async capability-governed durable execution
+**Current Task:** Sprint 1 hardening — PostgreSQL/EventBus verification + reconciliation/audit evidence consumption
 
-**Document:** `core/affiliate/rust/` (opportunity subsystem), `docs/implementation/AFFILIATE_OPPORTUNITY_*.md`
+**Primary branch:** `feat/capability-registry-p0` / PR #61
 
-**Status:** Sprint 1 capability governance and durable admission are implemented on `feat/capability-registry-p0` / PR #61. The existing Sprint 0 affiliate branch remains separately validation-gated by PR #40. Sprint 1 now includes kernel registry + authorization, orchestrator admission, step/capability binding, authorization-bound worker input, fenced worker identity, production async durable execution, and PostgreSQL authorization evidence. hardened lifecycle via a single canonical freshness engine, injectable clock, monotonic record revisions with optimistic-concurrency upserts, deterministic revalidation planner with durable request persistence (migration 0002, partial-unique dedup), opportunity status projection, persistence-neutral query/ranking/health contracts, source health tracking, neutral observability names + sink, typed opportunity event contracts, and expanded validation (URL/length/identity bounds, ASCII canonical-key limitation documented).
+**Status:** Implemented in source contracts and the environment-gated PostgreSQL integration suite. CI remains the authoritative validator.
 
-**Validation status: INCOMPLETE — Sprint 0 is NOT closed.**
-- Local `cargo` execution is impossible in the working sandbox (rust-lang.org/crates.io are TLS-blocked by the egress proxy).
-- CI is the authoritative validator. The latest runs on this branch (GitHub Actions runs #157/#159-era, head `79e48b4`/`73816b2`) fail on `Check cat-affiliate` / `Test cat-affiliate`; the compiler output is not retrievable from the sandbox (Actions log hosts blocked), so the remaining defect could not be located despite repeated full static audits plus automated name/field/path resolution checks.
-- The GitHub Actions minutes for this private repository were exhausted during bisect probing; all subsequent runs fail at startup ("workflow file may be broken"). CI must be re-run once minutes are available.
-- CI hardening (fmt + clippy for cat-affiliate, PostgreSQL service job) is preserved at `docs/ci/rust-workspace-hardened.yml` and is NOT committed under `.github/` because the integration lacks the `workflows` permission. See `docs/implementation/CI_HARDENING.md`.
-- Gate to close Sprint 0: `Check cat-affiliate`, `Test cat-affiliate`, fmt, clippy, and the PostgreSQL job must be green on the latest run of PR #40; then record results in `docs/implementation/SPRINT_0_MANIFEST.md`.
+## Completed in this hardening stage
+
+- `ExecutionAuditEvidence` serializable derived projection;
+- reconciliation now consumes durable authorization evidence;
+- missing authorization evidence becomes `ManualReview`;
+- PostgreSQL-backed reconciliation now uses the same authorization ledger as the execution-attempt boundary;
+- real PostgreSQL integration coverage for governed durable execution;
+- PostgreSQL outbox → EventBus publication and acknowledgement coverage.
+
+## Validation status
+
+**INCOMPLETE — no green final-branch CI result has been observed yet.**
+
+Local `cargo` execution remains unavailable in the working sandbox because rust-lang.org/crates.io access is TLS-blocked by the egress proxy. GitHub Actions remains the authoritative compilation/test gate.
 
 # Next Task
 
-Sprint 1 — Capability-governed durable execution: registry, fail-closed authorization, execution admission, workflow-step capability binding, authorized worker dispatch, and PostgreSQL authorization-evidence persistence contracts are implemented on PR #61. CI/integration verification remains pending.
-
-# Next Tasks
-
-1. Sprint 1 hardening — end-to-end PostgreSQL/EventBus verification and CI closure
-2. Sprint 1 hardening — reconciliation/audit consumption of durable authorization evidence
-3. Post-merge — retarget stacked affiliate PRs (#34→#39 chain) so Sprint 0 lands on main
-4. LLM / AI Core — authorized tool execution boundary completed
-5. Memory Core — P0 foundation completed
-6. Reasoning Core — P0 foundation completed
-7. Decision Core — approval/human-gate foundation completed
-8. Decision Core — durable PostgreSQL trace persistence adapter completed; next integration verification
-9. Planning Core — P0 foundation completed
-
+Sprint 1 hardening — stabilize CI on the latest PR head, then add durable operator-facing audit storage/read models and stronger provider result journaling.
