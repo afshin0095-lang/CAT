@@ -61,11 +61,11 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Sprint 1 — Capability-governed durable execution admission
+**Current Task:** Sprint 1 — Production async capability-governed durable execution
 
 **Document:** `core/affiliate/rust/` (opportunity subsystem), `docs/implementation/AFFILIATE_OPPORTUNITY_*.md`
 
-**Status:** Implemented on branch `arena/01a08d17-cat` (stacked on `feat/affiliate-opportunity-lifecycle-p0` @ `6791ace`), PR #40. Sprint 0 completes the discovery → source SPI → network adapter → ingestion → dedup → persistence → freshness → lifecycle → projection → revalidation → observability vertical slice: hardened lifecycle via a single canonical freshness engine, injectable clock, monotonic record revisions with optimistic-concurrency upserts, deterministic revalidation planner with durable request persistence (migration 0002, partial-unique dedup), opportunity status projection, persistence-neutral query/ranking/health contracts, source health tracking, neutral observability names + sink, typed opportunity event contracts, and expanded validation (URL/length/identity bounds, ASCII canonical-key limitation documented).
+**Status:** Sprint 1 capability governance and durable admission are implemented on `feat/capability-registry-p0` / PR #61. The existing Sprint 0 affiliate branch remains separately validation-gated by PR #40. Sprint 1 now includes kernel registry + authorization, orchestrator admission, step/capability binding, authorization-bound worker input, fenced worker identity, production async durable execution, and PostgreSQL authorization evidence. hardened lifecycle via a single canonical freshness engine, injectable clock, monotonic record revisions with optimistic-concurrency upserts, deterministic revalidation planner with durable request persistence (migration 0002, partial-unique dedup), opportunity status projection, persistence-neutral query/ranking/health contracts, source health tracking, neutral observability names + sink, typed opportunity event contracts, and expanded validation (URL/length/identity bounds, ASCII canonical-key limitation documented).
 
 **Validation status: INCOMPLETE — Sprint 0 is NOT closed.**
 - Local `cargo` execution is impossible in the working sandbox (rust-lang.org/crates.io are TLS-blocked by the egress proxy).
@@ -80,8 +80,8 @@ Sprint 1 — Capability-governed durable execution: registry, fail-closed author
 
 # Next Tasks
 
-1. Sprint 1 — wire durable authorization evidence into the production async execution path
-2. Sprint 1 hardening — durable attempt/result persistence and end-to-end PostgreSQL/EventBus verification
+1. Sprint 1 hardening — end-to-end PostgreSQL/EventBus verification and CI closure
+2. Sprint 1 hardening — reconciliation/audit consumption of durable authorization evidence
 3. Post-merge — retarget stacked affiliate PRs (#34→#39 chain) so Sprint 0 lands on main
 4. LLM / AI Core — authorized tool execution boundary completed
 5. Memory Core — P0 foundation completed
