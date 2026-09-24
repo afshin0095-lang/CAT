@@ -7,6 +7,7 @@ mod durable;
 mod error;
 mod events;
 mod execution;
+mod execution_admission;
 mod execution_attempt;
 mod execution_attempt_store;
 mod execution_coordinator;
@@ -54,6 +55,9 @@ pub use events::{
     WorkflowCompleted, WorkflowEventFactory, WorkflowStarted, WorkflowStepStateChanged,
 };
 pub use execution::ExecutionEngine;
+pub use execution_admission::{
+    CapabilityAdmission, CapabilityAdmissionResult, ExecutionAuthorization,
+};
 pub use execution_attempt::{
     ExecutionAttempt, ExecutionAttemptHealth, ExecutionAttemptKey, ExecutionAttemptStatus,
 };
