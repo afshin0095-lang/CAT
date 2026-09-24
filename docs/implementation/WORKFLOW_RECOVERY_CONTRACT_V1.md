@@ -61,4 +61,4 @@ The Orchestrator now has a production async execution coordinator that records t
 
 ## Future extensions
 
-Future recovery versions may use the durable authorization record directly when producing reconciliation and audit projections, and may add stronger execution-result journaling keyed by `execution_id`.
+Recovery/audit integrations can now load the durable authorization record directly for reconciliation evidence. Stronger provider result journaling remains the next extension.
