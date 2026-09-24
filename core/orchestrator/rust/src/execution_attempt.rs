@@ -17,6 +17,12 @@ pub enum ExecutionAttemptStatus {
     Cancelled,
 }
 
+impl ExecutionAttemptStatus {
+    pub const fn terminal(self) -> bool {
+        matches!(self, Self::Succeeded | Self::Failed | Self::Cancelled)
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ExecutionAttemptHealth {
     Healthy,
