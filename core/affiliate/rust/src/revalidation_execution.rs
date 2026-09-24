@@ -198,16 +198,16 @@ mod tests {
         let request = record();
         let execution = execution_request_for(&request, 3_000);
 
-        assert_eq!(execution.workflow_id, request.request.request_id);
-        assert_eq!(execution.step_id, "affiliate.revalidation:network-a");
-        assert_eq!(execution.attempt, 2);
-        assert_eq!(execution.requested_at_ms, 3_000);
+        assert_eq!(execution.workflow_id(), request.request.request_id);
+        assert_eq!(execution.step_id(), "affiliate.revalidation:network-a");
+        assert_eq!(execution.attempt(), 2);
+        assert_eq!(execution.requested_at_ms(), 3_000);
     }
 
     #[test]
     fn execution_intent_never_uses_zero_attempt() {
         let mut request = record();
         request.attempt = 0;
-        assert_eq!(execution_request_for(&request, 3_000).attempt, 1);
+        assert_eq!(execution_request_for(&request, 3_000).attempt(), 1);
     }
 }
