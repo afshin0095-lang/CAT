@@ -37,7 +37,7 @@ pub fn claim_step(
         .find(|step| step.id == step_id)
         .map(|step| step.attempt.saturating_add(1));
     engine.begin_step(workflow, step_id)?;
-    Ok(ExecutionRequest::new(
+    Ok(ExecutionIntent::new(
         workflow.id,
         step_id,
         attempt.unwrap_or(1),
