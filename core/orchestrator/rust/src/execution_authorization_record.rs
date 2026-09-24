@@ -50,7 +50,7 @@ impl ExecutionAuthorizationRecord {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{CapabilityAdmission, CapabilityAdmissionResult, ExecutionIntent, ExecutionRequest};
+    use crate::{CapabilityAdmission, CapabilityAdmissionResult, ExecutionIntent};
     use cat_kernel::{
         AgentContract, ApprovalContext, CapabilityContract, CapabilityLifecycle, CapabilityRegistry,
         EntityId, ExecutionContext, ContractVersion, CorrelationId, TimestampMs, TenantId,
