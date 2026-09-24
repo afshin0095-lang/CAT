@@ -212,6 +212,7 @@ mod tests {
                 version: 1,
                 steps: vec![WorkflowStep {
                     id: "publish".into(),
+                    capability_id: cat_kernel::CapabilityId::new("cat.capability.test.publish.v1").unwrap(),
                     dependencies: vec![],
                     state: StepState::Ready,
                     attempt: 0,
