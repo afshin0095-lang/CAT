@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use crate::{
     CapabilityAdmission, CapabilityAdmissionResult, DurableWorkflowStore, ExecutionEngine,
-    ExecutionEventSink, ExecutionRequest, ExecutionIntent, LeaseProvider, OrchestratorResult,
+    ExecutionEventSink, ExecutionRequest, ExecutionIntent, FencedLeaseProvider, OrchestratorResult,
     RetryPolicy, StepState, WorkerExecutionInput, WorkerExecutionOutcome, WorkerExecutor,
     WorkflowEventFactory, decide_retry,
 };
