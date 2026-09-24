@@ -73,6 +73,10 @@ CI remains the authoritative compilation and workspace-test gate.
 
 Agent → Capability → Authorization/Policy → Tool → Connector → Provider remains the required path. The authorization result is not permission to bypass later execution controls; downstream boundaries may apply stricter constraints.
 
+## Completed boundary
+
+The authorization result is now converted into `ExecutionAuthorization` by Orchestrator admission and carried through `ExecutionRequest` into `WorkerExecutionInput`. Authorization is evaluated before lease acquisition, and the workflow step's capability identity must exactly match the invocation capability.
+
 ## Next boundary
 
-Connect the authorization result to the existing durable invocation and Orchestrator admission boundary. The next implementation should carry the authorized capability identity, policy context, approval reference, idempotency identity and execution correlation into durable worker dispatch without granting the agent direct tool/provider access.
+Persist the authorization evidence alongside the durable execution-attempt record and require that evidence during reconciliation/audit.
