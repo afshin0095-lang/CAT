@@ -1,5 +1,5 @@
 use cat_kernel::{
-    AgentContract, ApprovalContext, CapabilityAuthorizationEngine, CapabilityId, InvocationRequest,
+    AgentContract, ApprovalContext, CapabilityId, InvocationRequest,
 };
 use uuid::Uuid;
 
