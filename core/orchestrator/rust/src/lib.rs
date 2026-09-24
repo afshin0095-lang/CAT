@@ -4,6 +4,7 @@
 mod compensation;
 mod dispatch_result;
 mod durable;
+mod durable_execution;
 mod error;
 mod events;
 mod execution;
@@ -105,5 +106,7 @@ pub use validation::{
 };
 pub use validation_gates::{ContentValidator, ValidationGate, ValidationLevel, ValidationResult};
 pub use worker::{
-    WorkerExecutionInput, WorkerExecutionOutcome, WorkerExecutionResult, WorkerExecutor,
+    AsyncWorkerExecutor, WorkerExecutionInput, WorkerExecutionOutcome, WorkerExecutionResult,
+    WorkerExecutor,
 };
+pub use durable_execution::DurableExecutionCoordinator;
