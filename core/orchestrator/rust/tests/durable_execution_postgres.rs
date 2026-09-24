@@ -270,6 +270,18 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
     let decoded: ExecutionAuditEvidence = serde_json::from_str(&encoded).unwrap();
     assert_eq!(decoded, audit);
 
+    sqlx::query("DELETE FROM cat_execution_authorizations WHERE execution_id = $1")
+        .bind(execution_id)
+        .execute(&pool)
+        .await
+        .unwrap();
+
+    let missing_auth_report = reconciler.reconcile(execution_id).await.unwrap();
+    assert_eq!(
+        missing_auth_report.action,
+        ReconciliationAction::ManualReview
+    );
+
     let mut outbox = store.clone();
     let claimed = outbox
         .claim_next("eventbus-integration", 2_000, 30_000)
