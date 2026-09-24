@@ -190,7 +190,7 @@ mod tests {
         acquisitions: u32,
     }
 
-    impl LeaseProvider for CountingLease {
+    impl FencedLeaseProvider for CountingLease {
         fn acquire(
             &mut self,
             resource: &str,
@@ -199,7 +199,10 @@ mod tests {
             ttl_ms: u64,
         ) -> OrchestratorResult<crate::FencedLease> {
             self.acquisitions += 1;
-            Ok(Lease::acquire(resource, owner, now_ms, ttl_ms))
+            Ok(FencedLease {
+                lease: crate::Lease::acquire(resource, owner, now_ms, ttl_ms),
+                fencing_token: FencingToken::from_value(self.acquisitions as u64),
+            })
         }
     }
 
