@@ -66,7 +66,7 @@ pub use execution_coordinator::ExecutionCoordinator;
 pub use execution_cursor::{ExecutionCursor, cursor};
 pub use execution_dispatch::{claim_step, ready_requests};
 pub use execution_event::{ExecutionEvent, ExecutionEventKind};
-pub use execution_request::ExecutionRequest;
+pub use execution_request::{ExecutionIntent, ExecutionRequest};
 pub use execution_state::{ExecutionState, ExecutionStepState};
 pub use fencing::{FencedLease, FencedLeaseProvider, FencingToken, InMemoryFencedLeaseProvider};
 pub use flywheel::{FlywheelNode, FlywheelPlan, FlywheelStage};
