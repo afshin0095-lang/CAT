@@ -34,6 +34,10 @@ pub enum OrchestratorError {
     },
     #[error("authorization input is invalid: {0}")]
     InvalidAuthorizationInput(String),
+    #[error("capability authorization denied for {capability}: {reasons:?}")]
+    CapabilityAuthorizationDenied { capability: String, reasons: Vec<String> },
+    #[error("capability authorization requires approval for {capability}: {reasons:?}")]
+    CapabilityApprovalRequired { capability: String, reasons: Vec<String> },
     #[error("workflow serialization failed: {0}")]
     Serialization(String),
 }
