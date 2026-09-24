@@ -72,6 +72,12 @@ CI remains the authoritative compilation/test gate for the repository.
 
 This slice moves the capability contract, registry and authorization boundary toward executable implementation. It must not be reported as L5 until automated CI and integration evidence are green.
 
+## Completed boundary
+
+The authorization result is now connected to the Orchestrator admission boundary through `CapabilityAdmission` and `ExecutionAuthorization`.
+
+`ExecutionIntent` is explicitly pre-admission. `ExecutionRequest` is an authorized executable request with a mandatory authorization receipt and no public constructor. Workflow steps carry a typed `CapabilityId`, and the Coordinator requires an exact step/capability match before lease acquisition.
+
 ## Next boundary
 
-Connect the authorization result to the existing durable invocation and Orchestrator admission boundary. Preserve capability identity, side-effect classification, policy requirements, approval references, idempotency and evidence semantics established here.
+Persist the authorization identity with every durable execution attempt and propagate the same evidence into reconciliation and audit.
