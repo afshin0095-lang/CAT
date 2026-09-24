@@ -57,6 +57,24 @@ where
             .attempt
             .saturating_add(1);
 
+        let step_capability = workflow
+            .definition
+            .steps
+            .iter()
+            .find(|step| step.id == step_id)
+            .map(|step| step.capability_id.clone())
+            .ok_or_else(|| crate::OrchestratorError::UnknownStep {
+                step_id: step_id.to_owned(),
+            })?;
+
+        if invocation.capability != step_capability.as_str() {
+            return Err(crate::OrchestratorError::StepCapabilityMismatch {
+                step_id: step_id.to_owned(),
+                expected: step_capability.to_string(),
+                requested: invocation.capability.clone(),
+            });
+        }
+
         let step_is_ready = workflow
             .definition
             .steps
@@ -296,6 +314,52 @@ mod tests {
         );
         assert_eq!(store.outbox().len(), 1);
         assert_eq!(events.events().len(), 1);
+    }
+
+    #[test]
+    fn mismatched_step_capability_is_rejected_before_lease() {
+        let mut store = InMemoryDurableWorkflowStore::default();
+        let workflow = ready_workflow();
+        let id = workflow.id;
+        store.insert(workflow);
+
+        let (registry, _capability_id, agent, mut invocation) = governed_context();
+        invocation.capability = "cat.capability.test.other.v1".into();
+        let admission = CapabilityAdmission::new(&registry);
+
+        let mut leases = CountingLease::default();
+        let mut worker = SuccessWorker { capability_seen: None };
+        let mut events = RecordingExecutionEventSink::default();
+
+        let mut coordinator = ExecutionCoordinator {
+            store: &mut store,
+            leases: &mut leases,
+            worker: &mut worker,
+            events: &mut events,
+            engine: ExecutionEngine::default(),
+            retry_policy: RetryPolicy::default(),
+            owner: "worker-1".into(),
+            lease_ttl_ms: 10_000,
+        };
+
+        let error = coordinator
+            .execute_step(
+                id,
+                "publish",
+                100,
+                &admission,
+                &agent,
+                &invocation,
+                ApprovalContext::none(),
+            )
+            .unwrap_err();
+
+        assert!(matches!(
+            error,
+            crate::OrchestratorError::StepCapabilityMismatch { .. }
+        ));
+        assert_eq!(leases.acquisitions, 0);
+        assert!(worker.capability_seen.is_none());
     }
 
     #[test]
