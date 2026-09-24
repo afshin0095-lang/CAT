@@ -1,0 +1,313 @@
+use std::sync::{
+    Arc,
+    atomic::{AtomicUsize, Ordering},
+};
+
+use cat_eventbus::{EventBus, PublishOutcome};
+use cat_kernel::{
+    AgentContract, AgentId, CapabilityContract, CapabilityId, CapabilityLifecycle,
+    CapabilityRegistry, ContractVersion, CorrelationId, EntityId, ExecutionContext,
+    IdempotencyKey, InvocationRequest, SideEffectClass, TenantId, TimestampMs,
+};
+use cat_orchestrator::{
+    ApprovalContext, AsyncPostgresOutbox, AsyncWorkerExecutor, CapabilityAdmission,
+    DurableExecutionCoordinator, ExecutionAuditEvidence, ExecutionAttemptStore,
+    PostgresExecutionStore, ReconciliationAction, StepState, WorkflowDefinition,
+    WorkflowExecutionReconciler, WorkflowInstance, WorkflowState, WorkflowStep,
+    WorkerExecutionInput, WorkerExecutionResult,
+};
+use sqlx::postgres::PgPoolOptions;
+use uuid::Uuid;
+
+fn database_url() -> Option<String> {
+    std::env::var("CAT_TEST_DATABASE_URL")
+        .or_else(|_| std::env::var("DATABASE_URL"))
+        .ok()
+}
+
+struct RecordingWorker {
+    calls: Arc<AtomicUsize>,
+    observed_capability: Arc<std::sync::Mutex<Option<String>>>,
+    observed_token: Arc<std::sync::Mutex<Option<u64>>>,
+}
+
+#[async_trait::async_trait]
+impl AsyncWorkerExecutor for RecordingWorker {
+    async fn execute(&self, input: WorkerExecutionInput) -> WorkerExecutionResult {
+        self.calls.fetch_add(1, Ordering::SeqCst);
+        *self.observed_capability.lock().unwrap() =
+            Some(input.authorization().capability_id().to_string());
+        *self.observed_token.lock().unwrap() = Some(input.fencing_token().value());
+        WorkerExecutionResult::success(serde_json::json!({"integration": "ok"}))
+    }
+}
+
+fn governed_fixture() -> (
+    CapabilityRegistry,
+    AgentContract,
+    InvocationRequest,
+    WorkflowInstance,
+    CapabilityId,
+) {
+    let capability_id = CapabilityId::new("cat.capability.integration.execute.v1").unwrap();
+    let mut capability =
+        CapabilityContract::new(capability_id.clone(), "integration", "Execute integration test")
+            .unwrap();
+    capability.contract_version = ContractVersion::V1;
+    capability.inputs.push("input".into());
+    capability.outputs.push("output".into());
+    capability.failure_model.push("typed".into());
+    capability.observability.push("integration.execute".into());
+    capability.evaluation.push("deterministic".into());
+    capability.lifecycle = CapabilityLifecycle::Validating;
+
+    let mut registry = CapabilityRegistry::new();
+    registry.register(capability).unwrap();
+    registry
+        .transition(&capability_id, CapabilityLifecycle::Active)
+        .unwrap();
+
+    let agent_id = AgentId::new();
+    let agent = AgentContract::new(agent_id, "integration.agent", "integration execution")
+        .unwrap()
+        .with_capability(capability_id.as_str())
+        .unwrap()
+        .enable();
+
+    let invocation = InvocationRequest::new(
+        agent_id,
+        capability_id.as_str(),
+        ExecutionContext::new(
+            TenantId::new(),
+            CorrelationId::new(),
+            EntityId::new(),
+            TimestampMs::new(1000),
+        ),
+        IdempotencyKey::new(format!("integration-{}", Uuid::now_v7())).unwrap(),
+        serde_json::json!({"input": true}),
+        SideEffectClass::S0,
+        TimestampMs::new(1000),
+    )
+    .unwrap();
+
+    let workflow_id = Uuid::now_v7();
+    let workflow = WorkflowInstance {
+        id: workflow_id,
+        state: WorkflowState::Running,
+        revision: 0,
+        definition: WorkflowDefinition {
+            workflow_type: "integration.durable_execution".into(),
+            version: 1,
+            steps: vec![WorkflowStep {
+                id: "execute".into(),
+                capability_id: capability_id.clone(),
+                dependencies: Vec::new(),
+                state: StepState::Ready,
+                attempt: 0,
+                max_attempts: 3,
+                compensation_step: None,
+            }],
+        },
+    };
+
+    (registry, agent, invocation, workflow, capability_id)
+}
+
+async fn cleanup(pool: &sqlx::PgPool, workflow_id: Uuid) {
+    sqlx::query("DELETE FROM cat_workflow_outbox WHERE workflow_id = $1")
+        .bind(workflow_id)
+        .execute(pool)
+        .await
+        .unwrap();
+    sqlx::query(
+        "DELETE FROM cat_provider_execution_results WHERE execution_id IN
+         (SELECT execution_id FROM cat_execution_attempts WHERE workflow_id = $1)",
+    )
+    .bind(workflow_id)
+    .execute(pool)
+    .await
+    .unwrap();
+    sqlx::query("DELETE FROM cat_execution_attempts WHERE workflow_id = $1")
+        .bind(workflow_id)
+        .execute(pool)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM cat_execution_leases WHERE resource LIKE $1")
+        .bind(format!("workflow/{workflow_id}/step/%"))
+        .execute(pool)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM cat_workflows WHERE id = $1")
+        .bind(workflow_id)
+        .execute(pool)
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
+async fn durable_execution_persists_governance_and_publishes_outbox_event() {
+    let Some(url) = database_url() else {
+        eprintln!("skipping: CAT_TEST_DATABASE_URL/DATABASE_URL is not configured");
+        return;
+    };
+
+    let pool = PgPoolOptions::new()
+        .max_connections(5)
+        .connect(&url)
+        .await
+        .unwrap();
+
+    let store = PostgresExecutionStore::new(pool.clone());
+    store.ensure_schema().await.unwrap();
+
+    let (registry, agent, invocation, workflow, capability_id) = governed_fixture();
+    let workflow_id = workflow.id;
+
+    sqlx::query(
+        "INSERT INTO cat_workflows
+         (id, workflow_type, workflow_version, state, revision)
+         VALUES ($1, $2, $3, $4, $5)",
+    )
+    .bind(workflow.id)
+    .bind(&workflow.definition.workflow_type)
+    .bind(workflow.definition.version as i32)
+    .bind(serde_json::to_value(&workflow).unwrap())
+    .bind(0_i64)
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    let calls = Arc::new(AtomicUsize::new(0));
+    let observed_capability = Arc::new(std::sync::Mutex::new(None));
+    let observed_token = Arc::new(std::sync::Mutex::new(None));
+
+    let worker = RecordingWorker {
+        calls: Arc::clone(&calls),
+        observed_capability: Arc::clone(&observed_capability),
+        observed_token: Arc::clone(&observed_token),
+    };
+
+    let coordinator = DurableExecutionCoordinator::new(
+        &store,
+        &worker,
+        "integration-worker",
+        30_000,
+        Default::default(),
+    );
+    let admission = CapabilityAdmission::new(&registry);
+
+    let dispatch = coordinator
+        .execute_step(
+            workflow.id,
+            "execute",
+            2_000,
+            &admission,
+            &agent,
+            &invocation,
+            ApprovalContext::none(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(calls.load(Ordering::SeqCst), 1);
+    assert_eq!(
+        observed_capability.lock().unwrap().as_deref(),
+        Some(capability_id.as_str())
+    );
+    assert!(observed_token.lock().unwrap().is_some());
+    assert!(matches!(
+        dispatch.action,
+        cat_orchestrator::DispatchAction::Complete
+    ));
+
+    let execution_id: Uuid = sqlx::query_scalar(
+        "SELECT execution_id FROM cat_execution_attempts
+         WHERE workflow_id = $1 AND step_id = 'execute' AND attempt = 1",
+    )
+    .bind(workflow.id)
+    .fetch_one(&pool)
+    .await
+    .unwrap();
+
+    let attempt = store
+        .load_execution(execution_id)
+        .await
+        .unwrap()
+        .expect("durable attempt must exist");
+    assert_eq!(
+        attempt.status,
+        cat_orchestrator::ExecutionAttemptStatus::Succeeded
+    );
+
+    let authorization = store
+        .load_execution_authorization(execution_id)
+        .await
+        .unwrap()
+        .expect("authorization evidence must exist");
+    assert_eq!(authorization.capability_id.as_str(), capability_id.as_str());
+    assert_eq!(
+        authorization.idempotency_key.as_str(),
+        invocation.idempotency_key.as_str()
+    );
+
+    let reconciler = WorkflowExecutionReconciler::new(&store);
+    let report = reconciler.reconcile(execution_id).await.unwrap();
+    assert_eq!(report.action, ReconciliationAction::ConfirmSuccess);
+    assert_eq!(
+        report
+            .authorization
+            .as_ref()
+            .expect("reconciliation must consume authorization evidence")
+            .capability_id
+            .as_str(),
+        capability_id.as_str()
+    );
+
+    let audit = report
+        .audit_evidence(&attempt)
+        .expect("audit projection should be reconstructible from durable evidence");
+    let encoded = serde_json::to_string(&audit).unwrap();
+    let decoded: ExecutionAuditEvidence = serde_json::from_str(&encoded).unwrap();
+    assert_eq!(decoded, audit);
+
+    let mut outbox = store.clone();
+    let claimed = outbox
+        .claim_next("eventbus-integration", 2_000, 30_000)
+        .await
+        .unwrap()
+        .expect("workflow state event must be in PostgreSQL outbox");
+
+    let seen = Arc::new(AtomicUsize::new(0));
+    let seen_handler = Arc::clone(&seen);
+    let bus = EventBus::new();
+    bus.subscribe(
+        &claimed.event.event_type,
+        Arc::new(move |_| {
+            seen_handler.fetch_add(1, Ordering::SeqCst);
+            Ok(())
+        }),
+    )
+    .unwrap();
+
+    assert_eq!(
+        bus.publish(claimed.event.clone()).unwrap(),
+        PublishOutcome::Published { handlers_called: 1 }
+    );
+
+    outbox
+        .acknowledge(claimed.event.event_id, "eventbus-integration")
+        .await
+        .unwrap();
+
+    assert_eq!(seen.load(Ordering::SeqCst), 1);
+
+    let remaining: i64 =
+        sqlx::query_scalar("SELECT COUNT(*) FROM cat_workflow_outbox WHERE event_id = $1")
+            .bind(claimed.event.event_id)
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    assert_eq!(remaining, 0);
+
+    cleanup(&pool, workflow_id).await;
+}
