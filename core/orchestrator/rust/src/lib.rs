@@ -48,8 +48,7 @@ pub use compensation::{begin_compensation, compensation_order};
 pub use dispatch_result::{DispatchAction, DispatchResult};
 pub use durable::{
     DurableWorkflowStore, EventBusExecutionEventSink, ExecutionEventSink,
-    InMemoryDurableWorkflowStore, InMemoryLeaseProvider, LeaseProvider,
-    RecordingExecutionEventSink,
+    InMemoryDurableWorkflowStore, RecordingExecutionEventSink,
 };
 pub use error::{OrchestratorError, OrchestratorResult};
 pub use events::{
