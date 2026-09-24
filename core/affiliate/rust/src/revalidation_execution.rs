@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use cat_eventbus::EventBus;
-use cat_orchestrator::ExecutionRequest;
+use cat_orchestrator::ExecutionIntent;
 use uuid::Uuid;
 
 use crate::{
@@ -29,7 +29,7 @@ pub trait RevalidationExecutor: Send + Sync {
     async fn execute(
         &self,
         request: &RevalidationRequestRecord,
-        execution: &ExecutionRequest,
+        execution: &ExecutionIntent,
     ) -> Result<RevalidationExecutionResult, String>;
 }
 
@@ -141,8 +141,8 @@ where
 pub fn execution_request_for(
     request: &RevalidationRequestRecord,
     requested_at_ms: u64,
-) -> ExecutionRequest {
-    ExecutionRequest::new(
+) -> ExecutionIntent {
+    ExecutionIntent::new(
         request.request.request_id,
         format!("affiliate.revalidation:{}", request.request.target.source),
         request.attempt.max(1),
@@ -194,7 +194,7 @@ mod tests {
     }
 
     #[test]
-    fn execution_request_is_stable_and_source_scoped() {
+    fn execution_intent_is_stable_and_source_scoped() {
         let request = record();
         let execution = execution_request_for(&request, 3_000);
 
@@ -205,7 +205,7 @@ mod tests {
     }
 
     #[test]
-    fn execution_request_never_uses_zero_attempt() {
+    fn execution_intent_never_uses_zero_attempt() {
         let mut request = record();
         request.attempt = 0;
         assert_eq!(execution_request_for(&request, 3_000).attempt, 1);
