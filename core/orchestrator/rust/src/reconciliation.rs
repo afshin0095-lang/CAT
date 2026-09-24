@@ -84,18 +84,11 @@ where
             .await?;
         let provider_result = self.store.load_provider_result(execution_id).await?;
 
-        let action = match provider_result.as_ref() {
-            Some(result) => result.action(),
-            None if authorization.is_none() => ReconciliationAction::ManualReview,
-            None if attempt.status.terminal() => match attempt.status {
-                ExecutionAttemptStatus::Succeeded => ReconciliationAction::ConfirmSuccess,
-                ExecutionAttemptStatus::Failed | ExecutionAttemptStatus::Cancelled => {
-                    ReconciliationAction::ConfirmFailure
-                }
-                ExecutionAttemptStatus::Running => ReconciliationAction::ManualReview,
-            },
-            None => ReconciliationAction::Continue,
-        };
+        let action = classify_reconciliation(
+            attempt.status,
+            authorization.is_some(),
+            provider_result.as_ref(),
+        );
 
         Ok(ReconciliationReport {
             execution_id,
@@ -106,10 +99,56 @@ where
     }
 }
 
+fn classify_reconciliation(
+    status: ExecutionAttemptStatus,
+    authorization_present: bool,
+    provider_result: Option<&ProviderExecutionRecord>,
+) -> ReconciliationAction {
+    if !authorization_present {
+        return ReconciliationAction::ManualReview;
+    }
+
+    match provider_result {
+        Some(result) => result.action(),
+        None if status.terminal() => match status {
+            ExecutionAttemptStatus::Succeeded => ReconciliationAction::ConfirmSuccess,
+            ExecutionAttemptStatus::Failed | ExecutionAttemptStatus::Cancelled => {
+                ReconciliationAction::ConfirmFailure
+            }
+            ExecutionAttemptStatus::Running => ReconciliationAction::ManualReview,
+        },
+        None => ReconciliationAction::Continue,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::ProviderExecutionRecord;
+
+    #[test]
+    fn provider_success_cannot_substitute_missing_authorization() {
+        let record = ProviderExecutionRecord {
+            execution_id: Uuid::now_v7(),
+            provider: "affiliate-api".into(),
+            provider_execution_id: "remote-789".into(),
+            request_hash: "sha256:ghi".into(),
+            submitted_at_ms: 100,
+            outcome: Some(ProviderOutcomeState::Succeeded),
+            observed_at_ms: Some(400),
+            result: Some(serde_json::json!({"accepted": true})),
+            error: None,
+        };
+
+        assert_eq!(
+            classify_reconciliation(
+                ExecutionAttemptStatus::Running,
+                false,
+                Some(&record),
+            ),
+            ReconciliationAction::ManualReview
+        );
+    }
 
     #[test]
     fn provider_success_is_authoritative() {
