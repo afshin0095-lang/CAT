@@ -19,9 +19,10 @@ The recovery layer is deliberately conservative: durable state is authoritative,
 2. Recovery never converts `RUNNING` directly to `READY`.
 3. Workers remain side-effect owners; recovery only classifies durable intent.
 4. Any replay must retain the original execution identity and idempotency contract where the worker protocol supports it.
-5. Optimistic concurrency remains mandatory for every state mutation.
-6. Fencing tokens remain mandatory at external side-effect boundaries.
-7. Recovery is deterministic for the same durable workflow snapshot.
+5. Authorization evidence is durable and bound to the original execution attempt; recovery must not fabricate a new authorization context silently.
+6. Optimistic concurrency remains mandatory for every state mutation.
+7. Fencing tokens remain mandatory at external side-effect boundaries.
+8. Recovery is deterministic for the same durable workflow snapshot.
 
 ## Reconciliation flow
 
@@ -54,6 +55,10 @@ resume approval      reconcile side effect
 
 The report is derived only from `WorkflowInstance` state and does not mutate it.
 
+## Current implementation
+
+The Orchestrator now has a production async execution coordinator that records the attempt and authorization evidence before worker dispatch. The attempt ledger stores execution identity and fencing information, while `cat_execution_authorizations` stores the governance context used for admission.
+
 ## Future extensions
 
-A production recovery service should add durable worker heartbeats, execution-attempt timestamps, and an execution-result ledger keyed by `execution_id`. Those additions allow stronger automated reconciliation without weakening the conservative default above.
+Future recovery versions may use the durable authorization record directly when producing reconciliation and audit projections, and may add stronger execution-result journaling keyed by `execution_id`.
