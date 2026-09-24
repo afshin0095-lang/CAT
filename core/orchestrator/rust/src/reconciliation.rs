@@ -2,7 +2,8 @@ use async_trait::async_trait;
 use uuid::Uuid;
 
 use crate::{
-    AsyncPostgresExecutionStore, ExecutionAttempt, ExecutionAttemptStatus, OrchestratorResult,
+    AsyncPostgresExecutionStore, ExecutionAttempt, ExecutionAttemptStatus, ExecutionAuditEvidence,
+    ExecutionAuthorizationRecord, ExecutionAttemptStore, OrchestratorResult,
     ProviderExecutionRecord, ProviderOutcomeState, ReconciliationAction,
 };
 
@@ -10,11 +11,32 @@ use crate::{
 pub struct ReconciliationReport {
     pub execution_id: Uuid,
     pub action: ReconciliationAction,
+    pub authorization: Option<ExecutionAuthorizationRecord>,
     pub provider_result: Option<ProviderExecutionRecord>,
 }
 
+impl ReconciliationReport {
+    /// Build the derived audit view only when durable authorization evidence is present.
+    ///
+    /// Missing authorization evidence is intentionally not synthesized from workflow state.
+    pub fn audit_evidence(
+        &self,
+        attempt: &ExecutionAttempt,
+    ) -> Option<ExecutionAuditEvidence> {
+        self.authorization.clone().and_then(|authorization| {
+            ExecutionAuditEvidence::from_parts(
+                attempt,
+                authorization,
+                self.provider_result.clone(),
+            )
+        })
+    }
+}
+
 #[async_trait]
-pub trait ExecutionReconciliationStore: AsyncPostgresExecutionStore {
+pub trait ExecutionReconciliationStore:
+    AsyncPostgresExecutionStore + ExecutionAttemptStore
+{
     async fn load_execution_attempt(
         &self,
         execution_id: Uuid,
@@ -56,10 +78,15 @@ where
 
     pub async fn reconcile(&self, execution_id: Uuid) -> OrchestratorResult<ReconciliationReport> {
         let attempt = self.store.load_execution_attempt(execution_id).await?;
+        let authorization = self
+            .store
+            .load_execution_authorization(execution_id)
+            .await?;
         let provider_result = self.store.load_provider_result(execution_id).await?;
 
         let action = match provider_result.as_ref() {
             Some(result) => result.action(),
+            None if authorization.is_none() => ReconciliationAction::ManualReview,
             None if attempt.status.terminal() => match attempt.status {
                 ExecutionAttemptStatus::Succeeded => ReconciliationAction::ConfirmSuccess,
                 ExecutionAttemptStatus::Failed | ExecutionAttemptStatus::Cancelled => {
@@ -73,6 +100,7 @@ where
         Ok(ReconciliationReport {
             execution_id,
             action,
+            authorization,
             provider_result,
         })
     }
