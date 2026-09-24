@@ -106,6 +106,7 @@ mod tests {
                     .enumerate()
                     .map(|(index, state)| WorkflowStep {
                         id: format!("step-{index}"),
+                        capability_id: cat_kernel::CapabilityId::new("cat.capability.recovery.step.v1").unwrap(),
                         dependencies: Vec::new(),
                         state: *state,
                         attempt: 1,
