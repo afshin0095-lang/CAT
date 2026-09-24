@@ -43,6 +43,6 @@ The ledger deliberately does not encode a universal timeout-to-failure rule. Tim
 
 The PostgreSQL adapter now exposes authorization-evidence persistence and loading through `ExecutionAttemptStore`. Wiring the live Coordinator to call `record_execution_start` with the authorization receipt remains the next integration step because the current Coordinator API is synchronous while the durable attempt store is asynchronous.
 
-## Next extensions
+## Future extensions
 
 Future versions may add worker identity metadata, external provider execution IDs, cancellation timestamps, heartbeat sequence numbers, and a separate execution-result journal for exactly-once interpretation of provider callbacks.
