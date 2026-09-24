@@ -76,11 +76,11 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Next Task
 
-Sprint 1 — Opportunity Lifecycle → Orchestrator → Durable Revalidation Execution: execution coordinator implemented; request claims map to source-scoped Orchestrator ExecutionRequest identities, durable status transitions persist attempts, and success/failure events publish through EventBus.
+Sprint 1 — Capability-governed durable execution: registry, fail-closed authorization, execution admission, workflow-step capability binding, authorized worker dispatch, and PostgreSQL authorization-evidence persistence contracts are implemented on PR #61. CI/integration verification remains pending.
 
 # Next Tasks
 
-1. Sprint 1 — revalidation execution coordinator implemented; CI/integration verification pending
+1. Sprint 1 — wire durable authorization evidence into the production async execution path
 2. Sprint 1 hardening — durable attempt/result persistence and end-to-end PostgreSQL/EventBus verification
 3. Post-merge — retarget stacked affiliate PRs (#34→#39 chain) so Sprint 0 lands on main
 4. LLM / AI Core — authorized tool execution boundary completed
