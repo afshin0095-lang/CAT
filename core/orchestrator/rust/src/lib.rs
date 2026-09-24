@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 #![deny(clippy::all)]
 
+mod audit;
 mod compensation;
 mod dispatch_result;
 mod durable;
@@ -45,6 +46,7 @@ mod validation;
 pub mod validation_gates;
 mod worker;
 
+pub use audit::ExecutionAuditEvidence;
 pub use compensation::{begin_compensation, compensation_order};
 pub use dispatch_result::{DispatchAction, DispatchResult};
 pub use durable::{
@@ -68,7 +70,6 @@ pub use execution_coordinator::ExecutionCoordinator;
 pub use execution_cursor::{ExecutionCursor, cursor};
 pub use execution_dispatch::{claim_step, ready_requests};
 pub use execution_event::{ExecutionEvent, ExecutionEventKind};
-pub use execution_request::{ExecutionIntent, ExecutionRequest};
 pub use execution_state::{ExecutionState, ExecutionStepState};
 pub use fencing::{FencedLease, FencedLeaseProvider, FencingToken, InMemoryFencedLeaseProvider};
 pub use flywheel::{FlywheelNode, FlywheelPlan, FlywheelStage};
