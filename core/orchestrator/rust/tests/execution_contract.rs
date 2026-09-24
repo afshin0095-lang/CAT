@@ -1,3 +1,4 @@
+use cat_kernel::CapabilityId;
 use cat_orchestrator::{
     ExecutionEngine, OrchestratorError, StepState, WorkflowDefinition, WorkflowInstance,
     WorkflowState, WorkflowStep,
@@ -10,6 +11,7 @@ fn workflow() -> WorkflowInstance {
         steps: vec![
             WorkflowStep {
                 id: "ingest".into(),
+                capability_id: cat_kernel::CapabilityId::new("cat.capability.affiliate.ingest.v1").unwrap(),
                 dependencies: vec![],
                 state: StepState::Pending,
                 attempt: 0,
@@ -18,6 +20,7 @@ fn workflow() -> WorkflowInstance {
             },
             WorkflowStep {
                 id: "attribute".into(),
+                capability_id: cat_kernel::CapabilityId::new("cat.capability.affiliate.attribute.v1").unwrap(),
                 dependencies: vec!["ingest".into()],
                 state: StepState::Pending,
                 attempt: 0,
