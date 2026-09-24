@@ -10,7 +10,7 @@ pub struct WorkerExecutionInput {
     workflow_id: Uuid,
     step_id: String,
     attempt: u32,
-    authorization: cat_kernel::ExecutionAuthorization,
+    authorization: crate::ExecutionAuthorization,
 }
 
 impl WorkerExecutionInput {
@@ -40,7 +40,7 @@ impl WorkerExecutionInput {
         self.attempt
     }
 
-    pub fn authorization(&self) -> &cat_kernel::ExecutionAuthorization {
+    pub fn authorization(&self) -> &crate::ExecutionAuthorization {
         &self.authorization
     }
 }
