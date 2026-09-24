@@ -3,7 +3,7 @@ use cat_kernel::{
     AuthorizationRequest, CapabilityAuthorizationEngine, CapabilityId, CorrelationId,
     IdempotencyKey, InvocationId, InvocationRequest, KernelError, SideEffectClass,
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use uuid::Uuid;
 
 use crate::{OrchestratorError, OrchestratorResult};
@@ -12,7 +12,7 @@ use crate::{OrchestratorError, OrchestratorResult};
 ///
 /// Creation is intentionally restricted to this module so callers cannot fabricate an
 /// authorization receipt for a worker dispatch path.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct ExecutionAuthorization {
     invocation_id: InvocationId,
     workflow_id: Uuid,
