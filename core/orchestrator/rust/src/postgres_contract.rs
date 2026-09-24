@@ -35,6 +35,7 @@ impl PostgresSchemaV1 {
     pub const WORKFLOWS: &'static str = "cat_workflows";
     pub const OUTBOX: &'static str = "cat_workflow_outbox";
     pub const LEASES: &'static str = "cat_execution_leases";
+    pub const AUTHORIZATIONS: &'static str = "cat_execution_authorizations";
 
     pub const CREATE_SQL: &'static str = r#"
 CREATE TABLE IF NOT EXISTS cat_workflows (
@@ -67,6 +68,38 @@ CREATE TABLE IF NOT EXISTS cat_execution_leases (
     expires_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS cat_execution_attempts (
+    execution_id UUID PRIMARY KEY,
+    workflow_id UUID NOT NULL REFERENCES cat_workflows(id),
+    step_id TEXT NOT NULL,
+    attempt INTEGER NOT NULL CHECK (attempt > 0),
+    status TEXT NOT NULL CHECK (status IN ('running', 'succeeded', 'failed', 'cancelled')),
+    owner TEXT NOT NULL,
+    fencing_token BIGINT NOT NULL CHECK (fencing_token >= 0),
+    started_at TIMESTAMPTZ NOT NULL,
+    heartbeat_at TIMESTAMPTZ NOT NULL,
+    finished_at TIMESTAMPTZ,
+    result JSONB,
+    error TEXT,
+    UNIQUE (workflow_id, step_id, attempt)
+);
+
+CREATE TABLE IF NOT EXISTS cat_execution_authorizations (
+    execution_id UUID PRIMARY KEY REFERENCES cat_execution_attempts(execution_id) ON DELETE CASCADE,
+    invocation_id UUID NOT NULL,
+    agent_id UUID NOT NULL,
+    capability_id TEXT NOT NULL,
+    requested_side_effect TEXT NOT NULL CHECK (
+        requested_side_effect IN ('S0', 'S1', 'S2', 'S3')
+    ),
+    required_policies JSONB NOT NULL,
+    approval_reference TEXT,
+    idempotency_key TEXT NOT NULL,
+    correlation_id UUID NOT NULL,
+    admitted_at TIMESTAMPTZ NOT NULL,
+    UNIQUE (execution_id, idempotency_key)
+);
 "#;
 
     pub fn validate_identifier(value: &str) -> OrchestratorResult<()> {
@@ -92,6 +125,7 @@ mod tests {
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::WORKFLOWS));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::OUTBOX));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::LEASES));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::AUTHORIZATIONS));
     }
 
     #[test]
