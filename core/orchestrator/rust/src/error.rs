@@ -38,6 +38,12 @@ pub enum OrchestratorError {
     CapabilityAuthorizationDenied { capability: String, reasons: Vec<String> },
     #[error("capability authorization requires approval for {capability}: {reasons:?}")]
     CapabilityApprovalRequired { capability: String, reasons: Vec<String> },
+    #[error("workflow step {step_id} requires capability {expected}, but invocation requested {requested}")]
+    StepCapabilityMismatch {
+        step_id: String,
+        expected: String,
+        requested: String,
+    },
     #[error("workflow serialization failed: {0}")]
     Serialization(String),
 }
