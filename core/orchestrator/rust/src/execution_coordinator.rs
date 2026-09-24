@@ -26,7 +26,7 @@ pub struct ExecutionCoordinator<'a, S, L, W, E> {
 impl<'a, S, L, W, E> ExecutionCoordinator<'a, S, L, W, E>
 where
     S: DurableWorkflowStore,
-    L: LeaseProvider,
+    L: FencedLeaseProvider,
     W: WorkerExecutor,
     E: ExecutionEventSink,
 {
@@ -114,8 +114,9 @@ where
         };
 
         let resource = format!("workflow/{workflow_id}/step/{step_id}");
-        self.leases
-            .acquire(&resource, &self.owner, now_ms, self.lease_ttl_ms)?;
+        let fenced_lease =
+            self.leases
+                .acquire(&resource, &self.owner, now_ms, self.lease_ttl_ms)?;
 
         let intent = crate::claim_step(&self.engine, &mut workflow, step_id)?;
         let request = ExecutionRequest::from_authorized(intent, authorization)?;
@@ -169,7 +170,7 @@ mod tests {
         TimestampMs,
     };
     use crate::{
-        InMemoryDurableWorkflowStore, Lease, RecordingExecutionEventSink, WorkflowDefinition,
+        InMemoryDurableWorkflowStore, InMemoryFencedLeaseProvider, RecordingExecutionEventSink, WorkflowDefinition,
         WorkflowInstance, WorkflowState, WorkflowStep,
     };
 
@@ -196,7 +197,7 @@ mod tests {
             owner: &str,
             now_ms: u64,
             ttl_ms: u64,
-        ) -> OrchestratorResult<Lease> {
+        ) -> OrchestratorResult<crate::FencedLease> {
             self.acquisitions += 1;
             Ok(Lease::acquire(resource, owner, now_ms, ttl_ms))
         }
@@ -277,7 +278,7 @@ mod tests {
         let workflow = ready_workflow();
         let id = workflow.id;
         store.insert(workflow);
-        let mut leases = InMemoryLeaseProvider::default();
+        let mut leases = InMemoryFencedLeaseProvider::default();
         let mut worker = SuccessWorker { capability_seen: None };
         let mut events = RecordingExecutionEventSink::default();
 
