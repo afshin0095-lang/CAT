@@ -114,7 +114,7 @@ where
         };
 
         let resource = format!("workflow/{workflow_id}/step/{step_id}");
-        let fenced_lease = self
+        let fencing_token = self
             .store
             .acquire_fenced_lease(&resource, &self.owner, now_ms, self.lease_ttl_ms)
             .await?;
@@ -130,7 +130,7 @@ where
             attempt: request.attempt(),
             status: ExecutionAttemptStatus::Running,
             owner: self.owner.clone(),
-            fencing_token: fenced_lease.fencing_token.value(),
+            fencing_token: fencing_token.value(),
             started_at_ms: now_ms,
             heartbeat_at_ms: now_ms,
             finished_at_ms: None,
@@ -148,7 +148,7 @@ where
             .execute(WorkerExecutionInput::from_request(
                 execution_id,
                 &request,
-                fenced_lease.fencing_token,
+                fencing_token,
             ))
             .await;
 
@@ -161,7 +161,7 @@ where
                 .complete_execution(
                     execution_id,
                     &self.owner,
-                    fenced_lease.fencing_token,
+                    fencing_token,
                     ExecutionAttemptStatus::Failed,
                     now_ms,
                     Some(worker_result.output.clone()),
@@ -229,7 +229,7 @@ where
             .complete_execution(
                 execution_id,
                 &self.owner,
-                fenced_lease.fencing_token,
+                fencing_token,
                 attempt_status,
                 now_ms,
                 Some(dispatch.result.output.clone()),
