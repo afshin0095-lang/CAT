@@ -1,3 +1,4 @@
+use cat_kernel::CapabilityId;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -35,6 +36,8 @@ pub enum StepState {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WorkflowStep {
     pub id: String,
+    /// Capability required by this step. Worker admission must match this identity exactly.
+    pub capability_id: CapabilityId,
     pub dependencies: Vec<String>,
     pub state: StepState,
     pub attempt: u32,
