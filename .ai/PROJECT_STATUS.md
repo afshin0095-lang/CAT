@@ -61,7 +61,7 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Sprint 1 — Durable Revalidation Execution Coordinator
+**Current Task:** Sprint 1 — Capability-governed durable execution admission
 
 **Document:** `core/affiliate/rust/` (opportunity subsystem), `docs/implementation/AFFILIATE_OPPORTUNITY_*.md`
 
