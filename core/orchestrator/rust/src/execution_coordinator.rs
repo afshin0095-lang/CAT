@@ -122,8 +122,11 @@ where
         let request = ExecutionRequest::from_authorized(intent, authorization)?;
         let execution_id = Uuid::now_v7();
         let result = self
-            .worker
-            .execute(WorkerExecutionInput::from_request(execution_id, &request));
+            .worker.execute(WorkerExecutionInput::from_request(
+            execution_id,
+            &request,
+            fenced_lease.fencing_token,
+        ));
         let retry = matches!(result.outcome, WorkerExecutionOutcome::Failed)
             .then(|| decide_retry(self.retry_policy, request.attempt()));
         let dispatch = crate::DispatchResult::from_worker(result, retry);
@@ -170,7 +173,8 @@ mod tests {
         TimestampMs,
     };
     use crate::{
-        InMemoryDurableWorkflowStore, InMemoryFencedLeaseProvider, RecordingExecutionEventSink, WorkflowDefinition,
+        FencedLease, FencedLeaseProvider, FencingToken, InMemoryDurableWorkflowStore,
+        InMemoryFencedLeaseProvider, RecordingExecutionEventSink, WorkflowDefinition,
         WorkflowInstance, WorkflowState, WorkflowStep,
     };
 
