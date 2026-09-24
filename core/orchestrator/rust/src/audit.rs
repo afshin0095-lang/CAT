@@ -58,8 +58,7 @@ mod tests {
         IdempotencyKey, SideEffectClass, TenantId, TimestampMs,
     };
     use crate::{
-        ApprovalContext, CapabilityAdmission, CapabilityAdmissionResult, ExecutionAuthorization,
-        ExecutionIntent,
+        ApprovalContext, CapabilityAdmission, CapabilityAdmissionResult, ExecutionIntent,
     };
 
     fn authorization() -> ExecutionAuthorizationRecord {
