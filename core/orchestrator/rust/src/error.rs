@@ -32,6 +32,8 @@ pub enum OrchestratorError {
         expected: u64,
         actual: u64,
     },
+    #[error("authorization input is invalid: {0}")]
+    InvalidAuthorizationInput(String),
     #[error("workflow serialization failed: {0}")]
     Serialization(String),
 }
