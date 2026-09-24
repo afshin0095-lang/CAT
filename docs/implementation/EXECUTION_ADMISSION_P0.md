@@ -1,6 +1,6 @@
 # Execution Admission P0 — Authorized Durable Dispatch Boundary
 
-Status: Implemented on \`feat/capability-registry-p0\`
+Status: Implemented on `feat/capability-registry-p0`
 
 ## Purpose
 
@@ -8,13 +8,13 @@ This boundary connects the kernel capability authorization decision to the Orche
 
 The safe path is:
 
-\`InvocationRequest → CapabilityAuthorizationEngine → CapabilityAdmission → ExecutionAuthorization → Worker Dispatch\`
+`InvocationRequest → CapabilityAuthorizationEngine → CapabilityAdmission → ExecutionAuthorization → Worker Dispatch`
 
-Only the first four stages are implemented by this P0 boundary. Worker dispatch consumption is the next integration step.
+Worker dispatch now consumes only an authorized request; the unauthenticated worker-input path has been removed.
 
 ## Contract
 
-\`ExecutionAuthorization\` is an immutable, serializable authorization receipt created only from an \`Allowed\` kernel authorization decision.
+`ExecutionAuthorization` is an immutable, serializable authorization receipt created only from an `Allowed` kernel authorization decision.
 
 It is bound to:
 
@@ -35,20 +35,20 @@ The receipt exposes read-only accessors and cannot be fabricated through a publi
 
 ## Admission semantics
 
-\`CapabilityAdmission::admit\` validates:
+`CapabilityAdmission::admit` validates:
 
 1. workflow identity is non-nil;
 2. step identity is non-empty;
 3. attempt is greater than zero;
 4. the canonical invocation validates;
-5. invocation capability parses as a canonical \`CapabilityId\`;
+5. invocation capability parses as a canonical `CapabilityId`;
 6. kernel authorization is evaluated fail-closed.
 
 Results are explicitly separated:
 
-- \`Admitted\` — a receipt exists and may be carried toward worker dispatch;
-- \`ApprovalRequired\` — no execution receipt is created;
-- \`Denied\` — no execution receipt is created.
+- `Admitted` — a receipt exists and may be carried toward worker dispatch;
+- `ApprovalRequired` — no execution receipt is created;
+- `Denied` — no execution receipt is created.
 
 An approval requirement therefore cannot be accidentally treated as an authorization grant.
 
@@ -67,6 +67,7 @@ This module does not:
 - persist authorization receipts;
 - acquire leases;
 - claim workflow steps;
+- decide workflow retry/approval policy;
 - dispatch workers;
 - call tools, connectors, providers, networks, or databases;
 - replace Decision Core approval records;
@@ -83,8 +84,16 @@ Unit tests cover:
 
 CI remains the authoritative workspace compilation and test gate.
 
+## Completed integration
+
+`ExecutionRequest` now contains `ExecutionAuthorization` as a mandatory field and has no public constructor. `ExecutionIntent` is the pre-admission planning type.
+
+`WorkerExecutionInput` can only be created from an authorized `ExecutionRequest`. Its authorization receipt is carried through to the worker boundary.
+
+`ExecutionCoordinator::execute_step` performs admission before lease acquisition, rejects denied/approval-required requests without claiming the step, and verifies that the invocation capability exactly matches the workflow step capability.
+
+This removes the unauthenticated production worker path.
+
 ## Next integration
 
-Make \`ExecutionRequest\` and \`WorkerExecutionInput\` consume \`ExecutionAuthorization\` as a mandatory field, then require Orchestrator admission before a lease is acquired and a worker is invoked.
-
-The integration must remove, not duplicate, an unauthenticated production worker path.
+Persist the authorization identity with the durable execution-attempt ledger and expose it through reconciliation/audit. The durable ledger should retain enough governance metadata to prove which agent/capability/policy/approval/idempotency context produced each attempt.
