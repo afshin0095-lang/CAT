@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use cat_eventbus::{EventBus, EventEnvelope};
 use uuid::Uuid;
 
-use crate::{FencedLease, FencedLeaseProvider, OrchestratorError, OrchestratorResult, WorkflowInstance};
+use crate::{OrchestratorError, OrchestratorResult, WorkflowInstance};
 
 pub trait DurableWorkflowStore {
     fn load(&self, workflow_id: Uuid) -> OrchestratorResult<WorkflowInstance>;
@@ -104,7 +104,7 @@ impl DurableWorkflowStore for InMemoryDurableWorkflowStore {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{FencedLeaseProvider, StepState, WorkflowDefinition, WorkflowState, WorkflowStep};
+    use crate::{StepState, WorkflowDefinition, WorkflowState, WorkflowStep};
 
     fn workflow() -> WorkflowInstance {
         WorkflowInstance {
