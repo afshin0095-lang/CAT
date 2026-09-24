@@ -74,6 +74,8 @@ The canonical schema migration creates:
 - `cat_workflows`
 - `cat_workflow_outbox`
 - `cat_execution_leases`
+- `cat_execution_attempts`
+- `cat_execution_authorizations`
 
 The migration also includes compatibility-safe column additions for already-created outbox tables.
 
