@@ -14,6 +14,7 @@ The execution-attempt ledger provides a durable identity and lifecycle record fo
 6. A stale heartbeat is evidence for reconciliation, not permission to replay automatically.
 7. Terminal attempts are immutable from the worker's perspective.
 8. Attempt results and errors are retained for deterministic recovery and audit.
+9. A governed attempt must have a corresponding authorization-evidence record keyed by the execution identity before external work is considered durable.
 
 ## Lifecycle
 
@@ -35,6 +36,12 @@ The ledger deliberately does not encode a universal timeout-to-failure rule. Tim
 ## PostgreSQL model
 
 `cat_execution_attempts` stores execution identity, workflow/step/attempt, owner, fencing token, start time, heartbeat time, terminal time, result and error. A workflow foreign key prevents orphan attempt records.
+
+`cat_execution_authorizations` stores the governance evidence associated with an execution: invocation ID, agent ID, canonical capability ID, requested side-effect class, required policies, approval reference, idempotency key, correlation ID, and admission timestamp. The authorization row references the execution attempt and is inserted in the same persistence transaction as the attempt start.
+
+## Current implementation boundary
+
+The PostgreSQL adapter now exposes authorization-evidence persistence and loading through `ExecutionAttemptStore`. Wiring the live Coordinator to call `record_execution_start` with the authorization receipt remains the next integration step because the current Coordinator API is synchronous while the durable attempt store is asynchronous.
 
 ## Next extensions
 
