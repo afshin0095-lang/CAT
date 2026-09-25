@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use cat_kernel::{
-    AgentId, CorrelationId, EntityId, InvocationId, IdempotencyKey, SideEffectClass,
+    AgentId, CorrelationId, EntityId, InvocationId, IdempotencyKey, SideEffectClass, TenantId,
 };
 use sqlx::Row;
 use uuid::Uuid;
