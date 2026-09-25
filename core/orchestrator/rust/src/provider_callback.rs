@@ -447,11 +447,11 @@ impl PostgresExecutionStore {
         error: Option<&str>,
         recorded_at_ms: u64,
     ) -> OrchestratorResult<()> {
-        sqlx::query(
+        let callback_update = sqlx::query(
             "UPDATE cat_provider_execution_callbacks
              SET execution_id = $1, correlation_state = 'correlated',
                  correlation_error = NULL, correlated_at = TO_TIMESTAMP($2 / 1000.0)
-             WHERE callback_id = $3",
+             WHERE callback_id = $3 AND correlation_state = 'unmatched'",
         )
         .bind(execution_id)
         .bind(recorded_at_ms as f64)
@@ -459,8 +459,13 @@ impl PostgresExecutionStore {
         .execute(&mut *tx)
         .await
         .map_err(db_error)?;
+        if callback_update.rows_affected() != 1 {
+            return Err(OrchestratorError::Serialization(
+                "provider callback correlation state update was not applied".into(),
+            ));
+        }
 
-        sqlx::query(
+        let provider_update = sqlx::query(
             "UPDATE cat_provider_execution_results
              SET outcome_state = $1, observed_at = TO_TIMESTAMP($2 / 1000.0),
                  result = $3, error = $4
@@ -475,6 +480,11 @@ impl PostgresExecutionStore {
         .execute(&mut *tx)
         .await
         .map_err(db_error)?;
+        if provider_update.rows_affected() != 1 {
+            return Err(OrchestratorError::Serialization(
+                "provider execution result update was not applied".into(),
+            ));
+        }
 
         insert_provider_journal_tx(
             tx,
