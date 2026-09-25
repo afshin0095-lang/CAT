@@ -132,7 +132,7 @@ impl OperatorPrincipal {
 }
 
 /// Explicit operator permissions. Authentication and authorization remain separate.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum OperatorPermission {
     ReadAudit,
     ReadAuditEvidence,
@@ -149,7 +149,7 @@ impl OperatorPermission {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum OperatorAuthorizationOutcome {
     Allowed,
     Denied,
