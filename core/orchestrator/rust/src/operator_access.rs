@@ -294,6 +294,32 @@ where
         self.store.query_audit(query).await
     }
 
+    pub async fn query_for_session<I: crate::OperatorIdentityStore>(
+        &self,
+        identity_store: &I,
+        session_id: Uuid,
+        now_ms: u64,
+        query: ExecutionAuditQuery,
+    ) -> OrchestratorResult<Vec<ExecutionAuditEvent>> {
+        let principal = identity_store
+            .load_principal_for_session(session_id, now_ms)
+            .await?;
+        self.query(&principal, query).await
+    }
+
+    pub async fn load_latest_for_session<I: crate::OperatorIdentityStore>(
+        &self,
+        identity_store: &I,
+        session_id: Uuid,
+        now_ms: u64,
+        execution_id: Uuid,
+    ) -> OrchestratorResult<ExecutionAuditEvent> {
+        let principal = identity_store
+            .load_principal_for_session(session_id, now_ms)
+            .await?;
+        self.load_latest(&principal, execution_id).await
+    }
+
     pub async fn rebuild(
         &self,
         principal: &OperatorPrincipal,
