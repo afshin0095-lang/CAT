@@ -16,6 +16,7 @@ use cat_orchestrator::{
     AuthorizedAuditService, ExecutionAuditStore, OperatorIdentityStore, ProviderCallback,
     ProviderCallbackStore, ProviderCallbackReconciliationWorker,
     ProviderCallbackDispatcher, ProviderCallbackDispatchDisposition, ProviderCallbackIngress,
+    ProviderCallbackVerificationEvidence,
     ProviderCallbackVerifier, ProviderCallbackVerifierRegistry,
     PostgresExecutionStore, ReconciliationAction, StepState, WorkflowDefinition,
     WorkflowExecutionReconciler, WorkflowInstance, WorkflowState, WorkflowStep,
@@ -82,6 +83,12 @@ impl ProviderCallbackVerifier for RecordingCallbackVerifier {
             result: Some(ingress.body.clone()),
             error: None,
             received_at_ms: ingress.received_at_ms,
+            verification: ProviderCallbackVerificationEvidence {
+                method: "integration-verifier".into(),
+                algorithm: Some("test".into()),
+                key_reference: Some("integration-key".into()),
+                verified_at_ms: ingress.received_at_ms,
+            },
         })
     }
 }
