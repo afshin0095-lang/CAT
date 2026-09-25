@@ -48,6 +48,8 @@ impl ExecutionAuthorizationRecord {
             && self.invocation_id.as_entity_id().as_uuid() != uuid::Uuid::nil()
             && self.agent_id.as_entity_id().as_uuid() != uuid::Uuid::nil()
             && self.correlation_id.as_uuid() != uuid::Uuid::nil()
+            && self.tenant_id.as_uuid() != uuid::Uuid::nil()
+            && self.project_id.is_none_or(|value| value.as_uuid() != uuid::Uuid::nil())
     }
 }
 
