@@ -257,7 +257,7 @@ impl ExecutionAuditStore for PostgresExecutionStore {
             "SELECT audit_sequence, audit_id, event_key, execution_id, workflow_id, step_id, attempt,
                     action, agent_id, capability_id, requested_side_effect, approval_reference,
                     correlation_id, EXTRACT(EPOCH FROM recorded_at) * 1000 AS recorded_at_ms,
-                    evidence, execution_id::text || ':latest' AS event_key
+                    evidence
              FROM cat_execution_audit_read_model
              WHERE ($1::uuid IS NULL OR agent_id = $1)
                AND ($2::text IS NULL OR capability_id = $2)
