@@ -136,9 +136,12 @@ impl PostgresExecutionStore {
 
             let existing_execution: Uuid =
                 row.try_get("execution_id").map_err(row_error)?;
+            let existing_action: String = row.try_get("action").map_err(row_error)?;
             let existing_evidence: serde_json::Value =
                 row.try_get("evidence").map_err(row_error)?;
-            if existing_execution != evidence.execution_id || existing_evidence != payload {
+            if existing_execution != evidence.execution_id
+                || existing_action != action.as_str()
+                || existing_evidence != payload {
                 return Err(OrchestratorError::Serialization(
                     "execution audit event identity conflict".into(),
                 ));
