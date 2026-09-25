@@ -29,7 +29,7 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Sprint 1 hardening — provider callback gateway + durable identity/session authorization
+**Current Task:** Sprint 1 hardening — verified provider callback gateway + durable identity/session authorization
 
 **Primary branch:** `feat/capability-registry-p0` / PR #61
 
@@ -72,7 +72,9 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 - `ProviderCallbackIngress` transport boundary;
 - provider-specific `ProviderCallbackVerifier` contract;
 - deterministic verifier registry and provider routing;
-- callback gateway E2E path from raw ingress through verification to durable correlation.
+- callback gateway E2E path from raw ingress through verification to durable correlation;
+- non-secret provider callback verification evidence persisted with each new callback;
+- verifier evidence validation during callback replay.
 
 ## Validation status
 
@@ -82,4 +84,4 @@ Local `cargo` execution remains unavailable in the working sandbox because rust-
 
 # Next Task
 
-Add signed callback verification metadata and multi-provider verifier lifecycle management, then persist operator authorization decision evidence.
+Add provider verifier lifecycle/version policy and persist operator authorization decision evidence, then begin the next vertical slice in the affiliate execution domain.
