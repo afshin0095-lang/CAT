@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::sync::{
     Arc,
     atomic::{AtomicUsize, Ordering},
@@ -14,6 +15,8 @@ use cat_orchestrator::{
     DurableExecutionCoordinator, ExecutionAuditEvidence, ExecutionAttemptStore, ExecutionAuditQuery,
     AuthorizedAuditService, ExecutionAuditStore, OperatorIdentityStore, ProviderCallback,
     ProviderCallbackCorrelationState, ProviderCallbackStore, ProviderCallbackReconciliationWorker,
+    ProviderCallbackDispatcher, ProviderCallbackDispatchDisposition, ProviderCallbackIngress,
+    ProviderCallbackVerifier, ProviderCallbackVerifierRegistry,
     PostgresExecutionStore, ReconciliationAction, StepState, WorkflowDefinition,
     WorkflowExecutionReconciler, WorkflowInstance, WorkflowState, WorkflowStep,
     WorkerExecutionInput, WorkerExecutionResult, ProviderExecutionJournalStore, ProviderOutcomeState,
@@ -41,6 +44,43 @@ impl AsyncWorkerExecutor for RecordingWorker {
             Some(input.authorization().capability_id().to_string());
         *self.observed_token.lock().unwrap() = Some(input.fencing_token().value());
         WorkerExecutionResult::success(serde_json::json!({"integration": "ok"}))
+    }
+}
+
+struct RecordingCallbackVerifier;
+
+#[async_trait::async_trait]
+impl ProviderCallbackVerifier for RecordingCallbackVerifier {
+    fn provider_name(&self) -> &str {
+        "integration-callback-provider"
+    }
+
+    async fn verify(
+        &self,
+        ingress: &ProviderCallbackIngress,
+    ) -> cat_orchestrator::OrchestratorResult<ProviderCallback> {
+        let provider_execution_id = ingress
+            .body
+            .get("provider_execution_id")
+            .and_then(serde_json::Value::as_str)
+            .ok_or_else(|| cat_orchestrator::OrchestratorError::Serialization(
+                "missing provider_execution_id".into(),
+            ))?;
+
+        Ok(ProviderCallback {
+            callback_id: ingress.callback_id,
+            provider: ingress.provider.clone(),
+            provider_execution_id: provider_execution_id.to_owned(),
+            request_hash: ingress
+                .body
+                .get("request_hash")
+                .and_then(serde_json::Value::as_str)
+                .map(str::to_owned),
+            outcome: ProviderOutcomeState::Succeeded,
+            result: Some(ingress.body.clone()),
+            error: None,
+            received_at_ms: ingress.received_at_ms,
+        })
     }
 }
 
