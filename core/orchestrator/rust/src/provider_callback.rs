@@ -145,7 +145,7 @@ impl PostgresExecutionStore {
         }
 
         let provider_row = sqlx::query(
-            "SELECT execution_id, request_hash, outcome_state, provider_execution_id
+            "SELECT execution_id, request_hash, outcome_state, provider_execution_id, result, error
              FROM cat_provider_execution_results
              WHERE provider = $1 AND provider_execution_id = $2
              FOR UPDATE",
@@ -185,8 +185,14 @@ impl PostgresExecutionStore {
         let stored_outcome: Option<String> = provider_row
             .try_get("outcome_state")
             .map_err(row_error)?;
+        let stored_result: Option<serde_json::Value> =
+            provider_row.try_get("result").map_err(row_error)?;
+        let stored_error: Option<String> = provider_row.try_get("error").map_err(row_error)?;
         if let Some(existing_outcome) = stored_outcome {
-            if existing_outcome != callback.outcome.as_str() {
+            if existing_outcome != callback.outcome.as_str()
+                || stored_result != callback.result
+                || stored_error != callback.error
+            {
                 return Err(OrchestratorError::Serialization(
                     "provider callback conflicts with an already recorded terminal outcome".into(),
                 ));
