@@ -29,11 +29,16 @@ pub struct ProviderCallbackVerificationEvidence {
     pub algorithm: Option<String>,
     pub key_reference: Option<String>,
     pub verified_at_ms: u64,
+    pub version: u32,
 }
 
 impl ProviderCallbackVerificationEvidence {
     pub fn validate(&self) -> OrchestratorResult<()> {
-        if self.method.trim().is_empty() || self.method.len() > 128 || self.verified_at_ms == 0 {
+        if self.method.trim().is_empty()
+            || self.method.len() > 128
+            || self.verified_at_ms == 0
+            || self.version == 0
+        {
             return Err(OrchestratorError::Serialization(
                 "provider callback verification evidence is invalid".into(),
             ));
@@ -660,6 +665,7 @@ mod tests {
                 algorithm: Some("none".into()),
                 key_reference: Some("test-key".into()),
                 verified_at_ms: 1,
+                version: 1,
             },
         };
         assert!(callback.validate().is_err());
