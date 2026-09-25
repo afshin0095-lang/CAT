@@ -27,6 +27,7 @@ mod lease;
 mod model;
 mod monitoring_workflow;
 mod operator_access;
+mod operator_identity;
 mod outbox;
 mod outbox_dispatcher;
 mod postgres;
@@ -86,13 +87,14 @@ pub use monitoring_workflow::{DailyMonitoringRun, MonitoringRunState};
 pub use operator_access::{
     AuthenticationEvidence, AuthorizedAuditReader, AuthorizedAuditService, OperatorAccessPolicy,
     OperatorAuthorizationDecision, OperatorAuthorizationOutcome, OperatorPermission,
-    OperatorPrincipal, OperatorRole,
+    OperatorPrincipal, OperatorRole, OperatorScope,
 };
 pub use outbox::{DurableOutboxStore, InMemoryDurableOutbox, OutboxDisposition, OutboxRecord};
 pub use outbox_dispatcher::{OutboxDispatchOutcome, OutboxDispatcher};
 pub use postgres::{AsyncPostgresExecutionStore, PostgresExecutionStore};
 pub use postgres_contract::{PostgresDurableExecutor, PostgresSchemaV1};
 pub use postgres_outbox::{AsyncPostgresOutbox, PostgresOutboxDisposition, PostgresOutboxRecord};
+pub use operator_identity::{OperatorIdentityRecord, OperatorIdentityStore, OperatorSessionRecord};
 pub use provider_adapter::{
     ProviderExecutionAdapter, ProviderExecutionRequest, ProviderExecutionSubmission,
     idempotency_key as provider_idempotency_key, normalize_provider_outcome,
