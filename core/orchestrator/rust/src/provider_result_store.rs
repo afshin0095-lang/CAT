@@ -2,8 +2,8 @@ use async_trait::async_trait;
 use sqlx::Row;
 use uuid::Uuid;
 
-use crate::{
-    insert_provider_journal_tx, ExecutionAttempt, ExecutionAttemptStatus,
+use crate::provider_execution_journal::insert_provider_journal_tx;
+use crate::{ ExecutionAttempt, ExecutionAttemptStatus,
     ExecutionReconciliationStore, OrchestratorError, OrchestratorResult,
     PostgresExecutionStore, ProviderExecutionJournalEvent,
     ProviderExecutionRecord, ProviderOutcomeState, ExecutionAuthorizationRecord,
