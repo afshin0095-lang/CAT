@@ -9,8 +9,7 @@ use cat_affiliate::{
 };
 use cat_kernel::{AgentId, CapabilityRegistry, EntityId, TenantId};
 use cat_orchestrator::{
-    AsyncPostgresExecutionStore, ExecutionAttemptStore, PostgresExecutionStore, RetryPolicy,
-    WorkflowRegistrationStore, ExecutionAttemptStatus,
+    ExecutionAttemptStatus, ExecutionAttemptStore, PostgresExecutionStore, RetryPolicy,
 };
 use sqlx::postgres::PgPoolOptions;
 use uuid::Uuid;
@@ -66,7 +65,6 @@ async fn governed_revalidation_executes_through_durable_orchestrator() {
 
     let execution_store = PostgresExecutionStore::new(pool.clone());
     execution_store.ensure_schema().await.unwrap();
-    PostgresRevalidationStore::new(pool.clone()).pool();
     PostgresRevalidationStore::ensure_revalidation_schema(&pool)
         .await
         .unwrap();
