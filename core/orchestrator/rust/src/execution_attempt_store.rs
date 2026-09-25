@@ -94,7 +94,7 @@ impl ExecutionAttemptStore for PostgresExecutionStore {
         .map_err(db_error)?;
 
         sqlx::query(
-            "INSERT INTO cat_execution_authorizations             (execution_id, invocation_id, agent_id, capability_id, requested_side_effect,              required_policies, approval_reference, idempotency_key, correlation_id, admitted_at)             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,TO_TIMESTAMP($10 / 1000.0))",
+            "INSERT INTO cat_execution_authorizations             (execution_id, invocation_id, agent_id, capability_id, requested_side_effect,              required_policies, approval_reference, idempotency_key, correlation_id, tenant_id, project_id, admitted_at)             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,TO_TIMESTAMP($12 / 1000.0))",
         )
         .bind(attempt.execution_id)
         .bind(record.invocation_id.as_entity_id().as_uuid())
@@ -105,6 +105,8 @@ impl ExecutionAttemptStore for PostgresExecutionStore {
         .bind(&record.approval_reference)
         .bind(record.idempotency_key.as_str())
         .bind(record.correlation_id.as_uuid())
+        .bind(record.tenant_id.as_uuid())
+        .bind(record.project_id.map(|value| value.as_uuid()))
         .bind(record.admitted_at_ms as f64)
         .execute(&mut *tx)
         .await
@@ -196,7 +198,7 @@ impl ExecutionAttemptStore for PostgresExecutionStore {
         execution_id: Uuid,
     ) -> OrchestratorResult<Option<ExecutionAuthorizationRecord>> {
         let row = sqlx::query(
-            "SELECT invocation_id, agent_id, capability_id, requested_side_effect,             required_policies, approval_reference, idempotency_key, correlation_id,             EXTRACT(EPOCH FROM admitted_at) * 1000 AS admitted_at_ms             FROM cat_execution_authorizations WHERE execution_id = $1",
+            "SELECT invocation_id, agent_id, capability_id, requested_side_effect,             required_policies, approval_reference, idempotency_key, correlation_id, tenant_id, project_id,             EXTRACT(EPOCH FROM admitted_at) * 1000 AS admitted_at_ms             FROM cat_execution_authorizations WHERE execution_id = $1",
         )
         .bind(execution_id)
         .fetch_optional(self.pool())
@@ -247,6 +249,8 @@ fn decode_authorization(
     let invocation_uuid: Uuid = row.try_get("invocation_id").map_err(row_error)?;
     let agent_uuid: Uuid = row.try_get("agent_id").map_err(row_error)?;
     let correlation_uuid: Uuid = row.try_get("correlation_id").map_err(row_error)?;
+    let tenant_uuid: Uuid = row.try_get("tenant_id").map_err(row_error)?;
+    let project_uuid: Option<Uuid> = row.try_get("project_id").map_err(row_error)?;
     let invocation_id = InvocationId::from_entity_id(EntityId::from_uuid(invocation_uuid));
     let agent_id = AgentId::from_entity_id(EntityId::from_uuid(agent_uuid));
     let correlation_id = CorrelationId::from_uuid(correlation_uuid);
