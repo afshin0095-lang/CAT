@@ -47,12 +47,14 @@ impl AsyncWorkerExecutor for RecordingWorker {
     }
 }
 
-struct RecordingCallbackVerifier;
+struct RecordingCallbackVerifier {
+    provider: String,
+}
 
 #[async_trait::async_trait]
 impl ProviderCallbackVerifier for RecordingCallbackVerifier {
     fn provider_name(&self) -> &str {
-        "integration-callback-provider"
+        &self.provider
     }
 
     async fn verify(
@@ -177,8 +179,8 @@ async fn cleanup(pool: &sqlx::PgPool, workflow_id: Uuid) {
         .execute(pool)
         .await
         .unwrap();
-    sqlx::query("DELETE FROM cat_provider_execution_callbacks WHERE provider LIKE $1")
-        .bind(format!("integration-provider-{workflow_id}"))
+    sqlx::query("DELETE FROM cat_provider_execution_callbacks WHERE provider = $1")
+        .bind(format!("integration-callback-provider-{workflow_id}"))
         .execute(pool)
         .await
         .unwrap();
@@ -302,10 +304,10 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
 
     let reconciler = WorkflowExecutionReconciler::new(&store);
 
-    let provider = "integration-callback-provider".to_owned();
+    let provider = format!("integration-callback-provider-{workflow_id}");
     let mut verifier_registry = ProviderCallbackVerifierRegistry::default();
     verifier_registry
-        .register(Arc::new(RecordingCallbackVerifier))
+        .register(Arc::new(RecordingCallbackVerifier { provider: provider.clone() }))
         .unwrap();
     let callback_dispatcher =
         ProviderCallbackDispatcher::new(store.clone(), verifier_registry);
