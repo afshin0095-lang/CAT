@@ -19,7 +19,7 @@ pub enum ReconciliationAction {
     ManualReview,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ProviderExecutionRecord {
     pub execution_id: Uuid,
     pub provider: String,
