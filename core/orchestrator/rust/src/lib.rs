@@ -52,6 +52,7 @@ mod retry;
 mod retry_decision;
 mod scheduler;
 mod validation;
+mod workflow_registration;
 pub mod validation_gates;
 mod worker;
 
@@ -112,6 +113,7 @@ pub use provider_callback::{
 pub use provider_callback_dispatch::{
     ProviderCallbackDispatchDisposition, ProviderCallbackDispatchResult, ProviderCallbackDispatcher,
     ProviderCallbackIngress, ProviderCallbackVerifier, ProviderCallbackVerifierRegistry,
+    ProviderCallbackVerifierRegistration, ProviderVerifierLifecycle,
 };
 
 pub use provider_callback_reconciler::{
@@ -144,4 +146,5 @@ pub use worker::{
     AsyncWorkerExecutor, WorkerExecutionInput, WorkerExecutionOutcome, WorkerExecutionResult,
     WorkerExecutor,
 };
+pub use workflow_registration::WorkflowRegistrationStore;
 pub use durable_execution::DurableExecutionCoordinator;
