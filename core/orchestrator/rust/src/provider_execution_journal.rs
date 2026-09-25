@@ -175,7 +175,6 @@ pub(crate) async fn insert_provider_journal_tx(
     })
 }
 
-pub async fn _unused_guard() {}
 
 impl PostgresExecutionStore {
     async fn append_provider_journal(
