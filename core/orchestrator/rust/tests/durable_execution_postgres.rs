@@ -367,6 +367,17 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
         correlated.disposition,
         ProviderCallbackDispatchDisposition::Correlated
     );
+
+    let verification_method: String = sqlx::query_scalar(
+        "SELECT verification_method
+         FROM cat_provider_execution_callbacks
+         WHERE callback_id = $1"
+    )
+    .bind(callback_id)
+    .fetch_one(&pool)
+    .await
+    .unwrap();
+    assert_eq!(verification_method, "integration-verifier");
     let unmatched = callback_dispatcher
         .dispatch(ProviderCallbackIngress {
             callback_id: Uuid::new_v4(),
