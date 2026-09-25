@@ -1,14 +1,10 @@
-use std::sync::{Arc, atomic::{AtomicUsize, Ordering}};
-
-use async_trait::async_trait;
 use cat_affiliate::{
     AsyncOpportunityStore, AsyncRevalidationRequestStore, DiscoveryBackedRevalidationExecutor,
     DiscoveryCandidate, DiscoveryOpportunity, DiscoverySource, DiscoverySourceBatch,
     DiscoverySourceId, DiscoverySourceInfo, DiscoverySourceKind, DiscoverySourceRegistry,
     DiscoverySourceRequest, FixedRevalidationScopeResolver, GovernedRevalidationCoordinator,
-    GovernedRevalidationExecutor, PostgresOpportunityStore, PostgresRevalidationStore,
-    RevalidationExecutionResult, RevalidationPriority, RevalidationReason, RevalidationRequest,
-    RevalidationStatus, RevalidationTarget, register_revalidation_capability, RevalidationRequestRecord,
+    PostgresOpportunityStore, PostgresRevalidationStore, RevalidationPriority, RevalidationReason,
+    RevalidationRequest, RevalidationStatus, RevalidationTarget, register_revalidation_capability,
     canonical_key, OpportunityIdentity, OpportunityRevision,
 };
 use cat_kernel::{AgentId, CapabilityRegistry, EntityId, TenantId};
