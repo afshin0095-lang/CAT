@@ -3,6 +3,8 @@ ALTER TABLE cat_provider_execution_callbacks
 
 ALTER TABLE cat_provider_execution_callbacks
     DROP CONSTRAINT IF EXISTS cat_provider_execution_callbacks_correlation_state_check;
+ALTER TABLE cat_provider_execution_callbacks
+    DROP CONSTRAINT IF EXISTS cat_provider_execution_callbacks_check;
 
 ALTER TABLE cat_provider_execution_callbacks
     ADD CONSTRAINT cat_provider_execution_callbacks_correlation_state_check
