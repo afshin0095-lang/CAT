@@ -13,7 +13,8 @@ use cat_kernel::{
 use cat_orchestrator::{
     ApprovalContext, AsyncPostgresOutbox, AsyncWorkerExecutor, CapabilityAdmission,
     DurableExecutionCoordinator, ExecutionAuditEvidence, ExecutionAttemptStore, ExecutionAuditQuery,
-    AuthorizedAuditService, ExecutionAuditStore, OperatorIdentityStore, ProviderCallback,
+    AuthorizedAuditService, DurableOperatorAuditService, ExecutionAuditStore, OperatorAuthorizationEvidenceStore,
+    OperatorIdentityStore, ProviderCallback,
     ProviderCallbackStore, ProviderCallbackReconciliationWorker,
     ProviderCallbackDispatcher, ProviderCallbackDispatchDisposition, ProviderCallbackIngress,
     ProviderCallbackVerificationEvidence,
@@ -509,6 +510,9 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
     .unwrap();
 
     let audit_service = AuthorizedAuditService::new(store.clone(), Default::default());
+    let durable_audit_service =
+        DurableOperatorAuditService::new(store.clone(), store.clone());
+
     let scoped = audit_service
         .query_for_session(
             &store,
@@ -530,6 +534,33 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
         .await
         .unwrap();
     assert_eq!(scoped_latest.execution_id, execution_id);
+
+    let durable_scoped = durable_audit_service
+        .query_for_session(
+            &store,
+            session_id,
+            4_000,
+            ExecutionAuditQuery {
+                capability_id: Some(capability_id.to_string()),
+                limit: 10,
+                ..Default::default()
+            },
+            4_010,
+        )
+        .await
+        .unwrap();
+    assert_eq!(durable_scoped.len(), 1);
+
+    let decision_rows = store
+        .list_authorization_decisions(operator_id, 20)
+        .await
+        .unwrap();
+    assert!(!decision_rows.is_empty());
+    assert_eq!(decision_rows[0].session_id, session_id);
+    assert_eq!(
+        decision_rows[0].outcome,
+        cat_orchestrator::OperatorAuthorizationOutcome::Allowed
+    );
 
     let wrong_project = Uuid::new_v4();
     assert!(audit_service
