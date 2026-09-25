@@ -302,21 +302,35 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
 
     let reconciler = WorkflowExecutionReconciler::new(&store);
 
-    let provider = format!("integration-provider-{workflow_id}");
+    let provider = "integration-callback-provider".to_owned();
+    let mut verifier_registry = ProviderCallbackVerifierRegistry::default();
+    verifier_registry
+        .register(Arc::new(RecordingCallbackVerifier))
+        .unwrap();
+    let callback_dispatcher =
+        ProviderCallbackDispatcher::new(store.clone(), verifier_registry);
+
     let callback_id = Uuid::new_v4();
-    let callback = ProviderCallback {
+    let ingress = ProviderCallbackIngress {
         callback_id,
         provider: provider.clone(),
-        provider_execution_id: "remote-integration-1".into(),
-        request_hash: Some("sha256:integration".into()),
-        outcome: ProviderOutcomeState::Succeeded,
-        result: Some(serde_json::json!({"accepted": true})),
-        error: None,
+        headers: BTreeMap::new(),
+        body: serde_json::json!({
+            "provider_execution_id": "remote-integration-1",
+            "request_hash": "sha256:integration",
+            "accepted": true
+        }),
         received_at_ms: 2_050,
     };
 
-    let early = store.ingest_callback(callback.clone()).await.unwrap();
-    assert_eq!(early.correlation_state, ProviderCallbackCorrelationState::Unmatched);
+    let early = callback_dispatcher
+        .dispatch(ingress.clone())
+        .await
+        .unwrap();
+    assert_eq!(
+        early.disposition,
+        ProviderCallbackDispatchDisposition::Unmatched
+    );
 
     let callback_worker =
         ProviderCallbackReconciliationWorker::new(&store, provider.clone(), 10).unwrap();
@@ -339,30 +353,28 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
     assert_eq!(replay_report.scanned, 1);
     assert_eq!(replay_report.correlated, 1);
 
-    let correlated = store.ingest_callback(callback.clone()).await.unwrap();
-    assert_eq!(correlated.execution_id, Some(execution_id));
+    let correlated = callback_dispatcher.dispatch(ingress).await.unwrap();
     assert_eq!(
-        correlated.correlation_state,
-        ProviderCallbackCorrelationState::Correlated
+        correlated.disposition,
+        ProviderCallbackDispatchDisposition::Correlated
     );
-    let unmatched = store
-        .ingest_callback(ProviderCallback {
+    let unmatched = callback_dispatcher
+        .dispatch(ProviderCallbackIngress {
             callback_id: Uuid::new_v4(),
             provider: provider.clone(),
-            provider_execution_id: "remote-unmatched-1".into(),
-            request_hash: None,
-            outcome: ProviderOutcomeState::Unknown,
-            result: None,
-            error: Some("waiting for submission".into()),
+            headers: BTreeMap::new(),
+            body: serde_json::json!({
+                "provider_execution_id": "remote-unmatched-1",
+                "request_hash": null
+            }),
             received_at_ms: 2_250,
         })
         .await
         .unwrap();
     assert_eq!(
-        unmatched.correlation_state,
-        ProviderCallbackCorrelationState::Unmatched
+        unmatched.disposition,
+        ProviderCallbackDispatchDisposition::Unmatched
     );
-    assert_eq!(unmatched.execution_id, None);
 
     let unmatched_rows = store
         .list_unmatched_callbacks(&provider, 10)
