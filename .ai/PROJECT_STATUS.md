@@ -29,11 +29,11 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Sprint 1 hardening — verified provider callback gateway + durable identity/session authorization
+**Current Task:** Sprint 1 hardening — governed affiliate execution + operator authorization evidence
 
 **Primary branch:** `feat/capability-registry-p0` / PR #61
 
-**Status:** Operator audit access and durable provider callback replay are implemented as executable Rust code. CI remains the authoritative compilation/test validator.
+**Status:** Provider callback gateway/replay, durable operator identity/session authorization, authorization-decision evidence, and the first governed Affiliate Revalidation execution bridge are implemented as executable Rust code. CI remains the authoritative compilation/test validator.
 
 ## Completed in this implementation stage
 
@@ -74,7 +74,14 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 - deterministic verifier registry and provider routing;
 - callback gateway E2E path from raw ingress through verification to durable correlation;
 - non-secret provider callback verification evidence persisted with each new callback;
-- verifier evidence validation during callback replay.
+- verifier evidence validation during callback replay;
+- provider verifier lifecycle/version registration and controlled rotation;
+- durable operator authorization decision ledger;
+- `DurableOperatorAuditService` persists decisions before protected audit reads;
+- durable workflow registration boundary for provider/domain-owned workflow creation;
+- governed Affiliate Revalidation capability/plan/worker/coordinator;
+- scope resolver contract for tenant/project/agent identity;
+- PostgreSQL E2E for governed Affiliate Revalidation, including tenant/project propagation.
 
 ## Validation status
 
@@ -84,4 +91,4 @@ Local `cargo` execution remains unavailable in the working sandbox because rust-
 
 # Next Task
 
-Add provider verifier lifecycle/version policy and persist operator authorization decision evidence, then begin the next vertical slice in the affiliate execution domain.
+Implement concrete provider-side Affiliate Revalidation executors/adapters behind the governed worker contract, then add retry-attempt identity rotation without bypassing durable workflow identity.
