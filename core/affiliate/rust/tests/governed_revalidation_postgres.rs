@@ -8,9 +8,7 @@ use cat_affiliate::{
     canonical_key, OpportunityIdentity, OpportunityRevision,
 };
 use cat_kernel::{AgentId, CapabilityRegistry, EntityId, TenantId};
-use cat_orchestrator::{
-    ExecutionAttemptStatus, ExecutionAttemptStore, PostgresExecutionStore, RetryPolicy,
-};
+use cat_orchestrator::{ExecutionAttemptStatus, PostgresExecutionStore, RetryPolicy};
 use sqlx::postgres::PgPoolOptions;
 use uuid::Uuid;
 
@@ -24,7 +22,7 @@ struct StaticDiscoverySource {
     info: DiscoverySourceInfo,
     candidate: DiscoveryCandidate,
 }
-    
+
 impl DiscoverySource for StaticDiscoverySource {
     fn info(&self) -> &DiscoverySourceInfo {
         &self.info
