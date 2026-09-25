@@ -101,6 +101,8 @@ CREATE TABLE IF NOT EXISTS cat_execution_authorizations (
     approval_reference TEXT,
     idempotency_key TEXT NOT NULL,
     correlation_id UUID NOT NULL,
+    tenant_id UUID,
+    project_id UUID,
     admitted_at TIMESTAMPTZ NOT NULL,
     UNIQUE (execution_id, idempotency_key)
 );
@@ -155,6 +157,8 @@ CREATE TABLE IF NOT EXISTS cat_execution_audit_events (
     ),
     approval_reference TEXT,
     correlation_id UUID NOT NULL,
+    tenant_id UUID,
+    project_id UUID,
     recorded_at TIMESTAMPTZ NOT NULL,
     evidence JSONB NOT NULL
 );
@@ -176,6 +180,8 @@ CREATE TABLE IF NOT EXISTS cat_execution_audit_read_model (
     ),
     approval_reference TEXT,
     correlation_id UUID NOT NULL,
+    tenant_id UUID,
+    project_id UUID,
     recorded_at TIMESTAMPTZ NOT NULL,
     source_audit_sequence BIGINT NOT NULL,
     evidence JSONB NOT NULL
@@ -211,6 +217,8 @@ mod tests {
         assert!(PostgresSchemaV1::CREATE_SQL.contains("correlation_error"));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::AUDIT_EVENTS));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::AUDIT_READ_MODEL));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains("tenant_id UUID"));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains("project_id UUID"));
     }
 
     #[test]
