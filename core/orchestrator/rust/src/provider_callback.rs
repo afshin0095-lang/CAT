@@ -24,6 +24,33 @@ pub enum ProviderCallbackReplayDisposition {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct ProviderCallbackVerificationEvidence {
+    pub method: String,
+    pub algorithm: Option<String>,
+    pub key_reference: Option<String>,
+    pub verified_at_ms: u64,
+}
+
+impl ProviderCallbackVerificationEvidence {
+    pub fn validate(&self) -> OrchestratorResult<()> {
+        if self.method.trim().is_empty() || self.method.len() > 128 || self.verified_at_ms == 0 {
+            return Err(OrchestratorError::Serialization(
+                "provider callback verification evidence is invalid".into(),
+            ));
+        }
+        if self.algorithm.as_ref().is_some_and(|value| value.trim().is_empty())
+            || self.key_reference.as_ref().is_some_and(|value| value.trim().is_empty())
+        {
+            return Err(OrchestratorError::Serialization(
+                "provider callback verification metadata contains an empty value".into(),
+            ));
+        }
+        Ok(())
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ProviderCallbackReplayResult {
     pub callback_id: Uuid,
     pub provider_execution_id: String,
@@ -42,6 +69,7 @@ pub struct ProviderCallback {
     pub result: Option<serde_json::Value>,
     pub error: Option<String>,
     pub received_at_ms: u64,
+    pub verification: ProviderCallbackVerificationEvidence,
 }
 
 impl ProviderCallback {
@@ -57,6 +85,8 @@ impl ProviderCallback {
                 "invalid provider callback identity or timestamp".into(),
             ));
         }
+
+        self.verification.validate()?;
 
         if self
             .request_hash
@@ -120,8 +150,9 @@ impl PostgresExecutionStore {
         let inserted = sqlx::query(
             "INSERT INTO cat_provider_execution_callbacks
              (callback_id, event_key, provider, provider_execution_id, request_hash,
-              outcome_state, result, error, received_at)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,TO_TIMESTAMP($9 / 1000.0))
+              outcome_state, result, error, verification_method, verification_algorithm,
+              verification_key_reference, verified_at, received_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,TO_TIMESTAMP($12 / 1000.0),TO_TIMESTAMP($13 / 1000.0))
              ON CONFLICT (callback_id) DO NOTHING
              RETURNING callback_sequence",
         )
@@ -133,6 +164,10 @@ impl PostgresExecutionStore {
         .bind(callback.outcome.as_str())
         .bind(&callback.result)
         .bind(&callback.error)
+        .bind(&callback.verification.method)
+        .bind(&callback.verification.algorithm)
+        .bind(&callback.verification.key_reference)
+        .bind(callback.verification.verified_at_ms as f64)
         .bind(callback.received_at_ms as f64)
         .fetch_optional(&mut *tx)
         .await
@@ -142,6 +177,8 @@ impl PostgresExecutionStore {
             let existing = sqlx::query(
                 "SELECT callback_sequence, callback_id, provider, provider_execution_id,
                         request_hash, outcome_state, result, error,
+                        verification_method, verification_algorithm, verification_key_reference,
+                        EXTRACT(EPOCH FROM verified_at) * 1000 AS verified_at_ms,
                         EXTRACT(EPOCH FROM received_at) * 1000 AS received_at_ms,
                         execution_id, correlation_state, correlation_error,
                         EXTRACT(EPOCH FROM correlated_at) * 1000 AS correlated_at_ms
@@ -335,6 +372,7 @@ impl PostgresExecutionStore {
         let result: Option<serde_json::Value> = row.try_get("result").map_err(row_error)?;
         let error: Option<String> = row.try_get("error").map_err(row_error)?;
         let received_at_ms: f64 = row.try_get("received_at_ms").map_err(row_error)?;
+        let verified_at_ms: f64 = row.try_get("verified_at_ms").map_err(row_error)?;
 
         let provider_row = sqlx::query(
             "SELECT execution_id, request_hash, outcome_state, result, error
@@ -552,6 +590,12 @@ fn decode_callback(row: sqlx::postgres::PgRow) -> OrchestratorResult<ProviderCal
             result: row.try_get("result").map_err(row_error)?,
             error: row.try_get("error").map_err(row_error)?,
             received_at_ms: received_at_ms.max(0.0) as u64,
+            verification: ProviderCallbackVerificationEvidence {
+                method: row.try_get("verification_method").map_err(row_error)?,
+                algorithm: row.try_get("verification_algorithm").map_err(row_error)?,
+                key_reference: row.try_get("verification_key_reference").map_err(row_error)?,
+                verified_at_ms: verified_at_ms.max(0.0) as u64,
+            },
         },
         execution_id: row.try_get("execution_id").map_err(row_error)?,
         correlation_state,
