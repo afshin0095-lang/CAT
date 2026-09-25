@@ -35,9 +35,22 @@ impl ProviderCallbackIngress {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ProviderVerifierLifecycle {
+    Proposed,
+    Active,
+    Deprecated,
+    Revoked,
+}
+
 #[async_trait]
 pub trait ProviderCallbackVerifier: Send + Sync {
     fn provider_name(&self) -> &str;
+
+    fn version(&self) -> u32 {
+        1
+    }
 
     /// Verify provider-specific authenticity and normalize the external payload.
     ///
@@ -49,9 +62,16 @@ pub trait ProviderCallbackVerifier: Send + Sync {
     ) -> OrchestratorResult<ProviderCallback>;
 }
 
+pub struct ProviderCallbackVerifierRegistration {
+    pub provider: String,
+    pub version: u32,
+    pub lifecycle: ProviderVerifierLifecycle,
+    pub verifier: Arc<dyn ProviderCallbackVerifier>,
+}
+
 #[derive(Default, Clone)]
 pub struct ProviderCallbackVerifierRegistry {
-    verifiers: BTreeMap<String, Arc<dyn ProviderCallbackVerifier>>,
+    verifiers: BTreeMap<String, ProviderCallbackVerifierRegistration>,
 }
 
 impl ProviderCallbackVerifierRegistry {
@@ -59,10 +79,23 @@ impl ProviderCallbackVerifierRegistry {
         &mut self,
         verifier: Arc<dyn ProviderCallbackVerifier>,
     ) -> OrchestratorResult<()> {
+        self.register_versioned(verifier, ProviderVerifierLifecycle::Active)
+    }
+
+    pub fn register_versioned(
+        &mut self,
+        verifier: Arc<dyn ProviderCallbackVerifier>,
+        lifecycle: ProviderVerifierLifecycle,
+    ) -> OrchestratorResult<()> {
         let provider = verifier.provider_name().trim();
         if provider.is_empty() || provider.len() > 128 {
             return Err(OrchestratorError::Serialization(
                 "provider verifier name is invalid".into(),
+            ));
+        }
+        if verifier.version() == 0 {
+            return Err(OrchestratorError::Serialization(
+                "provider callback verifier version must be greater than zero".into(),
             ));
         }
         if self.verifiers.contains_key(provider) {
@@ -70,12 +103,27 @@ impl ProviderCallbackVerifierRegistry {
                 "provider callback verifier already registered: {provider}"
             )));
         }
-        self.verifiers.insert(provider.to_owned(), verifier);
+        self.verifiers.insert(
+            provider.to_owned(),
+            ProviderCallbackVerifierRegistration {
+                provider: provider.to_owned(),
+                version: verifier.version(),
+                lifecycle,
+                verifier,
+            },
+        );
         Ok(())
     }
 
     pub fn get(&self, provider: &str) -> Option<Arc<dyn ProviderCallbackVerifier>> {
-        self.verifiers.get(provider).cloned()
+        self.verifiers.get(provider).and_then(|registration| {
+            (registration.lifecycle == ProviderVerifierLifecycle::Active)
+                .then(|| registration.verifier.clone())
+        })
+    }
+
+    pub fn registration(&self, provider: &str) -> Option<&ProviderCallbackVerifierRegistration> {
+        self.verifiers.get(provider)
     }
 
     pub fn names(&self) -> Vec<&str> {
@@ -109,6 +157,18 @@ where
             ))
         })?;
 
+        let registration = self.verifiers.registration(&ingress.provider).ok_or_else(|| {
+            OrchestratorError::InvalidAuthorizationInput(format!(
+                "no callback verifier is registered for provider {}",
+                ingress.provider
+            ))
+        })?;
+        if registration.lifecycle != ProviderVerifierLifecycle::Active {
+            return Err(OrchestratorError::InvalidAuthorizationInput(
+                "provider callback verifier is not active".into(),
+            ));
+        }
+
         if verifier.provider_name() != ingress.provider {
             return Err(OrchestratorError::InvalidAuthorizationInput(
                 "callback verifier/provider routing identity mismatch".into(),
@@ -121,6 +181,7 @@ where
         if callback.callback_id != ingress.callback_id
             || callback.provider != ingress.provider
             || callback.received_at_ms != ingress.received_at_ms
+            || callback.verification.version != registration.version
         {
             return Err(OrchestratorError::Serialization(
                 "provider verifier returned callback identity mismatch".into(),
