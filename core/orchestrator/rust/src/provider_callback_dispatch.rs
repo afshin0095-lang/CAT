@@ -316,6 +316,13 @@ mod tests {
                 result: Some(ingress.body.clone()),
                 error: None,
                 received_at_ms: ingress.received_at_ms,
+                verification: ProviderCallbackVerificationEvidence {
+                    method: "test-verifier".into(),
+                    algorithm: Some("test".into()),
+                    key_reference: Some("test-key".into()),
+                    verified_at_ms: ingress.received_at_ms,
+                    version: 1,
+                },
             })
         }
     }
