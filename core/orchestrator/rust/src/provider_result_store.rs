@@ -68,6 +68,7 @@ impl ExecutionReconciliationStore for PostgresExecutionStore {
         let row = sqlx::query(
             "SELECT invocation_id, agent_id, capability_id, requested_side_effect,
                     required_policies, approval_reference, idempotency_key, correlation_id,
+                    tenant_id, project_id,
                     EXTRACT(EPOCH FROM admitted_at) * 1000 AS admitted_at_ms
              FROM cat_execution_authorizations
              WHERE execution_id = $1",
@@ -307,6 +308,10 @@ fn decode_authorization(
     ));
     let correlation_id =
         CorrelationId::from_uuid(row.try_get("correlation_id").map_err(row_error)?);
+    let tenant_id = cat_kernel::TenantId::from_uuid(
+        row.try_get("tenant_id").map_err(row_error)?,
+    );
+    let project_id: Option<Uuid> = row.try_get("project_id").map_err(row_error)?;
 
     let capability_id = cat_kernel::CapabilityId::new(
         row.try_get::<String, _>("capability_id").map_err(row_error)?,
@@ -336,6 +341,8 @@ fn decode_authorization(
         approval_reference,
         idempotency_key,
         correlation_id,
+        tenant_id,
+        project_id: project_id.map(cat_kernel::EntityId::from_uuid),
         admitted_at_ms: admitted_at_ms.max(0.0) as u64,
     };
 
