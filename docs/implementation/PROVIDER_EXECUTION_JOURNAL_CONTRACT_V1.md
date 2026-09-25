@@ -9,7 +9,7 @@ The provider execution journal preserves append-only evidence for external provi
 ## Invariants
 
 1. Every journal entry belongs to a durable `execution_id`.
-2. Submission and observation identities are deterministic.
+2. Submission and observation identities are deterministic and namespaced by provider.
 3. Duplicate identical journal writes are idempotently suppressed.
 4. A journal identity conflict fails closed.
 5. Provider current-state mutation and journal insertion commit in one PostgreSQL transaction.
