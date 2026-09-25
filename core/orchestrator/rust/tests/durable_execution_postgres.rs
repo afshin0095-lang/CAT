@@ -13,6 +13,7 @@ use cat_orchestrator::{
     ApprovalContext, AsyncPostgresOutbox, AsyncWorkerExecutor, CapabilityAdmission,
     DurableExecutionCoordinator, ExecutionAuditEvidence, ExecutionAttemptStore, ExecutionAuditQuery,
     ExecutionAuditStore, ProviderCallback, ProviderCallbackCorrelationState, ProviderCallbackStore,
+    ProviderCallbackReconciliationWorker,
     PostgresExecutionStore, ReconciliationAction, StepState, WorkflowDefinition,
     WorkflowExecutionReconciler, WorkflowInstance, WorkflowState, WorkflowStep,
     WorkerExecutionInput, WorkerExecutionResult, ProviderExecutionJournalStore, ProviderOutcomeState,
@@ -259,6 +260,45 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
     let reconciler = WorkflowExecutionReconciler::new(&store);
 
     let provider = format!("integration-provider-{workflow_id}");
+
+    let out_of_order_id = Uuid::new_v4();
+    let out_of_order_callback = ProviderCallback {
+        callback_id: out_of_order_id,
+        provider: provider.clone(),
+        provider_execution_id: "remote-out-of-order-1".into(),
+        request_hash: Some("sha256:out-of-order".into()),
+        outcome: ProviderOutcomeState::Succeeded,
+        result: Some(serde_json::json!({"accepted": true, "out_of_order": true})),
+        error: None,
+        received_at_ms: 2_050,
+    };
+    let early = store
+        .ingest_callback(out_of_order_callback)
+        .await
+        .unwrap();
+    assert_eq!(early.correlation_state, ProviderCallbackCorrelationState::Unmatched);
+
+    let callback_worker =
+        ProviderCallbackReconciliationWorker::new(&store, provider.clone(), 10).unwrap();
+    let early_report = callback_worker.run_once(2_075).await.unwrap();
+    assert_eq!(early_report.scanned, 1);
+    assert_eq!(early_report.still_unmatched, 1);
+
+    store
+        .record_provider_submission(
+            execution_id,
+            &provider,
+            "remote-out-of-order-1",
+            "sha256:out-of-order",
+            2_080,
+        )
+        .await
+        .unwrap();
+
+    let replay_report = callback_worker.run_once(2_100).await.unwrap();
+    assert_eq!(replay_report.scanned, 1);
+    assert_eq!(replay_report.correlated, 1);
+
     let callback_id = Uuid::new_v4();
     store
         .record_provider_submission(
@@ -324,7 +364,7 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
         .list_execution_journal(execution_id)
         .await
         .unwrap();
-    assert_eq!(journal.len(), 2);
+    assert_eq!(journal.len(), 3);
     assert_eq!(
         journal[0].event,
         cat_orchestrator::ProviderExecutionJournalEvent::Submitted
