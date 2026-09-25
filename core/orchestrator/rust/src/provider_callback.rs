@@ -24,7 +24,6 @@ pub enum ProviderCallbackReplayDisposition {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ProviderCallbackVerificationEvidence {
     pub method: String,
     pub algorithm: Option<String>,
@@ -303,6 +302,8 @@ impl PostgresExecutionStore {
         let rows = sqlx::query(
             "SELECT callback_sequence, callback_id, provider, provider_execution_id,
                     request_hash, outcome_state, result, error,
+                    verification_method, verification_algorithm, verification_key_reference,
+                    EXTRACT(EPOCH FROM verified_at) * 1000 AS verified_at_ms,
                     EXTRACT(EPOCH FROM received_at) * 1000 AS received_at_ms,
                     execution_id, correlation_state, correlation_error,
                     EXTRACT(EPOCH FROM correlated_at) * 1000 AS correlated_at_ms
@@ -334,7 +335,9 @@ impl PostgresExecutionStore {
         let mut tx = self.pool().begin().await.map_err(db_error)?;
         let row = sqlx::query(
             "SELECT callback_id, provider, provider_execution_id, request_hash, outcome_state,
-                    result, error, EXTRACT(EPOCH FROM received_at) * 1000 AS received_at_ms,
+                    result, error, verification_method, verification_algorithm,
+                    verification_key_reference, EXTRACT(EPOCH FROM verified_at) * 1000 AS verified_at_ms,
+                    EXTRACT(EPOCH FROM received_at) * 1000 AS received_at_ms,
                     execution_id, correlation_state, correlation_error
              FROM cat_provider_execution_callbacks
              WHERE callback_id = $1
@@ -371,6 +374,7 @@ impl PostgresExecutionStore {
         let outcome = parse_outcome(&row.try_get::<String, _>("outcome_state").map_err(row_error)?)?;
         let result: Option<serde_json::Value> = row.try_get("result").map_err(row_error)?;
         let error: Option<String> = row.try_get("error").map_err(row_error)?;
+        let verified_at_ms: f64 = row.try_get("verified_at_ms").map_err(row_error)?;
         let received_at_ms: f64 = row.try_get("received_at_ms").map_err(row_error)?;
         let verified_at_ms: f64 = row.try_get("verified_at_ms").map_err(row_error)?;
 
@@ -643,6 +647,12 @@ mod tests {
             result: None,
             error: None,
             received_at_ms: 1,
+            verification: ProviderCallbackVerificationEvidence {
+                method: "test".into(),
+                algorithm: Some("none".into()),
+                key_reference: Some("test-key".into()),
+                verified_at_ms: 1,
+            },
         };
         assert!(callback.validate().is_err());
     }
