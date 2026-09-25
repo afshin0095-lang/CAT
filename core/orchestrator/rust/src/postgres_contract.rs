@@ -37,6 +37,7 @@ impl PostgresSchemaV1 {
     pub const LEASES: &'static str = "cat_execution_leases";
     pub const AUTHORIZATIONS: &'static str = "cat_execution_authorizations";
     pub const PROVIDER_JOURNAL: &'static str = "cat_provider_execution_journal";
+    pub const PROVIDER_CALLBACKS: &'static str = "cat_provider_execution_callbacks";
     pub const AUDIT_EVENTS: &'static str = "cat_execution_audit_events";
     pub const AUDIT_READ_MODEL: &'static str = "cat_execution_audit_read_model";
 
@@ -119,6 +120,22 @@ CREATE TABLE IF NOT EXISTS cat_provider_execution_journal (
     recorded_at TIMESTAMPTZ NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS cat_provider_execution_callbacks (
+    callback_sequence BIGSERIAL PRIMARY KEY,
+    callback_id UUID NOT NULL UNIQUE,
+    event_key TEXT NOT NULL UNIQUE,
+    provider TEXT NOT NULL,
+    provider_execution_id TEXT NOT NULL,
+    request_hash TEXT,
+    outcome_state TEXT NOT NULL CHECK (outcome_state IN ('succeeded', 'failed', 'unknown')),
+    result JSONB,
+    error TEXT,
+    received_at TIMESTAMPTZ NOT NULL,
+    execution_id UUID REFERENCES cat_execution_attempts(execution_id) ON DELETE SET NULL,
+    correlation_state TEXT NOT NULL CHECK (correlation_state IN ('unmatched', 'correlated')),
+    correlated_at TIMESTAMPTZ
+);
+
 CREATE TABLE IF NOT EXISTS cat_execution_audit_events (
     audit_sequence BIGSERIAL PRIMARY KEY,
     audit_id UUID NOT NULL UNIQUE,
@@ -189,6 +206,7 @@ mod tests {
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::LEASES));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::AUTHORIZATIONS));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::PROVIDER_JOURNAL));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::PROVIDER_CALLBACKS));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::AUDIT_EVENTS));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::AUDIT_READ_MODEL));
     }
