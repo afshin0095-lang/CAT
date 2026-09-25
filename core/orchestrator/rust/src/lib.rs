@@ -35,6 +35,7 @@ mod postgres_contract;
 mod postgres_outbox;
 mod provider_adapter;
 mod provider_callback;
+mod provider_callback_dispatch;
 mod provider_callback_reconciler;
 mod provider_registry;
 mod provider_execution_journal;
@@ -102,6 +103,10 @@ pub use provider_adapter::{
 pub use provider_callback::{
     ProviderCallback, ProviderCallbackCorrelationState, ProviderCallbackRecord,
     ProviderCallbackReplayDisposition, ProviderCallbackReplayResult, ProviderCallbackStore,
+};
+pub use provider_callback_dispatch::{
+    ProviderCallbackDispatchDisposition, ProviderCallbackDispatchResult, ProviderCallbackDispatcher,
+    ProviderCallbackIngress, ProviderCallbackVerifier, ProviderCallbackVerifierRegistry,
 };
 
 pub use provider_callback_reconciler::{
