@@ -158,6 +158,10 @@ CREATE TABLE IF NOT EXISTS cat_provider_execution_callbacks (
     outcome_state TEXT NOT NULL CHECK (outcome_state IN ('succeeded', 'failed', 'unknown')),
     result JSONB,
     error TEXT,
+    verification_method TEXT,
+    verification_algorithm TEXT,
+    verification_key_reference TEXT,
+    verified_at TIMESTAMPTZ,
     received_at TIMESTAMPTZ NOT NULL,
     execution_id UUID,
     correlation_state TEXT NOT NULL CHECK (correlation_state IN ('unmatched', 'correlated', 'rejected')),
@@ -247,6 +251,7 @@ mod tests {
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::AUDIT_READ_MODEL));
         assert!(PostgresSchemaV1::CREATE_SQL.contains("tenant_id UUID"));
         assert!(PostgresSchemaV1::CREATE_SQL.contains("project_id UUID"));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains("verification_method TEXT"));
     }
 
     #[test]
