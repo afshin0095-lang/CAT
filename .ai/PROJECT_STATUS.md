@@ -29,13 +29,13 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Sprint 1 hardening — durable operator audit + provider execution journal
+**Current Task:** Sprint 1 hardening — operator access boundary + provider reconciliation extension
 
 **Primary branch:** `feat/capability-registry-p0` / PR #61
 
-**Status:** Implemented in source contracts, PostgreSQL migrations, and environment-gated integration tests. CI remains the authoritative validator.
+**Status:** Operator audit access is now implemented as executable Rust code. CI remains the authoritative compilation/test validator.
 
-## Completed in this hardening stage
+## Completed in this implementation stage
 
 - `ExecutionAuditEvidence` serializable derived evidence view;
 - transactional append-only `cat_execution_audit_events`;
@@ -45,7 +45,13 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 - transactional provider current-state + journal writes;
 - deterministic provider journal deduplication and multi-provider identity isolation;
 - reconciliation-to-audit persistence bridge;
-- end-to-end coverage for PostgreSQL, EventBus, reconciliation, provider journal, and audit read model.
+- PostgreSQL/EventBus/reconciliation/provider-journal/audit integration coverage;
+- `OperatorPrincipal` and non-secret `AuthenticationEvidence` contracts;
+- explicit operator roles and permissions;
+- deny-by-default `OperatorAccessPolicy`;
+- `AuthorizedAuditService` application boundary before audit storage;
+- explicit elevated permission for read-model rebuild;
+- P0 security tests for disabled principals, incomplete authentication evidence, and unauthorized rebuild.
 
 ## Validation status
 
@@ -55,4 +61,4 @@ Local `cargo` execution remains unavailable in the working sandbox because rust-
 
 # Next Task
 
-Stabilize CI on the latest PR head, then integrate operator authentication/authorization around audit queries and extend provider journaling to callback correlation and stronger execution-result reconciliation.
+Integrate provider callback correlation and stronger result reconciliation, then move operator authorization toward durable identity/session policy and tenant/project/resource scope without bypassing the existing access boundary.
