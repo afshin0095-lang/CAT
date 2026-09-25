@@ -29,20 +29,23 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Sprint 1 hardening — PostgreSQL/EventBus verification + reconciliation/audit evidence consumption
+**Current Task:** Sprint 1 hardening — durable operator audit + provider execution journal
 
 **Primary branch:** `feat/capability-registry-p0` / PR #61
 
-**Status:** Implemented in source contracts and the environment-gated PostgreSQL integration suite. CI remains the authoritative validator.
+**Status:** Implemented in source contracts, PostgreSQL migrations, and environment-gated integration tests. CI remains the authoritative validator.
 
 ## Completed in this hardening stage
 
-- `ExecutionAuditEvidence` serializable derived projection;
-- reconciliation now consumes durable authorization evidence;
-- missing authorization evidence becomes `ManualReview`;
-- PostgreSQL-backed reconciliation now uses the same authorization ledger as the execution-attempt boundary;
-- real PostgreSQL integration coverage for governed durable execution;
-- PostgreSQL outbox → EventBus publication and acknowledgement coverage.
+- `ExecutionAuditEvidence` serializable derived evidence view;
+- transactional append-only `cat_execution_audit_events`;
+- rebuildable latest `cat_execution_audit_read_model`;
+- bounded audit query contract with agent/capability/action filters;
+- append-only `cat_provider_execution_journal`;
+- transactional provider current-state + journal writes;
+- deterministic provider journal deduplication and conflict checks;
+- reconciliation-to-audit persistence bridge;
+- end-to-end coverage for PostgreSQL, EventBus, reconciliation, provider journal, and audit read model.
 
 ## Validation status
 
@@ -52,4 +55,4 @@ Local `cargo` execution remains unavailable in the working sandbox because rust-
 
 # Next Task
 
-Sprint 1 hardening — stabilize CI on the latest PR head, then add durable operator-facing audit storage/read models and stronger provider result journaling.
+Stabilize CI on the latest PR head, then integrate operator authentication/authorization around audit queries and extend provider journaling to callback correlation and stronger execution-result reconciliation.
