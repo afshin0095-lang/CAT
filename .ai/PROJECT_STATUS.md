@@ -29,7 +29,7 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Sprint 1 hardening — operator access boundary + provider reconciliation extension
+**Current Task:** Sprint 1 hardening — operator access + provider callback correlation
 
 **Primary branch:** `feat/capability-registry-p0` / PR #61
 
@@ -51,14 +51,20 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 - deny-by-default `OperatorAccessPolicy`;
 - `AuthorizedAuditService` application boundary before audit storage;
 - explicit elevated permission for read-model rebuild;
-- P0 security tests for disabled principals, incomplete authentication evidence, and unauthorized rebuild.
+- P0 security tests for disabled principals, incomplete authentication evidence, and unauthorized rebuild;
+- durable `ProviderCallback` contract and PostgreSQL callback evidence table;
+- provider callback correlation by provider + provider execution ID;
+- optional callback request-hash verification against durable submission state;
+- unmatched callback retention for later reconciliation;
+- callback-to-provider-result + journal updates in one PostgreSQL transaction;
+- PostgreSQL E2E coverage for correlated, duplicate, and unmatched callbacks.
 
 ## Validation status
 
-**INCOMPLETE — no green final-branch CI result has been observed yet.**
+**INCOMPLETE — the latest code-bearing CI run is still pending; no completed green result has been observed yet.**
 
 Local `cargo` execution remains unavailable in the working sandbox because rust-lang.org/crates.io access is TLS-blocked by the egress proxy. GitHub Actions remains the authoritative compilation/test gate.
 
 # Next Task
 
-Integrate provider callback correlation and stronger result reconciliation, then move operator authorization toward durable identity/session policy and tenant/project/resource scope without bypassing the existing access boundary.
+Strengthen unmatched-callback replay/reconciliation, then move operator authorization toward durable identity/session policy and tenant/project/resource scope without bypassing the existing access boundary.
