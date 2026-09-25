@@ -391,7 +391,6 @@ impl PostgresExecutionStore {
             verified_at_ms: verified_at_ms.max(0.0) as u64,
         };
         verification.validate()?;
-        verification.validate()?;
 
         let provider_row = sqlx::query(
             "SELECT execution_id, request_hash, outcome_state, result, error
@@ -614,6 +613,7 @@ fn decode_callback(row: sqlx::postgres::PgRow) -> OrchestratorResult<ProviderCal
                 method: row.try_get("verification_method").map_err(row_error)?,
                 algorithm: row.try_get("verification_algorithm").map_err(row_error)?,
                 key_reference: row.try_get("verification_key_reference").map_err(row_error)?,
+                version: row.try_get::<i32, _>("verification_version").map_err(row_error)?.max(0) as u32,
                 verified_at_ms: verified_at_ms.max(0.0) as u64,
             },
         },
