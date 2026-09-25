@@ -88,6 +88,7 @@ impl ProviderCallbackVerifier for RecordingCallbackVerifier {
                 algorithm: Some("test".into()),
                 key_reference: Some("integration-key".into()),
                 verified_at_ms: ingress.received_at_ms,
+                version: 1,
             },
         })
     }
