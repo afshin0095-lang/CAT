@@ -39,6 +39,176 @@ pub struct ProviderExecutionJournalEntry {
     pub recorded_at_ms: u64,
 }
 
+pub(crate) fn journal_event_key(
+    event: ProviderExecutionJournalEvent,
+    provider_execution_id: &str,
+    outcome: Option<ProviderOutcomeState>,
+    recorded_at_ms: u64,
+) -> String {
+    match event {
+        ProviderExecutionJournalEvent::Submitted => {
+            format!("submission:{provider_execution_id}")
+        }
+        ProviderExecutionJournalEvent::Observed => format!(
+            "observation:{provider_execution_id}:{}:{}",
+            outcome.map(ProviderOutcomeState::as_str).unwrap_or("none"),
+            recorded_at_ms
+        ),
+    }
+}
+
+pub(crate) async fn insert_provider_journal_tx(
+    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    execution_id: Uuid,
+    event: ProviderExecutionJournalEvent,
+    provider: &str,
+    provider_execution_id: &str,
+    request_hash: &str,
+    outcome: Option<ProviderOutcomeState>,
+    result: Option<serde_json::Value>,
+    error: Option<&str>,
+    recorded_at_ms: u64,
+) -> OrchestratorResult<ProviderExecutionJournalEntry> {
+    if execution_id.is_nil()
+        || provider.trim().is_empty()
+        || provider_execution_id.trim().is_empty()
+        || request_hash.trim().is_empty()
+    {
+        return Err(OrchestratorError::Serialization(
+            "invalid provider journal identity".into(),
+        ));
+    }
+
+    let event_key =
+        journal_event_key(event, provider_execution_id, outcome, recorded_at_ms);
+    let journal_id = Uuid::now_v7();
+
+    let inserted = sqlx::query(
+        "INSERT INTO cat_provider_execution_journal
+         (journal_id, execution_id, event_key, event_type, provider,
+          provider_execution_id, request_hash, outcome_state, result, error, recorded_at)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,TO_TIMESTAMP($11 / 1000.0))
+         ON CONFLICT (event_key) DO NOTHING
+         RETURNING journal_sequence",
+    )
+    .bind(journal_id)
+    .bind(execution_id)
+    .bind(&event_key)
+    .bind(event.as_str())
+    .bind(provider)
+    .bind(provider_execution_id)
+    .bind(request_hash)
+    .bind(outcome.map(ProviderOutcomeState::as_str))
+    .bind(&result)
+    .bind(error)
+    .bind(recorded_at_ms as f64)
+    .fetch_optional(&mut **tx)
+    .await
+    .map_err(db_error)?;
+
+    let (journal_id, journal_sequence) = if let Some(row) = inserted {
+        (
+            journal_id,
+            row.try_get::<i64, _>("journal_sequence")
+                .map_err(row_error)?,
+        )
+    } else {
+        let row = sqlx::query(
+            "SELECT journal_sequence, journal_id, execution_id, event_key, event_type,
+                    provider, provider_execution_id, request_hash, outcome_state, result, error,
+                    EXTRACT(EPOCH FROM recorded_at) * 1000 AS recorded_at_ms
+             FROM cat_provider_execution_journal
+             WHERE event_key = $1",
+        )
+        .bind(&event_key)
+        .fetch_one(&mut **tx)
+        .await
+        .map_err(db_error)?;
+
+        let existing_execution: Uuid = row.try_get("execution_id").map_err(row_error)?;
+        let existing_event_type: String = row.try_get("event_type").map_err(row_error)?;
+        let existing_provider: String = row.try_get("provider").map_err(row_error)?;
+        let existing_provider_execution_id: String =
+            row.try_get("provider_execution_id").map_err(row_error)?;
+        let existing_request_hash: String =
+            row.try_get("request_hash").map_err(row_error)?;
+        let existing_outcome: Option<String> =
+            row.try_get("outcome_state").map_err(row_error)?;
+        let existing_result: Option<serde_json::Value> =
+            row.try_get("result").map_err(row_error)?;
+        let existing_error: Option<String> =
+            row.try_get("error").map_err(row_error)?;
+
+        if existing_execution != execution_id
+            || existing_event_type != event.as_str()
+            || existing_provider != provider
+            || existing_provider_execution_id != provider_execution_id
+            || existing_request_hash != request_hash
+            || existing_outcome.as_deref() != outcome.map(ProviderOutcomeState::as_str)
+            || existing_result != result
+            || existing_error.as_deref() != error
+        {
+            return Err(OrchestratorError::Serialization(
+                "provider journal event identity conflict".into(),
+            ));
+        }
+
+        (
+            row.try_get("journal_id").map_err(row_error)?,
+            row.try_get("journal_sequence").map_err(row_error)?,
+        )
+    };
+
+    Ok(ProviderExecutionJournalEntry {
+        journal_sequence,
+        journal_id,
+        execution_id,
+        event_key,
+        event,
+        provider: provider.to_owned(),
+        provider_execution_id: provider_execution_id.to_owned(),
+        request_hash: request_hash.to_owned(),
+        outcome,
+        result,
+        error: error.map(str::to_owned),
+        recorded_at_ms,
+    })
+}
+
+pub async fn _unused_guard() {}
+
+impl PostgresExecutionStore {
+    async fn append_provider_journal(
+        &self,
+        execution_id: Uuid,
+        event: ProviderExecutionJournalEvent,
+        provider: &str,
+        provider_execution_id: &str,
+        request_hash: &str,
+        outcome: Option<ProviderOutcomeState>,
+        result: Option<serde_json::Value>,
+        error: Option<&str>,
+        recorded_at_ms: u64,
+    ) -> OrchestratorResult<ProviderExecutionJournalEntry> {
+        let mut tx = self.pool().begin().await.map_err(db_error)?;
+        let entry = insert_provider_journal_tx(
+            &mut tx,
+            execution_id,
+            event,
+            provider,
+            provider_execution_id,
+            request_hash,
+            outcome,
+            result,
+            error,
+            recorded_at_ms,
+        )
+        .await?;
+        tx.commit().await.map_err(db_error)?;
+        Ok(entry)
+    }
+}
+
 #[async_trait]
 pub trait ProviderExecutionJournalStore: Send + Sync {
     async fn append_submission(
@@ -66,127 +236,6 @@ pub trait ProviderExecutionJournalStore: Send + Sync {
         &self,
         execution_id: Uuid,
     ) -> OrchestratorResult<Vec<ProviderExecutionJournalEntry>>;
-}
-
-impl PostgresExecutionStore {
-    async fn append_provider_journal(
-        &self,
-        execution_id: Uuid,
-        event: ProviderExecutionJournalEvent,
-        provider: &str,
-        provider_execution_id: &str,
-        request_hash: &str,
-        outcome: Option<ProviderOutcomeState>,
-        result: Option<serde_json::Value>,
-        error: Option<&str>,
-        recorded_at_ms: u64,
-    ) -> OrchestratorResult<ProviderExecutionJournalEntry> {
-        if execution_id.is_nil()
-            || provider.trim().is_empty()
-            || provider_execution_id.trim().is_empty()
-            || request_hash.trim().is_empty()
-        {
-            return Err(OrchestratorError::Serialization(
-                "invalid provider journal identity".into(),
-            ));
-        }
-
-        let event_key = match event {
-            ProviderExecutionJournalEvent::Submitted => {
-                format!("submission:{provider_execution_id}")
-            }
-            ProviderExecutionJournalEvent::Observed => format!(
-                "observation:{provider_execution_id}:{}:{}",
-                outcome
-                    .map(|value| value.as_str())
-                    .unwrap_or("none"),
-                recorded_at_ms
-            ),
-        };
-
-        let mut tx = self.pool().begin().await.map_err(db_error)?;
-        let journal_id = Uuid::now_v7();
-        let inserted = sqlx::query(
-            "INSERT INTO cat_provider_execution_journal
-             (journal_id, execution_id, event_key, event_type, provider,
-              provider_execution_id, request_hash, outcome_state, result, error, recorded_at)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,TO_TIMESTAMP($11 / 1000.0))
-             ON CONFLICT (event_key) DO NOTHING
-             RETURNING journal_sequence",
-        )
-        .bind(journal_id)
-        .bind(execution_id)
-        .bind(&event_key)
-        .bind(event.as_str())
-        .bind(provider)
-        .bind(provider_execution_id)
-        .bind(request_hash)
-        .bind(outcome.map(|value| value.as_str()))
-        .bind(&result)
-        .bind(error)
-        .bind(recorded_at_ms as f64)
-        .fetch_optional(&mut *tx)
-        .await
-        .map_err(db_error)?;
-
-        let (journal_id, journal_sequence) = if let Some(row) = inserted {
-            (
-                journal_id,
-                row.try_get::<i64, _>("journal_sequence")
-                    .map_err(row_error)?,
-            )
-        } else {
-            let row = sqlx::query(
-                "SELECT journal_sequence, journal_id, execution_id, event_key, event_type,
-                        provider, provider_execution_id, request_hash, outcome_state, result, error,
-                        EXTRACT(EPOCH FROM recorded_at) * 1000 AS recorded_at_ms
-                 FROM cat_provider_execution_journal
-                 WHERE event_key = $1",
-            )
-            .bind(&event_key)
-            .fetch_one(&mut *tx)
-            .await
-            .map_err(db_error)?;
-
-            let existing_execution: Uuid = row.try_get("execution_id").map_err(row_error)?;
-            let existing_provider: String = row.try_get("provider").map_err(row_error)?;
-            let existing_provider_execution_id: String =
-                row.try_get("provider_execution_id").map_err(row_error)?;
-            let existing_request_hash: String =
-                row.try_get("request_hash").map_err(row_error)?;
-            if existing_execution != execution_id
-                || existing_provider != provider
-                || existing_provider_execution_id != provider_execution_id
-                || existing_request_hash != request_hash
-            {
-                return Err(OrchestratorError::Serialization(
-                    "provider journal event identity conflict".into(),
-                ));
-            }
-
-            (
-                row.try_get("journal_id").map_err(row_error)?,
-                row.try_get("journal_sequence").map_err(row_error)?,
-            )
-        };
-
-        tx.commit().await.map_err(db_error)?;
-
-        Ok(ProviderExecutionJournalEntry {
-            journal_sequence,
-            journal_id,
-            execution_id,
-            event_key,
-            event,
-            provider: provider.to_owned(),
-            provider_execution_id: provider_execution_id.to_owned(),
-            request_hash: request_hash.to_owned(),
-            outcome,
-            result,
-            error: error.map(str::to_owned),
-            recorded_at_ms,
-        })
-    }
 }
 
 #[async_trait]
@@ -261,12 +310,11 @@ impl ProviderExecutionJournalStore for PostgresExecutionStore {
     }
 }
 
-fn decode_journal(row: sqlx::postgres::PgRow) -> OrchestratorResult<ProviderExecutionJournalEntry> {
-    let event = match row
-        .try_get::<String, _>("event_type")
-        .map_err(row_error)?
-        .as_str()
-    {
+fn decode_journal(
+    row: sqlx::postgres::PgRow,
+) -> OrchestratorResult<ProviderExecutionJournalEntry> {
+    let event_type: String = row.try_get("event_type").map_err(row_error)?;
+    let event = match event_type.as_str() {
         "submitted" => ProviderExecutionJournalEvent::Submitted,
         "observed" => ProviderExecutionJournalEvent::Observed,
         other => {
