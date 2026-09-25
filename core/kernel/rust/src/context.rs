@@ -11,6 +11,7 @@ pub struct ExecutionContext {
     pub tenant_id: TenantId,
     pub correlation_id: CorrelationId,
     /// Optional project/workspace scope within the tenant.
+    #[serde(default)]
     pub project_id: Option<EntityId>,
     pub causation_id: Option<CausationId>,
     pub actor_id: EntityId,
