@@ -25,7 +25,7 @@ where
     pub fn new(store: &'a S, provider: impl Into<String>, batch_size: u32) -> OrchestratorResult<Self> {
         let provider = provider.into();
         if provider.trim().is_empty() {
-            return Err(crate::OrchestratorError::InvalidAuthorizationInput(
+            return Err(crate::OrchestratorError::Serialization(
                 "provider callback reconciliation requires a provider".into(),
             ));
         }
@@ -33,7 +33,7 @@ where
         Ok(Self {
             store,
             provider,
-            batch_size: batch_size.clamp(1, 500),
+            batch_size: normalize_batch_size(batch_size),
         })
     }
 
@@ -75,6 +75,10 @@ where
     }
 }
 
+fn normalize_batch_size(value: u32) -> u32 {
+    value.clamp(1, 500)
+}
+
 impl ProviderCallbackReconciliationReport {
     pub fn record(result: &ProviderCallbackReplayResult) -> Self {
         let mut report = Self { scanned: 1, ..Default::default() };
@@ -94,35 +98,8 @@ mod tests {
 
     #[test]
     fn batch_size_is_bounded() {
-        assert_eq!(ProviderCallbackReconciliationWorker::<DummyStore>::normalize_batch_size(0), 1);
-        assert_eq!(ProviderCallbackReconciliationWorker::<DummyStore>::normalize_batch_size(900), 500);
+        assert_eq!(normalize_batch_size(0), 1);
+        assert_eq!(normalize_batch_size(900), 500);
     }
 
-    struct DummyStore;
-
-    #[async_trait::async_trait]
-    impl ProviderCallbackStore for DummyStore {
-        async fn ingest_callback(
-            &self,
-            _callback: crate::ProviderCallback,
-        ) -> OrchestratorResult<crate::ProviderCallbackRecord> {
-            unreachable!()
-        }
-
-        async fn list_unmatched_callbacks(
-            &self,
-            _provider: &str,
-            _limit: u32,
-        ) -> OrchestratorResult<Vec<crate::ProviderCallbackRecord>> {
-            unreachable!()
-        }
-
-        async fn reconcile_unmatched_callback(
-            &self,
-            _callback_id: uuid::Uuid,
-            _reconciled_at_ms: u64,
-        ) -> OrchestratorResult<crate::ProviderCallbackReplayResult> {
-            unreachable!()
-        }
-    }
 }
