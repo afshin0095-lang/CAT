@@ -41,16 +41,17 @@ pub struct ProviderExecutionJournalEntry {
 
 pub(crate) fn journal_event_key(
     event: ProviderExecutionJournalEvent,
+    provider: &str,
     provider_execution_id: &str,
     outcome: Option<ProviderOutcomeState>,
     recorded_at_ms: u64,
 ) -> String {
     match event {
         ProviderExecutionJournalEvent::Submitted => {
-            format!("submission:{provider_execution_id}")
+            format!("submission:{provider}:{provider_execution_id}")
         }
         ProviderExecutionJournalEvent::Observed => format!(
-            "observation:{provider_execution_id}:{}:{}",
+            "observation:{provider}:{provider_execution_id}:{}:{}",
             outcome.map(ProviderOutcomeState::as_str).unwrap_or("none"),
             recorded_at_ms
         ),
@@ -80,7 +81,7 @@ pub(crate) async fn insert_provider_journal_tx(
     }
 
     let event_key =
-        journal_event_key(event, provider_execution_id, outcome, recorded_at_ms);
+        journal_event_key(event, provider, provider_execution_id, outcome, recorded_at_ms);
     let journal_id = Uuid::now_v7();
 
     let inserted = sqlx::query(
