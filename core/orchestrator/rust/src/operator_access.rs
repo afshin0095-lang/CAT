@@ -269,10 +269,13 @@ where
             ));
         }
 
-        self.store
+        let event = self
+            .store
             .load_latest_audit(execution_id)
             .await?
-            .ok_or_else(|| OrchestratorError::Serialization("audit event not found".into()))
+            .ok_or_else(|| OrchestratorError::Serialization("audit event not found".into()))?;
+        self.assert_event_scope(principal, &event)?;
+        Ok(event)
     }
 
     pub async fn query(
@@ -296,6 +299,11 @@ where
         principal: &OperatorPrincipal,
     ) -> OrchestratorResult<u64> {
         self.authorize(principal, OperatorPermission::RebuildAuditReadModel)?;
+        if principal.scope.is_some() {
+            return Err(OrchestratorError::InvalidAuthorizationInput(
+                "scoped operators cannot rebuild the global audit read model".into(),
+            ));
+        }
         self.store.rebuild_audit_read_model().await
     }
 
@@ -324,6 +332,28 @@ where
             query.project_id = Some(project_uuid);
         }
         Ok(query)
+    }
+
+    fn assert_event_scope(
+        &self,
+        principal: &OperatorPrincipal,
+        event: &ExecutionAuditEvent,
+    ) -> OrchestratorResult<()> {
+        let Some(scope) = principal.scope.as_ref() else {
+            return Ok(());
+        };
+        let evidence_scope = &event.evidence.authorization;
+        if evidence_scope.tenant_id != scope.tenant_id {
+            return Err(OrchestratorError::InvalidAuthorizationInput(
+                "audit execution is outside operator tenant scope".into(),
+            ));
+        }
+        if scope.project_id.is_some() && evidence_scope.project_id != scope.project_id {
+            return Err(OrchestratorError::InvalidAuthorizationInput(
+                "audit execution is outside operator project scope".into(),
+            ));
+        }
+        Ok(())
     }
 
     fn authorize(
