@@ -1,5 +1,4 @@
 use async_trait::async_trait;
-use serde::{Deserialize, Serialize};
 use sqlx::Row;
 use uuid::Uuid;
 
