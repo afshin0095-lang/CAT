@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use cat_kernel::{EntityId, TenantId};
 use uuid::Uuid;
 
 use crate::{
@@ -50,11 +51,51 @@ impl AuthenticationEvidence {
 
 /// Authenticated principal presented to the operator authorization boundary.
 #[derive(Clone, Debug, Eq, PartialEq)]
+pub struct OperatorScope {
+    pub tenant_id: TenantId,
+    pub project_id: Option<EntityId>,
+    pub resources: Vec<String>,
+}
+
+impl OperatorScope {
+    pub fn new(tenant_id: TenantId, project_id: Option<EntityId>) -> OrchestratorResult<Self> {
+        if tenant_id.as_uuid().is_nil() {
+            return Err(OrchestratorError::InvalidAuthorizationInput(
+                "operator tenant scope must not be nil".into(),
+            ));
+        }
+        Ok(Self {
+            tenant_id,
+            project_id,
+            resources: Vec::new(),
+        })
+    }
+
+    pub fn with_resource(mut self, resource: impl Into<String>) -> OrchestratorResult<Self> {
+        let resource = resource.into();
+        if resource.trim().is_empty() || resource.len() > 512 {
+            return Err(OrchestratorError::InvalidAuthorizationInput(
+                "operator resource scope is invalid".into(),
+            ));
+        }
+        self.resources.push(resource);
+        Ok(self)
+    }
+
+    pub fn allows_resource(&self, resource: &str) -> bool {
+        self.resources.is_empty() || self.resources.iter().any(|allowed| {
+            allowed == "*" || allowed == resource || (allowed.ends_with("/*") && resource.starts_with(&allowed[..allowed.len() - 1]))
+        })
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct OperatorPrincipal {
     pub principal_id: Uuid,
     pub role: OperatorRole,
     pub enabled: bool,
     pub authentication: AuthenticationEvidence,
+    pub scope: Option<OperatorScope>,
 }
 
 impl OperatorPrincipal {
@@ -74,7 +115,13 @@ impl OperatorPrincipal {
             role,
             enabled: true,
             authentication,
+            scope: None,
         })
+    }
+
+    pub fn with_scope(mut self, scope: OperatorScope) -> Self {
+        self.scope = Some(scope);
+        self
     }
 
     pub fn disabled(mut self) -> Self {
@@ -234,6 +281,7 @@ where
         query: ExecutionAuditQuery,
     ) -> OrchestratorResult<Vec<ExecutionAuditEvent>> {
         self.authorize(principal, OperatorPermission::ReadAuditEvidence)?;
+        let query = self.apply_scope(principal, query)?;
         if query.limit == 0 {
             return Err(OrchestratorError::InvalidAuthorizationInput(
                 "audit query limit must be greater than zero".into(),
@@ -249,6 +297,33 @@ where
     ) -> OrchestratorResult<u64> {
         self.authorize(principal, OperatorPermission::RebuildAuditReadModel)?;
         self.store.rebuild_audit_read_model().await
+    }
+
+    fn apply_scope(
+        &self,
+        principal: &OperatorPrincipal,
+        mut query: ExecutionAuditQuery,
+    ) -> OrchestratorResult<ExecutionAuditQuery> {
+        let Some(scope) = principal.scope.as_ref() else {
+            return Ok(query);
+        };
+        let tenant_id = scope.tenant_id.as_uuid();
+        if query.tenant_id.is_some_and(|value| value != tenant_id) {
+            return Err(OrchestratorError::InvalidAuthorizationInput(
+                "audit query crosses operator tenant scope".into(),
+            ));
+        }
+        query.tenant_id = Some(tenant_id);
+        if let Some(project_id) = scope.project_id {
+            let project_uuid = project_id.as_uuid();
+            if query.project_id.is_some_and(|value| value != project_uuid) {
+                return Err(OrchestratorError::InvalidAuthorizationInput(
+                    "audit query crosses operator project scope".into(),
+                ));
+            }
+            query.project_id = Some(project_uuid);
+        }
+        Ok(query)
     }
 
     fn authorize(
@@ -368,6 +443,7 @@ mod tests {
                 session_id: Uuid::new_v4(),
                 authenticated_at_ms: 1,
             },
+            scope: None,
         };
 
         let decision =
