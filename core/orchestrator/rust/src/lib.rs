@@ -2,6 +2,7 @@
 #![deny(clippy::all)]
 
 mod audit;
+mod audit_store;
 mod compensation;
 mod dispatch_result;
 mod durable;
@@ -33,6 +34,7 @@ mod postgres_outbox;
 mod provider_adapter;
 mod provider_registry;
 mod provider_result;
+mod provider_execution_journal;
 mod provider_result_store;
 mod provider_selection;
 mod reconciliation;
@@ -47,6 +49,7 @@ pub mod validation_gates;
 mod worker;
 
 pub use audit::ExecutionAuditEvidence;
+pub use audit_store::{ExecutionAuditEvent, ExecutionAuditQuery, ExecutionAuditStore};
 pub use compensation::{begin_compensation, compensation_order};
 pub use dispatch_result::{DispatchAction, DispatchResult};
 pub use durable::{
@@ -87,6 +90,9 @@ pub use provider_adapter::{
     idempotency_key as provider_idempotency_key, normalize_provider_outcome,
 };
 pub use provider_registry::{ProviderAdapterRegistry, ProviderCapability, ProviderRegistration};
+pub use provider_execution_journal::{
+    ProviderExecutionJournalEntry, ProviderExecutionJournalEvent, ProviderExecutionJournalStore,
+};
 pub use provider_result::{ProviderExecutionRecord, ProviderOutcomeState, ReconciliationAction};
 pub use provider_selection::{
     ProviderScore, ProviderSelection, ProviderSelectionEngine, ProviderSelectionRequest,
