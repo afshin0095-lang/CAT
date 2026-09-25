@@ -5,11 +5,12 @@ use cat_kernel::{
     TimestampMs,
 };
 use cat_orchestrator::{
-    AsyncRevalidationRequestStore, AsyncWorkerExecutor, ExecutionAuthorization, ExecutionIntent,
-    WorkerExecutionInput, WorkerExecutionResult, WorkflowDefinition, WorkflowInstance,
-    WorkflowState, WorkflowStep, StepState, RevalidationExecutionResult, OrchestratorError,
-    OrchestratorResult, WorkflowRegistrationStore, DurableExecutionCoordinator, CapabilityAdmission,
-    ApprovalContext, DispatchResult, ExecutionAttemptStore, AsyncPostgresExecutionStore,
+    AsyncWorkerExecutor, ExecutionAuthorization, WorkerExecutionInput, WorkerExecutionResult,
+    WorkflowDefinition, WorkflowInstance, WorkflowState, WorkflowStep, StepState,
+    WorkflowRegistrationStore, OrchestratorError, OrchestratorResult,
+};
+use crate::{
+    AsyncRevalidationRequestStore, RevalidationExecutionResult, RevalidationRequestRecord,
 };
 use serde_json::json;
 use uuid::Uuid;
@@ -76,7 +77,7 @@ pub struct GovernedRevalidationPlan {
 
 impl GovernedRevalidationPlan {
     pub fn build(
-        request: &crate::RevalidationRequestRecord,
+        request: &RevalidationRequestRecord,
         tenant_id: TenantId,
         project_id: Option<EntityId>,
         agent_id: AgentId,
@@ -108,16 +109,20 @@ impl GovernedRevalidationPlan {
             },
         };
 
+        let mut execution_context = ExecutionContext::new(
+            tenant_id,
+            CorrelationId::new(),
+            EntityId::from_uuid(request.request.opportunity_id),
+            TimestampMs::new(request.request.requested_at_ms),
+        );
+        if let Some(project_id) = project_id {
+            execution_context = execution_context.with_project(project_id);
+        }
+
         let invocation = InvocationRequest::new(
             agent_id,
             capability.as_str(),
-            ExecutionContext::new(
-                tenant_id,
-                CorrelationId::new(),
-                EntityId::from_uuid(request.request.opportunity_id),
-                TimestampMs::new(request.request.requested_at_ms),
-            )
-            .with_project(project_id.unwrap_or_else(EntityId::new)),
+            execution_context,
             IdempotencyKey::new(format!(
                 "affiliate-revalidation:{}",
                 request.request.request_id
@@ -159,7 +164,7 @@ impl GovernedRevalidationPlan {
 pub trait GovernedRevalidationExecutor: Send + Sync {
     async fn revalidate(
         &self,
-        request: &crate::RevalidationRequestRecord,
+        request: &RevalidationRequestRecord,
         authorization: &ExecutionAuthorization,
     ) -> Result<RevalidationExecutionResult, String>;
 }
