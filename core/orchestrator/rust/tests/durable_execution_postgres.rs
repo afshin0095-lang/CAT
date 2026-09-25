@@ -84,7 +84,8 @@ fn governed_fixture() -> (
             CorrelationId::new(),
             EntityId::new(),
             TimestampMs::new(1000),
-        ),
+        )
+        .with_project(project_id),
         IdempotencyKey::new(format!("integration-{}", Uuid::now_v7())).unwrap(),
         serde_json::json!({"input": true}),
         SideEffectClass::S0,
@@ -92,6 +93,7 @@ fn governed_fixture() -> (
     )
     .unwrap();
 
+    let project_id = EntityId::new();
     let workflow_id = Uuid::now_v7();
     let workflow = WorkflowInstance {
         id: workflow_id,
@@ -409,11 +411,12 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
     sqlx::query(
         "INSERT INTO cat_operator_identities
          (principal_id, external_subject, role, tenant_id, project_id, resource_scopes, enabled)
-         VALUES ($1,$2,'operator',$3,NULL,$4,TRUE)"
+         VALUES ($1,$2,'operator',$3,$4,$5,TRUE)"
     )
     .bind(operator_id)
     .bind(format!("integration-subject-{operator_id}"))
     .bind(tenant_id)
+    .bind(authorization.project_id.map(|value| value.as_uuid()))
     .bind(serde_json::json!(["audit/read"]))
     .execute(&pool)
     .await
@@ -453,6 +456,22 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
         .await
         .unwrap();
     assert_eq!(scoped_latest.execution_id, execution_id);
+
+    let wrong_project = Uuid::new_v4();
+    assert!(audit_service
+        .query_for_session(
+            &store,
+            session_id,
+            4_000,
+            ExecutionAuditQuery {
+                tenant_id: Some(tenant_id),
+                project_id: Some(wrong_project),
+                limit: 10,
+                ..Default::default()
+            },
+        )
+        .await
+        .is_err());
 
     store.revoke_session(session_id, 4_500).await.unwrap();
     assert!(audit_service
