@@ -33,6 +33,7 @@ mod postgres;
 mod postgres_contract;
 mod postgres_outbox;
 mod provider_adapter;
+mod provider_callback;
 mod provider_registry;
 mod provider_execution_journal;
 mod provider_result;
@@ -83,8 +84,8 @@ pub use model::{StepState, WorkflowDefinition, WorkflowInstance, WorkflowState, 
 pub use monitoring_workflow::{DailyMonitoringRun, MonitoringRunState};
 pub use operator_access::{
     AuthenticationEvidence, AuthorizedAuditReader, AuthorizedAuditService, OperatorAccessPolicy,
-    OperatorAuthorizationDecision, OperatorAuthorizationOutcome, OperatorPermission, OperatorPrincipal,
-    OperatorRole,
+    OperatorAuthorizationDecision, OperatorAuthorizationOutcome, OperatorPermission,
+    OperatorPrincipal, OperatorRole,
 };
 pub use outbox::{DurableOutboxStore, InMemoryDurableOutbox, OutboxDisposition, OutboxRecord};
 pub use outbox_dispatcher::{OutboxDispatchOutcome, OutboxDispatcher};
@@ -94,6 +95,10 @@ pub use postgres_outbox::{AsyncPostgresOutbox, PostgresOutboxDisposition, Postgr
 pub use provider_adapter::{
     ProviderExecutionAdapter, ProviderExecutionRequest, ProviderExecutionSubmission,
     idempotency_key as provider_idempotency_key, normalize_provider_outcome,
+};
+pub use provider_callback::{
+    ProviderCallback, ProviderCallbackCorrelationState, ProviderCallbackRecord,
+    ProviderCallbackStore,
 };
 pub use provider_registry::{ProviderAdapterRegistry, ProviderCapability, ProviderRegistration};
 pub use provider_execution_journal::{
