@@ -62,6 +62,7 @@ pub trait ProviderCallbackVerifier: Send + Sync {
     ) -> OrchestratorResult<ProviderCallback>;
 }
 
+#[derive(Clone)]
 pub struct ProviderCallbackVerifierRegistration {
     pub provider: String,
     pub version: u32,
