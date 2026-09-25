@@ -7,6 +7,7 @@ use uuid::Uuid;
 
 use crate::{
     OrchestratorError, OrchestratorResult, ProviderCallback, ProviderCallbackRecord,
+    ProviderCallbackVerificationEvidence,
     ProviderCallbackStore, ProviderOutcomeState,
 };
 
