@@ -229,3 +229,66 @@ fn row_error(error: sqlx::Error) -> OrchestratorError {
 fn json_error(error: serde_json::Error) -> OrchestratorError {
     OrchestratorError::Serialization(format!("operator identity JSON error: {error}"))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn valid_session_is_accepted_at_boundary() {
+        let session = OperatorSessionRecord {
+            session_id: Uuid::new_v4(),
+            principal_id: Uuid::new_v4(),
+            auth_method: "oidc".into(),
+            issued_at_ms: 1_000,
+            expires_at_ms: 2_000,
+            revoked_at_ms: None,
+        };
+        assert!(session.validate_at(1_500).is_ok());
+    }
+
+    #[test]
+    fn expired_session_is_rejected() {
+        let session = OperatorSessionRecord {
+            session_id: Uuid::new_v4(),
+            principal_id: Uuid::new_v4(),
+            auth_method: "oidc".into(),
+            issued_at_ms: 1_000,
+            expires_at_ms: 2_000,
+            revoked_at_ms: None,
+        };
+        assert!(session.validate_at(2_000).is_err());
+    }
+
+    #[test]
+    fn revoked_session_is_rejected() {
+        let session = OperatorSessionRecord {
+            session_id: Uuid::new_v4(),
+            principal_id: Uuid::new_v4(),
+            auth_method: "oidc".into(),
+            issued_at_ms: 1_000,
+            expires_at_ms: 3_000,
+            revoked_at_ms: Some(2_000),
+        };
+        assert!(session.validate_at(2_000).is_err());
+    }
+
+    #[test]
+    fn identity_builds_scoped_principal_without_credentials() {
+        let tenant = TenantId::new();
+        let identity = OperatorIdentityRecord {
+            principal_id: Uuid::new_v4(),
+            external_subject: "subject".into(),
+            role: OperatorRole::Auditor,
+            tenant_id: tenant,
+            project_id: Some(EntityId::new()),
+            resources: vec!["audit/read".into()],
+            enabled: true,
+        };
+        let principal = identity
+            .to_principal(AuthenticationEvidence::new("oidc", Uuid::new_v4(), 1_000).unwrap())
+            .unwrap();
+        assert_eq!(principal.scope.as_ref().unwrap().tenant_id, tenant);
+        assert!(principal.scope.as_ref().unwrap().allows_resource("audit/read"));
+    }
+}
