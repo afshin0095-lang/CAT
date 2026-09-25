@@ -305,7 +305,7 @@ impl ExecutionAuditStore for PostgresExecutionStore {
             "INSERT INTO cat_execution_audit_read_model
              (execution_id, event_key, workflow_id, step_id, attempt, status, action, agent_id,
               capability_id, requested_side_effect, approval_reference, correlation_id,
-              recorded_at, source_audit_sequence, evidence)
+              tenant_id, project_id, recorded_at, source_audit_sequence, evidence)
              SELECT DISTINCT ON (execution_id)
                     execution_id, event_key, workflow_id, step_id, attempt, status, action, agent_id,
                     capability_id, requested_side_effect, approval_reference, correlation_id,
