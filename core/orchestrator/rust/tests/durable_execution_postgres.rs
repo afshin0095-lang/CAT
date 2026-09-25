@@ -592,6 +592,11 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
         .await
         .is_err());
 
+    sqlx::query("DELETE FROM cat_operator_authorization_decisions WHERE principal_id = $1")
+        .bind(operator_id)
+        .execute(&pool)
+        .await
+        .unwrap();
     sqlx::query("DELETE FROM cat_operator_sessions WHERE session_id = $1")
         .bind(session_id)
         .execute(&pool)
