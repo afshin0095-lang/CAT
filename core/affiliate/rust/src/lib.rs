@@ -117,8 +117,10 @@ pub use revalidation_execution::{
     RevalidationExecutionResult, RevalidationExecutor, execution_request_for,
 };
 pub use governed_revalidation::{
-    AffiliateRevalidationWorker, GovernedRevalidationExecutor, GovernedRevalidationPlan,
-    REVALIDATION_CAPABILITY_ID, REVALIDATION_WORKFLOW_TYPE, register_revalidation_workflow,
+    AffiliateRevalidationWorker, FixedRevalidationScopeResolver, GovernedRevalidationCoordinator,
+    GovernedRevalidationExecutor, GovernedRevalidationPlan, GovernedRevalidationRunReport,
+    RevalidationExecutionScope, RevalidationScopeResolver, REVALIDATION_CAPABILITY_ID,
+    REVALIDATION_WORKFLOW_TYPE, register_revalidation_capability, register_revalidation_workflow,
     revalidation_capability_contract, revalidation_capability_id,
 };
 pub use opportunity_revalidation::{
