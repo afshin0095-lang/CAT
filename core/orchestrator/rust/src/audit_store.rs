@@ -151,12 +151,13 @@ impl PostgresExecutionStore {
 
         sqlx::query(
             "INSERT INTO cat_execution_audit_read_model
-             (execution_id, workflow_id, step_id, attempt, status, action, agent_id,
+             (execution_id, event_key, workflow_id, step_id, attempt, status, action, agent_id,
               capability_id, requested_side_effect, approval_reference, correlation_id,
               recorded_at, source_audit_sequence, evidence)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,TO_TIMESTAMP($12 / 1000.0),$13,$14)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,TO_TIMESTAMP($13 / 1000.0),$14,$15)
              ON CONFLICT (execution_id) DO UPDATE
-             SET workflow_id = EXCLUDED.workflow_id,
+             SET event_key = EXCLUDED.event_key,
+                 workflow_id = EXCLUDED.workflow_id,
                  step_id = EXCLUDED.step_id,
                  attempt = EXCLUDED.attempt,
                  status = EXCLUDED.status,
@@ -172,6 +173,7 @@ impl PostgresExecutionStore {
              WHERE EXCLUDED.source_audit_sequence > cat_execution_audit_read_model.source_audit_sequence",
         )
         .bind(evidence.execution_id)
+        .bind(event_key)
         .bind(evidence.workflow_id)
         .bind(&evidence.step_id)
         .bind(evidence.attempt as i32)
@@ -252,7 +254,7 @@ impl ExecutionAuditStore for PostgresExecutionStore {
         let action = query.action.map(|value| value.as_str().to_owned());
 
         let rows = sqlx::query(
-            "SELECT audit_sequence, audit_id, execution_id, workflow_id, step_id, attempt,
+            "SELECT audit_sequence, audit_id, event_key, execution_id, workflow_id, step_id, attempt,
                     action, agent_id, capability_id, requested_side_effect, approval_reference,
                     correlation_id, EXTRACT(EPOCH FROM recorded_at) * 1000 AS recorded_at_ms,
                     evidence, execution_id::text || ':latest' AS event_key
