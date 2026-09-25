@@ -29,7 +29,7 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Sprint 1 hardening — durable identity/session + tenant/project authorization
+**Current Task:** Sprint 1 hardening — provider callback gateway + durable identity/session authorization
 
 **Primary branch:** `feat/capability-registry-p0` / PR #61
 
@@ -68,7 +68,11 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 - durable `cat_operator_identities` + `cat_operator_sessions` tables;
 - session-based `AuthorizedAuditService` entry points;
 - tenant/project isolation and cross-project rejection covered by PostgreSQL E2E;
-- durable session expiry/revocation and scoped identity unit tests.
+- durable session expiry/revocation and scoped identity unit tests;
+- `ProviderCallbackIngress` transport boundary;
+- provider-specific `ProviderCallbackVerifier` contract;
+- deterministic verifier registry and provider routing;
+- callback gateway E2E path from raw ingress through verification to durable correlation.
 
 ## Validation status
 
@@ -78,4 +82,4 @@ Local `cargo` execution remains unavailable in the working sandbox because rust-
 
 # Next Task
 
-Add multi-provider callback dispatch and provider-specific callback verification while preserving the durable operator identity/session and provider-local reconciliation boundaries.
+Add signed callback verification metadata and multi-provider verifier lifecycle management, then persist operator authorization decision evidence.
