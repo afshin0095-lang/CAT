@@ -31,6 +31,25 @@ impl ReconciliationReport {
             )
         })
     }
+
+    pub async fn persist_audit<S: crate::ExecutionAuditStore>(
+        &self,
+        attempt: &ExecutionAttempt,
+        store: &S,
+        event_key: &str,
+        recorded_at_ms: u64,
+    ) -> OrchestratorResult<crate::ExecutionAuditEvent> {
+        let evidence = self.audit_evidence(attempt).ok_or_else(|| {
+            OrchestratorError::Serialization(
+                "audit evidence is unavailable because durable authorization evidence is missing"
+                    .into(),
+            )
+        })?;
+
+        store
+            .append_audit_event(event_key, &evidence, self.action, recorded_at_ms)
+            .await
+    }
 }
 
 #[async_trait]
