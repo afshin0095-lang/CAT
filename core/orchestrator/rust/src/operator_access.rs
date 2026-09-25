@@ -233,7 +233,7 @@ where
         principal: &OperatorPrincipal,
         query: ExecutionAuditQuery,
     ) -> OrchestratorResult<Vec<ExecutionAuditEvent>> {
-        self.authorize(principal, OperatorPermission::ReadAudit)?;
+        self.authorize(principal, OperatorPermission::ReadAuditEvidence)?;
         if query.limit == 0 {
             return Err(OrchestratorError::InvalidAuthorizationInput(
                 "audit query limit must be greater than zero".into(),
