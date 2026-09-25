@@ -14,7 +14,7 @@ use cat_orchestrator::{
     ApprovalContext, AsyncPostgresOutbox, AsyncWorkerExecutor, CapabilityAdmission,
     DurableExecutionCoordinator, ExecutionAuditEvidence, ExecutionAttemptStore, ExecutionAuditQuery,
     AuthorizedAuditService, ExecutionAuditStore, OperatorIdentityStore, ProviderCallback,
-    ProviderCallbackCorrelationState, ProviderCallbackStore, ProviderCallbackReconciliationWorker,
+    ProviderCallbackStore, ProviderCallbackReconciliationWorker,
     ProviderCallbackDispatcher, ProviderCallbackDispatchDisposition, ProviderCallbackIngress,
     ProviderCallbackVerifier, ProviderCallbackVerifierRegistry,
     PostgresExecutionStore, ReconciliationAction, StepState, WorkflowDefinition,
