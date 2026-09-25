@@ -377,7 +377,13 @@ impl PostgresExecutionStore {
         let error: Option<String> = row.try_get("error").map_err(row_error)?;
         let verified_at_ms: f64 = row.try_get("verified_at_ms").map_err(row_error)?;
         let received_at_ms: f64 = row.try_get("received_at_ms").map_err(row_error)?;
-        let verified_at_ms: f64 = row.try_get("verified_at_ms").map_err(row_error)?;
+        let verification = ProviderCallbackVerificationEvidence {
+            method: row.try_get("verification_method").map_err(row_error)?,
+            algorithm: row.try_get("verification_algorithm").map_err(row_error)?,
+            key_reference: row.try_get("verification_key_reference").map_err(row_error)?,
+            verified_at_ms: verified_at_ms.max(0.0) as u64,
+        };
+        verification.validate()?;
 
         let provider_row = sqlx::query(
             "SELECT execution_id, request_hash, outcome_state, result, error
@@ -455,7 +461,7 @@ impl PostgresExecutionStore {
 
         self.correlate_callback_tx(
             &mut tx,
-            callback_id(callback_id),
+            callback_id,
             execution_id,
             &provider,
             &provider_execution_id,
@@ -582,6 +588,7 @@ fn decode_callback(row: sqlx::postgres::PgRow) -> OrchestratorResult<ProviderCal
         "rejected" => ProviderCallbackCorrelationState::Rejected,
         other => return Err(OrchestratorError::Serialization(format!("unknown provider callback correlation state: {other}"))),
     };
+    let verified_at_ms: f64 = row.try_get("verified_at_ms").map_err(row_error)?;
     let received_at_ms: f64 = row.try_get("received_at_ms").map_err(row_error)?;
     let correlated_at_ms: Option<f64> = row.try_get("correlated_at_ms").map_err(row_error)?;
     Ok(ProviderCallbackRecord {
