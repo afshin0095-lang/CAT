@@ -43,7 +43,8 @@ Missing authorization evidence produces `ManualReview`. Provider success cannot 
 
 - idempotent append of a reconciliation audit event;
 - latest audit record by execution;
-- bounded operator queries filtered by agent, capability, or reconciliation action.
+- bounded operator queries filtered by agent, capability, or reconciliation action;
+- explicit rebuild of the latest read model from the append-only audit log.
 
 Audit writes are transactional:
 
@@ -55,7 +56,7 @@ latest read-model upsert
        COMMIT
 ```
 
-The read model is keyed by `execution_id` and stores the source audit sequence, so it can be rebuilt from `cat_execution_audit_events`.
+The read model is keyed by `execution_id` and stores the source audit sequence. `rebuild_audit_read_model()` truncates and reconstructs it from the highest audit sequence for each execution.
 
 A conflicting reuse of an audit event key fails closed.
 
@@ -87,14 +88,16 @@ A conflicting provider execution identity or terminal outcome is rejected.
 3. the async worker receives authorization and the concrete fencing token;
 4. execution attempt + authorization evidence are committed;
 5. provider submission + observation are journaled;
-6. reconciliation reloads authorization and current provider outcome;
-7. the audit projection round-trips through JSON;
-8. the audit event is stored and exposed through the read model;
-9. the audit query contract returns the execution;
-10. missing authorization later forces `ManualReview` even when provider success exists;
-11. the workflow event is claimed from the PostgreSQL outbox;
-12. the claimed event is delivered through the EventBus boundary;
-13. acknowledgement removes the outbox row.
+6. duplicate provider journal writes remain deduplicated;
+7. reconciliation reloads authorization and current provider outcome;
+8. the audit projection round-trips through JSON;
+9. the audit event is stored and exposed through the read model;
+10. the audit read model can be rebuilt from the append-only log;
+11. the audit query contract returns the execution;
+12. missing authorization later forces `ManualReview` even when provider success exists;
+13. the workflow event is claimed from the PostgreSQL outbox;
+14. the claimed event is delivered through the EventBus boundary;
+15. acknowledgement removes the outbox row.
 
 ## Safety invariants
 
@@ -107,4 +110,4 @@ A conflicting provider execution identity or terminal outcome is rejected.
 
 ## Next boundary
 
-Stabilize CI on the latest PR head, then integrate operator authentication/authorization around audit queries and extend the provider journal to support callback correlation and stronger execution-result reconciliation.
+Stabilize CI on the latest PR head, then integrate operator authentication/authorization around audit queries and extend provider journaling to callback correlation and stronger execution-result reconciliation.
