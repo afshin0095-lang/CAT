@@ -1,5 +1,5 @@
 use cat_kernel::{
-    AgentId, CapabilityId, CorrelationId, IdempotencyKey, InvocationId, SideEffectClass,
+    AgentId, CapabilityId, CorrelationId, EntityId, IdempotencyKey, InvocationId, SideEffectClass, TenantId,
 };
 use serde::{Deserialize, Serialize};
 
@@ -19,6 +19,8 @@ pub struct ExecutionAuthorizationRecord {
     pub approval_reference: Option<String>,
     pub idempotency_key: IdempotencyKey,
     pub correlation_id: CorrelationId,
+    pub tenant_id: TenantId,
+    pub project_id: Option<EntityId>,
     pub admitted_at_ms: u64,
 }
 
@@ -33,6 +35,8 @@ impl ExecutionAuthorizationRecord {
             approval_reference: receipt.approval_reference().map(str::to_owned),
             idempotency_key: receipt.idempotency_key().clone(),
             correlation_id: receipt.correlation_id(),
+            tenant_id: receipt.tenant_id(),
+            project_id: receipt.project_id(),
             admitted_at_ms: receipt.admitted_at_ms(),
         }
     }
