@@ -12,8 +12,8 @@ use cat_kernel::{
 use cat_orchestrator::{
     ApprovalContext, AsyncPostgresOutbox, AsyncWorkerExecutor, CapabilityAdmission,
     DurableExecutionCoordinator, ExecutionAuditEvidence, ExecutionAttemptStore, ExecutionAuditQuery,
-    ExecutionAuditStore, ProviderCallback, ProviderCallbackCorrelationState, ProviderCallbackStore,
-    ProviderCallbackReconciliationWorker,
+    AuthorizedAuditService, ExecutionAuditStore, OperatorIdentityStore, ProviderCallback,
+    ProviderCallbackCorrelationState, ProviderCallbackStore, ProviderCallbackReconciliationWorker,
     PostgresExecutionStore, ReconciliationAction, StepState, WorkflowDefinition,
     WorkflowExecutionReconciler, WorkflowInstance, WorkflowState, WorkflowStep,
     WorkerExecutionInput, WorkerExecutionResult, ProviderExecutionJournalStore, ProviderOutcomeState,
@@ -402,6 +402,82 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
         .unwrap()
         .expect("audit read model must be rebuildable");
     assert_eq!(rebuilt_latest.event_key, "reconciliation:integration:1");
+
+    let operator_id = Uuid::new_v4();
+    let session_id = Uuid::new_v4();
+    let tenant_id = authorization.tenant_id.as_uuid();
+    sqlx::query(
+        "INSERT INTO cat_operator_identities
+         (principal_id, external_subject, role, tenant_id, project_id, resource_scopes, enabled)
+         VALUES ($1,$2,'operator',$3,NULL,$4,TRUE)"
+    )
+    .bind(operator_id)
+    .bind(format!("integration-subject-{operator_id}"))
+    .bind(tenant_id)
+    .bind(serde_json::json!(["audit/read"]))
+    .execute(&pool)
+    .await
+    .unwrap();
+    sqlx::query(
+        "INSERT INTO cat_operator_sessions
+         (session_id, principal_id, auth_method, issued_at, expires_at)
+         VALUES ($1,$2,'integration-test',TO_TIMESTAMP($3 / 1000.0),TO_TIMESTAMP($4 / 1000.0))"
+    )
+    .bind(session_id)
+    .bind(operator_id)
+    .bind(3_000_f64)
+    .bind(10_000_f64)
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    let audit_service = AuthorizedAuditService::new(store.clone(), Default::default());
+    let scoped = audit_service
+        .query_for_session(
+            &store,
+            session_id,
+            4_000,
+            ExecutionAuditQuery {
+                capability_id: Some(capability_id.to_string()),
+                limit: 10,
+                ..Default::default()
+            },
+        )
+        .await
+        .unwrap();
+    assert_eq!(scoped.len(), 1);
+    assert_eq!(scoped[0].execution_id, execution_id);
+
+    let scoped_latest = audit_service
+        .load_latest_for_session(&store, session_id, 4_000, execution_id)
+        .await
+        .unwrap();
+    assert_eq!(scoped_latest.execution_id, execution_id);
+
+    store.revoke_session(session_id, 4_500).await.unwrap();
+    assert!(audit_service
+        .query_for_session(
+            &store,
+            session_id,
+            4_500,
+            ExecutionAuditQuery {
+                limit: 10,
+                ..Default::default()
+            },
+        )
+        .await
+        .is_err());
+
+    sqlx::query("DELETE FROM cat_operator_sessions WHERE session_id = $1")
+        .bind(session_id)
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM cat_operator_identities WHERE principal_id = $1")
+        .bind(operator_id)
+        .execute(&pool)
+        .await
+        .unwrap();
 
     sqlx::query("DELETE FROM cat_execution_authorizations WHERE execution_id = $1")
         .bind(execution_id)
