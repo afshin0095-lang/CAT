@@ -36,6 +36,8 @@ impl PostgresSchemaV1 {
     pub const OUTBOX: &'static str = "cat_workflow_outbox";
     pub const LEASES: &'static str = "cat_execution_leases";
     pub const AUTHORIZATIONS: &'static str = "cat_execution_authorizations";
+    pub const OPERATOR_IDENTITIES: &'static str = "cat_operator_identities";
+    pub const OPERATOR_SESSIONS: &'static str = "cat_operator_sessions";
     pub const PROVIDER_JOURNAL: &'static str = "cat_provider_execution_journal";
     pub const PROVIDER_CALLBACKS: &'static str = "cat_provider_execution_callbacks";
     pub const AUDIT_EVENTS: &'static str = "cat_execution_audit_events";
@@ -105,6 +107,30 @@ CREATE TABLE IF NOT EXISTS cat_execution_authorizations (
     project_id UUID,
     admitted_at TIMESTAMPTZ NOT NULL,
     UNIQUE (execution_id, idempotency_key)
+);
+
+CREATE TABLE IF NOT EXISTS cat_operator_identities (
+    principal_id UUID PRIMARY KEY,
+    external_subject TEXT NOT NULL UNIQUE,
+    role TEXT NOT NULL CHECK (role IN ('owner', 'operator', 'auditor')),
+    tenant_id UUID NOT NULL,
+    project_id UUID,
+    resource_scopes JSONB NOT NULL DEFAULT '[]'::jsonb,
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS cat_operator_sessions (
+    session_id UUID PRIMARY KEY,
+    principal_id UUID NOT NULL REFERENCES cat_operator_identities(principal_id) ON DELETE CASCADE,
+    auth_method TEXT NOT NULL,
+    issued_at TIMESTAMPTZ NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    revoked_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CHECK (expires_at > issued_at),
+    CHECK (revoked_at IS NULL OR revoked_at >= issued_at)
 );
 
 CREATE TABLE IF NOT EXISTS cat_provider_execution_journal (
@@ -212,6 +238,8 @@ mod tests {
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::OUTBOX));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::LEASES));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::AUTHORIZATIONS));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::OPERATOR_IDENTITIES));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::OPERATOR_SESSIONS));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::PROVIDER_JOURNAL));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::PROVIDER_CALLBACKS));
         assert!(PostgresSchemaV1::CREATE_SQL.contains("correlation_error"));
