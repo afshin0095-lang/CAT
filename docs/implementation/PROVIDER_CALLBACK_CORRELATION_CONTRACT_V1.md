@@ -34,7 +34,8 @@ Update current provider result + append journal observation
 - provider result/error payload;
 - received timestamp;
 - correlated execution_id when resolved;
-- unmatched/correlated state;
+- unmatched/correlated/rejected state;
+- correlation error for durable non-retryable conflicts;
 - correlation timestamp.
 
 Callback evidence keeps the referenced CAT execution UUID as historical evidence rather than depending on the lifecycle of a transient execution row.
@@ -49,6 +50,8 @@ Callback evidence keeps the referenced CAT execution UUID as historical evidence
 6. A callback that conflicts with an already-recorded terminal outcome is rejected.
 7. Current provider result mutation and provider journal observation are committed in the same PostgreSQL transaction.
 8. A callback received before provider submission is retained as `unmatched` rather than being discarded or treated as success.
+9. `ProviderCallbackReconciliationWorker` retries unmatched callbacks after provider submission becomes durable.
+10. Non-retryable request-hash or terminal-payload conflicts become `rejected` with durable error evidence.
 
 ## 4. Security boundary
 
@@ -58,7 +61,7 @@ Provider callback correlation is an execution-result concern. Capability admissi
 
 ## 5. Recovery path
 
-Unmatched callbacks are queryable in sequence order. A later reconciliation component can retry correlation after provider submission becomes durable.
+Unmatched callbacks are queryable in sequence order. `ProviderCallbackReconciliationWorker` processes a bounded provider-specific batch. A callback remains unmatched when its submission is not yet durable and is marked rejected when deterministic consistency checks fail.
 
 Future revisions can add:
 
