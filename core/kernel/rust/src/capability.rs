@@ -164,7 +164,7 @@ fn validate_capability_id(value: &str) -> KernelResult<()> {
         || parts[3].is_empty()
         || !parts[4].starts_with('v')
         || parts[4][1..].parse::<u16>().is_err()
-        || parts[4][1..] == "0"
+        || &parts[4][1..] == "0"
     {
         return Err(KernelError::InvalidInput(
             "capability id must match cat.capability.<domain>.<name>.v<major>".to_owned(),
