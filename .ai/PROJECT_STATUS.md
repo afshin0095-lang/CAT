@@ -43,7 +43,7 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 - bounded audit query contract with agent/capability/action filters;
 - append-only `cat_provider_execution_journal`;
 - transactional provider current-state + journal writes;
-- deterministic provider journal deduplication and conflict checks;
+- deterministic provider journal deduplication and multi-provider identity isolation;
 - reconciliation-to-audit persistence bridge;
 - end-to-end coverage for PostgreSQL, EventBus, reconciliation, provider journal, and audit read model.
 
