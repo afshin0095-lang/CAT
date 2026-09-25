@@ -192,6 +192,7 @@ mod tests {
     fn step(id: &str, dependencies: &[&str]) -> WorkflowStep {
         WorkflowStep {
             id: id.to_string(),
+            capability_id: cat_kernel::CapabilityId::new("cat.capability.test.validation.v1").unwrap(),
             dependencies: dependencies.iter().map(|value| value.to_string()).collect(),
             state: StepState::Pending,
             attempt: 0,

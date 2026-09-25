@@ -37,6 +37,7 @@ mod tests {
                 steps: vec![
                     WorkflowStep {
                         id: "ready".into(),
+                        capability_id: cat_kernel::CapabilityId::new("cat.capability.test.ready.v1").unwrap(),
                         dependencies: vec![],
                         state: StepState::Ready,
                         attempt: 0,
@@ -45,6 +46,7 @@ mod tests {
                     },
                     WorkflowStep {
                         id: "pending".into(),
+                        capability_id: cat_kernel::CapabilityId::new("cat.capability.test.pending.v1").unwrap(),
                         dependencies: vec![],
                         state: StepState::Pending,
                         attempt: 0,

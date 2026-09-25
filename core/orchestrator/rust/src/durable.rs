@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use cat_eventbus::{EventBus, EventEnvelope};
 use uuid::Uuid;
 
-use crate::{Lease, OrchestratorError, OrchestratorResult, WorkflowInstance};
+use crate::{OrchestratorError, OrchestratorResult, WorkflowInstance};
 
 pub trait DurableWorkflowStore {
     fn load(&self, workflow_id: Uuid) -> OrchestratorResult<WorkflowInstance>;
@@ -56,16 +56,6 @@ impl ExecutionEventSink for RecordingExecutionEventSink {
     }
 }
 
-pub trait LeaseProvider {
-    fn acquire(
-        &mut self,
-        resource: &str,
-        owner: &str,
-        now_ms: u64,
-        ttl_ms: u64,
-    ) -> OrchestratorResult<Lease>;
-}
-
 #[derive(Default)]
 pub struct InMemoryDurableWorkflowStore {
     workflows: HashMap<Uuid, WorkflowInstance>,
@@ -111,35 +101,10 @@ impl DurableWorkflowStore for InMemoryDurableWorkflowStore {
     }
 }
 
-#[derive(Default)]
-pub struct InMemoryLeaseProvider {
-    leases: HashMap<String, Lease>,
-}
-
-impl LeaseProvider for InMemoryLeaseProvider {
-    fn acquire(
-        &mut self,
-        resource: &str,
-        owner: &str,
-        now_ms: u64,
-        ttl_ms: u64,
-    ) -> OrchestratorResult<Lease> {
-        if let Some(existing) = self.leases.get(resource) {
-            if existing.expires_at_ms > now_ms && existing.owner != owner {
-                return Err(OrchestratorError::LeaseUnavailable {
-                    resource: resource.to_owned(),
-                });
-            }
-        }
-        let lease = Lease::acquire(resource, owner, now_ms, ttl_ms);
-        self.leases.insert(resource.to_owned(), lease.clone());
-        Ok(lease)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::FencedLeaseProvider;
     use crate::{StepState, WorkflowDefinition, WorkflowState, WorkflowStep};
 
     fn workflow() -> WorkflowInstance {
@@ -150,6 +115,7 @@ mod tests {
                 version: 1,
                 steps: vec![WorkflowStep {
                     id: "work".into(),
+                    capability_id: cat_kernel::CapabilityId::new("cat.capability.test.work.v1").unwrap(),
                     dependencies: vec![],
                     state: StepState::Ready,
                     attempt: 0,
@@ -205,7 +171,7 @@ mod tests {
 
     #[test]
     fn lease_is_exclusive_until_expiry() {
-        let mut provider = InMemoryLeaseProvider::default();
+        let mut provider = crate::InMemoryFencedLeaseProvider::default();
         provider.acquire("workflow/1", "worker-a", 100, 50).unwrap();
         assert!(matches!(
             provider.acquire("workflow/1", "worker-b", 120, 50),

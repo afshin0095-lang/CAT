@@ -19,8 +19,6 @@
 | Repository | GitHub |
 | Main Branch | main |
 
----
-
 # Current Phase
 
 ## Phase B
@@ -29,64 +27,68 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 **Status:** Active Development
 
-# Documentation Progress
-
-| File | Status | Progress |
-|------|--------|----------|
-| 00_PROJECT_CONTEXT.md | Completed | 100% |
-| 01_PROJECT_OVERVIEW.md | Completed | 100% |
-| 02_PROJECT_RULES.md | Completed | 100% |
-| 03_TECH_STACK.md | Completed | 100% |
-| 04_ARCHITECTURE.md | Completed | 100% |
-| 05_AGENTS.md | Completed | 100% |
-| 06_KNOWLEDGE_ENGINE.md | Completed | 100% |
-| 07_MEMORY_SYSTEM.md | Completed | 100% |
-| 08_EVENTS_SYSTEM.md | Completed | 100% |
-| 09_REASONING_ENGINE.md | Completed | 100% |
-| 10_DECISION_ENGINE.md | Completed | 100% |
-| 11_PLANNING_ENGINE.md | Completed | 100% |
-| 07_TREASURY_CORE.md | Completed | 100% |
-| 08_AFFILIATE_ENGINE.md | Completed | 100% |
-| 09_CONTENT_ENGINE.md | Completed | 100% |
-| 10_UI_UX.md | Not Started | 0% |
-| 11_DESIGN_LANGUAGE.md | Not Started | 0% |
-| 12_DECISIONS.md | Not Started | 0% |
-| 13_TERMINOLOGY.md | Part 1 Completed | 25% |
-| 14_CODING_STANDARD.md | Part 3 Prepared | 75% |
-| 15_DIRECTORY_STRUCTURE.md | Not Started | 0% |
-| 16_DEPLOYMENT.md | Not Started | 0% |
-| 17_SECURITY.md | Not Started | 0% |
-| 18_PROMPTING.md | Not Started | 0% |
-| 19_DEVELOPMENT_GUIDE.md | Not Started | 0% |
-
 # Active Task
 
-**Current Task:** Sprint 1 — Durable Revalidation Execution Coordinator
+**Current Task:** Sprint 1 hardening — governed affiliate execution + operator authorization evidence
 
-**Document:** `core/affiliate/rust/` (opportunity subsystem), `docs/implementation/AFFILIATE_OPPORTUNITY_*.md`
+**Primary branch:** `feat/capability-registry-p0` / PR #61
 
-**Status:** Implemented on branch `arena/01a08d17-cat` (stacked on `feat/affiliate-opportunity-lifecycle-p0` @ `6791ace`), PR #40. Sprint 0 completes the discovery → source SPI → network adapter → ingestion → dedup → persistence → freshness → lifecycle → projection → revalidation → observability vertical slice: hardened lifecycle via a single canonical freshness engine, injectable clock, monotonic record revisions with optimistic-concurrency upserts, deterministic revalidation planner with durable request persistence (migration 0002, partial-unique dedup), opportunity status projection, persistence-neutral query/ranking/health contracts, source health tracking, neutral observability names + sink, typed opportunity event contracts, and expanded validation (URL/length/identity bounds, ASCII canonical-key limitation documented).
+**Status:** Provider callback gateway/replay, durable operator identity/session authorization, authorization-decision evidence, and the first governed Affiliate Revalidation execution bridge are implemented as executable Rust code. CI remains the authoritative compilation/test validator.
 
-**Validation status: INCOMPLETE — Sprint 0 is NOT closed.**
-- Local `cargo` execution is impossible in the working sandbox (rust-lang.org/crates.io are TLS-blocked by the egress proxy).
-- CI is the authoritative validator. The latest runs on this branch (GitHub Actions runs #157/#159-era, head `79e48b4`/`73816b2`) fail on `Check cat-affiliate` / `Test cat-affiliate`; the compiler output is not retrievable from the sandbox (Actions log hosts blocked), so the remaining defect could not be located despite repeated full static audits plus automated name/field/path resolution checks.
-- The GitHub Actions minutes for this private repository were exhausted during bisect probing; all subsequent runs fail at startup ("workflow file may be broken"). CI must be re-run once minutes are available.
-- CI hardening (fmt + clippy for cat-affiliate, PostgreSQL service job) is preserved at `docs/ci/rust-workspace-hardened.yml` and is NOT committed under `.github/` because the integration lacks the `workflows` permission. See `docs/implementation/CI_HARDENING.md`.
-- Gate to close Sprint 0: `Check cat-affiliate`, `Test cat-affiliate`, fmt, clippy, and the PostgreSQL job must be green on the latest run of PR #40; then record results in `docs/implementation/SPRINT_0_MANIFEST.md`.
+## Completed in this implementation stage
+
+- `ExecutionAuditEvidence` serializable derived evidence view;
+- transactional append-only `cat_execution_audit_events`;
+- rebuildable latest `cat_execution_audit_read_model`;
+- bounded audit query contract with agent/capability/action filters;
+- append-only `cat_provider_execution_journal`;
+- transactional provider current-state + journal writes;
+- deterministic provider journal deduplication and multi-provider identity isolation;
+- reconciliation-to-audit persistence bridge;
+- PostgreSQL/EventBus/reconciliation/provider-journal/audit integration coverage;
+- `OperatorPrincipal` and non-secret `AuthenticationEvidence` contracts;
+- explicit operator roles and permissions;
+- deny-by-default `OperatorAccessPolicy`;
+- `AuthorizedAuditService` application boundary before audit storage;
+- explicit elevated permission for read-model rebuild;
+- P0 security tests for disabled principals, incomplete authentication evidence, and unauthorized rebuild;
+- durable `ProviderCallback` contract and PostgreSQL callback evidence table;
+- provider callback correlation by provider + provider execution ID;
+- optional callback request-hash verification against durable submission state;
+- unmatched callback retention for later reconciliation;
+- callback-to-provider-result + journal updates in one PostgreSQL transaction;
+- PostgreSQL E2E coverage for correlated, duplicate, and unmatched callbacks;
+- bounded `ProviderCallbackReconciliationWorker` for durable out-of-order callback replay;
+- `rejected` callback state with durable `correlation_error` for non-retryable correlation conflicts;
+- replay path updates callback state, current provider result, and provider journal atomically;
+- correlation mutations require expected callback/result row updates and fail closed on partial mutation;
+- `ExecutionContext` carries optional project/workspace scope with backward-compatible deserialization;
+- execution authorization evidence persists tenant/project scope;
+- audit read model/query supports tenant/project filtering;
+- durable `cat_operator_identities` + `cat_operator_sessions` tables;
+- session-based `AuthorizedAuditService` entry points;
+- tenant/project isolation and cross-project rejection covered by PostgreSQL E2E;
+- durable session expiry/revocation and scoped identity unit tests;
+- `ProviderCallbackIngress` transport boundary;
+- provider-specific `ProviderCallbackVerifier` contract;
+- deterministic verifier registry and provider routing;
+- callback gateway E2E path from raw ingress through verification to durable correlation;
+- non-secret provider callback verification evidence persisted with each new callback;
+- verifier evidence validation during callback replay;
+- provider verifier lifecycle/version registration and controlled rotation;
+- durable operator authorization decision ledger;
+- `DurableOperatorAuditService` persists decisions before protected audit reads;
+- durable workflow registration boundary for provider/domain-owned workflow creation;
+- governed Affiliate Revalidation capability/plan/worker/coordinator;
+- scope resolver contract for tenant/project/agent identity;
+- PostgreSQL E2E for governed Affiliate Revalidation, including tenant/project propagation.
+
+## Validation status
+
+**INCOMPLETE — the latest code-bearing CI run is still pending; no completed green result has been observed yet.**
+
+Local `cargo` execution remains unavailable in the working sandbox because rust-lang.org/crates.io access is TLS-blocked by the egress proxy. GitHub Actions remains the authoritative compilation/test gate.
 
 # Next Task
 
-Sprint 1 — Opportunity Lifecycle → Orchestrator → Durable Revalidation Execution: execution coordinator implemented; request claims map to source-scoped Orchestrator ExecutionRequest identities, durable status transitions persist attempts, and success/failure events publish through EventBus.
-
-# Next Tasks
-
-1. Sprint 1 — revalidation execution coordinator implemented; CI/integration verification pending
-2. Sprint 1 hardening — durable attempt/result persistence and end-to-end PostgreSQL/EventBus verification
-3. Post-merge — retarget stacked affiliate PRs (#34→#39 chain) so Sprint 0 lands on main
-4. LLM / AI Core — authorized tool execution boundary completed
-5. Memory Core — P0 foundation completed
-6. Reasoning Core — P0 foundation completed
-7. Decision Core — approval/human-gate foundation completed
-8. Decision Core — durable PostgreSQL trace persistence adapter completed; next integration verification
-9. Planning Core — P0 foundation completed
-
+Implement concrete provider-side Affiliate Revalidation executors/adapters behind the governed worker contract, then add retry-attempt identity rotation without bypassing durable workflow identity.

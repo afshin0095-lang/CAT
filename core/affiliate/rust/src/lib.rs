@@ -22,6 +22,8 @@ pub mod opportunity_query;
 pub mod opportunity_ranking;
 pub mod opportunity_revalidation;
 pub mod revalidation_execution;
+pub mod governed_revalidation;
+pub mod discovery_backed_revalidation;
 pub mod opportunity_store;
 pub mod opportunity_version;
 pub mod repository;
@@ -115,6 +117,14 @@ pub use revalidation_execution::{
     RevalidationExecutionCoordinator, RevalidationExecutionError, RevalidationExecutionReport,
     RevalidationExecutionResult, RevalidationExecutor, execution_request_for,
 };
+pub use governed_revalidation::{
+    AffiliateRevalidationWorker, FixedRevalidationScopeResolver, GovernedRevalidationCoordinator,
+    GovernedRevalidationExecutor, GovernedRevalidationPlan, GovernedRevalidationRunReport,
+    RevalidationExecutionScope, RevalidationScopeResolver, REVALIDATION_CAPABILITY_ID,
+    REVALIDATION_WORKFLOW_TYPE, register_revalidation_capability, register_revalidation_workflow,
+    revalidation_capability_contract, revalidation_capability_id,
+};
+pub use discovery_backed_revalidation::DiscoveryBackedRevalidationExecutor;
 pub use opportunity_revalidation::{
     InMemoryRevalidationRequestStore, REVALIDATION_DEDUP_WINDOW_MS, RevalidationBlockReason,
     RevalidationDecision, RevalidationPriority, RevalidationReason, RevalidationRequest,

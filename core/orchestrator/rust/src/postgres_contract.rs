@@ -35,6 +35,14 @@ impl PostgresSchemaV1 {
     pub const WORKFLOWS: &'static str = "cat_workflows";
     pub const OUTBOX: &'static str = "cat_workflow_outbox";
     pub const LEASES: &'static str = "cat_execution_leases";
+    pub const AUTHORIZATIONS: &'static str = "cat_execution_authorizations";
+    pub const OPERATOR_IDENTITIES: &'static str = "cat_operator_identities";
+    pub const OPERATOR_SESSIONS: &'static str = "cat_operator_sessions";
+    pub const OPERATOR_AUTHORIZATION_DECISIONS: &'static str = "cat_operator_authorization_decisions";
+    pub const PROVIDER_JOURNAL: &'static str = "cat_provider_execution_journal";
+    pub const PROVIDER_CALLBACKS: &'static str = "cat_provider_execution_callbacks";
+    pub const AUDIT_EVENTS: &'static str = "cat_execution_audit_events";
+    pub const AUDIT_READ_MODEL: &'static str = "cat_execution_audit_read_model";
 
     pub const CREATE_SQL: &'static str = r#"
 CREATE TABLE IF NOT EXISTS cat_workflows (
@@ -67,6 +75,165 @@ CREATE TABLE IF NOT EXISTS cat_execution_leases (
     expires_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS cat_execution_attempts (
+    execution_id UUID PRIMARY KEY,
+    workflow_id UUID NOT NULL REFERENCES cat_workflows(id),
+    step_id TEXT NOT NULL,
+    attempt INTEGER NOT NULL CHECK (attempt > 0),
+    status TEXT NOT NULL CHECK (status IN ('running', 'succeeded', 'failed', 'cancelled')),
+    owner TEXT NOT NULL,
+    fencing_token BIGINT NOT NULL CHECK (fencing_token >= 0),
+    started_at TIMESTAMPTZ NOT NULL,
+    heartbeat_at TIMESTAMPTZ NOT NULL,
+    finished_at TIMESTAMPTZ,
+    result JSONB,
+    error TEXT,
+    UNIQUE (workflow_id, step_id, attempt)
+);
+
+CREATE TABLE IF NOT EXISTS cat_execution_authorizations (
+    execution_id UUID PRIMARY KEY REFERENCES cat_execution_attempts(execution_id) ON DELETE CASCADE,
+    invocation_id UUID NOT NULL,
+    agent_id UUID NOT NULL,
+    capability_id TEXT NOT NULL,
+    requested_side_effect TEXT NOT NULL CHECK (
+        requested_side_effect IN ('S0', 'S1', 'S2', 'S3')
+    ),
+    required_policies JSONB NOT NULL,
+    approval_reference TEXT,
+    idempotency_key TEXT NOT NULL,
+    correlation_id UUID NOT NULL,
+    tenant_id UUID,
+    project_id UUID,
+    admitted_at TIMESTAMPTZ NOT NULL,
+    UNIQUE (execution_id, idempotency_key)
+);
+
+CREATE TABLE IF NOT EXISTS cat_operator_identities (
+    principal_id UUID PRIMARY KEY,
+    external_subject TEXT NOT NULL UNIQUE,
+    role TEXT NOT NULL CHECK (role IN ('owner', 'operator', 'auditor')),
+    tenant_id UUID NOT NULL,
+    project_id UUID,
+    resource_scopes JSONB NOT NULL DEFAULT '[]'::jsonb,
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS cat_operator_sessions (
+    session_id UUID PRIMARY KEY,
+    principal_id UUID NOT NULL REFERENCES cat_operator_identities(principal_id) ON DELETE CASCADE,
+    auth_method TEXT NOT NULL,
+    issued_at TIMESTAMPTZ NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    revoked_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CHECK (expires_at > issued_at),
+    CHECK (revoked_at IS NULL OR revoked_at >= issued_at)
+);
+
+CREATE TABLE IF NOT EXISTS cat_operator_authorization_decisions (
+    decision_sequence BIGSERIAL PRIMARY KEY,
+    decision_id UUID NOT NULL UNIQUE,
+    principal_id UUID NOT NULL,
+    session_id UUID NOT NULL,
+    role TEXT NOT NULL CHECK (role IN ('owner', 'operator', 'auditor')),
+    permission TEXT NOT NULL CHECK (permission IN ('read_audit', 'read_audit_evidence', 'rebuild_audit_read_model')),
+    outcome TEXT NOT NULL CHECK (outcome IN ('allowed', 'denied')),
+    policy_version TEXT NOT NULL,
+    tenant_id UUID,
+    project_id UUID,
+    authentication_method TEXT NOT NULL,
+    reasons JSONB NOT NULL DEFAULT '[]'::jsonb,
+    recorded_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS cat_provider_execution_journal (
+    journal_sequence BIGSERIAL PRIMARY KEY,
+    journal_id UUID NOT NULL UNIQUE,
+    execution_id UUID NOT NULL REFERENCES cat_execution_attempts(execution_id) ON DELETE CASCADE,
+    event_key TEXT NOT NULL UNIQUE,
+    event_type TEXT NOT NULL CHECK (event_type IN ('submitted', 'observed')),
+    provider TEXT NOT NULL,
+    provider_execution_id TEXT NOT NULL,
+    request_hash TEXT NOT NULL,
+    outcome_state TEXT CHECK (outcome_state IN ('succeeded', 'failed', 'unknown')),
+    result JSONB,
+    error TEXT,
+    recorded_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS cat_provider_execution_callbacks (
+    callback_sequence BIGSERIAL PRIMARY KEY,
+    callback_id UUID NOT NULL UNIQUE,
+    event_key TEXT NOT NULL UNIQUE,
+    provider TEXT NOT NULL,
+    provider_execution_id TEXT NOT NULL,
+    request_hash TEXT,
+    outcome_state TEXT NOT NULL CHECK (outcome_state IN ('succeeded', 'failed', 'unknown')),
+    result JSONB,
+    error TEXT,
+    verification_method TEXT,
+    verification_algorithm TEXT,
+    verification_key_reference TEXT,
+    verification_version INTEGER,
+    verified_at TIMESTAMPTZ,
+    received_at TIMESTAMPTZ NOT NULL,
+    execution_id UUID,
+    correlation_state TEXT NOT NULL CHECK (correlation_state IN ('unmatched', 'correlated', 'rejected')),
+    correlation_error TEXT,
+    correlated_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS cat_execution_audit_events (
+    audit_sequence BIGSERIAL PRIMARY KEY,
+    audit_id UUID NOT NULL UNIQUE,
+    event_key TEXT NOT NULL UNIQUE,
+    execution_id UUID NOT NULL REFERENCES cat_execution_attempts(execution_id) ON DELETE CASCADE,
+    workflow_id UUID NOT NULL,
+    step_id TEXT NOT NULL,
+    attempt INTEGER NOT NULL CHECK (attempt > 0),
+    action TEXT NOT NULL CHECK (
+        action IN ('noop', 'continue', 'confirm_success', 'confirm_failure', 'manual_review')
+    ),
+    agent_id UUID NOT NULL,
+    capability_id TEXT NOT NULL,
+    requested_side_effect TEXT NOT NULL CHECK (
+        requested_side_effect IN ('S0', 'S1', 'S2', 'S3')
+    ),
+    approval_reference TEXT,
+    correlation_id UUID NOT NULL,
+    tenant_id UUID,
+    project_id UUID,
+    recorded_at TIMESTAMPTZ NOT NULL,
+    evidence JSONB NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS cat_execution_audit_read_model (
+    execution_id UUID PRIMARY KEY REFERENCES cat_execution_attempts(execution_id) ON DELETE CASCADE,
+    event_key TEXT NOT NULL,
+    workflow_id UUID NOT NULL,
+    step_id TEXT NOT NULL,
+    attempt INTEGER NOT NULL CHECK (attempt > 0),
+    status TEXT NOT NULL CHECK (status IN ('running', 'succeeded', 'failed', 'cancelled')),
+    action TEXT NOT NULL CHECK (
+        action IN ('noop', 'continue', 'confirm_success', 'confirm_failure', 'manual_review')
+    ),
+    agent_id UUID NOT NULL,
+    capability_id TEXT NOT NULL,
+    requested_side_effect TEXT NOT NULL CHECK (
+        requested_side_effect IN ('S0', 'S1', 'S2', 'S3')
+    ),
+    approval_reference TEXT,
+    correlation_id UUID NOT NULL,
+    tenant_id UUID,
+    project_id UUID,
+    recorded_at TIMESTAMPTZ NOT NULL,
+    source_audit_sequence BIGINT NOT NULL,
+    evidence JSONB NOT NULL
+);
 "#;
 
     pub fn validate_identifier(value: &str) -> OrchestratorResult<()> {
@@ -92,6 +259,19 @@ mod tests {
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::WORKFLOWS));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::OUTBOX));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::LEASES));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::AUTHORIZATIONS));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::OPERATOR_IDENTITIES));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::OPERATOR_SESSIONS));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::OPERATOR_AUTHORIZATION_DECISIONS));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::PROVIDER_JOURNAL));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::PROVIDER_CALLBACKS));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains("correlation_error"));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::AUDIT_EVENTS));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::AUDIT_READ_MODEL));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains("tenant_id UUID"));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains("project_id UUID"));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains("verification_method TEXT"));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains("verification_version INTEGER"));
     }
 
     #[test]

@@ -1,7 +1,7 @@
 # CAT OMNISYSTEM — Tenancy, Identity & Access Model
 
 **Status:** Canonical target architecture
-**Maturity:** Architecture specified; implementation is incremental
+**Maturity:** Architecture specified; core operator identity/session + tenant/project audit scope implemented incrementally
 
 ## 1. Why identity is foundational
 
@@ -28,7 +28,7 @@ flowchart TD
     TENANT --> PROVIDER
 ```
 
-The exact tenancy implementation is a target architecture unless represented by an existing contract or executable module.
+The exact broader tenancy implementation remains a target architecture unless represented by an existing contract or executable module. The current Orchestrator now has executable operator identity/session and tenant/project audit-scope contracts.
 
 ## 3. Identity classes
 
@@ -106,6 +106,12 @@ Credentials belong to infrastructure/security management, never to agent prompts
 
 Access must be revocable without redeploying every agent. A compromised provider credential, agent identity or connector must be disable-able while preserving historical evidence.
 
-## 11. Implementation rule
+## 11. Current executable slice
+
+The Orchestrator implements durable operator identities and sessions, explicit tenant/project scope on new execution authorization evidence, tenant/project filters in the audit read model, session-based audit access, and durable session revocation. Resource scope expressions are stored with the operator identity for downstream Control Plane operations.
+
+Historical execution records created before tenant/project propagation are not reverse-engineered from unrelated fields. Scope-sensitive consumers must fail closed when canonical scope evidence is unavailable.
+
+## 12. Implementation rule
 
 Every new externally consequential capability must document: principal, scope, authorization rule, capability grant, audit record, secret boundary, revocation behavior and human-approval requirement before it is considered production-ready.

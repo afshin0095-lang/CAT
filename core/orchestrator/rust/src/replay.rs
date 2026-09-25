@@ -62,6 +62,7 @@ pub fn verify_replay(
 mod tests {
     use super::*;
     use crate::model::WorkflowStep;
+    use cat_kernel::CapabilityId;
 
     fn definition() -> WorkflowDefinition {
         WorkflowDefinition {
@@ -70,6 +71,7 @@ mod tests {
             steps: vec![
                 WorkflowStep {
                     id: "a".into(),
+                    capability_id: CapabilityId::new("cat.capability.test.replay.v1").unwrap(),
                     dependencies: vec![],
                     state: StepState::Succeeded,
                     attempt: 1,
@@ -78,6 +80,7 @@ mod tests {
                 },
                 WorkflowStep {
                     id: "b".into(),
+                    capability_id: CapabilityId::new("cat.capability.test.replay.v1").unwrap(),
                     dependencies: vec!["a".into()],
                     state: StepState::Pending,
                     attempt: 0,

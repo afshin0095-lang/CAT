@@ -1,12 +1,18 @@
 #![forbid(unsafe_code)]
 #![deny(clippy::all)]
 
+mod audit;
+mod audit_store;
 mod compensation;
 mod dispatch_result;
 mod durable;
+mod durable_execution;
+mod durable_operator_audit;
 mod error;
 mod events;
 mod execution;
+mod execution_admission;
+mod execution_authorization_record;
 mod execution_attempt;
 mod execution_attempt_store;
 mod execution_coordinator;
@@ -21,13 +27,20 @@ mod idempotency;
 mod lease;
 mod model;
 mod monitoring_workflow;
+mod operator_access;
+mod operator_authorization_evidence;
+mod operator_identity;
 mod outbox;
 mod outbox_dispatcher;
 mod postgres;
 mod postgres_contract;
 mod postgres_outbox;
 mod provider_adapter;
+mod provider_callback;
+mod provider_callback_dispatch;
+mod provider_callback_reconciler;
 mod provider_registry;
+mod provider_execution_journal;
 mod provider_result;
 mod provider_result_store;
 mod provider_selection;
@@ -39,21 +52,27 @@ mod retry;
 mod retry_decision;
 mod scheduler;
 mod validation;
+mod workflow_registration;
 pub mod validation_gates;
 mod worker;
 
+pub use audit::ExecutionAuditEvidence;
+pub use audit_store::{ExecutionAuditEvent, ExecutionAuditQuery, ExecutionAuditStore};
 pub use compensation::{begin_compensation, compensation_order};
 pub use dispatch_result::{DispatchAction, DispatchResult};
 pub use durable::{
     DurableWorkflowStore, EventBusExecutionEventSink, ExecutionEventSink,
-    InMemoryDurableWorkflowStore, InMemoryLeaseProvider, LeaseProvider,
-    RecordingExecutionEventSink,
+    InMemoryDurableWorkflowStore, RecordingExecutionEventSink,
 };
 pub use error::{OrchestratorError, OrchestratorResult};
 pub use events::{
     WorkflowCompleted, WorkflowEventFactory, WorkflowStarted, WorkflowStepStateChanged,
 };
 pub use execution::ExecutionEngine;
+pub use execution_admission::{
+    CapabilityAdmission, CapabilityAdmissionResult, ExecutionAuthorization,
+};
+pub use execution_authorization_record::ExecutionAuthorizationRecord;
 pub use execution_attempt::{
     ExecutionAttempt, ExecutionAttemptHealth, ExecutionAttemptKey, ExecutionAttemptStatus,
 };
@@ -62,7 +81,6 @@ pub use execution_coordinator::ExecutionCoordinator;
 pub use execution_cursor::{ExecutionCursor, cursor};
 pub use execution_dispatch::{claim_step, ready_requests};
 pub use execution_event::{ExecutionEvent, ExecutionEventKind};
-pub use execution_request::ExecutionRequest;
 pub use execution_state::{ExecutionState, ExecutionStepState};
 pub use fencing::{FencedLease, FencedLeaseProvider, FencingToken, InMemoryFencedLeaseProvider};
 pub use flywheel::{FlywheelNode, FlywheelPlan, FlywheelStage};
@@ -70,16 +88,41 @@ pub use idempotency::{IdempotencyRegistry, workflow_key};
 pub use lease::Lease;
 pub use model::{StepState, WorkflowDefinition, WorkflowInstance, WorkflowState, WorkflowStep};
 pub use monitoring_workflow::{DailyMonitoringRun, MonitoringRunState};
+pub use operator_access::{
+    AuthenticationEvidence, AuthorizedAuditReader, AuthorizedAuditService, OperatorAccessPolicy,
+    OperatorAuthorizationDecision, OperatorAuthorizationOutcome, OperatorPermission,
+    OperatorPrincipal, OperatorRole, OperatorScope, OperatorAuthorizationDecisionEvidence,
+};
 pub use outbox::{DurableOutboxStore, InMemoryDurableOutbox, OutboxDisposition, OutboxRecord};
 pub use outbox_dispatcher::{OutboxDispatchOutcome, OutboxDispatcher};
 pub use postgres::{AsyncPostgresExecutionStore, PostgresExecutionStore};
 pub use postgres_contract::{PostgresDurableExecutor, PostgresSchemaV1};
 pub use postgres_outbox::{AsyncPostgresOutbox, PostgresOutboxDisposition, PostgresOutboxRecord};
+pub use operator_authorization_evidence::OperatorAuthorizationEvidenceStore;
+pub use operator_identity::{OperatorIdentityRecord, OperatorIdentityStore, OperatorSessionRecord};
+pub use durable_operator_audit::DurableOperatorAuditService;
 pub use provider_adapter::{
     ProviderExecutionAdapter, ProviderExecutionRequest, ProviderExecutionSubmission,
     idempotency_key as provider_idempotency_key, normalize_provider_outcome,
 };
+pub use provider_callback::{
+    ProviderCallback, ProviderCallbackCorrelationState, ProviderCallbackRecord,
+    ProviderCallbackReplayDisposition, ProviderCallbackReplayResult, ProviderCallbackStore,
+    ProviderCallbackVerificationEvidence,
+};
+pub use provider_callback_dispatch::{
+    ProviderCallbackDispatchDisposition, ProviderCallbackDispatchResult, ProviderCallbackDispatcher,
+    ProviderCallbackIngress, ProviderCallbackVerifier, ProviderCallbackVerifierRegistry,
+    ProviderCallbackVerifierRegistration, ProviderVerifierLifecycle,
+};
+
+pub use provider_callback_reconciler::{
+    ProviderCallbackReconciliationReport, ProviderCallbackReconciliationWorker,
+};
 pub use provider_registry::{ProviderAdapterRegistry, ProviderCapability, ProviderRegistration};
+pub use provider_execution_journal::{
+    ProviderExecutionJournalEntry, ProviderExecutionJournalEvent, ProviderExecutionJournalStore,
+};
 pub use provider_result::{ProviderExecutionRecord, ProviderOutcomeState, ReconciliationAction};
 pub use provider_selection::{
     ProviderScore, ProviderSelection, ProviderSelectionEngine, ProviderSelectionRequest,
@@ -100,5 +143,8 @@ pub use validation::{
 };
 pub use validation_gates::{ContentValidator, ValidationGate, ValidationLevel, ValidationResult};
 pub use worker::{
-    WorkerExecutionInput, WorkerExecutionOutcome, WorkerExecutionResult, WorkerExecutor,
+    AsyncWorkerExecutor, WorkerExecutionInput, WorkerExecutionOutcome, WorkerExecutionResult,
+    WorkerExecutor,
 };
+pub use workflow_registration::WorkflowRegistrationStore;
+pub use durable_execution::DurableExecutionCoordinator;

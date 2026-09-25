@@ -10,6 +10,9 @@ use crate::{CausationId, CorrelationId, EntityId, TenantId, TimestampMs};
 pub struct ExecutionContext {
     pub tenant_id: TenantId,
     pub correlation_id: CorrelationId,
+    /// Optional project/workspace scope within the tenant.
+    #[serde(default)]
+    pub project_id: Option<EntityId>,
     pub causation_id: Option<CausationId>,
     pub actor_id: EntityId,
     pub issued_at: TimestampMs,
@@ -25,10 +28,16 @@ impl ExecutionContext {
         Self {
             tenant_id,
             correlation_id,
+            project_id: None,
             causation_id: None,
             actor_id,
             issued_at,
         }
+    }
+
+    pub const fn with_project(mut self, project_id: EntityId) -> Self {
+        self.project_id = Some(project_id);
+        self
     }
 
     pub const fn with_causation(mut self, causation_id: CausationId) -> Self {

@@ -38,6 +38,7 @@ fn compensation_is_reverse_success_order() {
         steps: vec![
             WorkflowStep {
                 id: "reserve".into(),
+                capability_id: cat_kernel::CapabilityId::new("cat.capability.commerce.reserve.v1").unwrap(),
                 dependencies: vec![],
                 state: StepState::Succeeded,
                 attempt: 1,
@@ -46,6 +47,7 @@ fn compensation_is_reverse_success_order() {
             },
             WorkflowStep {
                 id: "charge".into(),
+                capability_id: cat_kernel::CapabilityId::new("cat.capability.commerce.charge.v1").unwrap(),
                 dependencies: vec!["reserve".into()],
                 state: StepState::Succeeded,
                 attempt: 1,
@@ -54,6 +56,7 @@ fn compensation_is_reverse_success_order() {
             },
             WorkflowStep {
                 id: "notify".into(),
+                capability_id: cat_kernel::CapabilityId::new("cat.capability.commerce.notify.v1").unwrap(),
                 dependencies: vec!["charge".into()],
                 state: StepState::Failed,
                 attempt: 3,

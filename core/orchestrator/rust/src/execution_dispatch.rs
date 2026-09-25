@@ -1,8 +1,8 @@
-use crate::{ExecutionEngine, ExecutionRequest, WorkflowInstance, cursor};
+use crate::{ExecutionEngine, ExecutionIntent, WorkflowInstance, cursor};
 
 /// Pure dispatcher adapter: turns the current execution cursor into requests.
 /// It does not perform I/O or execute the requested work.
-pub fn ready_requests(workflow: &WorkflowInstance, requested_at_ms: u64) -> Vec<ExecutionRequest> {
+pub fn ready_requests(workflow: &WorkflowInstance, requested_at_ms: u64) -> Vec<ExecutionIntent> {
     let view = cursor(workflow);
     view.ready_steps
         .into_iter()
@@ -13,7 +13,7 @@ pub fn ready_requests(workflow: &WorkflowInstance, requested_at_ms: u64) -> Vec<
                 .iter()
                 .find(|step| step.id == step_id)
                 .map(|step| {
-                    ExecutionRequest::new(
+                    ExecutionIntent::new(
                         workflow.id,
                         step.id.clone(),
                         step.attempt.saturating_add(1),
@@ -29,7 +29,7 @@ pub fn claim_step(
     engine: &ExecutionEngine,
     workflow: &mut WorkflowInstance,
     step_id: &str,
-) -> crate::OrchestratorResult<ExecutionRequest> {
+) -> crate::OrchestratorResult<ExecutionIntent> {
     let attempt = workflow
         .definition
         .steps
@@ -37,7 +37,7 @@ pub fn claim_step(
         .find(|step| step.id == step_id)
         .map(|step| step.attempt.saturating_add(1));
     engine.begin_step(workflow, step_id)?;
-    Ok(ExecutionRequest::new(
+    Ok(ExecutionIntent::new(
         workflow.id,
         step_id,
         attempt.unwrap_or(1),

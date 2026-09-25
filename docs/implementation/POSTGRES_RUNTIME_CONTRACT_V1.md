@@ -31,24 +31,6 @@ Exactly one affected row is required. A zero-row update is a concurrency failure
 
 The workflow update and all resulting `cat_workflow_outbox` inserts belong to one database transaction. The transaction is committed before any external EventBus publication is attempted.
 
-This gives the system restart safety:
-
-```text
-DB transaction
-   ├─ workflow revision N -> N+1
-   └─ outbox event(s)
-          ↓
-       COMMIT
-          ↓
-   dispatcher publishes
-          ↓
-   acknowledgement
-```
-
-The full event envelope metadata is persisted with the outbox record: event kind, producer, correlation ID, causation ID, subject ID, type, version, timestamp, and payload.
-
-If a process crashes after commit and before acknowledgement, the outbox remains available for another dispatcher instance.
-
 ## Outbox claiming
 
 Production dispatchers use row-level locking with `FOR UPDATE SKIP LOCKED` semantics. A claim has an owner and expiration. Expired claims can be reclaimed, while acknowledgement still requires the original claim owner.
@@ -61,21 +43,38 @@ A fenced lease has three explicit operations:
 2. `renew_fenced_lease` extends the lease only when resource, owner, token, and current lease validity all match.
 3. `validate_fencing_token` verifies that the token is still current and the lease has not expired before a side-effect-capable operation.
 
-Stale tokens are rejected. Ownership alone is never sufficient protection against an old worker continuing after lease turnover.
+## Execution and governance evidence
+
+The canonical durable execution tables are:
+
+- `cat_execution_attempts`
+- `cat_execution_authorizations`
+
+Attempt start and authorization evidence are committed in one transaction before worker dispatch.
+
+## Provider journaling
+
+The provider subsystem adds:
+
+- `cat_provider_execution_results`: current provider execution state;
+- `cat_provider_execution_journal`: append-only provider execution history.
+
+Provider submission/observation mutations update current state and append the corresponding journal record in the same transaction. Event keys provide idempotent replay safety, while execution/provider identities are conflict-checked.
+
+## Operator audit
+
+The audit subsystem adds:
+
+- `cat_execution_audit_events`: append-only audit evidence;
+- `cat_execution_audit_read_model`: latest operator-facing view per execution.
+
+An audit append transaction updates the read model with the source audit sequence. The read model is derived and can be rebuilt from the audit log.
+
+Operator queries are bounded and filtered by normalized governance fields such as agent ID, capability ID, and reconciliation action. Query authorization belongs to the higher-level Control Plane; the storage layer does not treat a read query as permission to modify execution.
 
 ## Retry and dead letters
 
-Publication failures increment the outbox attempt counter. Backoff is bounded by the CAT retry policy. Once retries are exhausted, the normal retry path ends and the event is reported as dead-lettered. A future durable DLQ workflow can consume that disposition without changing the outbox contract.
-
-## Migration
-
-The canonical schema migration creates:
-
-- `cat_workflows`
-- `cat_workflow_outbox`
-- `cat_execution_leases`
-
-The migration also includes compatibility-safe column additions for already-created outbox tables.
+Publication failures increment the outbox attempt counter. Backoff is bounded by the CAT retry policy. Once retries are exhausted, the normal retry path ends and the event is reported as dead-lettered.
 
 ## Deployment rules
 

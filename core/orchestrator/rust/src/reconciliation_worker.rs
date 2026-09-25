@@ -33,6 +33,7 @@ where
             return Ok(ReconciliationReport {
                 execution_id,
                 action: existing.action(),
+                authorization: initial.authorization.clone(),
                 provider_result: Some(existing),
             });
         }
