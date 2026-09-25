@@ -132,7 +132,8 @@ CREATE TABLE IF NOT EXISTS cat_provider_execution_callbacks (
     error TEXT,
     received_at TIMESTAMPTZ NOT NULL,
     execution_id UUID,
-    correlation_state TEXT NOT NULL CHECK (correlation_state IN ('unmatched', 'correlated')),
+    correlation_state TEXT NOT NULL CHECK (correlation_state IN ('unmatched', 'correlated', 'rejected')),
+    correlation_error TEXT,
     correlated_at TIMESTAMPTZ
 );
 
@@ -207,6 +208,7 @@ mod tests {
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::AUTHORIZATIONS));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::PROVIDER_JOURNAL));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::PROVIDER_CALLBACKS));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains("correlation_error"));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::AUDIT_EVENTS));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::AUDIT_READ_MODEL));
     }
