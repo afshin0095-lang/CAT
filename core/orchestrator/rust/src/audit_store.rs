@@ -54,6 +54,8 @@ pub trait ExecutionAuditStore: Send + Sync {
         &self,
         query: ExecutionAuditQuery,
     ) -> OrchestratorResult<Vec<ExecutionAuditEvent>>;
+
+    async fn rebuild_audit_read_model(&self) -> OrchestratorResult<u64>;
 }
 
 impl PostgresExecutionStore {
@@ -279,6 +281,34 @@ impl ExecutionAuditStore for PostgresExecutionStore {
         rows.into_iter()
             .map(decode_audit_read_model)
             .collect::<OrchestratorResult<Vec<_>>>()
+    }
+
+    async fn rebuild_audit_read_model(&self) -> OrchestratorResult<u64> {
+        let mut tx = self.pool().begin().await.map_err(db_error)?;
+
+        sqlx::query("TRUNCATE TABLE cat_execution_audit_read_model")
+            .execute(&mut *tx)
+            .await
+            .map_err(db_error)?;
+
+        let inserted = sqlx::query(
+            "INSERT INTO cat_execution_audit_read_model
+             (execution_id, event_key, workflow_id, step_id, attempt, status, action, agent_id,
+              capability_id, requested_side_effect, approval_reference, correlation_id,
+              recorded_at, source_audit_sequence, evidence)
+             SELECT DISTINCT ON (execution_id)
+                    execution_id, event_key, workflow_id, step_id, attempt, status, action, agent_id,
+                    capability_id, requested_side_effect, approval_reference, correlation_id,
+                    recorded_at, audit_sequence, evidence
+             FROM cat_execution_audit_events
+             ORDER BY execution_id, audit_sequence DESC",
+        )
+        .execute(&mut *tx)
+        .await
+        .map_err(db_error)?;
+
+        tx.commit().await.map_err(db_error)?;
+        Ok(inserted.rows_affected())
     }
 }
 
