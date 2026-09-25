@@ -161,6 +161,7 @@ CREATE TABLE IF NOT EXISTS cat_provider_execution_callbacks (
     verification_method TEXT,
     verification_algorithm TEXT,
     verification_key_reference TEXT,
+    verification_version INTEGER,
     verified_at TIMESTAMPTZ,
     received_at TIMESTAMPTZ NOT NULL,
     execution_id UUID,
@@ -252,6 +253,7 @@ mod tests {
         assert!(PostgresSchemaV1::CREATE_SQL.contains("tenant_id UUID"));
         assert!(PostgresSchemaV1::CREATE_SQL.contains("project_id UUID"));
         assert!(PostgresSchemaV1::CREATE_SQL.contains("verification_method TEXT"));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains("verification_version INTEGER"));
     }
 
     #[test]
