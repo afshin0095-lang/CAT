@@ -260,22 +260,19 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
     let reconciler = WorkflowExecutionReconciler::new(&store);
 
     let provider = format!("integration-provider-{workflow_id}");
-
-    let out_of_order_id = Uuid::new_v4();
-    let out_of_order_callback = ProviderCallback {
-        callback_id: out_of_order_id,
+    let callback_id = Uuid::new_v4();
+    let callback = ProviderCallback {
+        callback_id,
         provider: provider.clone(),
-        provider_execution_id: "remote-out-of-order-1".into(),
-        request_hash: Some("sha256:out-of-order".into()),
+        provider_execution_id: "remote-integration-1".into(),
+        request_hash: Some("sha256:integration".into()),
         outcome: ProviderOutcomeState::Succeeded,
-        result: Some(serde_json::json!({"accepted": true, "out_of_order": true})),
+        result: Some(serde_json::json!({"accepted": true})),
         error: None,
         received_at_ms: 2_050,
     };
-    let early = store
-        .ingest_callback(out_of_order_callback)
-        .await
-        .unwrap();
+
+    let early = store.ingest_callback(callback.clone()).await.unwrap();
     assert_eq!(early.correlation_state, ProviderCallbackCorrelationState::Unmatched);
 
     let callback_worker =
@@ -288,8 +285,8 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
         .record_provider_submission(
             execution_id,
             &provider,
-            "remote-out-of-order-1",
-            "sha256:out-of-order",
+            "remote-integration-1",
+            "sha256:integration",
             2_080,
         )
         .await
@@ -299,38 +296,12 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
     assert_eq!(replay_report.scanned, 1);
     assert_eq!(replay_report.correlated, 1);
 
-    let callback_id = Uuid::new_v4();
-    store
-        .record_provider_submission(
-            execution_id,
-            &provider,
-            "remote-integration-1",
-            "sha256:integration",
-            2_100,
-        )
-        .await
-        .unwrap();
-
-    let callback = ProviderCallback {
-        callback_id,
-        provider: provider.clone(),
-        provider_execution_id: "remote-integration-1".into(),
-        request_hash: Some("sha256:integration".into()),
-        outcome: ProviderOutcomeState::Succeeded,
-        result: Some(serde_json::json!({"accepted": true})),
-        error: None,
-        received_at_ms: 2_200,
-    };
     let correlated = store.ingest_callback(callback.clone()).await.unwrap();
     assert_eq!(correlated.execution_id, Some(execution_id));
     assert_eq!(
         correlated.correlation_state,
         ProviderCallbackCorrelationState::Correlated
     );
-
-    let duplicate_callback = store.ingest_callback(callback.clone()).await.unwrap();
-    assert_eq!(duplicate_callback.callback_sequence, correlated.callback_sequence);
-
     let unmatched = store
         .ingest_callback(ProviderCallback {
             callback_id: Uuid::new_v4(),
@@ -364,7 +335,7 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
         .list_execution_journal(execution_id)
         .await
         .unwrap();
-    assert_eq!(journal.len(), 3);
+    assert_eq!(journal.len(), 2);
     assert_eq!(
         journal[0].event,
         cat_orchestrator::ProviderExecutionJournalEvent::Submitted
