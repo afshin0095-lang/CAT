@@ -29,7 +29,7 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 # Active Task
 
-**Current Task:** Sprint 1 hardening — operator access + durable provider callback reconciliation
+**Current Task:** Sprint 1 hardening — durable identity/session + tenant/project authorization
 
 **Primary branch:** `feat/capability-registry-p0` / PR #61
 
@@ -61,7 +61,14 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 - bounded `ProviderCallbackReconciliationWorker` for durable out-of-order callback replay;
 - `rejected` callback state with durable `correlation_error` for non-retryable correlation conflicts;
 - replay path updates callback state, current provider result, and provider journal atomically;
-- correlation mutations require expected callback/result row updates and fail closed on partial mutation.
+- correlation mutations require expected callback/result row updates and fail closed on partial mutation;
+- `ExecutionContext` carries optional project/workspace scope with backward-compatible deserialization;
+- execution authorization evidence persists tenant/project scope;
+- audit read model/query supports tenant/project filtering;
+- durable `cat_operator_identities` + `cat_operator_sessions` tables;
+- session-based `AuthorizedAuditService` entry points;
+- tenant/project isolation and cross-project rejection covered by PostgreSQL E2E;
+- durable session expiry/revocation and scoped identity unit tests.
 
 ## Validation status
 
@@ -71,4 +78,4 @@ Local `cargo` execution remains unavailable in the working sandbox because rust-
 
 # Next Task
 
-Move operator authorization toward durable identity/session policy and tenant/project/resource scope, then add multi-provider callback dispatch while preserving the provider-local reconciliation boundary.
+Add multi-provider callback dispatch and provider-specific callback verification while preserving the durable operator identity/session and provider-local reconciliation boundaries.
