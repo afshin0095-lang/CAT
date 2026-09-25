@@ -275,6 +275,28 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
         .await
         .unwrap();
 
+    store
+        .record_provider_submission(
+            execution_id,
+            "integration-provider",
+            "remote-integration-1",
+            "sha256:integration",
+            2_100,
+        )
+        .await
+        .unwrap();
+    store
+        .record_provider_result(
+            execution_id,
+            "remote-integration-1",
+            ProviderOutcomeState::Succeeded,
+            2_200,
+            Some(serde_json::json!({"accepted": true})),
+            None,
+        )
+        .await
+        .unwrap();
+
     let journal = store
         .list_execution_journal(execution_id)
         .await
@@ -337,6 +359,15 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
         .unwrap();
     assert_eq!(queried.len(), 1);
     assert_eq!(queried[0].execution_id, execution_id);
+
+    let rebuilt = store.rebuild_audit_read_model().await.unwrap();
+    assert_eq!(rebuilt, 1);
+    let rebuilt_latest = store
+        .load_latest_audit(execution_id)
+        .await
+        .unwrap()
+        .expect("audit read model must be rebuildable");
+    assert_eq!(rebuilt_latest.event_key, "reconciliation:integration:1");
 
     sqlx::query("DELETE FROM cat_execution_authorizations WHERE execution_id = $1")
         .bind(execution_id)
