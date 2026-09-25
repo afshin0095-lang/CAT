@@ -103,6 +103,7 @@ pub use provider_adapter::{
 pub use provider_callback::{
     ProviderCallback, ProviderCallbackCorrelationState, ProviderCallbackRecord,
     ProviderCallbackReplayDisposition, ProviderCallbackReplayResult, ProviderCallbackStore,
+    ProviderCallbackVerificationEvidence,
 };
 pub use provider_callback_dispatch::{
     ProviderCallbackDispatchDisposition, ProviderCallbackDispatchResult, ProviderCallbackDispatcher,
