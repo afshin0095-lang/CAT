@@ -509,6 +509,30 @@ mod tests {
     }
 
     #[test]
+    #[test]
+    fn scoped_operator_cannot_rebuild_global_audit() {
+        let tenant = TenantId::new();
+        let principal = principal(OperatorRole::Owner)
+            .with_scope(OperatorScope::new(tenant, None).expect("scope"));
+        let service_policy = OperatorAccessPolicy;
+        let decision = service_policy.authorize(&principal, OperatorPermission::RebuildAuditReadModel);
+        assert!(decision.is_allowed());
+    }
+
+    #[test]
+    fn resource_scope_supports_exact_and_prefix_matches() {
+        let scope = OperatorScope::new(TenantId::new(), None)
+            .unwrap()
+            .with_resource("audit/read")
+            .unwrap()
+            .with_resource("provider/*")
+            .unwrap();
+        assert!(scope.allows_resource("audit/read"));
+        assert!(scope.allows_resource("provider/callback"));
+        assert!(!scope.allows_resource("billing/write"));
+    }
+
+    #[test]
     fn policy_is_copyable_and_sendable_without_shared_state() {
         let policy = OperatorAccessPolicy;
         let shared = Arc::new(policy);
