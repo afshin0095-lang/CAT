@@ -197,6 +197,7 @@ impl PostgresExecutionStore {
                 || existing_record.callback.result != callback.result
                 || existing_record.callback.error != callback.error
                 || existing_record.callback.received_at_ms != callback.received_at_ms
+                || existing_record.callback.verification != callback.verification
             {
                 return Err(OrchestratorError::Serialization(
                     "provider callback identity conflict".into(),
