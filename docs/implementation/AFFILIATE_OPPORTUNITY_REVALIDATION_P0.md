@@ -2,14 +2,16 @@
 
 ## Purpose
 
-Defines the persistence-neutral revalidation contract: what should be revalidated, why, with what priority, against which source, and how requests deduplicate and persist. Sprint 0 ships the decision layer only — no external network calls, no Orchestrator wiring.
+Defines the persistence-neutral revalidation contract: what should be revalidated, why, with what priority, against which source, and how requests deduplicate and persist. The domain decision layer remains pure, while Sprint 1 now provides an executable governed Orchestrator bridge.
 
 ## Scope
 
 - `core/affiliate/rust/src/opportunity_revalidation.rs` — request/status/decision contracts + in-memory store.
 - `core/affiliate/rust/src/revalidation_planner.rs` — deterministic planner.
 - `core/affiliate/rust/src/opportunity_postgres.rs` — durable request persistence (`PostgresRevalidationStore`).
-- `core/affiliate/rust/migrations/0002_opportunity_revalidation.sql` — additive migration.
+- `core/affiliate/rust/migrations/0002_opportunity_revalidation.sql` — additive migration;
+- `core/affiliate/rust/src/governed_revalidation.rs` — capability/workflow/worker/runner bridge;
+- `core/affiliate/rust/tests/governed_revalidation_postgres.rs` — end-to-end governed execution verification.
 
 ## Architecture
 
@@ -20,10 +22,13 @@ OpportunityRecord + FreshnessEvaluation + source availability
 RevalidationDecision { requests, skipped, blocked }
         │ store.insert (idempotent on dedup_key)
         ▼
-cat_affiliate_revalidation_requests   ←── Sprint 1 execution boundary claims here
+cat_affiliate_revalidation_requests   ←── governed runner claims here
+        │
+        ▼
+Capability Registry → Admission → Fenced Durable Execution → Revalidation Worker
 ```
 
-The planner never performs I/O and never mutates the record. Execution (calling sources, merging results) is Sprint 1's Orchestrator boundary; a REQUEST is never conflated with an ATTEMPT or a RESULT.
+The planner never performs I/O and never mutates the record. Execution (calling sources, merging results) is still outside this pure module. `GovernedRevalidationCoordinator` owns claim/transition/workflow registration/admission/dispatch bookkeeping; `GovernedRevalidationExecutor` remains the injected source-side implementation.
 
 ## Data model
 
@@ -103,6 +108,30 @@ In-memory store contract tests (dedup, transitions, claim order, bounded errors)
 - `last_error` is bounded (512 chars) and control-character sanitized; provider payloads, headers, and credentials never enter this column.
 - No secrets in errors; `claim_due` and `transition` operate on typed enums decoded strictly (statuses/priorities) or forward-compatibly (reasons).
 
+## Current executable governed path
+
+`GovernedRevalidationPlan` binds a request to workflow ID, capability ID, tenant/project scope, idempotency key, and the governed worker contract. `GovernedRevalidationCoordinator` then performs:
+
+```text
+claim_due
+   ↓
+claimed → running
+   ↓
+scope resolution
+   ↓
+workflow registration
+   ↓
+CapabilityAdmission
+   ↓
+Fenced DurableExecutionCoordinator
+   ↓
+GovernedRevalidationExecutor
+   ↓
+running → succeeded / failed
+```
+
+The current runner deliberately does not silently requeue `DispatchAction::Retry`: the request/workflow identity model does not yet provide an independent durable workflow identity per retry attempt. A retry is therefore recorded as failure until retry-attempt identity is implemented explicitly.
+
 ## Future extension points
 
 - Sprint 1: `RevalidationAttempt` ledger + result reconciliation feeding `OpportunityRevalidated` / `OpportunityRevalidationFailed` events through the Orchestrator boundary.
@@ -110,5 +139,6 @@ In-memory store contract tests (dedup, transitions, claim order, bounded errors)
 
 ## Known limitations
 
-- Attempts/results are not yet persisted (deliberate Sprint 0 boundary).
+- Source-specific execution is still injected through `GovernedRevalidationExecutor`; no concrete network/provider adapter is hard-coded into the domain bridge.
+- Automatic retry requeue is intentionally deferred until a durable retry-attempt/workflow identity mapping exists.
 - `Unknown` reasons are preserved but planning treats them as `Stale`-equivalent urgency only via explicit caller mapping; unknown reasons never silently trigger Critical paths.
