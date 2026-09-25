@@ -76,6 +76,8 @@ fn governed_fixture() -> (
         .unwrap()
         .enable();
 
+    let project_id = EntityId::new();
+
     let invocation = InvocationRequest::new(
         agent_id,
         capability_id.as_str(),
@@ -93,7 +95,6 @@ fn governed_fixture() -> (
     )
     .unwrap();
 
-    let project_id = EntityId::new();
     let workflow_id = Uuid::now_v7();
     let workflow = WorkflowInstance {
         id: workflow_id,
