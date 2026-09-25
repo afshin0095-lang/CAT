@@ -6,7 +6,7 @@ use cat_kernel::{
 };
 use cat_orchestrator::{
     AsyncWorkerExecutor, ApprovalContext, CapabilityAdmission, DispatchAction, DurableExecutionCoordinator,
-    ExecutionAuthorization, ExecutionAttemptStore, ExecutionRequest, AsyncPostgresExecutionStore,
+    ExecutionAuthorization, ExecutionAttemptStore, AsyncPostgresExecutionStore,
     RetryPolicy, StepState, WorkerExecutionInput, WorkerExecutionResult, WorkflowDefinition,
     WorkflowInstance, WorkflowRegistrationStore, WorkflowState, WorkflowStep, OrchestratorError,
     OrchestratorResult,
