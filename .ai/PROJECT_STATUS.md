@@ -33,7 +33,7 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 
 **Primary branch:** `feat/capability-registry-p0` / PR #61
 
-**Status:** Operator audit access is now implemented as executable Rust code. CI remains the authoritative compilation/test validator.
+**Status:** Operator audit access and durable provider callback replay are implemented as executable Rust code. CI remains the authoritative compilation/test validator.
 
 ## Completed in this implementation stage
 
@@ -60,7 +60,8 @@ Core implementation · Rust foundations · Event Bus · Event Store · Knowledge
 - PostgreSQL E2E coverage for correlated, duplicate, and unmatched callbacks;
 - bounded `ProviderCallbackReconciliationWorker` for durable out-of-order callback replay;
 - `rejected` callback state with durable `correlation_error` for non-retryable correlation conflicts;
-- replay path updates callback state, current provider result, and provider journal atomically.
+- replay path updates callback state, current provider result, and provider journal atomically;
+- correlation mutations require expected callback/result row updates and fail closed on partial mutation.
 
 ## Validation status
 
