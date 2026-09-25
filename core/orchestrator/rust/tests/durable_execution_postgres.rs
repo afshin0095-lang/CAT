@@ -12,7 +12,7 @@ use cat_kernel::{
 use cat_orchestrator::{
     ApprovalContext, AsyncPostgresOutbox, AsyncWorkerExecutor, CapabilityAdmission,
     DurableExecutionCoordinator, ExecutionAuditEvidence, ExecutionAttemptStore, ExecutionAuditQuery,
-    ExecutionAuditStore,
+    ExecutionAuditStore, ProviderCallback, ProviderCallbackCorrelationState, ProviderCallbackStore,
     PostgresExecutionStore, ReconciliationAction, StepState, WorkflowDefinition,
     WorkflowExecutionReconciler, WorkflowInstance, WorkflowState, WorkflowStep,
     WorkerExecutionInput, WorkerExecutionResult, ProviderExecutionJournalStore, ProviderOutcomeState,
@@ -130,6 +130,11 @@ async fn cleanup(pool: &sqlx::PgPool, workflow_id: Uuid) {
     .unwrap();
     sqlx::query("DELETE FROM cat_execution_attempts WHERE workflow_id = $1")
         .bind(workflow_id)
+        .execute(pool)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM cat_provider_execution_callbacks WHERE provider LIKE $1")
+        .bind(format!("integration-provider-{workflow_id}"))
         .execute(pool)
         .await
         .unwrap();
@@ -253,49 +258,67 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
 
     let reconciler = WorkflowExecutionReconciler::new(&store);
 
+    let provider = format!("integration-provider-{workflow_id}");
+    let callback_id = Uuid::new_v4();
     store
         .record_provider_submission(
             execution_id,
-            "integration-provider",
+            &provider,
             "remote-integration-1",
             "sha256:integration",
             2_100,
-        )
-        .await
-        .unwrap();
-    store
-        .record_provider_result(
-            execution_id,
-            "remote-integration-1",
-            ProviderOutcomeState::Succeeded,
-            2_200,
-            Some(serde_json::json!({"accepted": true})),
-            None,
         )
         .await
         .unwrap();
 
-    store
-        .record_provider_submission(
-            execution_id,
-            "integration-provider",
-            "remote-integration-1",
-            "sha256:integration",
-            2_100,
-        )
+    let callback = ProviderCallback {
+        callback_id,
+        provider: provider.clone(),
+        provider_execution_id: "remote-integration-1".into(),
+        request_hash: Some("sha256:integration".into()),
+        outcome: ProviderOutcomeState::Succeeded,
+        result: Some(serde_json::json!({"accepted": true})),
+        error: None,
+        received_at_ms: 2_200,
+    };
+    let correlated = store.ingest_callback(callback.clone()).await.unwrap();
+    assert_eq!(correlated.execution_id, Some(execution_id));
+    assert_eq!(
+        correlated.correlation_state,
+        ProviderCallbackCorrelationState::Correlated
+    );
+
+    let duplicate_callback = store.ingest_callback(callback.clone()).await.unwrap();
+    assert_eq!(duplicate_callback.callback_sequence, correlated.callback_sequence);
+
+    let unmatched = store
+        .ingest_callback(ProviderCallback {
+            callback_id: Uuid::new_v4(),
+            provider: provider.clone(),
+            provider_execution_id: "remote-unmatched-1".into(),
+            request_hash: None,
+            outcome: ProviderOutcomeState::Unknown,
+            result: None,
+            error: Some("waiting for submission".into()),
+            received_at_ms: 2_250,
+        })
         .await
         .unwrap();
-    store
-        .record_provider_result(
-            execution_id,
-            "remote-integration-1",
-            ProviderOutcomeState::Succeeded,
-            2_200,
-            Some(serde_json::json!({"accepted": true})),
-            None,
-        )
+    assert_eq!(
+        unmatched.correlation_state,
+        ProviderCallbackCorrelationState::Unmatched
+    );
+    assert_eq!(unmatched.execution_id, None);
+
+    let unmatched_rows = store
+        .list_unmatched_callbacks(&provider, 10)
         .await
         .unwrap();
+    assert_eq!(unmatched_rows.len(), 1);
+    assert_eq!(
+        unmatched_rows[0].callback.provider_execution_id,
+        "remote-unmatched-1"
+    );
 
     let journal = store
         .list_execution_journal(execution_id)
