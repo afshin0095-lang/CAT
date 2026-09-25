@@ -155,8 +155,8 @@ impl PostgresExecutionStore {
             "INSERT INTO cat_provider_execution_callbacks
              (callback_id, event_key, provider, provider_execution_id, request_hash,
               outcome_state, result, error, verification_method, verification_algorithm,
-              verification_key_reference, verified_at, received_at)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,TO_TIMESTAMP($12 / 1000.0),TO_TIMESTAMP($13 / 1000.0))
+              verification_key_reference, verification_version, verified_at, received_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,TO_TIMESTAMP($13 / 1000.0),TO_TIMESTAMP($14 / 1000.0))
              ON CONFLICT (callback_id) DO NOTHING
              RETURNING callback_sequence",
         )
@@ -171,6 +171,7 @@ impl PostgresExecutionStore {
         .bind(&callback.verification.method)
         .bind(&callback.verification.algorithm)
         .bind(&callback.verification.key_reference)
+        .bind(callback.verification.version as i32)
         .bind(callback.verification.verified_at_ms as f64)
         .bind(callback.received_at_ms as f64)
         .fetch_optional(&mut *tx)
@@ -182,7 +183,7 @@ impl PostgresExecutionStore {
                 "SELECT callback_sequence, callback_id, provider, provider_execution_id,
                         request_hash, outcome_state, result, error,
                         verification_method, verification_algorithm, verification_key_reference,
-                        EXTRACT(EPOCH FROM verified_at) * 1000 AS verified_at_ms,
+                        verification_version, EXTRACT(EPOCH FROM verified_at) * 1000 AS verified_at_ms,
                         EXTRACT(EPOCH FROM received_at) * 1000 AS received_at_ms,
                         execution_id, correlation_state, correlation_error,
                         EXTRACT(EPOCH FROM correlated_at) * 1000 AS correlated_at_ms
@@ -309,7 +310,7 @@ impl PostgresExecutionStore {
             "SELECT callback_sequence, callback_id, provider, provider_execution_id,
                     request_hash, outcome_state, result, error,
                     verification_method, verification_algorithm, verification_key_reference,
-                    EXTRACT(EPOCH FROM verified_at) * 1000 AS verified_at_ms,
+                    verification_version, EXTRACT(EPOCH FROM verified_at) * 1000 AS verified_at_ms,
                     EXTRACT(EPOCH FROM received_at) * 1000 AS received_at_ms,
                     execution_id, correlation_state, correlation_error,
                     EXTRACT(EPOCH FROM correlated_at) * 1000 AS correlated_at_ms
@@ -386,8 +387,10 @@ impl PostgresExecutionStore {
             method: row.try_get("verification_method").map_err(row_error)?,
             algorithm: row.try_get("verification_algorithm").map_err(row_error)?,
             key_reference: row.try_get("verification_key_reference").map_err(row_error)?,
+            version: row.try_get::<i32, _>("verification_version").map_err(row_error)?.max(0) as u32,
             verified_at_ms: verified_at_ms.max(0.0) as u64,
         };
+        verification.validate()?;
         verification.validate()?;
 
         let provider_row = sqlx::query(
