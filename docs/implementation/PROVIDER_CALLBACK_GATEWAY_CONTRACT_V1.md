@@ -48,7 +48,7 @@ A verifier may use:
 - canonical payload validation;
 - provider-specific replay protection.
 
-The verifier returns the normalized CAT `ProviderCallback` only after verification succeeds.
+The verifier returns the normalized CAT `ProviderCallback` only after verification succeeds. The callback carries non-secret `ProviderCallbackVerificationEvidence` containing the verification method, optional algorithm, optional key reference, and verification timestamp.
 
 ## 4. Dispatcher invariants
 
@@ -56,8 +56,8 @@ The verifier returns the normalized CAT `ProviderCallback` only after verificati
 2. A verifier must be registered under the same provider name as the ingress.
 3. A verifier cannot change callback ID, provider identity, or receipt timestamp.
 4. Normalized callback validation runs again before persistence.
-5. Persistence remains responsible for durable idempotency and execution correlation.
-6. The dispatcher does not create capability authorization or operator authority.
+6. Persistence remains responsible for durable idempotency and execution correlation.
+7. The dispatcher does not create capability authorization or operator authority.
 
 ## 5. Multi-provider design
 
