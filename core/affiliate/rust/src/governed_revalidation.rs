@@ -261,15 +261,32 @@ mod tests {
     #[test]
     fn plan_binds_workflow_to_request_and_tenant() {
         let request = request();
+        let tenant = TenantId::new();
+        let project = EntityId::new();
         let plan = GovernedRevalidationPlan::build(
             &request,
-            TenantId::new(),
-            Some(EntityId::new()),
+            tenant,
+            Some(project),
             AgentId::new(),
         )
         .unwrap();
         assert_eq!(plan.workflow.id, request.request.request_id);
         assert_eq!(plan.workflow.definition.steps[0].capability_id, plan.capability);
         assert_eq!(plan.invocation.capability, REVALIDATION_CAPABILITY_ID);
+        assert_eq!(plan.invocation.context.tenant_id, tenant);
+        assert_eq!(plan.invocation.context.project_id, Some(project));
+    }
+
+    #[test]
+    fn plan_preserves_absent_project_scope() {
+        let request = request();
+        let plan = GovernedRevalidationPlan::build(
+            &request,
+            TenantId::new(),
+            None,
+            AgentId::new(),
+        )
+        .unwrap();
+        assert_eq!(plan.invocation.context.project_id, None);
     }
 }
