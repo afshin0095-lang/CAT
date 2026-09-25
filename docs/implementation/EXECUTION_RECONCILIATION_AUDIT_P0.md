@@ -4,82 +4,107 @@ Status: Implemented on `feat/capability-registry-p0`
 
 ## Purpose
 
-This stage makes the durable authorization record a first-class input to reconciliation and audit projections.
+This stage makes durable governance and provider execution history available to reconciliation and operator-facing audit tooling.
 
 Canonical sources remain:
 
 - `cat_execution_attempts` for execution identity and lifecycle;
 - `cat_execution_authorizations` for exact capability admission evidence;
-- `cat_provider_execution_results` for provider-side observed outcomes;
-- workflow/outbox state for durable orchestration and delivery.
+- `cat_provider_execution_results` for the current provider outcome;
+- `cat_provider_execution_journal` for append-only provider execution history;
+- `cat_execution_audit_events` for append-only audit evidence;
+- `cat_execution_audit_read_model` for the latest operator-facing execution view.
 
-The audit projection is derived data, not a replacement for those sources.
+Read models never replace canonical facts.
 
 ## Reconciliation contract
 
-`ExecutionReconciliationStore` now combines the existing execution-attempt boundary with durable authorization loading.
-
-The reconciliation sequence is:
+`ExecutionReconciliationStore` loads:
 
 ```text
 attempt
    +
 authorization evidence
    +
-provider result
+current provider result
         |
         v
 deterministic reconciliation action
         |
         v
-optional ExecutionAuditEvidence
+ExecutionAuditEvidence
 ```
 
-Missing authorization evidence is not synthesized from workflow state. It produces `ManualReview`.
+Missing authorization evidence produces `ManualReview`. Provider success cannot substitute for missing governance evidence.
 
-A persisted authorization record is decoded and validated before it becomes audit evidence.
+## Durable operator audit
 
-## Audit projection
+`ExecutionAuditStore` exposes:
 
-`ExecutionAuditEvidence` combines:
+- idempotent append of a reconciliation audit event;
+- latest audit record by execution;
+- bounded operator queries filtered by agent, capability, or reconciliation action.
 
-- execution ID;
-- workflow ID;
-- step ID;
-- attempt;
-- attempt status;
-- authorization record;
-- provider execution result, when available.
+Audit writes are transactional:
 
-The projection is serializable and intended for audit consumers, reconciliation tooling, operators, and future read models.
+```text
+append-only audit event
+        +
+latest read-model upsert
+        |
+       COMMIT
+```
 
-Its construction fails closed for invalid execution identity or invalid authorization evidence.
+The read model is keyed by `execution_id` and stores the source audit sequence, so it can be rebuilt from `cat_execution_audit_events`.
+
+A conflicting reuse of an audit event key fails closed.
+
+## Provider execution journal
+
+`ProviderExecutionJournalStore` maintains append-only provider execution history.
+
+The lifecycle is:
+
+```text
+submitted
+   |
+   v
+observed outcome
+```
+
+Submission and observation journal entries use deterministic event keys. Repeated identical observations are idempotently deduplicated.
+
+The existing `cat_provider_execution_results` row remains the current-state projection used by reconciliation. Provider-result mutations now write that current row and the corresponding journal record in the same PostgreSQL transaction.
+
+A conflicting provider execution identity or terminal outcome is rejected.
 
 ## PostgreSQL + EventBus verification
 
-`core/orchestrator/rust/tests/durable_execution_postgres.rs` is environment-gated on `CAT_TEST_DATABASE_URL` or `DATABASE_URL`.
-
-With the PostgreSQL service available, the test verifies:
+`core/orchestrator/rust/tests/durable_execution_postgres.rs` verifies with a real PostgreSQL service when `CAT_TEST_DATABASE_URL` or `DATABASE_URL` is configured:
 
 1. governed execution loads its workflow from PostgreSQL;
 2. capability admission occurs before worker dispatch;
 3. the async worker receives authorization and the concrete fencing token;
 4. execution attempt + authorization evidence are committed;
-5. reconciliation reloads authorization evidence from PostgreSQL;
-6. the audit projection round-trips through JSON;
-7. the workflow event is claimed from the PostgreSQL outbox;
-8. the claimed event is delivered through the EventBus boundary;
-9. successful acknowledgement removes the outbox row.
+5. provider submission + observation are journaled;
+6. reconciliation reloads authorization and current provider outcome;
+7. the audit projection round-trips through JSON;
+8. the audit event is stored and exposed through the read model;
+9. the audit query contract returns the execution;
+10. missing authorization later forces `ManualReview` even when provider success exists;
+11. the workflow event is claimed from the PostgreSQL outbox;
+12. the claimed event is delivered through the EventBus boundary;
+13. acknowledgement removes the outbox row.
 
 ## Safety invariants
 
-1. Provider success never substitutes for missing governance evidence.
-2. Missing authorization evidence is reviewable, not silently authorized.
-3. Audit evidence is reconstructible from canonical durable state.
-4. Event publication occurs only after workflow + outbox commit.
-5. Outbox acknowledgement still requires the claim owner.
+1. Provider execution history is append-oriented and never silently rewritten.
+2. Provider current state cannot override governance evidence.
+3. Missing authorization remains reviewable.
+4. Audit read data is reconstructible from the append-only audit log.
+5. Workflow/outbox publication stays transactionally coupled.
 6. Worker-side effects remain gated by the concrete fencing token.
 
 ## Next boundary
 
-Stabilize the latest CI run on PR #61, then add durable operator-facing audit storage/read models and stronger provider result journaling keyed by `execution_id`.
+Stabilize CI on the latest PR head, then integrate operator authentication/authorization around audit queries and extend the provider journal to support callback correlation and stronger execution-result reconciliation.
