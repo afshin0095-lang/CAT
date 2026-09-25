@@ -1,5 +1,5 @@
 use crate::{
-    AgentContract, AgentId, CapabilityContract, CapabilityId, CapabilityLifecycle,
+    AgentContract, AgentId, CapabilityId, CapabilityLifecycle,
     CapabilityRegistry, KernelError, KernelResult, SideEffectClass,
 };
 
