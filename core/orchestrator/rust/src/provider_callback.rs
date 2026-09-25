@@ -114,6 +114,7 @@ impl PostgresExecutionStore {
         callback.validate()?;
 
         let event_key = callback_event_key(&callback.provider, callback.callback_id);
+        let received_at_ms = callback.received_at_ms;
         let mut tx = self.pool().begin().await.map_err(db_error)?;
 
         let inserted = sqlx::query(
@@ -227,7 +228,7 @@ impl PostgresExecutionStore {
 
         self.correlate_callback_tx(
             &mut tx,
-            callback_id(callback.callback_id),
+            callback.callback_id,
             execution_id,
             &callback.provider,
             &callback.provider_execution_id,
@@ -246,7 +247,7 @@ impl PostgresExecutionStore {
             callback,
             execution_id: Some(execution_id),
             correlation_state: ProviderCallbackCorrelationState::Correlated,
-            correlated_at_ms: Some(callback.received_at_ms),
+            correlated_at_ms: Some(received_at_ms),
             correlation_error: None,
         })
     }
@@ -491,10 +492,6 @@ impl PostgresExecutionStore {
 
         Ok(())
     }
-}
-
-fn callback_id(value: Uuid) -> Uuid {
-    value
 }
 
 #[async_trait]
