@@ -11,10 +11,11 @@ use cat_kernel::{
 };
 use cat_orchestrator::{
     ApprovalContext, AsyncPostgresOutbox, AsyncWorkerExecutor, CapabilityAdmission,
-    DurableExecutionCoordinator, ExecutionAuditEvidence, ExecutionAttemptStore,
+    DurableExecutionCoordinator, ExecutionAuditEvidence, ExecutionAttemptStore, ExecutionAuditQuery,
+    ExecutionAuditStore,
     PostgresExecutionStore, ReconciliationAction, StepState, WorkflowDefinition,
     WorkflowExecutionReconciler, WorkflowInstance, WorkflowState, WorkflowStep,
-    WorkerExecutionInput, WorkerExecutionResult,
+    WorkerExecutionInput, WorkerExecutionResult, ProviderExecutionJournalStore, ProviderOutcomeState,
 };
 use sqlx::postgres::PgPoolOptions;
 use uuid::Uuid;
@@ -251,6 +252,43 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
     );
 
     let reconciler = WorkflowExecutionReconciler::new(&store);
+
+    store
+        .record_provider_submission(
+            execution_id,
+            "integration-provider",
+            "remote-integration-1",
+            "sha256:integration",
+            2_100,
+        )
+        .await
+        .unwrap();
+    store
+        .record_provider_result(
+            execution_id,
+            "remote-integration-1",
+            ProviderOutcomeState::Succeeded,
+            2_200,
+            Some(serde_json::json!({"accepted": true})),
+            None,
+        )
+        .await
+        .unwrap();
+
+    let journal = store
+        .list_execution_journal(execution_id)
+        .await
+        .unwrap();
+    assert_eq!(journal.len(), 2);
+    assert_eq!(
+        journal[0].event,
+        cat_orchestrator::ProviderExecutionJournalEvent::Submitted
+    );
+    assert_eq!(
+        journal[1].event,
+        cat_orchestrator::ProviderExecutionJournalEvent::Observed
+    );
+
     let report = reconciler.reconcile(execution_id).await.unwrap();
     assert_eq!(report.action, ReconciliationAction::ConfirmSuccess);
     assert_eq!(
@@ -269,6 +307,36 @@ async fn durable_execution_persists_governance_and_publishes_outbox_event() {
     let encoded = serde_json::to_string(&audit).unwrap();
     let decoded: ExecutionAuditEvidence = serde_json::from_str(&encoded).unwrap();
     assert_eq!(decoded, audit);
+
+    let audit_event = report
+        .persist_audit(
+            &attempt,
+            &store,
+            "reconciliation:integration:1",
+            2_300,
+        )
+        .await
+        .unwrap();
+    assert_eq!(audit_event.execution_id, execution_id);
+
+    let latest = store
+        .load_latest_audit(execution_id)
+        .await
+        .unwrap()
+        .expect("audit read model must contain the latest execution");
+    assert_eq!(latest.event_key, "reconciliation:integration:1");
+    assert_eq!(latest.action, ReconciliationAction::ConfirmSuccess);
+
+    let queried = store
+        .query_audit(ExecutionAuditQuery {
+            capability_id: Some(capability_id.to_string()),
+            limit: 10,
+            ..Default::default()
+        })
+        .await
+        .unwrap();
+    assert_eq!(queried.len(), 1);
+    assert_eq!(queried[0].execution_id, execution_id);
 
     sqlx::query("DELETE FROM cat_execution_authorizations WHERE execution_id = $1")
         .bind(execution_id)
