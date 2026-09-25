@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS cat_provider_execution_callbacks (
     result JSONB,
     error TEXT,
     received_at TIMESTAMPTZ NOT NULL,
-    execution_id UUID REFERENCES cat_execution_attempts(execution_id) ON DELETE SET NULL,
+    execution_id UUID,
     correlation_state TEXT NOT NULL CHECK (correlation_state IN ('unmatched', 'correlated')),
     correlated_at TIMESTAMPTZ
 );
