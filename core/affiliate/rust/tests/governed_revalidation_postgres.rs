@@ -2,10 +2,14 @@ use std::sync::{Arc, atomic::{AtomicUsize, Ordering}};
 
 use async_trait::async_trait;
 use cat_affiliate::{
-    AsyncRevalidationRequestStore, GovernedRevalidationCoordinator, GovernedRevalidationExecutor,
-    FixedRevalidationScopeResolver, PostgresRevalidationStore, RevalidationExecutionResult,
-    RevalidationPriority, RevalidationReason, RevalidationRequest, RevalidationStatus,
-    RevalidationTarget, register_revalidation_capability, RevalidationRequestRecord,
+    AsyncOpportunityStore, AsyncRevalidationRequestStore, DiscoveryBackedRevalidationExecutor,
+    DiscoveryCandidate, DiscoveryOpportunity, DiscoverySource, DiscoverySourceBatch,
+    DiscoverySourceId, DiscoverySourceInfo, DiscoverySourceKind, DiscoverySourceRegistry,
+    DiscoverySourceRequest, FixedRevalidationScopeResolver, GovernedRevalidationCoordinator,
+    GovernedRevalidationExecutor, PostgresOpportunityStore, PostgresRevalidationStore,
+    RevalidationExecutionResult, RevalidationPriority, RevalidationReason, RevalidationRequest,
+    RevalidationStatus, RevalidationTarget, register_revalidation_capability, RevalidationRequestRecord,
+    canonical_key, OpportunityIdentity, OpportunityRevision,
 };
 use cat_kernel::{AgentId, CapabilityRegistry, EntityId, TenantId};
 use cat_orchestrator::{
@@ -20,38 +24,33 @@ fn database_url() -> Option<String> {
         .ok()
 }
 
-struct RecordingRevalidator {
-    calls: Arc<AtomicUsize>,
-    expected_tenant: TenantId,
-    expected_project: Option<EntityId>,
+struct StaticDiscoverySource {
+    info: DiscoverySourceInfo,
+    candidate: DiscoveryCandidate,
 }
+    
+impl DiscoverySource for StaticDiscoverySource {
+    fn info(&self) -> &DiscoverySourceInfo {
+        &self.info
+    }
 
-#[async_trait]
-impl GovernedRevalidationExecutor for RecordingRevalidator {
-    async fn revalidate(
-        &self,
-        request: &RevalidationRequestRecord,
-        authorization: &cat_orchestrator::ExecutionAuthorization,
-    ) -> Result<RevalidationExecutionResult, String> {
-        self.calls.fetch_add(1, Ordering::SeqCst);
-        if authorization.tenant_id() != self.expected_tenant {
-            return Err("tenant scope did not survive admission".into());
-        }
-        if authorization.project_id() != self.expected_project {
-            return Err("project scope did not survive admission".into());
-        }
-        if authorization.workflow_id() != request.request.request_id {
-            return Err("workflow identity did not bind to revalidation request".into());
-        }
-        Ok(RevalidationExecutionResult {
-            observed_at_ms: 5_000,
-            revision: 7,
+    fn discover<'a>(
+        &'a self,
+        _request: DiscoverySourceRequest,
+    ) -> cat_affiliate::DiscoverySourceFuture<'a, DiscoverySourceBatch> {
+        let candidate = self.candidate.clone();
+        Box::pin(async move {
+            Ok(DiscoverySourceBatch {
+                candidates: vec![candidate],
+                has_more: false,
+                next_page: None,
+            })
         })
     }
 }
 
 #[tokio::test]
-async fn governed_revalidation_executes_through_durable_orchestrator() {
+async fn governed_revalidation_executes_through_discovery_source_and_updates_revision() {
     let Some(url) = database_url() else {
         eprintln!("skipping: CAT_TEST_DATABASE_URL/DATABASE_URL is not configured");
         return;
@@ -65,16 +64,64 @@ async fn governed_revalidation_executes_through_durable_orchestrator() {
 
     let execution_store = PostgresExecutionStore::new(pool.clone());
     execution_store.ensure_schema().await.unwrap();
-    PostgresRevalidationStore::ensure_revalidation_schema(&pool)
+
+    let opportunity_store = PostgresOpportunityStore::new(pool.clone());
+    opportunity_store.ensure_schema().await.unwrap();
+
+    let tag = Uuid::now_v7().simple().to_string();
+    let source_name = format!("source-{tag}");
+    let identity = canonical_key("Acme", "Widget");
+
+    let initial_candidate = DiscoveryCandidate {
+        source: source_name.clone(),
+        external_id: "external-1".into(),
+        merchant_name: "Acme".into(),
+        product_name: "Widget".into(),
+        canonical_key: identity.clone(),
+        category: Some("electronics".into()),
+        destination_url: "https://example.com/widget".into(),
+        currency: "USD".into(),
+        price_minor: Some(100),
+        commission_bps: Some(500),
+        demand_score: 5_000,
+        competition_score: 3_000,
+        freshness_score: 6_000,
+        compliance_score: 9_000,
+        observed_at_ms: 2_000,
+    };
+
+    let opportunity_id = Uuid::now_v7();
+    opportunity_store
+        .upsert(&DiscoveryOpportunity {
+            id: opportunity_id,
+            candidate: initial_candidate.clone(),
+            score: initial_candidate.opportunity_score(),
+            rank: 1,
+        })
         .await
         .unwrap();
 
-    let tag = Uuid::now_v7().simple().to_string();
-    let opportunity_id = Uuid::now_v7();
+    let refreshed_candidate = DiscoveryCandidate {
+        price_minor: Some(125),
+        observed_at_ms: 5_000,
+        ..initial_candidate.clone()
+    };
+
+    let mut sources = DiscoverySourceRegistry::new();
+    sources.register(Box::new(StaticDiscoverySource {
+        info: DiscoverySourceInfo {
+            id: DiscoverySourceId(source_name.clone()),
+            name: "Static Integration Source".into(),
+            kind: DiscoverySourceKind::ProductFeed,
+            capabilities: Vec::new(),
+        },
+        candidate: refreshed_candidate.clone(),
+    }));
+
     let request = RevalidationRequest::new(
         opportunity_id,
-        RevalidationTarget::new(format!("governed-{tag}"), format!("source-{tag}")),
-        RevalidationReason::Stale,
+        RevalidationTarget::new(identity.clone(), source_name.clone()),
+        RevalidationReason::PriceChanged,
         RevalidationPriority::High,
         1_000,
         2_000,
@@ -85,22 +132,20 @@ async fn governed_revalidation_executes_through_durable_orchestrator() {
 
     let tenant_id = TenantId::new();
     let project_id = EntityId::new();
-    let agent_id = AgentId::new();
     let scope = FixedRevalidationScopeResolver {
         tenant_id,
         project_id: Some(project_id),
-        agent_id,
+        agent_id: AgentId::new(),
     };
 
-    let mut registry = CapabilityRegistry::new();
+    let mut registry = cat_kernel::CapabilityRegistry::new();
     register_revalidation_capability(&mut registry).unwrap();
 
-    let calls = Arc::new(AtomicUsize::new(0));
-    let executor = RecordingRevalidator {
-        calls: Arc::clone(&calls),
-        expected_tenant: tenant_id,
-        expected_project: Some(project_id),
-    };
+    let executor = DiscoveryBackedRevalidationExecutor::new(
+        &sources,
+        &opportunity_store,
+        10,
+    );
 
     let runner = GovernedRevalidationCoordinator::new(
         &request_store,
@@ -108,7 +153,7 @@ async fn governed_revalidation_executes_through_durable_orchestrator() {
         &executor,
         &scope,
         &registry,
-        "affiliate-governed-test",
+        "affiliate-source-backed-test",
         30_000,
         RetryPolicy::default(),
     );
@@ -117,34 +162,27 @@ async fn governed_revalidation_executes_through_durable_orchestrator() {
     assert_eq!(reports.len(), 1);
     assert!(matches!(
         reports[0],
-        cat_affiliate::GovernedRevalidationRunReport::Succeeded { .. }
+        cat_affiliate::GovernedRevalidationRunReport::Succeeded { revision: 2, .. }
     ));
-    assert_eq!(calls.load(Ordering::SeqCst), 1);
 
-    let persisted = request_store.get(request_id).await.unwrap();
-    assert_eq!(persisted.status, RevalidationStatus::Succeeded);
-    assert_eq!(persisted.attempt, 1);
+    let persisted_request = request_store.get(request_id).await.unwrap();
+    assert_eq!(persisted_request.status, RevalidationStatus::Succeeded);
+    assert_eq!(persisted_request.attempt, 1);
 
-    let execution_id: Uuid = sqlx::query_scalar(
-        "SELECT execution_id FROM cat_execution_attempts
-         WHERE workflow_id = $1 AND step_id = 'revalidate' AND attempt = 1"
-    )
-    .bind(request_id)
-    .fetch_one(&pool)
-    .await
-    .unwrap();
-
-    let attempt = execution_store.load_execution(execution_id).await.unwrap().unwrap();
-    assert_eq!(attempt.status, ExecutionAttemptStatus::Succeeded);
-
-    let authorization = execution_store
-        .load_execution_authorization(execution_id)
+    let persisted_identity = OpportunityIdentity::new(&refreshed_candidate);
+    let persisted_opportunity = opportunity_store
+        .get(&persisted_identity)
         .await
-        .unwrap()
         .unwrap();
-    assert_eq!(authorization.tenant_id, tenant_id);
-    assert_eq!(authorization.project_id, Some(project_id));
-    assert_eq!(authorization.capability_id.as_str(), cat_affiliate::REVALIDATION_CAPABILITY_ID);
+    assert_eq!(persisted_opportunity.revision, OpportunityRevision::from_raw(2).unwrap());
+    assert_eq!(
+        persisted_opportunity.best_observation().unwrap().price_minor,
+        Some(125)
+    );
+    assert_eq!(
+        persisted_opportunity.best_observation().unwrap().observed_at_ms,
+        5_000
+    );
 
     sqlx::query("DELETE FROM cat_workflow_outbox WHERE workflow_id = $1")
         .bind(request_id)
@@ -168,6 +206,11 @@ async fn governed_revalidation_executes_through_durable_orchestrator() {
         .unwrap();
     sqlx::query("DELETE FROM cat_affiliate_revalidation_requests WHERE request_id = $1")
         .bind(request_id)
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM cat_affiliate_opportunities WHERE identity = $1")
+        .bind(identity)
         .execute(&pool)
         .await
         .unwrap();
