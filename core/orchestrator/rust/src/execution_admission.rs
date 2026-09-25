@@ -1,7 +1,7 @@
 use cat_kernel::{
     AgentContract, AgentId, ApprovalContext, AuthorizationDecision, AuthorizationOutcome,
     AuthorizationRequest, CapabilityAuthorizationEngine, CapabilityId, CorrelationId,
-    IdempotencyKey, InvocationId, InvocationRequest, KernelError, SideEffectClass,
+    IdempotencyKey, InvocationId, InvocationRequest, KernelError, SideEffectClass, TenantId, EntityId,
 };
 use serde::Serialize;
 use uuid::Uuid;
@@ -25,6 +25,8 @@ pub struct ExecutionAuthorization {
     approval_reference: Option<String>,
     idempotency_key: IdempotencyKey,
     correlation_id: CorrelationId,
+    tenant_id: TenantId,
+    project_id: Option<EntityId>,
     admitted_at_ms: u64,
 }
 
@@ -71,6 +73,14 @@ impl ExecutionAuthorization {
 
     pub fn correlation_id(&self) -> CorrelationId {
         self.correlation_id
+    }
+
+    pub fn tenant_id(&self) -> TenantId {
+        self.tenant_id
+    }
+
+    pub fn project_id(&self) -> Option<EntityId> {
+        self.project_id
     }
 
     pub fn admitted_at_ms(&self) -> u64 {
@@ -169,6 +179,8 @@ impl<'a> CapabilityAdmission<'a> {
                     approval_reference: request.approval.reference,
                     idempotency_key: invocation.idempotency_key.clone(),
                     correlation_id: invocation.context.correlation_id,
+                    tenant_id: invocation.context.tenant_id,
+                    project_id: invocation.context.project_id,
                     admitted_at_ms,
                 },
             )),
