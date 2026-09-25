@@ -139,10 +139,45 @@ pub enum OperatorPermission {
     RebuildAuditReadModel,
 }
 
+impl OperatorPermission {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::ReadAudit => "read_audit",
+            Self::ReadAuditEvidence => "read_audit_evidence",
+            Self::RebuildAuditReadModel => "rebuild_audit_read_model",
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum OperatorAuthorizationOutcome {
     Allowed,
     Denied,
+}
+
+impl OperatorAuthorizationOutcome {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Allowed => "allowed",
+            Self::Denied => "denied",
+        }
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct OperatorAuthorizationDecisionEvidence {
+    pub decision_id: Uuid,
+    pub principal_id: Uuid,
+    pub session_id: Uuid,
+    pub role: OperatorRole,
+    pub permission: OperatorPermission,
+    pub outcome: OperatorAuthorizationOutcome,
+    pub policy_version: String,
+    pub tenant_id: Option<Uuid>,
+    pub project_id: Option<Uuid>,
+    pub authentication_method: String,
+    pub reasons: Vec<String>,
+    pub recorded_at_ms: u64,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -157,6 +192,44 @@ pub struct OperatorAuthorizationDecision {
 impl OperatorAuthorizationDecision {
     pub fn is_allowed(&self) -> bool {
         matches!(self.outcome, OperatorAuthorizationOutcome::Allowed)
+    }
+
+    pub fn evidence(
+        &self,
+        principal: &OperatorPrincipal,
+        recorded_at_ms: u64,
+    ) -> OrchestratorResult<OperatorAuthorizationDecisionEvidence> {
+        if recorded_at_ms == 0 || self.principal_id != principal.principal_id {
+            return Err(OrchestratorError::InvalidAuthorizationInput(
+                "operator authorization evidence identity or timestamp is invalid".into(),
+            ));
+        }
+
+        let (tenant_id, project_id) = principal
+            .scope
+            .as_ref()
+            .map(|scope| {
+                (
+                    Some(scope.tenant_id.as_uuid()),
+                    scope.project_id.map(|value| value.as_uuid()),
+                )
+            })
+            .unwrap_or((None, None));
+
+        Ok(OperatorAuthorizationDecisionEvidence {
+            decision_id: Uuid::now_v7(),
+            principal_id: principal.principal_id,
+            session_id: principal.authentication.session_id,
+            role: principal.role,
+            permission: self.permission,
+            outcome: self.outcome,
+            policy_version: self.policy_version.to_owned(),
+            tenant_id,
+            project_id,
+            authentication_method: principal.authentication.method.clone(),
+            reasons: self.reasons.clone(),
+            recorded_at_ms,
+        })
     }
 }
 
