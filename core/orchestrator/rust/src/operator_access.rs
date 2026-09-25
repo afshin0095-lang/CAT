@@ -11,7 +11,8 @@ use crate::{
 ///
 /// Authentication itself is intentionally outside this crate. This type represents
 /// an already-authenticated principal presented by the upstream identity layer.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum OperatorRole {
     Owner,
     Operator,
@@ -509,8 +510,7 @@ mod tests {
     }
 
     #[test]
-    #[test]
-    fn scoped_operator_cannot_rebuild_global_audit() {
+    fn scoped_owner_policy_allows_rebuild_but_service_blocks_global_audit() {
         let tenant = TenantId::new();
         let principal = principal(OperatorRole::Owner)
             .with_scope(OperatorScope::new(tenant, None).expect("scope"));
