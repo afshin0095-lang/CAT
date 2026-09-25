@@ -38,6 +38,7 @@ impl PostgresSchemaV1 {
     pub const AUTHORIZATIONS: &'static str = "cat_execution_authorizations";
     pub const OPERATOR_IDENTITIES: &'static str = "cat_operator_identities";
     pub const OPERATOR_SESSIONS: &'static str = "cat_operator_sessions";
+    pub const OPERATOR_AUTHORIZATION_DECISIONS: &'static str = "cat_operator_authorization_decisions";
     pub const PROVIDER_JOURNAL: &'static str = "cat_provider_execution_journal";
     pub const PROVIDER_CALLBACKS: &'static str = "cat_provider_execution_callbacks";
     pub const AUDIT_EVENTS: &'static str = "cat_execution_audit_events";
@@ -131,6 +132,22 @@ CREATE TABLE IF NOT EXISTS cat_operator_sessions (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CHECK (expires_at > issued_at),
     CHECK (revoked_at IS NULL OR revoked_at >= issued_at)
+);
+
+CREATE TABLE IF NOT EXISTS cat_operator_authorization_decisions (
+    decision_sequence BIGSERIAL PRIMARY KEY,
+    decision_id UUID NOT NULL UNIQUE,
+    principal_id UUID NOT NULL,
+    session_id UUID NOT NULL,
+    role TEXT NOT NULL CHECK (role IN ('owner', 'operator', 'auditor')),
+    permission TEXT NOT NULL CHECK (permission IN ('read_audit', 'read_audit_evidence', 'rebuild_audit_read_model')),
+    outcome TEXT NOT NULL CHECK (outcome IN ('allowed', 'denied')),
+    policy_version TEXT NOT NULL,
+    tenant_id UUID,
+    project_id UUID,
+    authentication_method TEXT NOT NULL,
+    reasons JSONB NOT NULL DEFAULT '[]'::jsonb,
+    recorded_at TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS cat_provider_execution_journal (
@@ -245,6 +262,7 @@ mod tests {
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::AUTHORIZATIONS));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::OPERATOR_IDENTITIES));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::OPERATOR_SESSIONS));
+        assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::OPERATOR_AUTHORIZATION_DECISIONS));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::PROVIDER_JOURNAL));
         assert!(PostgresSchemaV1::CREATE_SQL.contains(PostgresSchemaV1::PROVIDER_CALLBACKS));
         assert!(PostgresSchemaV1::CREATE_SQL.contains("correlation_error"));
